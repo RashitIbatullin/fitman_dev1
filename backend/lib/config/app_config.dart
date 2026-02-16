@@ -69,7 +69,7 @@ class AppConfig {
     // Database
     dbHost = dotEnv['DB_HOST'] ?? 'localhost';
     dbPort = int.tryParse(dotEnv['DB_PORT'] ?? '5432') ?? 5432;
-    dbName = dotEnv['DB_NAME'] ?? 'fitman_mvp2';
+    dbName = dotEnv['DB_NAME'] ?? 'fitman_dev1';
     dbUser = dotEnv['DB_USER'] ?? 'postgres';
     dbPass = dotEnv['DB_PASS'] ?? 'postgres';
 

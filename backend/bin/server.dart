@@ -46,7 +46,7 @@ void main(List<String> args) async {
       AppConfig.instance.serverPort
   );
 
-  print('🚀 FitMan Dart backend MVP2 running on http://${server.address.host}:${server.port}');
+  print('🚀 FitMan Dart backend DEV running on http://${server.address.host}:${server.port}');
 
   // Обработка graceful shutdown
   ProcessSignal.sigint.watch().listen((_) async {

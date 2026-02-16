@@ -5,7 +5,7 @@
 
     <application
         android:usesCleartextTraffic="true"
-        android:label="fitman_mvp2"
+        android:label="fitman_dev1"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

@@ -514,7 +514,7 @@ class UsersController {
       }
 
       // Создаем директорию, если ее нет
-      final uploadDir = Directory('C:/Android/PROJ/fitman_mvp2/uploads/avatars');
+      final uploadDir = Directory('C:/Android/PROJ/fitman_dev1/uploads/avatars');
       if (!await uploadDir.exists()) {
         await uploadDir.create(recursive: true);
       }
