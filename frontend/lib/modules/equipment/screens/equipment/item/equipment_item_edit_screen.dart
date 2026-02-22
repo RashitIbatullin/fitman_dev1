@@ -43,7 +43,7 @@ class _EquipmentItemEditScreenState
   late TextEditingController _nextMaintenanceDateController;
   late TextEditingController _maintenanceNotesController;
   late TextEditingController _purchaseDateController;
-  late TextEditingController _purchasePriceController;
+  // late TextEditingController _purchasePriceController; // Removed
   late TextEditingController _supplierController;
   late TextEditingController _warrantyMonthsController;
   late TextEditingController _usageHoursController;
@@ -72,7 +72,7 @@ class _EquipmentItemEditScreenState
     _nextMaintenanceDateController = TextEditingController();
     _maintenanceNotesController = TextEditingController();
     _purchaseDateController = TextEditingController();
-    _purchasePriceController = TextEditingController();
+    // _purchasePriceController = TextEditingController(); // Removed
     _supplierController = TextEditingController();
     _warrantyMonthsController = TextEditingController();
     _usageHoursController = TextEditingController(text: '0'); // Default
@@ -100,7 +100,7 @@ class _EquipmentItemEditScreenState
     _nextMaintenanceDateController.dispose();
     _maintenanceNotesController.dispose();
     _purchaseDateController.dispose();
-    _purchasePriceController.dispose();
+    // _purchasePriceController.dispose(); // Removed
     _supplierController.dispose();
     _warrantyMonthsController.dispose();
     _usageHoursController.dispose();
@@ -124,7 +124,7 @@ class _EquipmentItemEditScreenState
     _maintenanceNotesController.text = item.maintenanceNotes ?? '';
     _purchaseDateController.text =
         item.purchaseDate?.toLocal().toIso8601String().substring(0, 10) ?? '';
-    _purchasePriceController.text = item.purchasePrice?.toString() ?? '';
+    // _purchasePriceController.text = item.purchasePrice?.toString() ?? ''; // Removed
     _supplierController.text = item.supplier ?? '';
     _warrantyMonthsController.text = item.warrantyMonths?.toString() ?? '';
     _usageHoursController.text = item.usageHours.toString();
@@ -180,7 +180,7 @@ class _EquipmentItemEditScreenState
       nextMaintenanceDate: _nextMaintenanceDateController.text.isEmpty ? null : DateTime.parse(_nextMaintenanceDateController.text),
       maintenanceNotes: _maintenanceNotesController.text.isEmpty ? null : _maintenanceNotesController.text,
       purchaseDate: _purchaseDateController.text.isEmpty ? null : DateTime.parse(_purchaseDateController.text),
-      purchasePrice: _purchasePriceController.text.isEmpty ? null : double.tryParse(_purchasePriceController.text),
+      // purchasePrice: _purchasePriceController.text.isEmpty ? null : double.tryParse(_purchasePriceController.text), // Removed
       supplier: _supplierController.text.isEmpty ? null : _supplierController.text,
       warrantyMonths: _warrantyMonthsController.text.isEmpty ? null : int.tryParse(_warrantyMonthsController.text),
       usageHours: int.tryParse(_usageHoursController.text) ?? 0,
@@ -342,7 +342,7 @@ class _EquipmentItemEditScreenState
             onTap: () => _selectDate(context, _purchaseDateController),
           ),
           const SizedBox(height: 16),
-          TextFormField(controller: _purchasePriceController, decoration: const InputDecoration(labelText: 'Цена покупки', border: OutlineInputBorder()), keyboardType: const TextInputType.numberWithOptions(decimal: true)),
+          // TextFormField(controller: _purchasePriceController, decoration: const InputDecoration(labelText: 'Цена покупки', border: OutlineInputBorder()), keyboardType: const TextInputType.numberWithOptions(decimal: true)), // Removed
           const SizedBox(height: 16),
           TextFormField(controller: _supplierController, decoration: const InputDecoration(labelText: 'Поставщик', border: OutlineInputBorder())),
           const SizedBox(height: 16),
@@ -374,6 +374,7 @@ class _EquipmentItemEditScreenState
             return const Center(child: Text('Нет записей в истории обслуживания.'));
           }
           return ListView.builder(
+            padding: const EdgeInsets.all(8.0),
             itemCount: history.length,
             itemBuilder: (context, index) {
               final record = history[index];
@@ -382,7 +383,7 @@ class _EquipmentItemEditScreenState
                 child: ListTile(
                   title: Text(record.descriptionOfWork),
                   subtitle: Text('Отправлено: ${record.dateSent.toLocal().toString().substring(0, 10)}'),
-                  trailing: record.cost != null ? Text('${record.cost} руб.') : null,
+                  // trailing: record.cost != null ? Text('${record.cost} руб.') : null, // Removed
                   onTap: () => _navigateToMaintenanceHistoryEditScreen(record: record),
                 ),
               );
@@ -393,7 +394,15 @@ class _EquipmentItemEditScreenState
         error: (err, st) => Center(child: Text('Ошибка: $err')),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _navigateToMaintenanceHistoryEditScreen(),
+        onPressed: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => EquipmentMaintenanceHistoryEditScreen(
+                equipmentItemId: itemId,
+              ),
+            ),
+          );
+        },
         tooltip: 'Добавить запись',
         child: const Icon(Icons.add),
       ),

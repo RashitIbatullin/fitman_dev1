@@ -199,7 +199,6 @@ mixin _$EquipmentMaintenanceHistory {
   DateTime get dateSent => throw _privateConstructorUsedError;
   DateTime? get dateReturned => throw _privateConstructorUsedError;
   String get descriptionOfWork => throw _privateConstructorUsedError;
-  double? get cost => throw _privateConstructorUsedError;
   String? get performedBy => throw _privateConstructorUsedError;
   List<MaintenancePhoto>? get photos => throw _privateConstructorUsedError;
   DateTime? get createdAt => throw _privateConstructorUsedError;
@@ -238,7 +237,6 @@ abstract class $EquipmentMaintenanceHistoryCopyWith<$Res> {
     DateTime dateSent,
     DateTime? dateReturned,
     String descriptionOfWork,
-    double? cost,
     String? performedBy,
     List<MaintenancePhoto>? photos,
     DateTime? createdAt,
@@ -275,7 +273,6 @@ class _$EquipmentMaintenanceHistoryCopyWithImpl<
     Object? dateSent = null,
     Object? dateReturned = freezed,
     Object? descriptionOfWork = null,
-    Object? cost = freezed,
     Object? performedBy = freezed,
     Object? photos = freezed,
     Object? createdAt = freezed,
@@ -309,10 +306,6 @@ class _$EquipmentMaintenanceHistoryCopyWithImpl<
                 ? _value.descriptionOfWork
                 : descriptionOfWork // ignore: cast_nullable_to_non_nullable
                       as String,
-            cost: freezed == cost
-                ? _value.cost
-                : cost // ignore: cast_nullable_to_non_nullable
-                      as double?,
             performedBy: freezed == performedBy
                 ? _value.performedBy
                 : performedBy // ignore: cast_nullable_to_non_nullable
@@ -374,7 +367,6 @@ abstract class _$$EquipmentMaintenanceHistoryImplCopyWith<$Res>
     DateTime dateSent,
     DateTime? dateReturned,
     String descriptionOfWork,
-    double? cost,
     String? performedBy,
     List<MaintenancePhoto>? photos,
     DateTime? createdAt,
@@ -411,7 +403,6 @@ class __$$EquipmentMaintenanceHistoryImplCopyWithImpl<$Res>
     Object? dateSent = null,
     Object? dateReturned = freezed,
     Object? descriptionOfWork = null,
-    Object? cost = freezed,
     Object? performedBy = freezed,
     Object? photos = freezed,
     Object? createdAt = freezed,
@@ -445,10 +436,6 @@ class __$$EquipmentMaintenanceHistoryImplCopyWithImpl<$Res>
             ? _value.descriptionOfWork
             : descriptionOfWork // ignore: cast_nullable_to_non_nullable
                   as String,
-        cost: freezed == cost
-            ? _value.cost
-            : cost // ignore: cast_nullable_to_non_nullable
-                  as double?,
         performedBy: freezed == performedBy
             ? _value.performedBy
             : performedBy // ignore: cast_nullable_to_non_nullable
@@ -504,7 +491,6 @@ class _$EquipmentMaintenanceHistoryImpl
     required this.dateSent,
     this.dateReturned,
     required this.descriptionOfWork,
-    this.cost,
     this.performedBy,
     final List<MaintenancePhoto>? photos,
     this.createdAt,
@@ -531,8 +517,6 @@ class _$EquipmentMaintenanceHistoryImpl
   final DateTime? dateReturned;
   @override
   final String descriptionOfWork;
-  @override
-  final double? cost;
   @override
   final String? performedBy;
   final List<MaintenancePhoto>? _photos;
@@ -564,7 +548,7 @@ class _$EquipmentMaintenanceHistoryImpl
 
   @override
   String toString() {
-    return 'EquipmentMaintenanceHistory(id: $id, equipmentItemId: $equipmentItemId, dateSent: $dateSent, dateReturned: $dateReturned, descriptionOfWork: $descriptionOfWork, cost: $cost, performedBy: $performedBy, photos: $photos, createdAt: $createdAt, updatedAt: $updatedAt, createdBy: $createdBy, updatedBy: $updatedBy, archivedAt: $archivedAt, archivedBy: $archivedBy, archivedReason: $archivedReason, note: $note)';
+    return 'EquipmentMaintenanceHistory(id: $id, equipmentItemId: $equipmentItemId, dateSent: $dateSent, dateReturned: $dateReturned, descriptionOfWork: $descriptionOfWork, performedBy: $performedBy, photos: $photos, createdAt: $createdAt, updatedAt: $updatedAt, createdBy: $createdBy, updatedBy: $updatedBy, archivedAt: $archivedAt, archivedBy: $archivedBy, archivedReason: $archivedReason, note: $note)';
   }
 
   @override
@@ -581,7 +565,6 @@ class _$EquipmentMaintenanceHistoryImpl
                 other.dateReturned == dateReturned) &&
             (identical(other.descriptionOfWork, descriptionOfWork) ||
                 other.descriptionOfWork == descriptionOfWork) &&
-            (identical(other.cost, cost) || other.cost == cost) &&
             (identical(other.performedBy, performedBy) ||
                 other.performedBy == performedBy) &&
             const DeepCollectionEquality().equals(other._photos, _photos) &&
@@ -611,7 +594,6 @@ class _$EquipmentMaintenanceHistoryImpl
     dateSent,
     dateReturned,
     descriptionOfWork,
-    cost,
     performedBy,
     const DeepCollectionEquality().hash(_photos),
     createdAt,
@@ -649,7 +631,6 @@ abstract class _EquipmentMaintenanceHistory
     required final DateTime dateSent,
     final DateTime? dateReturned,
     required final String descriptionOfWork,
-    final double? cost,
     final String? performedBy,
     final List<MaintenancePhoto>? photos,
     final DateTime? createdAt,
@@ -675,8 +656,6 @@ abstract class _EquipmentMaintenanceHistory
   DateTime? get dateReturned;
   @override
   String get descriptionOfWork;
-  @override
-  double? get cost;
   @override
   String? get performedBy;
   @override

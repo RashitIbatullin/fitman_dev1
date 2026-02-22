@@ -165,6 +165,21 @@ class ApiService {
   static Future<void> archiveMaintenanceHistory(String historyId, String reason) =>
       _maintenanceApi.archiveMaintenanceHistory(historyId, reason);
 
+  static Future<String> uploadMaintenancePhoto({
+    required String maintenanceId,
+    required List<int> photoBytes,
+    required String fileName,
+    String? comment,
+    required String timing,
+  }) => _maintenanceApi.uploadMaintenancePhoto(
+        maintenanceId: maintenanceId,
+        photoBytes: photoBytes,
+        fileName: fileName,
+        comment: comment,
+        timing: timing,
+      );
+
+
 
   // --- Group Methods ---
   static Future<List<TrainingGroup>> getAllTrainingGroups({

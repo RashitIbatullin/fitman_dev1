@@ -232,8 +232,6 @@ class _EquipmentItemDetailScreenState extends ConsumerState<EquipmentItemDetailS
                         Text('Возвращено: ${record.dateReturned!.toLocal().toString().substring(0, 10)}'),
                       if (record.performedBy != null)
                         Text('Выполнено: ${record.performedBy}'),
-                      if (record.cost != null)
-                        Text('Стоимость: ${record.cost} руб.'),
                     ],
                   ),
                   trailing: const Icon(Icons.arrow_forward_ios),

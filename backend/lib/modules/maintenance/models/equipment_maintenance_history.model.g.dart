@@ -27,7 +27,6 @@ _$EquipmentMaintenanceHistoryImpl _$$EquipmentMaintenanceHistoryImplFromJson(
       ? null
       : DateTime.parse(json['dateReturned'] as String),
   descriptionOfWork: json['descriptionOfWork'] as String,
-  cost: (json['cost'] as num?)?.toDouble(),
   performedBy: json['performedBy'] as String?,
   photos: (json['photos'] as List<dynamic>?)
       ?.map((e) => MaintenancePhoto.fromJson(e as Map<String, dynamic>))
@@ -56,7 +55,6 @@ Map<String, dynamic> _$$EquipmentMaintenanceHistoryImplToJson(
   'dateSent': instance.dateSent.toIso8601String(),
   'dateReturned': instance.dateReturned?.toIso8601String(),
   'descriptionOfWork': instance.descriptionOfWork,
-  'cost': instance.cost,
   'performedBy': instance.performedBy,
   'photos': instance.photos,
   'createdAt': instance.createdAt?.toIso8601String(),

@@ -11,6 +11,7 @@ abstract class MaintenanceRepository {
   Future<EquipmentMaintenanceHistory> update(String id, EquipmentMaintenanceHistory history, String userId);
   Future<void> archive(String id, String reason, String userId);
   Future<void> unarchive(String id);
+  Future<void> addPhoto(String maintenanceId, String photoUrl, String comment, String timing, String takenBy);
 }
 
 class MaintenanceRepositoryImpl implements MaintenanceRepository {
@@ -24,11 +25,11 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
     final result = await conn.execute(
       Sql.named('''
         INSERT INTO equipment_maintenance_history (
-          equipment_item_id, date_sent, date_returned, description_of_work, cost,
+          equipment_item_id, date_sent, date_returned, description_of_work,
           performed_by, photos,
           company_id, created_at, updated_at, created_by, updated_by
         ) VALUES (
-          @equipmentItemId, @dateSent, @dateReturned, @descriptionOfWork, @cost,
+          @equipmentItemId, @dateSent, @dateReturned, @descriptionOfWork,
           @performedBy, @photos,
           -1, NOW(), NOW(), @createdBy, @updatedBy
         ) RETURNING id;
@@ -38,7 +39,6 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
         'dateSent': history.dateSent,
         'dateReturned': history.dateReturned,
         'descriptionOfWork': history.descriptionOfWork,
-        'cost': history.cost,
         'performedBy': history.performedBy,
         'photos': history.photos != null ? jsonEncode(history.photos!.map((p) => p.toJson()).toList()) : null,
         'createdBy': userId,
@@ -102,7 +102,6 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
           date_sent = @dateSent,
           date_returned = @dateReturned,
           description_of_work = @descriptionOfWork,
-          cost = @cost,
           performed_by = @performedBy,
           photos = @photos,
           updated_at = NOW(),
@@ -114,7 +113,6 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
         'dateSent': history.dateSent,
         'dateReturned': history.dateReturned,
         'descriptionOfWork': history.descriptionOfWork,
-        'cost': history.cost,
         'performedBy': history.performedBy,
         'photos': history.photos != null ? jsonEncode(history.photos!.map((p) => p.toJson()).toList()) : null,
         'updatedBy': userId,
@@ -145,6 +143,24 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
           'UPDATE equipment_maintenance_history SET archived_at = NULL, archived_by = NULL, archived_reason = NULL WHERE id = @id'),
       parameters: {
         'id': id,
+      },
+    );
+  }
+
+  @override
+  Future<void> addPhoto(String maintenanceId, String photoUrl, String comment, String timing, String takenBy) async {
+    final conn = await _db.connection;
+    await conn.execute(
+      Sql.named('''
+        INSERT INTO maintenance_photos (maintenance_id, url, comment, timing, taken_by)
+        VALUES (@maintenanceId, @url, @comment, @timing, @takenBy)
+      '''),
+      parameters: {
+        'maintenanceId': maintenanceId,
+        'url': photoUrl,
+        'comment': comment,
+        'timing': timing,
+        'takenBy': takenBy,
       },
     );
   }

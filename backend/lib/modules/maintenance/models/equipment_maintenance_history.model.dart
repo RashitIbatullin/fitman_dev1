@@ -23,7 +23,6 @@ class EquipmentMaintenanceHistory with _$EquipmentMaintenanceHistory {
     required DateTime dateSent,
     DateTime? dateReturned,
     required String descriptionOfWork,
-    double? cost,
     String? performedBy,
     List<MaintenancePhoto>? photos,
     DateTime? createdAt,

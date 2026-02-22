@@ -22,8 +22,7 @@ class MaintenanceDetailsScreen extends StatelessWidget {
             _buildDetailRow(label: 'Дата отправки:', value: record.dateSent.toLocal().toString().substring(0, 10)),
             if (record.dateReturned != null)
               _buildDetailRow(label: 'Дата возврата:', value: record.dateReturned!.toLocal().toString().substring(0, 10)),
-            if (record.cost != null)
-              _buildDetailRow(label: 'Стоимость:', value: '${record.cost} руб.'),
+
             if (record.performedBy != null)
               _buildDetailRow(label: 'Кем выполнено:', value: record.performedBy!),
             if (record.photos != null && record.photos!.isNotEmpty) ...[

@@ -29,7 +29,7 @@ class MaintenanceDashboardScreen extends ConsumerWidget {
                   title: Text(record.descriptionOfWork),
                   subtitle: Text(
                       'Оборудование: ${record.equipmentItemId} - Отправлено: ${record.dateSent.toLocal().toString().substring(0, 10)}'),
-                  trailing: record.cost != null ? Text('${record.cost} руб.') : null,
+
                   onTap: () {
                     // Note: This navigation might not be ideal since the edit screen is in the equipment module
                     // but it's what's available from previous steps.

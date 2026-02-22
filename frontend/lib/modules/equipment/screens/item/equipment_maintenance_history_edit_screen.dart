@@ -1,7 +1,9 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fitman_app/modules/maintenance/models/equipment_maintenance_history.model.dart';
 import 'package:fitman_app/modules/maintenance/providers/maintenance_provider.dart';
+import 'package:fitman_app/services/api_service.dart';
 
 class EquipmentMaintenanceHistoryEditScreen extends ConsumerStatefulWidget {
   final String equipmentItemId;
@@ -27,8 +29,9 @@ class _EquipmentMaintenanceHistoryEditScreenState
   late TextEditingController _costController;
   late TextEditingController _performedByController;
   
-  final List<TextEditingController> _photoUrlControllers = [];
-  final List<TextEditingController> _photoNoteControllers = [];
+  // State for holding picked files
+  final List<PlatformFile> _beforeFiles = [];
+  final List<PlatformFile> _afterFiles = [];
 
   bool _isLoading = false;
 
@@ -36,18 +39,13 @@ class _EquipmentMaintenanceHistoryEditScreenState
   void initState() {
     super.initState();
     final record = widget.historyRecord;
-    _dateSentController = TextEditingController(text: record?.dateSent.toLocal().toString().substring(0, 10) ?? '');
+    _dateSentController = TextEditingController(text: record?.dateSent.toLocal().toString().substring(0, 10) ?? DateTime.now().toLocal().toString().substring(0, 10));
     _dateReturnedController = TextEditingController(text: record?.dateReturned?.toLocal().toString().substring(0, 10) ?? '');
     _descriptionController = TextEditingController(text: record?.descriptionOfWork ?? '');
-    _costController = TextEditingController(text: record?.cost?.toString() ?? '');
     _performedByController = TextEditingController(text: record?.performedBy ?? '');
 
-    if (record != null && record.photos != null) {
-      for (var photo in record.photos!) { 
-        _photoUrlControllers.add(TextEditingController(text: photo.url));
-        _photoNoteControllers.add(TextEditingController(text: photo.note));
-      }
-    }
+    // Note: We can't edit existing photos with this new mechanism, only add new ones.
+    // This is a simplification for this step.
   }
 
   @override
@@ -57,43 +55,22 @@ class _EquipmentMaintenanceHistoryEditScreenState
     _descriptionController.dispose();
     _costController.dispose();
     _performedByController.dispose();
-    for (var controller in _photoUrlControllers) {
-      controller.dispose();
-    }
-    for (var controller in _photoNoteControllers) {
-      controller.dispose();
-    }
     super.dispose();
   }
 
-  Future<void> _selectDate(BuildContext context, TextEditingController controller) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.tryParse(controller.text) ?? DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
+  Future<void> _pickFiles(List<PlatformFile> fileList) async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+      allowMultiple: true,
     );
-    if (picked != null) {
-      controller.text = picked.toLocal().toIso8601String().substring(0, 10);
+
+    if (result != null) {
+      setState(() {
+        fileList.addAll(result.files);
+      });
     }
   }
-
-  void _addPhotoField() {
-    setState(() {
-      _photoUrlControllers.add(TextEditingController());
-      _photoNoteControllers.add(TextEditingController());
-    });
-  }
-
-  void _removePhotoField(int index) {
-    setState(() {
-      _photoUrlControllers[index].dispose();
-      _photoNoteControllers[index].dispose();
-      _photoUrlControllers.removeAt(index);
-      _photoNoteControllers.removeAt(index);
-    });
-  }
-
+  
   Future<void> _saveForm() async {
     if (!_formKey.currentState!.validate()) {
       return;
@@ -101,41 +78,65 @@ class _EquipmentMaintenanceHistoryEditScreenState
 
     setState(() => _isLoading = true);
 
-    final photos = <MaintenancePhoto>[];
-    for (int i = 0; i < _photoUrlControllers.length; i++) {
-      final url = _photoUrlControllers[i].text;
-      if (url.isNotEmpty) {
-        photos.add(MaintenancePhoto(
-          url: url,
-          note: _photoNoteControllers[i].text,
-        ));
-      }
-    }
-
-    final newRecord = EquipmentMaintenanceHistory(
-      id: widget.historyRecord?.id ?? '',
-      equipmentItemId: widget.equipmentItemId,
-      dateSent: DateTime.parse(_dateSentController.text),
-      dateReturned: _dateReturnedController.text.isEmpty ? null : DateTime.parse(_dateReturnedController.text),
-      descriptionOfWork: _descriptionController.text,
-      cost: _costController.text.isEmpty ? null : double.tryParse(_costController.text),
-      performedBy: _performedByController.text.isEmpty ? null : _performedByController.text,
-      photos: photos,
-    );
-
     try {
-      final notifier = ref.read(maintenanceProvider.notifier);
-      if (widget.historyRecord == null) {
-        await notifier.createMaintenanceHistory(newRecord);
+      // First, create/update the record to get an ID
+      final isCreating = widget.historyRecord == null;
+      EquipmentMaintenanceHistory recordToSave;
+
+      if (isCreating) {
+        // Create a temporary record without photos
+        recordToSave = EquipmentMaintenanceHistory(
+          id: '', // Will be ignored by backend create
+          equipmentItemId: widget.equipmentItemId,
+          dateSent: DateTime.parse(_dateSentController.text),
+          dateReturned: _dateReturnedController.text.isEmpty ? null : DateTime.parse(_dateReturnedController.text),
+          descriptionOfWork: _descriptionController.text,
+          performedBy: _performedByController.text.isEmpty ? null : _performedByController.text,
+          photos: [], // Empty for now
+        );
+        recordToSave = await ApiService.createMaintenanceHistory(recordToSave);
       } else {
-        await notifier.updateMaintenanceHistory(widget.historyRecord!.id, newRecord);
+        recordToSave = widget.historyRecord!;
+         // Update other fields if necessary
+        final updatedRecord = recordToSave.copyWith(
+          dateSent: DateTime.parse(_dateSentController.text),
+          dateReturned: _dateReturnedController.text.isEmpty ? null : DateTime.parse(_dateReturnedController.text),
+          descriptionOfWork: _descriptionController.text,
+          performedBy: _performedByController.text.isEmpty ? null : _performedByController.text,
+        );
+        recordToSave = await ApiService.updateMaintenanceHistory(updatedRecord.id, updatedRecord);
       }
+
+      // Now, upload photos with the record ID
+      for (final file in _beforeFiles) {
+        await ApiService.uploadMaintenancePhoto(
+          maintenanceId: recordToSave.id,
+          photoBytes: file.bytes!,
+          fileName: file.name,
+          timing: 'before',
+        );
+      }
+      for (final file in _afterFiles) {
+        await ApiService.uploadMaintenancePhoto(
+          maintenanceId: recordToSave.id,
+          photoBytes: file.bytes!,
+          fileName: file.name,
+          timing: 'after',
+        );
+      }
+      
+      ref.invalidate(maintenanceHistoryProvider(widget.equipmentItemId));
+
       if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Запись сохранена'), backgroundColor: Colors.green),
+      );
       Navigator.of(context).pop(true);
+
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Ошибка: $e'), backgroundColor: Colors.red),
+        SnackBar(content: Text('Ошибка сохранения: $e'), backgroundColor: Colors.red),
       );
     } finally {
       if (mounted) {
@@ -194,54 +195,77 @@ class _EquipmentMaintenanceHistoryEditScreenState
                 decoration: const InputDecoration(labelText: 'Кем выполнено', border: OutlineInputBorder()),
               ),
               const SizedBox(height: 24),
-              Text('Фотографии', style: Theme.of(context).textTheme.titleLarge),
-              ..._buildPhotoFields(),
-              const SizedBox(height: 8),
-              ElevatedButton.icon(
-                icon: const Icon(Icons.add_a_photo),
-                label: const Text('Добавить фото'),
-                onPressed: _addPhotoField,
-              ),
+              _buildPhotoSection(context, 'Фото "До"', _beforeFiles),
+              const SizedBox(height: 16),
+              _buildPhotoSection(context, 'Фото "После"', _afterFiles),
             ],
           ),
         ),
       ),
     );
   }
-
-  List<Widget> _buildPhotoFields() {
-    final fields = <Widget>[];
-    for (int i = 0; i < _photoUrlControllers.length; i++) {
-      fields.add(
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Column(
-                  children: [
-                    TextFormField(
-                      controller: _photoUrlControllers[i],
-                      decoration: const InputDecoration(labelText: 'URL Фото', border: OutlineInputBorder()),
-                    ),
-                    const SizedBox(height: 8),
-                    TextFormField(
-                      controller: _photoNoteControllers[i],
-                      decoration: const InputDecoration(labelText: 'Примечание к фото', border: OutlineInputBorder()),
-                    ),
-                  ],
+  
+  Widget _buildPhotoSection(BuildContext context, String title, List<PlatformFile> files) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title, style: Theme.of(context).textTheme.titleLarge),
+        const SizedBox(height: 8),
+        SizedBox(
+          height: 100,
+          child: files.isEmpty
+              ? const Center(child: Text('Нет выбранных фото'))
+              : ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: files.length,
+                  itemBuilder: (context, index) {
+                    final file = files[index];
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 8.0),
+                      child: Stack(
+                        children: [
+                          Image.memory(file.bytes!, width: 100, height: 100, fit: BoxFit.cover),
+                          Positioned(
+                            top: 0,
+                            right: 0,
+                            child: InkWell(
+                              onTap: () {
+                                setState(() {
+                                  files.removeAt(index);
+                                });
+                              },
+                              child: const CircleAvatar(
+                                radius: 12,
+                                backgroundColor: Colors.red,
+                                child: Icon(Icons.close, color: Colors.white, size: 16),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
                 ),
-              ),
-              IconButton(
-                icon: const Icon(Icons.remove_circle_outline, color: Colors.red),
-                onPressed: () => _removePhotoField(i),
-              ),
-            ],
-          ),
         ),
-      );
+        const SizedBox(height: 8),
+        ElevatedButton.icon(
+          icon: const Icon(Icons.add_a_photo),
+          label: const Text('Добавить фото'),
+          onPressed: () => _pickFiles(files),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _selectDate(BuildContext context, TextEditingController controller) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.tryParse(controller.text) ?? DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+    if (picked != null) {
+      controller.text = picked.toLocal().toIso8601String().substring(0, 10);
     }
-    return fields;
   }
 }

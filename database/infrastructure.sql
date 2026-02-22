@@ -557,7 +557,7 @@ CREATE TABLE equipment_maintenance_history (
   date_returned DATE,
   
   description_of_work TEXT NOT NULL,
-  cost DECIMAL(10, 2),
+
   performed_by VARCHAR(255),
   
 

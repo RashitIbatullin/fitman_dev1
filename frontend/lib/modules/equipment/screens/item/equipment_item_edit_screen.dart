@@ -378,7 +378,6 @@ class _EquipmentItemEditScreenState
                 child: ListTile(
                   title: Text(record.descriptionOfWork),
                   subtitle: Text('Отправлено: ${record.dateSent.toLocal().toString().substring(0, 10)}'),
-                  trailing: record.cost != null ? Text('${record.cost} руб.') : null,
                   onTap: () => _navigateToMaintenanceHistoryEditScreen(record: record),
                 ),
               );

@@ -34,4 +34,8 @@ class MaintenanceService {
   Future<void> unarchive(String id) {
     return _maintenanceRepository.unarchive(id);
   }
+
+  Future<void> addPhoto(String maintenanceId, String photoUrl, String comment, String timing, String takenBy) {
+    return _maintenanceRepository.addPhoto(maintenanceId, photoUrl, comment, timing, takenBy);
+  }
 }

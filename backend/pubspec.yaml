@@ -26,6 +26,8 @@ dependencies:
   redis: ^4.0.0
   dart_frog_web_socket: ^1.0.0
   uuid: ^4.0.0
+  http_parser: ^4.0.2
+  mime: ^1.0.4
 
 dev_dependencies:
   dart_frog_gen: ^2.0.0
