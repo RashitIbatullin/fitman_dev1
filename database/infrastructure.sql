@@ -560,7 +560,7 @@ CREATE TABLE equipment_maintenance_history (
   cost DECIMAL(10, 2),
   performed_by VARCHAR(255),
   
-  photos JSONB, -- Массив объектов: [{"url": "...", "note": "..."}, ...]
+
 
   -- Системные поля
   company_id BIGINT DEFAULT -1,

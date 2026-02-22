@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
-import 'package:fitman_backend/modules/equipment/models/equipment_maintenance_history.model.dart';
+import 'package:fitman_backend/modules/maintenance/models/equipment_maintenance_history.model.dart';
 import 'package:fitman_backend/modules/equipment/services/equipment.service.dart';
 
 class EquipmentMaintenanceHistoryController {

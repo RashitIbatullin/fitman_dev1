@@ -5,7 +5,6 @@ part 'equipment_maintenance_history.model.freezed.dart';
 part 'equipment_maintenance_history.model.g.dart';
 
 @freezed
-@JsonSerializable() // Add JsonSerializable here
 class MaintenancePhoto with _$MaintenancePhoto {
   const factory MaintenancePhoto({
     required String url,
@@ -17,7 +16,6 @@ class MaintenancePhoto with _$MaintenancePhoto {
 }
 
 @freezed
-@JsonSerializable(explicitToJson: true)
 class EquipmentMaintenanceHistory with _$EquipmentMaintenanceHistory {
   const factory EquipmentMaintenanceHistory({
     required String id,

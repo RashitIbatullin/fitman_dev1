@@ -1,7 +1,7 @@
 
 import 'package:fitman_backend/modules/equipment/models/equipment/equipment_item.model.dart';
 import 'package:fitman_backend/modules/equipment/models/equipment/equipment_type.model.dart';
-import 'package:fitman_backend/modules/equipment/models/equipment_maintenance_history.model.dart';
+import 'package:fitman_backend/modules/maintenance/models/equipment_maintenance_history.model.dart';
 import 'package:fitman_backend/modules/equipment/repositories/equipment_item.repository.dart';
 import 'package:fitman_backend/modules/equipment/repositories/equipment_maintenance_history.repository.dart';
 import 'package:fitman_backend/modules/equipment/repositories/equipment_type.repository.dart';

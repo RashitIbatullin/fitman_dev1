@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fitman_app/modules/equipment/models/equipment_maintenance_history.model.dart';
+import 'package:fitman_app/modules/maintenance/models/equipment_maintenance_history.model.dart';
 import 'package:fitman_app/modules/equipment/providers/equipment/equipment_provider.dart';
 
 class EquipmentMaintenanceHistoryEditScreen extends ConsumerStatefulWidget {

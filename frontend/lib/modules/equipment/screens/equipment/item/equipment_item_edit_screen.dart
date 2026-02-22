@@ -6,7 +6,7 @@ import 'package:fitman_app/modules/equipment/providers/equipment/equipment_provi
 import 'package:fitman_app/modules/equipment/models/equipment/equipment_item.model.dart';
 import 'package:fitman_app/modules/equipment/models/equipment/equipment_status.enum.dart';
 import 'package:fitman_app/modules/rooms/providers/room/room_provider.dart';
-import 'package:fitman_app/modules/equipment/models/equipment_maintenance_history.model.dart';
+import 'package:fitman_app/modules/maintenance/models/equipment_maintenance_history.model.dart';
 import 'equipment_maintenance_history_edit_screen.dart';
 import 'package:fitman_app/modules/rooms/models/room/room.model.dart';
 import 'package:fitman_app/modules/equipment/models/equipment/equipment_type.model.dart';

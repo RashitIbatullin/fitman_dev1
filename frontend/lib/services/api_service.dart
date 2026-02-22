@@ -29,7 +29,7 @@ import '../modules/groups/models/analytic_group.model.dart';
 import '../modules/groups/models/group_schedule.model.dart';
 import 'package:fitman_app/modules/equipment/models/equipment/equipment_category.enum.dart';
 import '../modules/groups/models/training_group_type.model.dart';
-import '../modules/equipment/models/equipment_maintenance_history.model.dart';
+import '../modules/maintenance/models/equipment_maintenance_history.model.dart';
 
 
 class ApiService {

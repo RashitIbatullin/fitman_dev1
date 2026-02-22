@@ -4,7 +4,7 @@ import 'package:fitman_app/modules/equipment/models/equipment/equipment_item.mod
 import 'package:fitman_app/modules/equipment/models/equipment/equipment_type.model.dart';
 import 'package:fitman_app/modules/equipment/models/equipment/equipment_status.enum.dart';
 import 'package:fitman_app/modules/equipment/models/equipment/equipment_category.enum.dart';
-import 'package:fitman_app/modules/equipment/models/equipment_maintenance_history.model.dart';
+import 'package:fitman_app/modules/maintenance/models/equipment_maintenance_history.model.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'equipment_provider.g.dart';

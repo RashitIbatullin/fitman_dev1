@@ -6,7 +6,7 @@ part of 'support_staff_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$allSupportStaffHash() => r'2db9260c4345207eddd3c33e7c417b649f7be4bf';
+String _$allSupportStaffHash() => r'886e64e2dd5d8c1bc4abe3b7a2078ed5c8ea6649';
 
 /// See also [allSupportStaff].
 @ProviderFor(allSupportStaff)
@@ -24,7 +24,7 @@ final allSupportStaffProvider =
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef AllSupportStaffRef = AutoDisposeFutureProviderRef<List<SupportStaff>>;
-String _$supportStaffByIdHash() => r'ba2cdfe44e66444a9586015dc2be0d39371d6aeb';
+String _$supportStaffByIdHash() => r'72c17f157c474e1ffa5eabcf6cc067db0bc2c338';
 
 /// Copied from Dart SDK
 class _SystemHash {
