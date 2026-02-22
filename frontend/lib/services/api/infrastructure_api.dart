@@ -1,7 +1,7 @@
 import '../../modules/equipment/models/equipment/equipment_item.model.dart';
 import '../../modules/equipment/models/equipment/equipment_type.model.dart';
 import '../../modules/equipment/models/equipment/equipment_category.enum.dart';
-import '../../modules/maintenance/models/equipment_maintenance_history.model.dart';
+
 import '../../modules/rooms/models/building/building.model.dart';
 import '../../modules/rooms/models/room/room.model.dart';
 import 'base_api.dart';
@@ -160,24 +160,4 @@ class InfrastructureApiService extends BaseApiService {
     await put('/api/equipment/types/$id/unarchive', body: {});
   }
 
-  // --- Maintenance History Methods ---
-
-  Future<List<EquipmentMaintenanceHistory>> getMaintenanceHistory(String itemId) async {
-    final data = await get('/api/equipment/maintenance/item/$itemId');
-    return (data as List).map((json) => EquipmentMaintenanceHistory.fromJson(json)).toList();
-  }
-
-  Future<EquipmentMaintenanceHistory> createMaintenanceHistory(EquipmentMaintenanceHistory history) async {
-    final data = await post('/api/equipment/maintenance', body: history.toJson());
-    return EquipmentMaintenanceHistory.fromJson(data);
-  }
-
-  Future<EquipmentMaintenanceHistory> updateMaintenanceHistory(String historyId, EquipmentMaintenanceHistory history) async {
-    final data = await put('/api/equipment/maintenance/$historyId', body: history.toJson());
-    return EquipmentMaintenanceHistory.fromJson(data);
-  }
-
-  Future<void> archiveMaintenanceHistory(String historyId, String reason) async {
-    await delete('/api/equipment/maintenance/$historyId', body: {'reason': reason});
-  }
 }

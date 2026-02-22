@@ -6,6 +6,7 @@ import 'api/chat_api.dart';
 import 'api/client_api.dart';
 import 'api/groups_api.dart';
 import 'api/infrastructure_api.dart';
+import 'api/maintenance_api.dart';
 import 'api/instructor_api.dart';
 import 'api/manager_api.dart';
 import 'api/recommendation_api.dart';
@@ -36,6 +37,7 @@ class ApiService {
   // Instantiate all the modular services
   static final AuthApiService _authApi = AuthApiService();
   static final InfrastructureApiService _infrastructureApi = InfrastructureApiService();
+  static final MaintenanceApiService _maintenanceApi = MaintenanceApiService();
   static final GroupsApiService _groupsApi = GroupsApiService();
   static final ChatApiService _chatApi = ChatApiService();
   static final ManagerApiService _managerApi = ManagerApiService();
@@ -150,16 +152,18 @@ class ApiService {
       _infrastructureApi.unarchiveEquipmentType(id);
 
   // --- Maintenance History Methods ---
+  static Future<List<EquipmentMaintenanceHistory>> getAllMaintenanceHistory() =>
+      _maintenanceApi.getAllMaintenanceHistory();
   static Future<List<EquipmentMaintenanceHistory>> getMaintenanceHistory(String itemId) =>
-      _infrastructureApi.getMaintenanceHistory(itemId);
+      _maintenanceApi.getMaintenanceHistory(itemId);
   static Future<EquipmentMaintenanceHistory> createMaintenanceHistory(
           EquipmentMaintenanceHistory history) =>
-      _infrastructureApi.createMaintenanceHistory(history);
+      _maintenanceApi.createMaintenanceHistory(history);
   static Future<EquipmentMaintenanceHistory> updateMaintenanceHistory(
           String historyId, EquipmentMaintenanceHistory history) =>
-      _infrastructureApi.updateMaintenanceHistory(historyId, history);
+      _maintenanceApi.updateMaintenanceHistory(historyId, history);
   static Future<void> archiveMaintenanceHistory(String historyId, String reason) =>
-      _infrastructureApi.archiveMaintenanceHistory(historyId, reason);
+      _maintenanceApi.archiveMaintenanceHistory(historyId, reason);
 
 
   // --- Group Methods ---

@@ -4,7 +4,7 @@ import 'package:fitman_app/modules/equipment/models/equipment/equipment_item.mod
 import 'package:fitman_app/modules/equipment/models/equipment/equipment_type.model.dart';
 import 'package:fitman_app/modules/equipment/models/equipment/equipment_status.enum.dart';
 import 'package:fitman_app/modules/equipment/models/equipment/equipment_category.enum.dart';
-import 'package:fitman_app/modules/maintenance/models/equipment_maintenance_history.model.dart';
+
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'equipment_provider.g.dart';
@@ -64,30 +64,6 @@ class Equipment extends _$Equipment {
     });
   }
 
-  // --- Maintenance History Methods ---
-  Future<void> createMaintenanceHistory(EquipmentMaintenanceHistory history) async {
-    state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() async {
-      await ApiService.createMaintenanceHistory(history);
-      ref.invalidate(maintenanceHistoryProvider(history.equipmentItemId));
-    });
-  }
-
-  Future<void> updateMaintenanceHistory(String historyId, EquipmentMaintenanceHistory history) async {
-    state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() async {
-      await ApiService.updateMaintenanceHistory(historyId, history);
-      ref.invalidate(maintenanceHistoryProvider(history.equipmentItemId));
-    });
-  }
-
-  Future<void> archiveMaintenanceHistory(String historyId, String itemId, String reason) async {
-    state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() async {
-      await ApiService.archiveMaintenanceHistory(historyId, reason);
-      ref.invalidate(maintenanceHistoryProvider(itemId));
-    });
-  }
 }
 
 // --- Equipment Type Providers ---
@@ -121,11 +97,4 @@ final allEquipmentItemsProvider =
 final equipmentItemByIdProvider =
     FutureProvider.family<EquipmentItem, String>((ref, id) async {
   return ApiService.getEquipmentItemById(id);
-});
-
-// --- Maintenance History Providers ---
-
-final maintenanceHistoryProvider =
-    FutureProvider.family<List<EquipmentMaintenanceHistory>, String>((ref, itemId) async {
-  return ApiService.getMaintenanceHistory(itemId);
 });

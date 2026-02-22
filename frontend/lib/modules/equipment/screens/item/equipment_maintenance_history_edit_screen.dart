@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fitman_app/modules/maintenance/models/equipment_maintenance_history.model.dart';
-import 'package:fitman_app/modules/equipment/providers/equipment/equipment_provider.dart';
+import 'package:fitman_app/modules/maintenance/providers/maintenance_provider.dart';
 
 class EquipmentMaintenanceHistoryEditScreen extends ConsumerStatefulWidget {
   final String equipmentItemId;
@@ -124,7 +124,7 @@ class _EquipmentMaintenanceHistoryEditScreenState
     );
 
     try {
-      final notifier = ref.read(equipmentProvider.notifier);
+      final notifier = ref.read(maintenanceProvider.notifier);
       if (widget.historyRecord == null) {
         await notifier.createMaintenanceHistory(newRecord);
       } else {

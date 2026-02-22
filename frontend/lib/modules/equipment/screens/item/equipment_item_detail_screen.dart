@@ -1,11 +1,15 @@
 import 'package:fitman_app/modules/equipment/models/equipment/equipment_item.model.dart';
 import 'package:fitman_app/modules/equipment/screens/equipment/item/equipment_item_edit_screen.dart';
+import 'package:fitman_app/modules/equipment/screens/item/equipment_maintenance_history_edit_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fitman_app/modules/equipment/providers/equipment/equipment_provider.dart';
+import 'package:fitman_app/modules/maintenance/providers/maintenance_provider.dart';
 import 'package:fitman_app/modules/equipment/models/equipment/equipment_status.enum.dart';
 import 'package:fitman_app/modules/rooms/providers/room/room_provider.dart';
 import 'package:fitman_app/modules/users/providers/users_provider.dart'; 
+
+import 'package:fitman_app/modules/maintenance/screens/maintenance_details_screen.dart';
 
 class EquipmentItemDetailScreen extends ConsumerStatefulWidget {
   const EquipmentItemDetailScreen({super.key, required this.itemId});
@@ -205,85 +209,62 @@ class _EquipmentItemDetailScreenState extends ConsumerState<EquipmentItemDetailS
   Widget _buildMaintenanceHistoryTab(String itemId) {
     final historyAsync = ref.watch(maintenanceHistoryProvider(itemId));
     
-    return historyAsync.when(
-      data: (history) {
-        if (history.isEmpty) {
-          return const Center(child: Text('Нет записей в истории обслуживания.'));
-        }
-        return ListView.builder(
-          padding: const EdgeInsets.all(8.0),
-          itemCount: history.length,
-          itemBuilder: (context, index) {
-            final record = history[index];
-            return Card(
-              margin: const EdgeInsets.symmetric(vertical: 4),
-              child: ListTile(
-                title: Text(record.descriptionOfWork),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Отправлено: ${record.dateSent.toLocal().toString().substring(0, 10)}'),
-                    if (record.dateReturned != null)
-                      Text('Возвращено: ${record.dateReturned!.toLocal().toString().substring(0, 10)}'),
-                    if (record.performedBy != null)
-                      Text('Выполнено: ${record.performedBy}'),
-                    if (record.cost != null)
-                      Text('Стоимость: ${record.cost} руб.'),
-                  ],
-                ),
-                trailing: const Icon(Icons.arrow_forward_ios),
-                onTap: () {
-                  // TODO: Navigate to Maintenance History Detail Screen if needed
-                  // For now, just show a dialog with full details
-                  showDialog(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      title: const Text('Детали записи ТО'),
-                      content: SingleChildScrollView(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Описание: ${record.descriptionOfWork}'),
-                            Text('Отправлено: ${record.dateSent.toLocal().toString().substring(0, 10)}'),
-                            if (record.dateReturned != null)
-                              Text('Возвращено: ${record.dateReturned!.toLocal().toString().substring(0, 10)}'),
-                            if (record.cost != null)
-                              Text('Стоимость: ${record.cost} руб.'),
-                            if (record.performedBy != null)
-                              Text('Выполнено: ${record.performedBy}'),
-                            if (record.photos != null && record.photos!.isNotEmpty) ...[
-                              const Divider(),
-                              Text('Фотографии:', style: Theme.of(context).textTheme.titleMedium),
-                              ...record.photos!.map((photo) => Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 4.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Image.network(photo.url, height: 100, fit: BoxFit.cover),
-                                    if (photo.note.isNotEmpty) Text('Примечание: ${photo.note}'),
-                                  ],
-                                ),
-                              )),
-                            ]
-                          ],
-                        ),
+    return Scaffold(
+      body: historyAsync.when(
+        data: (history) {
+          if (history.isEmpty) {
+            return const Center(child: Text('Нет записей в истории обслуживания.'));
+          }
+          return ListView.builder(
+            padding: const EdgeInsets.all(8.0),
+            itemCount: history.length,
+            itemBuilder: (context, index) {
+              final record = history[index];
+              return Card(
+                margin: const EdgeInsets.symmetric(vertical: 4),
+                child: ListTile(
+                  title: Text(record.descriptionOfWork),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Отправлено: ${record.dateSent.toLocal().toString().substring(0, 10)}'),
+                      if (record.dateReturned != null)
+                        Text('Возвращено: ${record.dateReturned!.toLocal().toString().substring(0, 10)}'),
+                      if (record.performedBy != null)
+                        Text('Выполнено: ${record.performedBy}'),
+                      if (record.cost != null)
+                        Text('Стоимость: ${record.cost} руб.'),
+                    ],
+                  ),
+                  trailing: const Icon(Icons.arrow_forward_ios),
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => MaintenanceDetailsScreen(record: record),
                       ),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.of(context).pop(),
-                          child: const Text('Закрыть'),
-                        ),
-                      ],
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
+              );
+            },
+          );
+        },
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (err, st) => Center(child: Text('Ошибка: $err')),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => EquipmentMaintenanceHistoryEditScreen(
+                equipmentItemId: itemId,
               ),
-            );
-          },
-        );
-      },
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (err, st) => Center(child: Text('Ошибка: $err')),
+            ),
+          );
+        },
+        tooltip: 'Добавить запись',
+        child: const Icon(Icons.add),
+      ),
     );
   }
 }

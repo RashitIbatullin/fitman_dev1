@@ -1,9 +1,6 @@
-
 import 'package:fitman_backend/modules/equipment/models/equipment/equipment_item.model.dart';
 import 'package:fitman_backend/modules/equipment/models/equipment/equipment_type.model.dart';
-import 'package:fitman_backend/modules/maintenance/models/equipment_maintenance_history.model.dart';
 import 'package:fitman_backend/modules/equipment/repositories/equipment_item.repository.dart';
-import 'package:fitman_backend/modules/equipment/repositories/equipment_maintenance_history.repository.dart';
 import 'package:fitman_backend/modules/equipment/repositories/equipment_type.repository.dart';
 
 abstract class EquipmentService {
@@ -20,19 +17,13 @@ abstract class EquipmentService {
   Future<EquipmentItem> updateItem(String id, EquipmentItem equipmentItem, String userId);
   Future<void> deleteItem(String id);
 
-  // Maintenance History
-  Future<List<EquipmentMaintenanceHistory>> getMaintenanceHistory(String itemId);
-  Future<EquipmentMaintenanceHistory> createMaintenanceHistory(EquipmentMaintenanceHistory history, String userId);
-  Future<EquipmentMaintenanceHistory> updateMaintenanceHistory(String historyId, EquipmentMaintenanceHistory history, String userId);
-  Future<void> archiveMaintenanceHistory(String historyId, String reason, String userId);
 }
 
 class EquipmentServiceImpl implements EquipmentService {
-  EquipmentServiceImpl(this._typeRepository, this._itemRepository, this._maintenanceHistoryRepository);
+  EquipmentServiceImpl(this._typeRepository, this._itemRepository);
 
   final EquipmentTypeRepository _typeRepository;
   final EquipmentItemRepository _itemRepository;
-  final EquipmentMaintenanceHistoryRepository _maintenanceHistoryRepository;
 
   @override
   Future<EquipmentType> createType(EquipmentType equipmentType, String userId) {
@@ -89,23 +80,4 @@ class EquipmentServiceImpl implements EquipmentService {
     return _itemRepository.update(id, equipmentItem, userId);
   }
 
-  @override
-  Future<List<EquipmentMaintenanceHistory>> getMaintenanceHistory(String itemId) {
-    return _maintenanceHistoryRepository.getByEquipmentItemId(itemId);
-  }
-
-  @override
-  Future<EquipmentMaintenanceHistory> createMaintenanceHistory(EquipmentMaintenanceHistory history, String userId) {
-    return _maintenanceHistoryRepository.create(history, userId);
-  }
-
-  @override
-  Future<EquipmentMaintenanceHistory> updateMaintenanceHistory(String historyId, EquipmentMaintenanceHistory history, String userId) {
-    return _maintenanceHistoryRepository.update(historyId, history, userId);
-  }
-
-  @override
-  Future<void> archiveMaintenanceHistory(String historyId, String reason, String userId) {
-    return _maintenanceHistoryRepository.archive(historyId, reason, userId);
-  }
 }

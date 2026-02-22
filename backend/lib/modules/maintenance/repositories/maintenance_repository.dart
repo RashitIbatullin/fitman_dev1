@@ -3,7 +3,8 @@ import 'package:fitman_backend/config/database.dart';
 import 'package:fitman_backend/modules/maintenance/models/equipment_maintenance_history.model.dart';
 import 'package:postgres/postgres.dart';
 
-abstract class EquipmentMaintenanceHistoryRepository {
+abstract class MaintenanceRepository {
+  Future<List<EquipmentMaintenanceHistory>> getAll();
   Future<EquipmentMaintenanceHistory> getById(String id);
   Future<List<EquipmentMaintenanceHistory>> getByEquipmentItemId(String equipmentItemId);
   Future<EquipmentMaintenanceHistory> create(EquipmentMaintenanceHistory history, String userId);
@@ -12,8 +13,8 @@ abstract class EquipmentMaintenanceHistoryRepository {
   Future<void> unarchive(String id);
 }
 
-class EquipmentMaintenanceHistoryRepositoryImpl implements EquipmentMaintenanceHistoryRepository {
-  EquipmentMaintenanceHistoryRepositoryImpl(this._db);
+class MaintenanceRepositoryImpl implements MaintenanceRepository {
+  MaintenanceRepositoryImpl(this._db);
 
   final Database _db;
 
@@ -47,6 +48,19 @@ class EquipmentMaintenanceHistoryRepositoryImpl implements EquipmentMaintenanceH
 
     final newId = result.first.first as int;
     return await getById(newId.toString());
+  }
+
+  @override
+  Future<List<EquipmentMaintenanceHistory>> getAll() async {
+    final conn = await _db.connection;
+    final result = await conn.execute(
+      Sql.named('SELECT * FROM equipment_maintenance_history WHERE archived_at IS NULL ORDER BY date_sent DESC'),
+    );
+
+    return result.map((row) {
+      final rowMap = row.toColumnMap();
+      return EquipmentMaintenanceHistory.fromMap(rowMap);
+    }).toList();
   }
 
   @override
