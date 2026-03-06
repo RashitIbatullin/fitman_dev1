@@ -26,13 +26,10 @@ class MaintenanceDashboardScreen extends ConsumerWidget {
               return Card(
                 margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 child: ListTile(
-                  title: Text(record.descriptionOfWork),
-                  subtitle: Text(
-                      'Оборудование: ${record.equipmentItemId} - Отправлено: ${record.dateSent.toLocal().toString().substring(0, 10)}'),
-
+                  title: Text(record.reportedProblem),
+                  subtitle: Text('Оборудование: ${record.equipmentName ?? record.equipmentItemId} - Статус: ${record.status.name}'),
                   onTap: () {
-                    // Note: This navigation might not be ideal since the edit screen is in the equipment module
-                    // but it's what's available from previous steps.
+                    // Navigate to the edit screen
                     Navigator.of(context).push<bool>(
                       MaterialPageRoute(
                         builder: (context) => EquipmentMaintenanceHistoryEditScreen(

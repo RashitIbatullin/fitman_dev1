@@ -4,6 +4,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fitman_app/modules/maintenance/models/equipment_maintenance_history.model.dart';
 import 'package:fitman_app/modules/maintenance/providers/maintenance_provider.dart';
 import 'package:fitman_app/services/api_service.dart';
+import 'package:intl/intl.dart';
+
+// Helper class to manage photos and their comments
+class _PhotoWithComment {
+  final PlatformFile file;
+  final TextEditingController commentController;
+
+  _PhotoWithComment(this.file) : commentController = TextEditingController();
+}
 
 class EquipmentMaintenanceHistoryEditScreen extends ConsumerStatefulWidget {
   final String equipmentItemId;
@@ -23,15 +32,16 @@ class EquipmentMaintenanceHistoryEditScreen extends ConsumerStatefulWidget {
 class _EquipmentMaintenanceHistoryEditScreenState
     extends ConsumerState<EquipmentMaintenanceHistoryEditScreen> {
   final _formKey = GlobalKey<FormState>();
-  late TextEditingController _dateSentController;
-  late TextEditingController _dateReturnedController;
-  late TextEditingController _descriptionController;
-  late TextEditingController _costController;
-  late TextEditingController _performedByController;
+
+  // Controllers for the new model fields
+  late TextEditingController _reportedProblemController;
+  late TextEditingController _workDescriptionController;
+  late MaintenanceType _selectedType;
+  late MaintenanceStatus _selectedStatus;
   
-  // State for holding picked files
-  final List<PlatformFile> _beforeFiles = [];
-  final List<PlatformFile> _afterFiles = [];
+  // State for holding picked files with comments
+  final List<_PhotoWithComment> _beforePhotos = [];
+  final List<_PhotoWithComment> _afterPhotos = [];
 
   bool _isLoading = false;
 
@@ -39,26 +49,28 @@ class _EquipmentMaintenanceHistoryEditScreenState
   void initState() {
     super.initState();
     final record = widget.historyRecord;
-    _dateSentController = TextEditingController(text: record?.dateSent.toLocal().toString().substring(0, 10) ?? DateTime.now().toLocal().toString().substring(0, 10));
-    _dateReturnedController = TextEditingController(text: record?.dateReturned?.toLocal().toString().substring(0, 10) ?? '');
-    _descriptionController = TextEditingController(text: record?.descriptionOfWork ?? '');
-    _performedByController = TextEditingController(text: record?.performedBy ?? '');
+    _reportedProblemController = TextEditingController(text: record?.reportedProblem ?? '');
+    _workDescriptionController = TextEditingController(text: record?.workDescription ?? '');
+    _selectedType = record?.type ?? MaintenanceType.corrective;
+    _selectedStatus = record?.status ?? MaintenanceStatus.reported;
 
-    // Note: We can't edit existing photos with this new mechanism, only add new ones.
-    // This is a simplification for this step.
+    // TODO: Implement loading existing photos for editing
   }
 
   @override
   void dispose() {
-    _dateSentController.dispose();
-    _dateReturnedController.dispose();
-    _descriptionController.dispose();
-    _costController.dispose();
-    _performedByController.dispose();
+    _reportedProblemController.dispose();
+    _workDescriptionController.dispose();
+    for (var photo in _beforePhotos) {
+      photo.commentController.dispose();
+    }
+    for (var photo in _afterPhotos) {
+      photo.commentController.dispose();
+    }
     super.dispose();
   }
 
-  Future<void> _pickFiles(List<PlatformFile> fileList) async {
+  Future<void> _pickFiles(List<_PhotoWithComment> photoList) async {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.image,
       allowMultiple: true,
@@ -66,7 +78,7 @@ class _EquipmentMaintenanceHistoryEditScreenState
 
     if (result != null) {
       setState(() {
-        fileList.addAll(result.files);
+        photoList.addAll(result.files.map((file) => _PhotoWithComment(file)));
       });
     }
   }
@@ -79,57 +91,59 @@ class _EquipmentMaintenanceHistoryEditScreenState
     setState(() => _isLoading = true);
 
     try {
-      // First, create/update the record to get an ID
       final isCreating = widget.historyRecord == null;
       EquipmentMaintenanceHistory recordToSave;
 
       if (isCreating) {
-        // Create a temporary record without photos
         recordToSave = EquipmentMaintenanceHistory(
-          id: '', // Will be ignored by backend create
+          id: '', // Ignored by backend on create
           equipmentItemId: widget.equipmentItemId,
-          dateSent: DateTime.parse(_dateSentController.text),
-          dateReturned: _dateReturnedController.text.isEmpty ? null : DateTime.parse(_dateReturnedController.text),
-          descriptionOfWork: _descriptionController.text,
-          performedBy: _performedByController.text.isEmpty ? null : _performedByController.text,
-          photos: [], // Empty for now
+          reportedProblem: _reportedProblemController.text,
+          workDescription: _workDescriptionController.text,
+          type: _selectedType,
+          status: _selectedStatus,
+          reportedBy: '', // This should be the current user ID, handled by backend/provider
         );
         recordToSave = await ApiService.createMaintenanceHistory(recordToSave);
       } else {
-        recordToSave = widget.historyRecord!;
-         // Update other fields if necessary
-        final updatedRecord = recordToSave.copyWith(
-          dateSent: DateTime.parse(_dateSentController.text),
-          dateReturned: _dateReturnedController.text.isEmpty ? null : DateTime.parse(_dateReturnedController.text),
-          descriptionOfWork: _descriptionController.text,
-          performedBy: _performedByController.text.isEmpty ? null : _performedByController.text,
+        recordToSave = widget.historyRecord!.copyWith(
+          reportedProblem: _reportedProblemController.text,
+          workDescription: _workDescriptionController.text,
+          type: _selectedType,
+          status: _selectedStatus,
         );
-        recordToSave = await ApiService.updateMaintenanceHistory(updatedRecord.id, updatedRecord);
+        recordToSave = await ApiService.updateMaintenanceHistory(recordToSave.id, recordToSave);
       }
 
-      // Now, upload photos with the record ID
-      for (final file in _beforeFiles) {
-        await ApiService.uploadMaintenancePhoto(
-          maintenanceId: recordToSave.id,
-          photoBytes: file.bytes!,
-          fileName: file.name,
-          timing: 'before',
-        );
+      // Upload photos with comments
+      for (final photo in _beforePhotos) {
+        if (photo.file.bytes != null) {
+          await ApiService.uploadMaintenancePhoto(
+            maintenanceId: recordToSave.id,
+            photoBytes: photo.file.bytes!,
+            fileName: photo.file.name,
+            timing: PhotoTiming.before.name,
+            comment: photo.commentController.text,
+          );
+        }
       }
-      for (final file in _afterFiles) {
-        await ApiService.uploadMaintenancePhoto(
-          maintenanceId: recordToSave.id,
-          photoBytes: file.bytes!,
-          fileName: file.name,
-          timing: 'after',
-        );
+      for (final photo in _afterPhotos) {
+         if (photo.file.bytes != null) {
+          await ApiService.uploadMaintenancePhoto(
+            maintenanceId: recordToSave.id,
+            photoBytes: photo.file.bytes!,
+            fileName: photo.file.name,
+            timing: PhotoTiming.after.name,
+            comment: photo.commentController.text,
+          );
+        }
       }
       
       ref.invalidate(maintenanceHistoryProvider(widget.equipmentItemId));
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Запись сохранена'), backgroundColor: Colors.green),
+        const SnackBar(content: Text('Запись сохранена'), backgroundColor: Colors.green),
       );
       Navigator.of(context).pop(true);
 
@@ -149,7 +163,7 @@ class _EquipmentMaintenanceHistoryEditScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.historyRecord == null ? 'Добавить запись о ТО' : 'Редактировать запись'),
+        title: Text(widget.historyRecord == null ? 'Новая заявка на ТО' : 'Редактировать заявку'),
         actions: [
           IconButton(
             icon: const Icon(Icons.save),
@@ -164,40 +178,48 @@ class _EquipmentMaintenanceHistoryEditScreenState
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              TextFormField(
-                controller: _dateSentController,
-                decoration: InputDecoration(labelText: 'Дата отправки', border: const OutlineInputBorder(), suffixIcon: IconButton(icon: const Icon(Icons.calendar_today), onPressed: () => _selectDate(context, _dateSentController))),
-                readOnly: true,
-                validator: (v) => v == null || v.isEmpty ? 'Обязательное поле' : null,
+              DropdownButtonFormField<MaintenanceType>(
+                initialValue: _selectedType,
+                decoration: const InputDecoration(labelText: 'Тип ТО', border: OutlineInputBorder()),
+                items: MaintenanceType.values.map((type) {
+                  return DropdownMenuItem(value: type, child: Text(toBeginningOfSentenceCase(type.name) ?? type.name));
+                }).toList(),
+                onChanged: (value) {
+                  if (value != null) {
+                    setState(() => _selectedType = value);
+                  }
+                },
+              ),
+              const SizedBox(height: 16),
+              DropdownButtonFormField<MaintenanceStatus>(
+                initialValue: _selectedStatus,
+                decoration: const InputDecoration(labelText: 'Статус', border: OutlineInputBorder()),
+                items: MaintenanceStatus.values.map((status) {
+                  return DropdownMenuItem(value: status, child: Text(toBeginningOfSentenceCase(status.name) ?? status.name));
+                }).toList(),
+                onChanged: (value) {
+                  if (value != null) {
+                    setState(() => _selectedStatus = value);
+                  }
+                },
               ),
               const SizedBox(height: 16),
               TextFormField(
-                controller: _dateReturnedController,
-                decoration: InputDecoration(labelText: 'Дата возврата', border: const OutlineInputBorder(), suffixIcon: IconButton(icon: const Icon(Icons.calendar_today), onPressed: () => _selectDate(context, _dateReturnedController))),
-                readOnly: true,
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _descriptionController,
-                decoration: const InputDecoration(labelText: 'Описание работ', border: OutlineInputBorder()),
+                controller: _reportedProblemController,
+                decoration: const InputDecoration(labelText: 'Описание проблемы', border: OutlineInputBorder()),
                 maxLines: 3,
                 validator: (v) => v == null || v.isEmpty ? 'Обязательное поле' : null,
               ),
               const SizedBox(height: 16),
               TextFormField(
-                controller: _costController,
-                decoration: const InputDecoration(labelText: 'Стоимость', border: OutlineInputBorder()),
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _performedByController,
-                decoration: const InputDecoration(labelText: 'Кем выполнено', border: OutlineInputBorder()),
+                controller: _workDescriptionController,
+                decoration: const InputDecoration(labelText: 'Описание выполненных работ', border: OutlineInputBorder()),
+                maxLines: 3,
               ),
               const SizedBox(height: 24),
-              _buildPhotoSection(context, 'Фото "До"', _beforeFiles),
+              _buildPhotoSection(context, 'Фото "До"', _beforePhotos),
               const SizedBox(height: 16),
-              _buildPhotoSection(context, 'Фото "После"', _afterFiles),
+              _buildPhotoSection(context, 'Фото "После"', _afterPhotos),
             ],
           ),
         ),
@@ -205,43 +227,62 @@ class _EquipmentMaintenanceHistoryEditScreenState
     );
   }
   
-  Widget _buildPhotoSection(BuildContext context, String title, List<PlatformFile> files) {
+  Widget _buildPhotoSection(BuildContext context, String title, List<_PhotoWithComment> photos) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(title, style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: 8),
         SizedBox(
-          height: 100,
-          child: files.isEmpty
+          height: 180, // Increased height to accommodate the text field
+          child: photos.isEmpty
               ? const Center(child: Text('Нет выбранных фото'))
               : ListView.builder(
                   scrollDirection: Axis.horizontal,
-                  itemCount: files.length,
+                  itemCount: photos.length,
                   itemBuilder: (context, index) {
-                    final file = files[index];
+                    final photo = photos[index];
                     return Padding(
-                      padding: const EdgeInsets.only(right: 8.0),
-                      child: Stack(
-                        children: [
-                          Image.memory(file.bytes!, width: 100, height: 100, fit: BoxFit.cover),
-                          Positioned(
-                            top: 0,
-                            right: 0,
-                            child: InkWell(
-                              onTap: () {
-                                setState(() {
-                                  files.removeAt(index);
-                                });
-                              },
-                              child: const CircleAvatar(
-                                radius: 12,
-                                backgroundColor: Colors.red,
-                                child: Icon(Icons.close, color: Colors.white, size: 16),
+                      padding: const EdgeInsets.only(right: 12.0),
+                      child: SizedBox(
+                        width: 150, // Set a fixed width for the item
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Stack(
+                              children: [
+                                Image.memory(photo.file.bytes!, width: 150, height: 100, fit: BoxFit.cover),
+                                Positioned(
+                                  top: 0,
+                                  right: 0,
+                                  child: InkWell(
+                                    onTap: () {
+                                      setState(() => photos.removeAt(index));
+                                    },
+                                    child: const CircleAvatar(
+                                      radius: 12,
+                                      backgroundColor: Colors.red,
+                                      child: Icon(Icons.close, color: Colors.white, size: 16),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 4),
+                            SizedBox(
+                              height: 50,
+                              child: TextFormField(
+                                controller: photo.commentController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Примечание',
+                                  border: OutlineInputBorder(),
+                                  contentPadding: EdgeInsets.symmetric(horizontal: 8.0),
+                                ),
+                                style: const TextStyle(fontSize: 12),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     );
                   },
@@ -251,21 +292,9 @@ class _EquipmentMaintenanceHistoryEditScreenState
         ElevatedButton.icon(
           icon: const Icon(Icons.add_a_photo),
           label: const Text('Добавить фото'),
-          onPressed: () => _pickFiles(files),
+          onPressed: () => _pickFiles(photos),
         ),
       ],
     );
-  }
-
-  Future<void> _selectDate(BuildContext context, TextEditingController controller) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.tryParse(controller.text) ?? DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
-    );
-    if (picked != null) {
-      controller.text = picked.toLocal().toIso8601String().substring(0, 10);
-    }
   }
 }

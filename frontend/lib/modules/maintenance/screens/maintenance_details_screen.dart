@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fitman_app/modules/maintenance/models/equipment_maintenance_history.model.dart';
+import 'package:intl/intl.dart';
 
 class MaintenanceDetailsScreen extends StatelessWidget {
   const MaintenanceDetailsScreen({super.key, required this.record});
@@ -8,23 +9,42 @@ class MaintenanceDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Helper to format dates safely
+    String formatDate(DateTime? date) {
+      if (date == null) return 'N/A';
+      return DateFormat('yyyy-MM-dd HH:mm').format(date.toLocal());
+    }
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('Запись ТО от ${record.dateSent.toLocal().toString().substring(0, 10)}'),
+        title: Text(record.equipmentName ?? 'Заявка на ТО'),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildDetailRow(label: 'Оборудование:', value: record.equipmentItemId),
-            _buildDetailRow(label: 'Описание:', value: record.descriptionOfWork),
-            _buildDetailRow(label: 'Дата отправки:', value: record.dateSent.toLocal().toString().substring(0, 10)),
-            if (record.dateReturned != null)
-              _buildDetailRow(label: 'Дата возврата:', value: record.dateReturned!.toLocal().toString().substring(0, 10)),
-
-            if (record.performedBy != null)
-              _buildDetailRow(label: 'Кем выполнено:', value: record.performedBy!),
+            _buildDetailRow(label: 'Проблема:', value: record.reportedProblem),
+            const Divider(),
+            _buildDetailRow(label: 'Статус:', value: record.status.name),
+            _buildDetailRow(label: 'Тип:', value: record.type.name),
+            if (record.workDescription != null && record.workDescription!.isNotEmpty)
+              _buildDetailRow(label: 'Выполненные работы:', value: record.workDescription!),
+            
+            const Divider(height: 32),
+            Text('Исполнители', style: Theme.of(context).textTheme.titleLarge),
+            _buildDetailRow(label: 'Заявил:', value: record.reportedBy), // TODO: Fetch user name
+            if (record.assignedToUserId != null)
+              _buildDetailRow(label: 'Назначено (сотрудник):', value: record.assignedToUserId!), // TODO: Fetch user name
+            if (record.assignedToStaffId != null)
+               _buildDetailRow(label: 'Назначено (внешний):', value: record.assignedToStaffId!), // TODO: Fetch staff name
+            
+            const Divider(height: 32),
+            Text('Сроки', style: Theme.of(context).textTheme.titleLarge),
+            _buildDetailRow(label: 'Создана:', value: formatDate(record.createdAt)),
+            _buildDetailRow(label: 'Начата:', value: formatDate(record.startedAt)),
+            _buildDetailRow(label: 'Завершена:', value: formatDate(record.completedAt)),
+            
             if (record.photos != null && record.photos!.isNotEmpty) ...[
               const Divider(height: 32),
               Text('Фотографии:', style: Theme.of(context).textTheme.titleLarge),
@@ -34,11 +54,11 @@ class MaintenanceDetailsScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Image.network(photo.url, height: 150, fit: BoxFit.cover, errorBuilder: (c, o, s) => const Icon(Icons.error)),
-                    if (photo.note.isNotEmpty) 
+                    Image.network(photo.url, height: 200, fit: BoxFit.cover, errorBuilder: (c, o, s) => const Icon(Icons.error, size: 40)),
+                    if (photo.comment != null && photo.comment!.isNotEmpty) 
                       Padding(
                         padding: const EdgeInsets.only(top: 4.0),
-                        child: Text('Примечание: ${photo.note}'),
+                        child: Text('Примечание: ${photo.comment}'),
                       ),
                   ],
                 ),
@@ -57,7 +77,7 @@ class MaintenanceDetailsScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 120,
+            width: 150,
             child: Text(
               label,
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),

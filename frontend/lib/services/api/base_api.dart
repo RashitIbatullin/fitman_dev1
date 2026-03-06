@@ -44,7 +44,6 @@ class BaseApiService {
     };
     if (currentToken != null) {
       headers['Authorization'] = 'Bearer $currentToken';
-      print('DEBUG: Authorization header added with token: $currentToken');
     } else {
       print('DEBUG: No Authorization header added. Current token is null.');
     }

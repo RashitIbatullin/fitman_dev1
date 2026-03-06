@@ -9,10 +9,9 @@ import '../../models/equipment/equipment_status.enum.dart';
 import '../../models/equipment/equipment_type.model.dart';
 import 'package:fitman_app/modules/rooms/models/room/room.model.dart';
 import 'package:fitman_app/modules/rooms/utils/room_utils.dart'; // Add this import
-import '../equipment/item/equipment_item_detail_screen.dart';
-import '../equipment/item/equipment_item_create_screen.dart';
-import '../equipment/item/equipment_item_edit_screen.dart';
-import 'package:fitman_app/modules/equipment/screens/equipment/type/equipment_types_list_screen.dart'; // Import for EquipmentTypesListScreen
+import '../item/equipment_item_detail_screen.dart';
+import '../item/equipment_item_edit_screen.dart';
+import '../type/equipment_types_list_screen.dart';
 
 class EquipmentDashboardScreen extends ConsumerStatefulWidget {
   const EquipmentDashboardScreen({super.key});
@@ -291,7 +290,7 @@ class _EquipmentDashboardScreenState
           await Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => const EquipmentItemCreateScreen()),
+                builder: (context) => const EquipmentItemEditScreen()),
           );
           ref.invalidate(allEquipmentItemsProvider);
         },

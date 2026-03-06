@@ -11,7 +11,8 @@
 
 -- Таблицы бронирования и оборудования
 DROP TABLE IF EXISTS equipment_bookings CASCADE;
-DROP TABLE IF EXISTS equipment_maintenance_history CASCADE; -- ADDED
+DROP TABLE IF EXISTS maintenance_photos CASCADE;
+DROP TABLE IF EXISTS equipment_maintenance_history CASCADE;
 DROP TABLE IF EXISTS equipment_items CASCADE;
 
 -- Таблицы вспомогательного персонала
@@ -395,6 +396,57 @@ CREATE TABLE client_exercises (
 );
 
 -- ============================================
+-- 4. ТАБЛИЦЫ ВСПОМОГАТЕЛЬНОГО ПЕРСОНАЛА
+-- ============================================
+
+-- Основная таблица вспомогательного персонала
+CREATE TABLE support_staff (
+  id BIGSERIAL PRIMARY KEY,
+  first_name VARCHAR(100) NOT NULL,
+  last_name VARCHAR(100) NOT NULL,
+  middle_name VARCHAR(100),
+  phone VARCHAR(20),
+  email VARCHAR(255),
+  employment_type SMALLINT NOT NULL,
+  category SMALLINT NOT NULL,
+  can_maintain_equipment BOOLEAN DEFAULT false,
+  accessible_equipment_types JSONB,
+  company_name VARCHAR(255),
+  contract_number VARCHAR(100),
+  contract_expiry_date DATE,
+  notes TEXT,
+  company_id BIGINT DEFAULT -1,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  created_by BIGINT REFERENCES users(id),
+  updated_by BIGINT REFERENCES users(id),
+  archived_at TIMESTAMPTZ,
+  archived_by BIGINT REFERENCES users(id),
+  archived_reason TEXT
+);
+
+-- Компетенции вспомогательного персонала
+CREATE TABLE support_staff_competencies (
+  id BIGSERIAL PRIMARY KEY,
+  staff_id BIGINT NOT NULL REFERENCES support_staff(id) ON DELETE CASCADE,
+  name VARCHAR(100) NOT NULL,
+  level SMALLINT NOT NULL,
+  certificate_url TEXT,
+  verified_at DATE,
+  verified_by BIGINT REFERENCES users(id),
+  UNIQUE(staff_id, name)
+);
+
+-- Расписание работы
+CREATE TABLE support_staff_schedules (
+  id BIGSERIAL PRIMARY KEY,
+  staff_id BIGINT NOT NULL REFERENCES support_staff(id) ON DELETE CASCADE,
+  day_of_week SMALLINT NOT NULL,
+  start_time TIME NOT NULL,
+  end_time TIME NOT NULL
+);
+
+-- ============================================
 -- 3. ТАБЛИЦЫ ПОМЕЩЕНИЙ И ОБОРУДОВАНИЯ
 -- ============================================
 
@@ -551,79 +603,43 @@ CREATE TABLE equipment_bookings (
 -- История обслуживания оборудования
 CREATE TABLE equipment_maintenance_history (
   id BIGSERIAL PRIMARY KEY,
-  equipment_item_id BIGINT NOT NULL REFERENCES equipment_items(id) ON DELETE CASCADE,
-  
-  date_sent DATE NOT NULL,
-  date_returned DATE,
-  
-  description_of_work TEXT NOT NULL,
-
-  performed_by VARCHAR(255),
-  
-
-
-  -- Системные поля
-  company_id BIGINT DEFAULT -1,
+  equipment_item_id BIGINT NOT NULL REFERENCES equipment_items(id),
+  equipment_name VARCHAR(255),
+  type SMALLINT NOT NULL,
+  status SMALLINT DEFAULT 0,
   created_at TIMESTAMPTZ DEFAULT NOW(),
+  started_at TIMESTAMPTZ,
+  completed_at TIMESTAMPTZ,
+  equipment_available_from TIMESTAMPTZ,
+  reported_problem TEXT NOT NULL,
+  work_description TEXT,
+  reported_by BIGINT NOT NULL REFERENCES users(id),
+  assigned_to_user_id BIGINT REFERENCES users(id),
+  assigned_to_staff_id BIGINT REFERENCES support_staff(id),
+  related_booking_id BIGINT REFERENCES equipment_bookings(id),
+  caused_downtime BOOLEAN DEFAULT false,
   updated_at TIMESTAMPTZ DEFAULT NOW(),
-  created_by BIGINT REFERENCES users(id),
-  updated_by BIGINT REFERENCES users(id),
-  archived_at TIMESTAMPTZ,
-  archived_by BIGINT REFERENCES users(id),
-  archived_reason TEXT,
-  note VARCHAR(100)
+  is_archived BOOLEAN DEFAULT false,
+  
+  -- Ограничения
+  CONSTRAINT assigned_to_check CHECK (
+    (assigned_to_user_id IS NULL AND assigned_to_staff_id IS NOT NULL) OR
+    (assigned_to_user_id IS NOT NULL AND assigned_to_staff_id IS NULL) OR
+    (assigned_to_user_id IS NULL AND assigned_to_staff_id IS NULL)
+  )
 );
 
--- ============================================
--- 4. ТАБЛИЦЫ ВСПОМОГАТЕЛЬНОГО ПЕРСОНАЛА
--- ============================================
-
--- Основная таблица вспомогательного персонала
-CREATE TABLE support_staff (
+-- Фотографии ТО
+CREATE TABLE maintenance_photos (
   id BIGSERIAL PRIMARY KEY,
-  first_name VARCHAR(100) NOT NULL,
-  last_name VARCHAR(100) NOT NULL,
-  middle_name VARCHAR(100),
-  phone VARCHAR(20),
-  email VARCHAR(255),
-  employment_type SMALLINT NOT NULL,
-  category SMALLINT NOT NULL,
-  can_maintain_equipment BOOLEAN DEFAULT false,
-  accessible_equipment_types JSONB,
-  company_name VARCHAR(255),
-  contract_number VARCHAR(100),
-  contract_expiry_date DATE,
-  notes TEXT,
-  company_id BIGINT DEFAULT -1,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW(),
-  created_by BIGINT REFERENCES users(id),
-  updated_by BIGINT REFERENCES users(id),
-  archived_at TIMESTAMPTZ,
-  archived_by BIGINT REFERENCES users(id),
-  archived_reason TEXT
+  maintenance_id BIGINT NOT NULL REFERENCES equipment_maintenance_history(id) ON DELETE CASCADE,
+  url TEXT NOT NULL,
+  comment TEXT,
+  timing SMALLINT NOT NULL,
+  taken_at TIMESTAMPTZ DEFAULT NOW(),
+  taken_by BIGINT REFERENCES users(id)
 );
 
--- Компетенции вспомогательного персонала
-CREATE TABLE support_staff_competencies (
-  id BIGSERIAL PRIMARY KEY,
-  staff_id BIGINT NOT NULL REFERENCES support_staff(id) ON DELETE CASCADE,
-  name VARCHAR(100) NOT NULL,
-  level SMALLINT NOT NULL,
-  certificate_url TEXT,
-  verified_at DATE,
-  verified_by BIGINT REFERENCES users(id),
-  UNIQUE(staff_id, name)
-);
-
--- Расписание работы
-CREATE TABLE support_staff_schedules (
-  id BIGSERIAL PRIMARY KEY,
-  staff_id BIGINT NOT NULL REFERENCES support_staff(id) ON DELETE CASCADE,
-  day_of_week SMALLINT NOT NULL,
-  start_time TIME NOT NULL,
-  end_time TIME NOT NULL
-);
 
 -- ============================================
 -- 4. СОЗДАНИЕ ИНДЕКСОВ ДЛЯ ПРОИЗВОДИТЕЛЬНОСТИ
@@ -716,8 +732,13 @@ CREATE INDEX idx_equipment_bookings_active ON equipment_bookings(company_id) WHE
 CREATE INDEX idx_equipment_bookings_time_status ON equipment_bookings(equipment_item_id, start_time, end_time, status);
 
 -- Индексы для equipment_maintenance_history
-CREATE INDEX idx_equip_maint_hist_item ON equipment_maintenance_history(equipment_item_id);
-CREATE INDEX idx_equip_maint_hist_dates ON equipment_maintenance_history(date_sent, date_returned);
+CREATE INDEX idx_maintenance_equipment ON equipment_maintenance_history(equipment_item_id);
+CREATE INDEX idx_maintenance_status ON equipment_maintenance_history(status) WHERE NOT is_archived;
+CREATE INDEX idx_maintenance_assigned_user ON equipment_maintenance_history(assigned_to_user_id) WHERE assigned_to_user_id IS NOT NULL;
+CREATE INDEX idx_maintenance_assigned_staff ON equipment_maintenance_history(assigned_to_staff_id) WHERE assigned_to_staff_id IS NOT NULL;
+
+-- Индексы для maintenance_photos
+CREATE INDEX idx_maintenance_photos ON maintenance_photos(maintenance_id, timing);
 
 -- Индексы для таблиц связей
 CREATE INDEX idx_set_exercises_link_set ON set_exercises_templates_exercis_templates(set_exercises_template_id);
@@ -867,6 +888,36 @@ INSERT INTO bmr_formulas (name, formula, for_men, for_women, is_active, note) VA
 ('Харриса-Бенедикта', '447.593 + (9.247 × вес[кг]) + (3.098 × рост[см]) - (4.330 × возраст[лет])', false, true, true, 'Классическая формула для женщин'),
 ('Кетча-МакАрдла', '370 + (21.6 × LBM)', true, true, true, 'LBM = масса тела × (100 - %жира) / 100');
 
+-- 5.20. Заполняем вспомогательный персонал
+INSERT INTO support_staff (first_name, last_name, middle_name, phone, email, employment_type, category, can_maintain_equipment, accessible_equipment_types, company_name, contract_number, contract_expiry_date, notes, created_by, updated_by) VALUES
+('Александр', 'Иванов', 'Петрович', '+79001234567', 'a.ivanov@fitman.com', 0, 0, TRUE, '["1","2"]', 'ООО "ФитнесСервис"', 'FS-2023-001', '2024-12-31', 'Отвечает за обслуживание кардио-оборудования', 1, 1),
+('Мария', 'Смирнова', 'Александровна', '+79007654321', 'm.smirnova@fitman.com', 1, 1, FALSE, NULL, NULL, NULL, NULL, 'Администратор зала, встречает клиентов', 1, 1),
+('Дмитрий', 'Кузнецов', 'Сергеевич', '+79001112233', 'd.kuznetsov@fitman.com', 0, 2, TRUE, '["4","5","6","7"]', 'ИП "ТехСервис"', 'TS-2023-005', '2025-06-30', 'Обслуживание силовых тренажеров и гантелей', 1, 1),
+('Елена', 'Петрова', 'Игоревна', '+79004445566', 'e.petrova@fitman.com', 1, 3, FALSE, NULL, NULL, NULL, NULL, 'Уборка помещений, дезинфекция оборудования', 1, 1);
+
+-- 5.21. Заполняем компетенции вспомогательного персонала
+INSERT INTO support_staff_competencies (staff_id, name, level, certificate_url, verified_at, verified_by) VALUES
+(1, 'Ремонт беговых дорожек', 2, 'http://cert.com/alex-treadmill', '2023-03-10', 1),
+(1, 'Диагностика эллипсов', 1, NULL, NULL, NULL),
+(3, 'Ремонт силовых тренажеров', 3, 'http://cert.com/dmitry-strength', '2023-05-20', 1),
+(3, 'Сварка металлоконструкций', 2, NULL, NULL, NULL);
+
+-- 5.22. Заполняем расписание работы вспомогательного персонала
+INSERT INTO support_staff_schedules (staff_id, day_of_week, start_time, end_time) VALUES
+(1, 1, '09:00:00', '18:00:00'), -- Пн
+(1, 3, '09:00:00', '18:00:00'), -- Ср
+(1, 5, '09:00:00', '18:00:00'), -- Пт
+(2, 2, '08:00:00', '16:00:00'), -- Вт
+(2, 4, '08:00:00', '16:00:00'), -- Чт
+(2, 6, '10:00:00', '14:00:00'), -- Сб
+(3, 1, '10:00:00', '19:00:00'), -- Пн
+(3, 2, '10:00:00', '19:00:00'), -- Вт
+(3, 3, '10:00:00', '19:00:00'), -- Ср
+(4, 1, '07:00:00', '15:00:00'), -- Пн
+(4, 2, '07:00:00', '15:00:00'), -- Вт
+(4, 3, '07:00:00', '15:00:00'), -- Ср
+(4, 4, '07:00:00', '15:00:00'), -- Чт
+(4, 5, '07:00:00', '15:00:00'); -- Пт
 -- 5.15. Заполняем Здания
 INSERT INTO buildings (name, address, note) VALUES
 ('Основной корпус', 'г. Москва, ул. Центральная, 1', 'Главное здание фитнес-центра'),
@@ -905,37 +956,6 @@ INSERT INTO equipment_bookings (equipment_item_id, booked_by, start_time, end_ti
 (5, 2, '2024-01-15 14:00:00+03', '2024-01-15 15:00:00+03', 'Силовая тренировка', 'Клиент: Петров П.П.'),
 (8, 2, '2024-01-15 16:00:00+03', '2024-01-15 17:00:00+03', 'Тренировка грудных', 'Собственный вес + гантели');
 
-
--- 5.20. Заполняем вспомогательный персонал
-INSERT INTO support_staff (first_name, last_name, middle_name, phone, email, employment_type, category, can_maintain_equipment, accessible_equipment_types, company_name, contract_number, contract_expiry_date, notes, created_by, updated_by) VALUES
-('Александр', 'Иванов', 'Петрович', '+79001234567', 'a.ivanov@fitman.com', 0, 0, TRUE, '["1","2"]', 'ООО "ФитнесСервис"', 'FS-2023-001', '2024-12-31', 'Отвечает за обслуживание кардио-оборудования', 1, 1),
-('Мария', 'Смирнова', 'Александровна', '+79007654321', 'm.smirnova@fitman.com', 1, 1, FALSE, NULL, NULL, NULL, NULL, 'Администратор зала, встречает клиентов', 1, 1),
-('Дмитрий', 'Кузнецов', 'Сергеевич', '+79001112233', 'd.kuznetsov@fitman.com', 0, 2, TRUE, '["4","5","6","7"]', 'ИП "ТехСервис"', 'TS-2023-005', '2025-06-30', 'Обслуживание силовых тренажеров и гантелей', 1, 1),
-('Елена', 'Петрова', 'Игоревна', '+79004445566', 'e.petrova@fitman.com', 1, 3, FALSE, NULL, NULL, NULL, NULL, 'Уборка помещений, дезинфекция оборудования', 1, 1);
-
--- 5.21. Заполняем компетенции вспомогательного персонала
-INSERT INTO support_staff_competencies (staff_id, name, level, certificate_url, verified_at, verified_by) VALUES
-(1, 'Ремонт беговых дорожек', 2, 'http://cert.com/alex-treadmill', '2023-03-10', 1),
-(1, 'Диагностика эллипсов', 1, NULL, NULL, NULL),
-(3, 'Ремонт силовых тренажеров', 3, 'http://cert.com/dmitry-strength', '2023-05-20', 1),
-(3, 'Сварка металлоконструкций', 2, NULL, NULL, NULL);
-
--- 5.22. Заполняем расписание работы вспомогательного персонала
-INSERT INTO support_staff_schedules (staff_id, day_of_week, start_time, end_time) VALUES
-(1, 1, '09:00:00', '18:00:00'), -- Пн
-(1, 3, '09:00:00', '18:00:00'), -- Ср
-(1, 5, '09:00:00', '18:00:00'), -- Пт
-(2, 2, '08:00:00', '16:00:00'), -- Вт
-(2, 4, '08:00:00', '16:00:00'), -- Чт
-(2, 6, '10:00:00', '14:00:00'), -- Сб
-(3, 1, '10:00:00', '19:00:00'), -- Пн
-(3, 2, '10:00:00', '19:00:00'), -- Вт
-(3, 3, '10:00:00', '19:00:00'), -- Ср
-(4, 1, '07:00:00', '15:00:00'), -- Пн
-(4, 2, '07:00:00', '15:00:00'), -- Вт
-(4, 3, '07:00:00', '15:00:00'), -- Ср
-(4, 4, '07:00:00', '15:00:00'), -- Чт
-(4, 5, '07:00:00', '15:00:00'); -- Пт
 
 
 -- ============================================

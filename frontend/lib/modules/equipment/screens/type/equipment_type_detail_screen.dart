@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fitman_app/modules/equipment/providers/equipment/equipment_provider.dart';
-import 'package:fitman_app/modules/equipment/screens/equipment/type/equipment_type_edit_screen.dart';
+import 'equipment_type_edit_screen.dart';
 
 class EquipmentTypeDetailScreen extends ConsumerWidget {
   final String equipmentTypeId;

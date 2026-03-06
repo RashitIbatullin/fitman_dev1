@@ -376,8 +376,8 @@ class _EquipmentItemEditScreenState
               return Card(
                 margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 child: ListTile(
-                  title: Text(record.descriptionOfWork),
-                  subtitle: Text('Отправлено: ${record.dateSent.toLocal().toString().substring(0, 10)}'),
+                  title: Text(record.reportedProblem),
+                  subtitle: Text('Статус: ${record.status.name} | Создано: ${record.createdAt != null ? record.createdAt!.toLocal().toString().substring(0, 10) : 'N/A'}'),
                   onTap: () => _navigateToMaintenanceHistoryEditScreen(record: record),
                 ),
               );

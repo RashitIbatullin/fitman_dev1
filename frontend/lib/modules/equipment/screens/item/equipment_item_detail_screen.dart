@@ -1,5 +1,5 @@
 import 'package:fitman_app/modules/equipment/models/equipment/equipment_item.model.dart';
-import 'package:fitman_app/modules/equipment/screens/equipment/item/equipment_item_edit_screen.dart';
+import 'equipment_item_edit_screen.dart';
 import 'package:fitman_app/modules/equipment/screens/item/equipment_maintenance_history_edit_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,6 +10,7 @@ import 'package:fitman_app/modules/rooms/providers/room/room_provider.dart';
 import 'package:fitman_app/modules/users/providers/users_provider.dart'; 
 
 import 'package:fitman_app/modules/maintenance/screens/maintenance_details_screen.dart';
+import 'package:intl/intl.dart';
 
 class EquipmentItemDetailScreen extends ConsumerStatefulWidget {
   const EquipmentItemDetailScreen({super.key, required this.itemId});
@@ -223,15 +224,13 @@ class _EquipmentItemDetailScreenState extends ConsumerState<EquipmentItemDetailS
               return Card(
                 margin: const EdgeInsets.symmetric(vertical: 4),
                 child: ListTile(
-                  title: Text(record.descriptionOfWork),
+                  title: Text(record.reportedProblem),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Отправлено: ${record.dateSent.toLocal().toString().substring(0, 10)}'),
-                      if (record.dateReturned != null)
-                        Text('Возвращено: ${record.dateReturned!.toLocal().toString().substring(0, 10)}'),
-                      if (record.performedBy != null)
-                        Text('Выполнено: ${record.performedBy}'),
+                      Text('Статус: ${record.status.name}'),
+                      if (record.createdAt != null)
+                        Text('Создано: ${DateFormat('yyyy-MM-dd').format(record.createdAt!.toLocal())}'),
                     ],
                   ),
                   trailing: const Icon(Icons.arrow_forward_ios),
