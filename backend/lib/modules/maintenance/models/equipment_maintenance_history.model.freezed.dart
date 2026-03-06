@@ -21,8 +21,13 @@ MaintenancePhoto _$MaintenancePhotoFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$MaintenancePhoto {
+  String get id => throw _privateConstructorUsedError;
+  String get maintenanceId => throw _privateConstructorUsedError;
   String get url => throw _privateConstructorUsedError;
-  String get note => throw _privateConstructorUsedError;
+  String? get comment => throw _privateConstructorUsedError;
+  PhotoTiming get timing => throw _privateConstructorUsedError;
+  DateTime? get takenAt => throw _privateConstructorUsedError;
+  String? get takenBy => throw _privateConstructorUsedError;
 
   /// Serializes this MaintenancePhoto to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -41,7 +46,15 @@ abstract class $MaintenancePhotoCopyWith<$Res> {
     $Res Function(MaintenancePhoto) then,
   ) = _$MaintenancePhotoCopyWithImpl<$Res, MaintenancePhoto>;
   @useResult
-  $Res call({String url, String note});
+  $Res call({
+    String id,
+    String maintenanceId,
+    String url,
+    String? comment,
+    PhotoTiming timing,
+    DateTime? takenAt,
+    String? takenBy,
+  });
 }
 
 /// @nodoc
@@ -58,17 +71,45 @@ class _$MaintenancePhotoCopyWithImpl<$Res, $Val extends MaintenancePhoto>
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({Object? url = null, Object? note = null}) {
+  $Res call({
+    Object? id = null,
+    Object? maintenanceId = null,
+    Object? url = null,
+    Object? comment = freezed,
+    Object? timing = null,
+    Object? takenAt = freezed,
+    Object? takenBy = freezed,
+  }) {
     return _then(
       _value.copyWith(
+            id: null == id
+                ? _value.id
+                : id // ignore: cast_nullable_to_non_nullable
+                      as String,
+            maintenanceId: null == maintenanceId
+                ? _value.maintenanceId
+                : maintenanceId // ignore: cast_nullable_to_non_nullable
+                      as String,
             url: null == url
                 ? _value.url
                 : url // ignore: cast_nullable_to_non_nullable
                       as String,
-            note: null == note
-                ? _value.note
-                : note // ignore: cast_nullable_to_non_nullable
-                      as String,
+            comment: freezed == comment
+                ? _value.comment
+                : comment // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            timing: null == timing
+                ? _value.timing
+                : timing // ignore: cast_nullable_to_non_nullable
+                      as PhotoTiming,
+            takenAt: freezed == takenAt
+                ? _value.takenAt
+                : takenAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime?,
+            takenBy: freezed == takenBy
+                ? _value.takenBy
+                : takenBy // ignore: cast_nullable_to_non_nullable
+                      as String?,
           )
           as $Val,
     );
@@ -84,7 +125,15 @@ abstract class _$$MaintenancePhotoImplCopyWith<$Res>
   ) = __$$MaintenancePhotoImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({String url, String note});
+  $Res call({
+    String id,
+    String maintenanceId,
+    String url,
+    String? comment,
+    PhotoTiming timing,
+    DateTime? takenAt,
+    String? takenBy,
+  });
 }
 
 /// @nodoc
@@ -100,17 +149,45 @@ class __$$MaintenancePhotoImplCopyWithImpl<$Res>
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({Object? url = null, Object? note = null}) {
+  $Res call({
+    Object? id = null,
+    Object? maintenanceId = null,
+    Object? url = null,
+    Object? comment = freezed,
+    Object? timing = null,
+    Object? takenAt = freezed,
+    Object? takenBy = freezed,
+  }) {
     return _then(
       _$MaintenancePhotoImpl(
+        id: null == id
+            ? _value.id
+            : id // ignore: cast_nullable_to_non_nullable
+                  as String,
+        maintenanceId: null == maintenanceId
+            ? _value.maintenanceId
+            : maintenanceId // ignore: cast_nullable_to_non_nullable
+                  as String,
         url: null == url
             ? _value.url
             : url // ignore: cast_nullable_to_non_nullable
                   as String,
-        note: null == note
-            ? _value.note
-            : note // ignore: cast_nullable_to_non_nullable
-                  as String,
+        comment: freezed == comment
+            ? _value.comment
+            : comment // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        timing: null == timing
+            ? _value.timing
+            : timing // ignore: cast_nullable_to_non_nullable
+                  as PhotoTiming,
+        takenAt: freezed == takenAt
+            ? _value.takenAt
+            : takenAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
+        takenBy: freezed == takenBy
+            ? _value.takenBy
+            : takenBy // ignore: cast_nullable_to_non_nullable
+                  as String?,
       ),
     );
   }
@@ -119,19 +196,37 @@ class __$$MaintenancePhotoImplCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$MaintenancePhotoImpl implements _MaintenancePhoto {
-  const _$MaintenancePhotoImpl({required this.url, required this.note});
+  const _$MaintenancePhotoImpl({
+    required this.id,
+    required this.maintenanceId,
+    required this.url,
+    this.comment,
+    required this.timing,
+    this.takenAt,
+    this.takenBy,
+  });
 
   factory _$MaintenancePhotoImpl.fromJson(Map<String, dynamic> json) =>
       _$$MaintenancePhotoImplFromJson(json);
 
   @override
+  final String id;
+  @override
+  final String maintenanceId;
+  @override
   final String url;
   @override
-  final String note;
+  final String? comment;
+  @override
+  final PhotoTiming timing;
+  @override
+  final DateTime? takenAt;
+  @override
+  final String? takenBy;
 
   @override
   String toString() {
-    return 'MaintenancePhoto(url: $url, note: $note)';
+    return 'MaintenancePhoto(id: $id, maintenanceId: $maintenanceId, url: $url, comment: $comment, timing: $timing, takenAt: $takenAt, takenBy: $takenBy)';
   }
 
   @override
@@ -139,13 +234,28 @@ class _$MaintenancePhotoImpl implements _MaintenancePhoto {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$MaintenancePhotoImpl &&
+            (identical(other.id, id) || other.id == id) &&
+            (identical(other.maintenanceId, maintenanceId) ||
+                other.maintenanceId == maintenanceId) &&
             (identical(other.url, url) || other.url == url) &&
-            (identical(other.note, note) || other.note == note));
+            (identical(other.comment, comment) || other.comment == comment) &&
+            (identical(other.timing, timing) || other.timing == timing) &&
+            (identical(other.takenAt, takenAt) || other.takenAt == takenAt) &&
+            (identical(other.takenBy, takenBy) || other.takenBy == takenBy));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, url, note);
+  int get hashCode => Object.hash(
+    runtimeType,
+    id,
+    maintenanceId,
+    url,
+    comment,
+    timing,
+    takenAt,
+    takenBy,
+  );
 
   /// Create a copy of MaintenancePhoto
   /// with the given fields replaced by the non-null parameter values.
@@ -166,17 +276,32 @@ class _$MaintenancePhotoImpl implements _MaintenancePhoto {
 
 abstract class _MaintenancePhoto implements MaintenancePhoto {
   const factory _MaintenancePhoto({
+    required final String id,
+    required final String maintenanceId,
     required final String url,
-    required final String note,
+    final String? comment,
+    required final PhotoTiming timing,
+    final DateTime? takenAt,
+    final String? takenBy,
   }) = _$MaintenancePhotoImpl;
 
   factory _MaintenancePhoto.fromJson(Map<String, dynamic> json) =
       _$MaintenancePhotoImpl.fromJson;
 
   @override
+  String get id;
+  @override
+  String get maintenanceId;
+  @override
   String get url;
   @override
-  String get note;
+  String? get comment;
+  @override
+  PhotoTiming get timing;
+  @override
+  DateTime? get takenAt;
+  @override
+  String? get takenBy;
 
   /// Create a copy of MaintenancePhoto
   /// with the given fields replaced by the non-null parameter values.
@@ -196,19 +321,25 @@ EquipmentMaintenanceHistory _$EquipmentMaintenanceHistoryFromJson(
 mixin _$EquipmentMaintenanceHistory {
   String get id => throw _privateConstructorUsedError;
   String get equipmentItemId => throw _privateConstructorUsedError;
-  DateTime get dateSent => throw _privateConstructorUsedError;
-  DateTime? get dateReturned => throw _privateConstructorUsedError;
-  String get descriptionOfWork => throw _privateConstructorUsedError;
-  String? get performedBy => throw _privateConstructorUsedError;
-  List<MaintenancePhoto>? get photos => throw _privateConstructorUsedError;
+  String? get equipmentName => throw _privateConstructorUsedError;
+  MaintenanceType get type => throw _privateConstructorUsedError;
+  MaintenanceStatus get status => throw _privateConstructorUsedError;
   DateTime? get createdAt => throw _privateConstructorUsedError;
+  DateTime? get startedAt => throw _privateConstructorUsedError;
+  DateTime? get completedAt => throw _privateConstructorUsedError;
+  DateTime? get equipmentAvailableFrom => throw _privateConstructorUsedError;
+  String get reportedProblem => throw _privateConstructorUsedError;
+  String? get workDescription => throw _privateConstructorUsedError;
+  String get reportedBy => throw _privateConstructorUsedError;
+  String? get assignedToUserId => throw _privateConstructorUsedError;
+  String? get assignedToStaffId => throw _privateConstructorUsedError;
+  String? get relatedBookingId => throw _privateConstructorUsedError;
+  bool get causedDowntime => throw _privateConstructorUsedError;
   DateTime? get updatedAt => throw _privateConstructorUsedError;
-  String? get createdBy => throw _privateConstructorUsedError;
-  String? get updatedBy => throw _privateConstructorUsedError;
   DateTime? get archivedAt => throw _privateConstructorUsedError;
   String? get archivedBy => throw _privateConstructorUsedError;
   String? get archivedReason => throw _privateConstructorUsedError;
-  String? get note => throw _privateConstructorUsedError;
+  List<MaintenancePhoto>? get photos => throw _privateConstructorUsedError;
 
   /// Serializes this EquipmentMaintenanceHistory to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -234,19 +365,25 @@ abstract class $EquipmentMaintenanceHistoryCopyWith<$Res> {
   $Res call({
     String id,
     String equipmentItemId,
-    DateTime dateSent,
-    DateTime? dateReturned,
-    String descriptionOfWork,
-    String? performedBy,
-    List<MaintenancePhoto>? photos,
+    String? equipmentName,
+    MaintenanceType type,
+    MaintenanceStatus status,
     DateTime? createdAt,
+    DateTime? startedAt,
+    DateTime? completedAt,
+    DateTime? equipmentAvailableFrom,
+    String reportedProblem,
+    String? workDescription,
+    String reportedBy,
+    String? assignedToUserId,
+    String? assignedToStaffId,
+    String? relatedBookingId,
+    bool causedDowntime,
     DateTime? updatedAt,
-    String? createdBy,
-    String? updatedBy,
     DateTime? archivedAt,
     String? archivedBy,
     String? archivedReason,
-    String? note,
+    List<MaintenancePhoto>? photos,
   });
 }
 
@@ -270,19 +407,25 @@ class _$EquipmentMaintenanceHistoryCopyWithImpl<
   $Res call({
     Object? id = null,
     Object? equipmentItemId = null,
-    Object? dateSent = null,
-    Object? dateReturned = freezed,
-    Object? descriptionOfWork = null,
-    Object? performedBy = freezed,
-    Object? photos = freezed,
+    Object? equipmentName = freezed,
+    Object? type = null,
+    Object? status = null,
     Object? createdAt = freezed,
+    Object? startedAt = freezed,
+    Object? completedAt = freezed,
+    Object? equipmentAvailableFrom = freezed,
+    Object? reportedProblem = null,
+    Object? workDescription = freezed,
+    Object? reportedBy = null,
+    Object? assignedToUserId = freezed,
+    Object? assignedToStaffId = freezed,
+    Object? relatedBookingId = freezed,
+    Object? causedDowntime = null,
     Object? updatedAt = freezed,
-    Object? createdBy = freezed,
-    Object? updatedBy = freezed,
     Object? archivedAt = freezed,
     Object? archivedBy = freezed,
     Object? archivedReason = freezed,
-    Object? note = freezed,
+    Object? photos = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -294,42 +437,66 @@ class _$EquipmentMaintenanceHistoryCopyWithImpl<
                 ? _value.equipmentItemId
                 : equipmentItemId // ignore: cast_nullable_to_non_nullable
                       as String,
-            dateSent: null == dateSent
-                ? _value.dateSent
-                : dateSent // ignore: cast_nullable_to_non_nullable
-                      as DateTime,
-            dateReturned: freezed == dateReturned
-                ? _value.dateReturned
-                : dateReturned // ignore: cast_nullable_to_non_nullable
-                      as DateTime?,
-            descriptionOfWork: null == descriptionOfWork
-                ? _value.descriptionOfWork
-                : descriptionOfWork // ignore: cast_nullable_to_non_nullable
-                      as String,
-            performedBy: freezed == performedBy
-                ? _value.performedBy
-                : performedBy // ignore: cast_nullable_to_non_nullable
+            equipmentName: freezed == equipmentName
+                ? _value.equipmentName
+                : equipmentName // ignore: cast_nullable_to_non_nullable
                       as String?,
-            photos: freezed == photos
-                ? _value.photos
-                : photos // ignore: cast_nullable_to_non_nullable
-                      as List<MaintenancePhoto>?,
+            type: null == type
+                ? _value.type
+                : type // ignore: cast_nullable_to_non_nullable
+                      as MaintenanceType,
+            status: null == status
+                ? _value.status
+                : status // ignore: cast_nullable_to_non_nullable
+                      as MaintenanceStatus,
             createdAt: freezed == createdAt
                 ? _value.createdAt
                 : createdAt // ignore: cast_nullable_to_non_nullable
                       as DateTime?,
+            startedAt: freezed == startedAt
+                ? _value.startedAt
+                : startedAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime?,
+            completedAt: freezed == completedAt
+                ? _value.completedAt
+                : completedAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime?,
+            equipmentAvailableFrom: freezed == equipmentAvailableFrom
+                ? _value.equipmentAvailableFrom
+                : equipmentAvailableFrom // ignore: cast_nullable_to_non_nullable
+                      as DateTime?,
+            reportedProblem: null == reportedProblem
+                ? _value.reportedProblem
+                : reportedProblem // ignore: cast_nullable_to_non_nullable
+                      as String,
+            workDescription: freezed == workDescription
+                ? _value.workDescription
+                : workDescription // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            reportedBy: null == reportedBy
+                ? _value.reportedBy
+                : reportedBy // ignore: cast_nullable_to_non_nullable
+                      as String,
+            assignedToUserId: freezed == assignedToUserId
+                ? _value.assignedToUserId
+                : assignedToUserId // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            assignedToStaffId: freezed == assignedToStaffId
+                ? _value.assignedToStaffId
+                : assignedToStaffId // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            relatedBookingId: freezed == relatedBookingId
+                ? _value.relatedBookingId
+                : relatedBookingId // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            causedDowntime: null == causedDowntime
+                ? _value.causedDowntime
+                : causedDowntime // ignore: cast_nullable_to_non_nullable
+                      as bool,
             updatedAt: freezed == updatedAt
                 ? _value.updatedAt
                 : updatedAt // ignore: cast_nullable_to_non_nullable
                       as DateTime?,
-            createdBy: freezed == createdBy
-                ? _value.createdBy
-                : createdBy // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            updatedBy: freezed == updatedBy
-                ? _value.updatedBy
-                : updatedBy // ignore: cast_nullable_to_non_nullable
-                      as String?,
             archivedAt: freezed == archivedAt
                 ? _value.archivedAt
                 : archivedAt // ignore: cast_nullable_to_non_nullable
@@ -342,10 +509,10 @@ class _$EquipmentMaintenanceHistoryCopyWithImpl<
                 ? _value.archivedReason
                 : archivedReason // ignore: cast_nullable_to_non_nullable
                       as String?,
-            note: freezed == note
-                ? _value.note
-                : note // ignore: cast_nullable_to_non_nullable
-                      as String?,
+            photos: freezed == photos
+                ? _value.photos
+                : photos // ignore: cast_nullable_to_non_nullable
+                      as List<MaintenancePhoto>?,
           )
           as $Val,
     );
@@ -364,19 +531,25 @@ abstract class _$$EquipmentMaintenanceHistoryImplCopyWith<$Res>
   $Res call({
     String id,
     String equipmentItemId,
-    DateTime dateSent,
-    DateTime? dateReturned,
-    String descriptionOfWork,
-    String? performedBy,
-    List<MaintenancePhoto>? photos,
+    String? equipmentName,
+    MaintenanceType type,
+    MaintenanceStatus status,
     DateTime? createdAt,
+    DateTime? startedAt,
+    DateTime? completedAt,
+    DateTime? equipmentAvailableFrom,
+    String reportedProblem,
+    String? workDescription,
+    String reportedBy,
+    String? assignedToUserId,
+    String? assignedToStaffId,
+    String? relatedBookingId,
+    bool causedDowntime,
     DateTime? updatedAt,
-    String? createdBy,
-    String? updatedBy,
     DateTime? archivedAt,
     String? archivedBy,
     String? archivedReason,
-    String? note,
+    List<MaintenancePhoto>? photos,
   });
 }
 
@@ -400,19 +573,25 @@ class __$$EquipmentMaintenanceHistoryImplCopyWithImpl<$Res>
   $Res call({
     Object? id = null,
     Object? equipmentItemId = null,
-    Object? dateSent = null,
-    Object? dateReturned = freezed,
-    Object? descriptionOfWork = null,
-    Object? performedBy = freezed,
-    Object? photos = freezed,
+    Object? equipmentName = freezed,
+    Object? type = null,
+    Object? status = null,
     Object? createdAt = freezed,
+    Object? startedAt = freezed,
+    Object? completedAt = freezed,
+    Object? equipmentAvailableFrom = freezed,
+    Object? reportedProblem = null,
+    Object? workDescription = freezed,
+    Object? reportedBy = null,
+    Object? assignedToUserId = freezed,
+    Object? assignedToStaffId = freezed,
+    Object? relatedBookingId = freezed,
+    Object? causedDowntime = null,
     Object? updatedAt = freezed,
-    Object? createdBy = freezed,
-    Object? updatedBy = freezed,
     Object? archivedAt = freezed,
     Object? archivedBy = freezed,
     Object? archivedReason = freezed,
-    Object? note = freezed,
+    Object? photos = freezed,
   }) {
     return _then(
       _$EquipmentMaintenanceHistoryImpl(
@@ -424,42 +603,66 @@ class __$$EquipmentMaintenanceHistoryImplCopyWithImpl<$Res>
             ? _value.equipmentItemId
             : equipmentItemId // ignore: cast_nullable_to_non_nullable
                   as String,
-        dateSent: null == dateSent
-            ? _value.dateSent
-            : dateSent // ignore: cast_nullable_to_non_nullable
-                  as DateTime,
-        dateReturned: freezed == dateReturned
-            ? _value.dateReturned
-            : dateReturned // ignore: cast_nullable_to_non_nullable
-                  as DateTime?,
-        descriptionOfWork: null == descriptionOfWork
-            ? _value.descriptionOfWork
-            : descriptionOfWork // ignore: cast_nullable_to_non_nullable
-                  as String,
-        performedBy: freezed == performedBy
-            ? _value.performedBy
-            : performedBy // ignore: cast_nullable_to_non_nullable
+        equipmentName: freezed == equipmentName
+            ? _value.equipmentName
+            : equipmentName // ignore: cast_nullable_to_non_nullable
                   as String?,
-        photos: freezed == photos
-            ? _value._photos
-            : photos // ignore: cast_nullable_to_non_nullable
-                  as List<MaintenancePhoto>?,
+        type: null == type
+            ? _value.type
+            : type // ignore: cast_nullable_to_non_nullable
+                  as MaintenanceType,
+        status: null == status
+            ? _value.status
+            : status // ignore: cast_nullable_to_non_nullable
+                  as MaintenanceStatus,
         createdAt: freezed == createdAt
             ? _value.createdAt
             : createdAt // ignore: cast_nullable_to_non_nullable
                   as DateTime?,
+        startedAt: freezed == startedAt
+            ? _value.startedAt
+            : startedAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
+        completedAt: freezed == completedAt
+            ? _value.completedAt
+            : completedAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
+        equipmentAvailableFrom: freezed == equipmentAvailableFrom
+            ? _value.equipmentAvailableFrom
+            : equipmentAvailableFrom // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
+        reportedProblem: null == reportedProblem
+            ? _value.reportedProblem
+            : reportedProblem // ignore: cast_nullable_to_non_nullable
+                  as String,
+        workDescription: freezed == workDescription
+            ? _value.workDescription
+            : workDescription // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        reportedBy: null == reportedBy
+            ? _value.reportedBy
+            : reportedBy // ignore: cast_nullable_to_non_nullable
+                  as String,
+        assignedToUserId: freezed == assignedToUserId
+            ? _value.assignedToUserId
+            : assignedToUserId // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        assignedToStaffId: freezed == assignedToStaffId
+            ? _value.assignedToStaffId
+            : assignedToStaffId // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        relatedBookingId: freezed == relatedBookingId
+            ? _value.relatedBookingId
+            : relatedBookingId // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        causedDowntime: null == causedDowntime
+            ? _value.causedDowntime
+            : causedDowntime // ignore: cast_nullable_to_non_nullable
+                  as bool,
         updatedAt: freezed == updatedAt
             ? _value.updatedAt
             : updatedAt // ignore: cast_nullable_to_non_nullable
                   as DateTime?,
-        createdBy: freezed == createdBy
-            ? _value.createdBy
-            : createdBy // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        updatedBy: freezed == updatedBy
-            ? _value.updatedBy
-            : updatedBy // ignore: cast_nullable_to_non_nullable
-                  as String?,
         archivedAt: freezed == archivedAt
             ? _value.archivedAt
             : archivedAt // ignore: cast_nullable_to_non_nullable
@@ -472,10 +675,10 @@ class __$$EquipmentMaintenanceHistoryImplCopyWithImpl<$Res>
             ? _value.archivedReason
             : archivedReason // ignore: cast_nullable_to_non_nullable
                   as String?,
-        note: freezed == note
-            ? _value.note
-            : note // ignore: cast_nullable_to_non_nullable
-                  as String?,
+        photos: freezed == photos
+            ? _value._photos
+            : photos // ignore: cast_nullable_to_non_nullable
+                  as List<MaintenancePhoto>?,
       ),
     );
   }
@@ -488,19 +691,25 @@ class _$EquipmentMaintenanceHistoryImpl
   const _$EquipmentMaintenanceHistoryImpl({
     required this.id,
     required this.equipmentItemId,
-    required this.dateSent,
-    this.dateReturned,
-    required this.descriptionOfWork,
-    this.performedBy,
-    final List<MaintenancePhoto>? photos,
+    this.equipmentName,
+    required this.type,
+    required this.status,
     this.createdAt,
+    this.startedAt,
+    this.completedAt,
+    this.equipmentAvailableFrom,
+    required this.reportedProblem,
+    this.workDescription,
+    required this.reportedBy,
+    this.assignedToUserId,
+    this.assignedToStaffId,
+    this.relatedBookingId,
+    this.causedDowntime = false,
     this.updatedAt,
-    this.createdBy,
-    this.updatedBy,
     this.archivedAt,
     this.archivedBy,
     this.archivedReason,
-    this.note,
+    final List<MaintenancePhoto>? photos,
   }) : _photos = photos;
 
   factory _$EquipmentMaintenanceHistoryImpl.fromJson(
@@ -512,13 +721,42 @@ class _$EquipmentMaintenanceHistoryImpl
   @override
   final String equipmentItemId;
   @override
-  final DateTime dateSent;
+  final String? equipmentName;
   @override
-  final DateTime? dateReturned;
+  final MaintenanceType type;
   @override
-  final String descriptionOfWork;
+  final MaintenanceStatus status;
   @override
-  final String? performedBy;
+  final DateTime? createdAt;
+  @override
+  final DateTime? startedAt;
+  @override
+  final DateTime? completedAt;
+  @override
+  final DateTime? equipmentAvailableFrom;
+  @override
+  final String reportedProblem;
+  @override
+  final String? workDescription;
+  @override
+  final String reportedBy;
+  @override
+  final String? assignedToUserId;
+  @override
+  final String? assignedToStaffId;
+  @override
+  final String? relatedBookingId;
+  @override
+  @JsonKey()
+  final bool causedDowntime;
+  @override
+  final DateTime? updatedAt;
+  @override
+  final DateTime? archivedAt;
+  @override
+  final String? archivedBy;
+  @override
+  final String? archivedReason;
   final List<MaintenancePhoto>? _photos;
   @override
   List<MaintenancePhoto>? get photos {
@@ -530,25 +768,8 @@ class _$EquipmentMaintenanceHistoryImpl
   }
 
   @override
-  final DateTime? createdAt;
-  @override
-  final DateTime? updatedAt;
-  @override
-  final String? createdBy;
-  @override
-  final String? updatedBy;
-  @override
-  final DateTime? archivedAt;
-  @override
-  final String? archivedBy;
-  @override
-  final String? archivedReason;
-  @override
-  final String? note;
-
-  @override
   String toString() {
-    return 'EquipmentMaintenanceHistory(id: $id, equipmentItemId: $equipmentItemId, dateSent: $dateSent, dateReturned: $dateReturned, descriptionOfWork: $descriptionOfWork, performedBy: $performedBy, photos: $photos, createdAt: $createdAt, updatedAt: $updatedAt, createdBy: $createdBy, updatedBy: $updatedBy, archivedAt: $archivedAt, archivedBy: $archivedBy, archivedReason: $archivedReason, note: $note)';
+    return 'EquipmentMaintenanceHistory(id: $id, equipmentItemId: $equipmentItemId, equipmentName: $equipmentName, type: $type, status: $status, createdAt: $createdAt, startedAt: $startedAt, completedAt: $completedAt, equipmentAvailableFrom: $equipmentAvailableFrom, reportedProblem: $reportedProblem, workDescription: $workDescription, reportedBy: $reportedBy, assignedToUserId: $assignedToUserId, assignedToStaffId: $assignedToStaffId, relatedBookingId: $relatedBookingId, causedDowntime: $causedDowntime, updatedAt: $updatedAt, archivedAt: $archivedAt, archivedBy: $archivedBy, archivedReason: $archivedReason, photos: $photos)';
   }
 
   @override
@@ -559,52 +780,69 @@ class _$EquipmentMaintenanceHistoryImpl
             (identical(other.id, id) || other.id == id) &&
             (identical(other.equipmentItemId, equipmentItemId) ||
                 other.equipmentItemId == equipmentItemId) &&
-            (identical(other.dateSent, dateSent) ||
-                other.dateSent == dateSent) &&
-            (identical(other.dateReturned, dateReturned) ||
-                other.dateReturned == dateReturned) &&
-            (identical(other.descriptionOfWork, descriptionOfWork) ||
-                other.descriptionOfWork == descriptionOfWork) &&
-            (identical(other.performedBy, performedBy) ||
-                other.performedBy == performedBy) &&
-            const DeepCollectionEquality().equals(other._photos, _photos) &&
+            (identical(other.equipmentName, equipmentName) ||
+                other.equipmentName == equipmentName) &&
+            (identical(other.type, type) || other.type == type) &&
+            (identical(other.status, status) || other.status == status) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
+            (identical(other.startedAt, startedAt) ||
+                other.startedAt == startedAt) &&
+            (identical(other.completedAt, completedAt) ||
+                other.completedAt == completedAt) &&
+            (identical(other.equipmentAvailableFrom, equipmentAvailableFrom) ||
+                other.equipmentAvailableFrom == equipmentAvailableFrom) &&
+            (identical(other.reportedProblem, reportedProblem) ||
+                other.reportedProblem == reportedProblem) &&
+            (identical(other.workDescription, workDescription) ||
+                other.workDescription == workDescription) &&
+            (identical(other.reportedBy, reportedBy) ||
+                other.reportedBy == reportedBy) &&
+            (identical(other.assignedToUserId, assignedToUserId) ||
+                other.assignedToUserId == assignedToUserId) &&
+            (identical(other.assignedToStaffId, assignedToStaffId) ||
+                other.assignedToStaffId == assignedToStaffId) &&
+            (identical(other.relatedBookingId, relatedBookingId) ||
+                other.relatedBookingId == relatedBookingId) &&
+            (identical(other.causedDowntime, causedDowntime) ||
+                other.causedDowntime == causedDowntime) &&
             (identical(other.updatedAt, updatedAt) ||
                 other.updatedAt == updatedAt) &&
-            (identical(other.createdBy, createdBy) ||
-                other.createdBy == createdBy) &&
-            (identical(other.updatedBy, updatedBy) ||
-                other.updatedBy == updatedBy) &&
             (identical(other.archivedAt, archivedAt) ||
                 other.archivedAt == archivedAt) &&
             (identical(other.archivedBy, archivedBy) ||
                 other.archivedBy == archivedBy) &&
             (identical(other.archivedReason, archivedReason) ||
                 other.archivedReason == archivedReason) &&
-            (identical(other.note, note) || other.note == note));
+            const DeepCollectionEquality().equals(other._photos, _photos));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     runtimeType,
     id,
     equipmentItemId,
-    dateSent,
-    dateReturned,
-    descriptionOfWork,
-    performedBy,
-    const DeepCollectionEquality().hash(_photos),
+    equipmentName,
+    type,
+    status,
     createdAt,
+    startedAt,
+    completedAt,
+    equipmentAvailableFrom,
+    reportedProblem,
+    workDescription,
+    reportedBy,
+    assignedToUserId,
+    assignedToStaffId,
+    relatedBookingId,
+    causedDowntime,
     updatedAt,
-    createdBy,
-    updatedBy,
     archivedAt,
     archivedBy,
     archivedReason,
-    note,
-  );
+    const DeepCollectionEquality().hash(_photos),
+  ]);
 
   /// Create a copy of EquipmentMaintenanceHistory
   /// with the given fields replaced by the non-null parameter values.
@@ -628,19 +866,25 @@ abstract class _EquipmentMaintenanceHistory
   const factory _EquipmentMaintenanceHistory({
     required final String id,
     required final String equipmentItemId,
-    required final DateTime dateSent,
-    final DateTime? dateReturned,
-    required final String descriptionOfWork,
-    final String? performedBy,
-    final List<MaintenancePhoto>? photos,
+    final String? equipmentName,
+    required final MaintenanceType type,
+    required final MaintenanceStatus status,
     final DateTime? createdAt,
+    final DateTime? startedAt,
+    final DateTime? completedAt,
+    final DateTime? equipmentAvailableFrom,
+    required final String reportedProblem,
+    final String? workDescription,
+    required final String reportedBy,
+    final String? assignedToUserId,
+    final String? assignedToStaffId,
+    final String? relatedBookingId,
+    final bool causedDowntime,
     final DateTime? updatedAt,
-    final String? createdBy,
-    final String? updatedBy,
     final DateTime? archivedAt,
     final String? archivedBy,
     final String? archivedReason,
-    final String? note,
+    final List<MaintenancePhoto>? photos,
   }) = _$EquipmentMaintenanceHistoryImpl;
 
   factory _EquipmentMaintenanceHistory.fromJson(Map<String, dynamic> json) =
@@ -651,23 +895,35 @@ abstract class _EquipmentMaintenanceHistory
   @override
   String get equipmentItemId;
   @override
-  DateTime get dateSent;
+  String? get equipmentName;
   @override
-  DateTime? get dateReturned;
+  MaintenanceType get type;
   @override
-  String get descriptionOfWork;
-  @override
-  String? get performedBy;
-  @override
-  List<MaintenancePhoto>? get photos;
+  MaintenanceStatus get status;
   @override
   DateTime? get createdAt;
   @override
+  DateTime? get startedAt;
+  @override
+  DateTime? get completedAt;
+  @override
+  DateTime? get equipmentAvailableFrom;
+  @override
+  String get reportedProblem;
+  @override
+  String? get workDescription;
+  @override
+  String get reportedBy;
+  @override
+  String? get assignedToUserId;
+  @override
+  String? get assignedToStaffId;
+  @override
+  String? get relatedBookingId;
+  @override
+  bool get causedDowntime;
+  @override
   DateTime? get updatedAt;
-  @override
-  String? get createdBy;
-  @override
-  String? get updatedBy;
   @override
   DateTime? get archivedAt;
   @override
@@ -675,7 +931,7 @@ abstract class _EquipmentMaintenanceHistory
   @override
   String? get archivedReason;
   @override
-  String? get note;
+  List<MaintenancePhoto>? get photos;
 
   /// Create a copy of EquipmentMaintenanceHistory
   /// with the given fields replaced by the non-null parameter values.

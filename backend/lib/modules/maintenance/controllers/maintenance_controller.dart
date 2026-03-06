@@ -73,7 +73,7 @@ class MaintenanceController {
       return Response.ok('{"message": "Photo uploaded successfully", "url": "$photoUrl"}');
 
     } catch (e) {
-      return Response.internalServerError(body: '{"error": "$e"}');
+      return Response.internalServerError(body: jsonEncode({'error': e.toString()}));
     }
   }
 
@@ -89,7 +89,7 @@ class MaintenanceController {
           headers: {'Content-Type': 'application/json'},
         );
       } catch (e) {
-        return Response.internalServerError(body: '{"error": "$e"}');
+        return Response.internalServerError(body: jsonEncode({'error': e.toString()}));
       }
     });
 
@@ -102,7 +102,7 @@ class MaintenanceController {
           headers: {'Content-Type': 'application/json'},
         );
       } catch (e) {
-        return Response.internalServerError(body: '{"error": "$e"}');
+        return Response.internalServerError(body: jsonEncode({'error': e.toString()}));
       }
     });
 
@@ -117,7 +117,7 @@ class MaintenanceController {
           headers: {'Content-Type': 'application/json'},
         );
       } catch (e) {
-        return Response.internalServerError(body: '{"error": "$e"}');
+        return Response.internalServerError(body: jsonEncode({'error': e.toString()}));
       }
     });
 
@@ -134,7 +134,7 @@ class MaintenanceController {
           headers: {'Content-Type': 'application/json'},
         );
       } catch (e) {
-        return Response.internalServerError(body: '{"error": "$e"}');
+        return Response.internalServerError(body: jsonEncode({'error': e.toString()}));
       }
     });
 
@@ -150,7 +150,7 @@ class MaintenanceController {
         await _maintenanceService.archive(id, reason, userId);
         return Response.ok('{"message": "Record archived successfully"}');
       } catch (e) {
-        return Response.internalServerError(body: '{"error": "$e"}');
+        return Response.internalServerError(body: jsonEncode({'error': e.toString()}));
       }
     });
 

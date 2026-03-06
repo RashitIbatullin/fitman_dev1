@@ -619,7 +619,9 @@ CREATE TABLE equipment_maintenance_history (
   related_booking_id BIGINT REFERENCES equipment_bookings(id),
   caused_downtime BOOLEAN DEFAULT false,
   updated_at TIMESTAMPTZ DEFAULT NOW(),
-  is_archived BOOLEAN DEFAULT false,
+  archived_at TIMESTAMPTZ,
+  archived_by BIGINT REFERENCES users(id),
+  archived_reason TEXT,
   
   -- Ограничения
   CONSTRAINT assigned_to_check CHECK (
@@ -733,7 +735,7 @@ CREATE INDEX idx_equipment_bookings_time_status ON equipment_bookings(equipment_
 
 -- Индексы для equipment_maintenance_history
 CREATE INDEX idx_maintenance_equipment ON equipment_maintenance_history(equipment_item_id);
-CREATE INDEX idx_maintenance_status ON equipment_maintenance_history(status) WHERE NOT is_archived;
+CREATE INDEX idx_maintenance_status ON equipment_maintenance_history(status) WHERE archived_at IS NULL;
 CREATE INDEX idx_maintenance_assigned_user ON equipment_maintenance_history(assigned_to_user_id) WHERE assigned_to_user_id IS NOT NULL;
 CREATE INDEX idx_maintenance_assigned_staff ON equipment_maintenance_history(assigned_to_staff_id) WHERE assigned_to_staff_id IS NOT NULL;
 

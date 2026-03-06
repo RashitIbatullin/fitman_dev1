@@ -65,7 +65,9 @@ class EquipmentMaintenanceHistory with _$EquipmentMaintenanceHistory {
     String? relatedBookingId,
     @Default(false) bool causedDowntime,
     DateTime? updatedAt,
-    @Default(false) bool isArchived,
+    DateTime? archivedAt,
+    String? archivedBy,
+    String? archivedReason,
     List<MaintenancePhoto>? photos,
   }) = _EquipmentMaintenanceHistory;
 

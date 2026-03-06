@@ -336,7 +336,9 @@ mixin _$EquipmentMaintenanceHistory {
   String? get relatedBookingId => throw _privateConstructorUsedError;
   bool get causedDowntime => throw _privateConstructorUsedError;
   DateTime? get updatedAt => throw _privateConstructorUsedError;
-  bool get isArchived => throw _privateConstructorUsedError;
+  DateTime? get archivedAt => throw _privateConstructorUsedError;
+  String? get archivedBy => throw _privateConstructorUsedError;
+  String? get archivedReason => throw _privateConstructorUsedError;
   List<MaintenancePhoto>? get photos => throw _privateConstructorUsedError;
 
   /// Serializes this EquipmentMaintenanceHistory to a JSON map.
@@ -378,7 +380,9 @@ abstract class $EquipmentMaintenanceHistoryCopyWith<$Res> {
     String? relatedBookingId,
     bool causedDowntime,
     DateTime? updatedAt,
-    bool isArchived,
+    DateTime? archivedAt,
+    String? archivedBy,
+    String? archivedReason,
     List<MaintenancePhoto>? photos,
   });
 }
@@ -418,7 +422,9 @@ class _$EquipmentMaintenanceHistoryCopyWithImpl<
     Object? relatedBookingId = freezed,
     Object? causedDowntime = null,
     Object? updatedAt = freezed,
-    Object? isArchived = null,
+    Object? archivedAt = freezed,
+    Object? archivedBy = freezed,
+    Object? archivedReason = freezed,
     Object? photos = freezed,
   }) {
     return _then(
@@ -491,10 +497,18 @@ class _$EquipmentMaintenanceHistoryCopyWithImpl<
                 ? _value.updatedAt
                 : updatedAt // ignore: cast_nullable_to_non_nullable
                       as DateTime?,
-            isArchived: null == isArchived
-                ? _value.isArchived
-                : isArchived // ignore: cast_nullable_to_non_nullable
-                      as bool,
+            archivedAt: freezed == archivedAt
+                ? _value.archivedAt
+                : archivedAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime?,
+            archivedBy: freezed == archivedBy
+                ? _value.archivedBy
+                : archivedBy // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            archivedReason: freezed == archivedReason
+                ? _value.archivedReason
+                : archivedReason // ignore: cast_nullable_to_non_nullable
+                      as String?,
             photos: freezed == photos
                 ? _value.photos
                 : photos // ignore: cast_nullable_to_non_nullable
@@ -532,7 +546,9 @@ abstract class _$$EquipmentMaintenanceHistoryImplCopyWith<$Res>
     String? relatedBookingId,
     bool causedDowntime,
     DateTime? updatedAt,
-    bool isArchived,
+    DateTime? archivedAt,
+    String? archivedBy,
+    String? archivedReason,
     List<MaintenancePhoto>? photos,
   });
 }
@@ -572,7 +588,9 @@ class __$$EquipmentMaintenanceHistoryImplCopyWithImpl<$Res>
     Object? relatedBookingId = freezed,
     Object? causedDowntime = null,
     Object? updatedAt = freezed,
-    Object? isArchived = null,
+    Object? archivedAt = freezed,
+    Object? archivedBy = freezed,
+    Object? archivedReason = freezed,
     Object? photos = freezed,
   }) {
     return _then(
@@ -645,10 +663,18 @@ class __$$EquipmentMaintenanceHistoryImplCopyWithImpl<$Res>
             ? _value.updatedAt
             : updatedAt // ignore: cast_nullable_to_non_nullable
                   as DateTime?,
-        isArchived: null == isArchived
-            ? _value.isArchived
-            : isArchived // ignore: cast_nullable_to_non_nullable
-                  as bool,
+        archivedAt: freezed == archivedAt
+            ? _value.archivedAt
+            : archivedAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
+        archivedBy: freezed == archivedBy
+            ? _value.archivedBy
+            : archivedBy // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        archivedReason: freezed == archivedReason
+            ? _value.archivedReason
+            : archivedReason // ignore: cast_nullable_to_non_nullable
+                  as String?,
         photos: freezed == photos
             ? _value._photos
             : photos // ignore: cast_nullable_to_non_nullable
@@ -680,7 +706,9 @@ class _$EquipmentMaintenanceHistoryImpl
     this.relatedBookingId,
     this.causedDowntime = false,
     this.updatedAt,
-    this.isArchived = false,
+    this.archivedAt,
+    this.archivedBy,
+    this.archivedReason,
     final List<MaintenancePhoto>? photos,
   }) : _photos = photos;
 
@@ -724,8 +752,11 @@ class _$EquipmentMaintenanceHistoryImpl
   @override
   final DateTime? updatedAt;
   @override
-  @JsonKey()
-  final bool isArchived;
+  final DateTime? archivedAt;
+  @override
+  final String? archivedBy;
+  @override
+  final String? archivedReason;
   final List<MaintenancePhoto>? _photos;
   @override
   List<MaintenancePhoto>? get photos {
@@ -738,7 +769,7 @@ class _$EquipmentMaintenanceHistoryImpl
 
   @override
   String toString() {
-    return 'EquipmentMaintenanceHistory(id: $id, equipmentItemId: $equipmentItemId, equipmentName: $equipmentName, type: $type, status: $status, createdAt: $createdAt, startedAt: $startedAt, completedAt: $completedAt, equipmentAvailableFrom: $equipmentAvailableFrom, reportedProblem: $reportedProblem, workDescription: $workDescription, reportedBy: $reportedBy, assignedToUserId: $assignedToUserId, assignedToStaffId: $assignedToStaffId, relatedBookingId: $relatedBookingId, causedDowntime: $causedDowntime, updatedAt: $updatedAt, isArchived: $isArchived, photos: $photos)';
+    return 'EquipmentMaintenanceHistory(id: $id, equipmentItemId: $equipmentItemId, equipmentName: $equipmentName, type: $type, status: $status, createdAt: $createdAt, startedAt: $startedAt, completedAt: $completedAt, equipmentAvailableFrom: $equipmentAvailableFrom, reportedProblem: $reportedProblem, workDescription: $workDescription, reportedBy: $reportedBy, assignedToUserId: $assignedToUserId, assignedToStaffId: $assignedToStaffId, relatedBookingId: $relatedBookingId, causedDowntime: $causedDowntime, updatedAt: $updatedAt, archivedAt: $archivedAt, archivedBy: $archivedBy, archivedReason: $archivedReason, photos: $photos)';
   }
 
   @override
@@ -777,8 +808,12 @@ class _$EquipmentMaintenanceHistoryImpl
                 other.causedDowntime == causedDowntime) &&
             (identical(other.updatedAt, updatedAt) ||
                 other.updatedAt == updatedAt) &&
-            (identical(other.isArchived, isArchived) ||
-                other.isArchived == isArchived) &&
+            (identical(other.archivedAt, archivedAt) ||
+                other.archivedAt == archivedAt) &&
+            (identical(other.archivedBy, archivedBy) ||
+                other.archivedBy == archivedBy) &&
+            (identical(other.archivedReason, archivedReason) ||
+                other.archivedReason == archivedReason) &&
             const DeepCollectionEquality().equals(other._photos, _photos));
   }
 
@@ -803,7 +838,9 @@ class _$EquipmentMaintenanceHistoryImpl
     relatedBookingId,
     causedDowntime,
     updatedAt,
-    isArchived,
+    archivedAt,
+    archivedBy,
+    archivedReason,
     const DeepCollectionEquality().hash(_photos),
   ]);
 
@@ -844,7 +881,9 @@ abstract class _EquipmentMaintenanceHistory
     final String? relatedBookingId,
     final bool causedDowntime,
     final DateTime? updatedAt,
-    final bool isArchived,
+    final DateTime? archivedAt,
+    final String? archivedBy,
+    final String? archivedReason,
     final List<MaintenancePhoto>? photos,
   }) = _$EquipmentMaintenanceHistoryImpl;
 
@@ -886,7 +925,11 @@ abstract class _EquipmentMaintenanceHistory
   @override
   DateTime? get updatedAt;
   @override
-  bool get isArchived;
+  DateTime? get archivedAt;
+  @override
+  String? get archivedBy;
+  @override
+  String? get archivedReason;
   @override
   List<MaintenancePhoto>? get photos;
 

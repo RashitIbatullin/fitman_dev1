@@ -67,7 +67,11 @@ _$EquipmentMaintenanceHistoryImpl _$$EquipmentMaintenanceHistoryImplFromJson(
   updatedAt: json['updated_at'] == null
       ? null
       : DateTime.parse(json['updated_at'] as String),
-  isArchived: json['is_archived'] as bool? ?? false,
+  archivedAt: json['archived_at'] == null
+      ? null
+      : DateTime.parse(json['archived_at'] as String),
+  archivedBy: json['archived_by'] as String?,
+  archivedReason: json['archived_reason'] as String?,
   photos: (json['photos'] as List<dynamic>?)
       ?.map((e) => MaintenancePhoto.fromJson(e as Map<String, dynamic>))
       .toList(),
@@ -94,7 +98,9 @@ Map<String, dynamic> _$$EquipmentMaintenanceHistoryImplToJson(
   'related_booking_id': instance.relatedBookingId,
   'caused_downtime': instance.causedDowntime,
   'updated_at': instance.updatedAt?.toIso8601String(),
-  'is_archived': instance.isArchived,
+  'archived_at': instance.archivedAt?.toIso8601String(),
+  'archived_by': instance.archivedBy,
+  'archived_reason': instance.archivedReason,
   'photos': instance.photos,
 };
 

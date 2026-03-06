@@ -25,21 +25,37 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
     final result = await conn.execute(
       Sql.named('''
         INSERT INTO equipment_maintenance_history (
-          equipment_item_id, date_sent, date_returned, description_of_work,
-          performed_by, photos,
-          company_id, created_at, updated_at, created_by, updated_by
+          equipment_item_id, equipment_name, type, status,
+          created_at, started_at, completed_at, equipment_available_from,
+          reported_problem, work_description, reported_by,
+          assigned_to_user_id, assigned_to_staff_id, related_booking_id,
+          caused_downtime, updated_at, photos,
+          created_by, updated_by
         ) VALUES (
-          @equipmentItemId, @dateSent, @dateReturned, @descriptionOfWork,
-          @performedBy, @photos,
-          -1, NOW(), NOW(), @createdBy, @updatedBy
+          @equipmentItemId, @equipmentName, @type, @status,
+          @createdAt, @startedAt, @completedAt, @equipmentAvailableFrom,
+          @reportedProblem, @workDescription, @reportedBy,
+          @assignedToUserId, @assignedToStaffId, @relatedBookingId,
+          @causedDowntime, NOW(), @photos,
+          @createdBy, @updatedBy
         ) RETURNING id;
       '''),
       parameters: {
         'equipmentItemId': history.equipmentItemId,
-        'dateSent': history.dateSent,
-        'dateReturned': history.dateReturned,
-        'descriptionOfWork': history.descriptionOfWork,
-        'performedBy': history.performedBy,
+        'equipmentName': history.equipmentName,
+        'type': history.type.index,
+        'status': history.status.index,
+        'createdAt': history.createdAt ?? DateTime.now(),
+        'startedAt': history.startedAt,
+        'completedAt': history.completedAt,
+        'equipmentAvailableFrom': history.equipmentAvailableFrom,
+        'reportedProblem': history.reportedProblem,
+        'workDescription': history.workDescription,
+        'reportedBy': history.reportedBy,
+        'assignedToUserId': history.assignedToUserId,
+        'assignedToStaffId': history.assignedToStaffId,
+        'relatedBookingId': history.relatedBookingId,
+        'causedDowntime': history.causedDowntime,
         'photos': history.photos != null ? jsonEncode(history.photos!.map((p) => p.toJson()).toList()) : null,
         'createdBy': userId,
         'updatedBy': userId,
@@ -54,12 +70,12 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
   Future<List<EquipmentMaintenanceHistory>> getAll() async {
     final conn = await _db.connection;
     final result = await conn.execute(
-      Sql.named('SELECT * FROM equipment_maintenance_history WHERE archived_at IS NULL ORDER BY date_sent DESC'),
+      Sql.named('SELECT * FROM equipment_maintenance_history WHERE archived_at IS NULL ORDER BY created_at DESC'),
     );
 
     return result.map((row) {
       final rowMap = row.toColumnMap();
-      return EquipmentMaintenanceHistory.fromMap(rowMap);
+      return EquipmentMaintenanceHistory.fromJson(rowMap);
     }).toList();
   }
 
@@ -75,21 +91,21 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
       throw Exception('EquipmentMaintenanceHistory with id $id not found');
     }
 
-    return EquipmentMaintenanceHistory.fromMap(result.first.toColumnMap());
+    return EquipmentMaintenanceHistory.fromJson(result.first.toColumnMap());
   }
 
   @override
   Future<List<EquipmentMaintenanceHistory>> getByEquipmentItemId(String equipmentItemId) async {
     final conn = await _db.connection;
     final result = await conn.execute(
-      Sql.named('SELECT * FROM equipment_maintenance_history WHERE equipment_item_id = @equipmentItemId AND archived_at IS NULL ORDER BY date_sent DESC'),
+      Sql.named('SELECT * FROM equipment_maintenance_history WHERE equipment_item_id = @equipmentItemId AND archived_at IS NULL ORDER BY created_at DESC'),
       parameters: {'equipmentItemId': equipmentItemId},
     );
 
     return result.map((row) {
       final rowMap = row.toColumnMap();
-      print('Repository: Raw row from DB: $rowMap'); // Add this line
-      return EquipmentMaintenanceHistory.fromMap(rowMap);
+      print('Repository: Raw row from DB: $rowMap'); // Keep this debug line for now
+      return EquipmentMaintenanceHistory.fromJson(rowMap);
     }).toList();
   }
 
@@ -99,21 +115,47 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
     await conn.execute(
       Sql.named('''
         UPDATE equipment_maintenance_history SET
-          date_sent = @dateSent,
-          date_returned = @dateReturned,
-          description_of_work = @descriptionOfWork,
-          performed_by = @performedBy,
-          photos = @photos,
+          equipment_name = @equipmentName,
+          type = @type,
+          status = @status,
+          created_at = @createdAt,
+          started_at = @startedAt,
+          completed_at = @completedAt,
+          equipment_available_from = @equipmentAvailableFrom,
+          reported_problem = @reportedProblem,
+          work_description = @workDescription,
+          reported_by = @reportedBy,
+          assigned_to_user_id = @assignedToUserId,
+          assigned_to_staff_id = @assignedToStaffId,
+          related_booking_id = @relatedBookingId,
+          caused_downtime = @causedDowntime,
           updated_at = NOW(),
+          archived_at = @archivedAt,
+          archived_by = @archivedBy,
+          archived_reason = @archivedReason,
+          photos = @photos,
           updated_by = @updatedBy
         WHERE id = @id;
       '''),
       parameters: {
         'id': id,
-        'dateSent': history.dateSent,
-        'dateReturned': history.dateReturned,
-        'descriptionOfWork': history.descriptionOfWork,
-        'performedBy': history.performedBy,
+        'equipmentName': history.equipmentName,
+        'type': history.type.index,
+        'status': history.status.index,
+        'createdAt': history.createdAt,
+        'startedAt': history.startedAt,
+        'completedAt': history.completedAt,
+        'equipmentAvailableFrom': history.equipmentAvailableFrom,
+        'reportedProblem': history.reportedProblem,
+        'workDescription': history.workDescription,
+        'reportedBy': history.reportedBy,
+        'assignedToUserId': history.assignedToUserId,
+        'assignedToStaffId': history.assignedToStaffId,
+        'relatedBookingId': history.relatedBookingId,
+        'causedDowntime': history.causedDowntime,
+        'archivedAt': history.archivedAt,
+        'archivedBy': history.archivedBy,
+        'archivedReason': history.archivedReason,
         'photos': history.photos != null ? jsonEncode(history.photos!.map((p) => p.toJson()).toList()) : null,
         'updatedBy': userId,
       },
