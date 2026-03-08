@@ -26,8 +26,8 @@ class MaintenanceDetailsScreen extends StatelessWidget {
           children: [
             _buildDetailRow(label: 'Проблема:', value: record.reportedProblem),
             const Divider(),
-            _buildDetailRow(label: 'Статус:', value: record.status.name),
-            _buildDetailRow(label: 'Тип:', value: record.type.name),
+            _buildDetailRow(label: 'Статус:', value: record.status.title),
+            _buildDetailRow(label: 'Тип:', value: record.type.title),
             if (record.workDescription != null && record.workDescription!.isNotEmpty)
               _buildDetailRow(label: 'Выполненные работы:', value: record.workDescription!),
             
@@ -35,9 +35,9 @@ class MaintenanceDetailsScreen extends StatelessWidget {
             Text('Исполнители', style: Theme.of(context).textTheme.titleLarge),
             _buildDetailRow(label: 'Заявил:', value: record.reportedBy), // TODO: Fetch user name
             if (record.assignedToUserId != null)
-              _buildDetailRow(label: 'Назначено (сотрудник):', value: record.assignedToUserId!), // TODO: Fetch user name
+              _buildDetailRow(label: 'Назначено (сотрудник):', value: record.assignedToUserId!.toString()), // TODO: Fetch user name
             if (record.assignedToStaffId != null)
-               _buildDetailRow(label: 'Назначено (внешний):', value: record.assignedToStaffId!), // TODO: Fetch staff name
+               _buildDetailRow(label: 'Назначено (внешний):', value: record.assignedToStaffId!.toString()), // TODO: Fetch staff name
             
             const Divider(height: 32),
             Text('Сроки', style: Theme.of(context).textTheme.titleLarge),

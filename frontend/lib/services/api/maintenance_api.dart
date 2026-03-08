@@ -18,6 +18,8 @@ class MaintenanceApiService extends BaseApiService {
 
   Future<EquipmentMaintenanceHistory> createMaintenanceHistory(EquipmentMaintenanceHistory history) async {
     final data = await post('/api/maintenance', body: history.toJson());
+    print('--- RAW RESPONSE DATA ---');
+    print(data);
     return EquipmentMaintenanceHistory.fromJson(data);
   }
 

@@ -1,10 +1,12 @@
+import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fitman_app/modules/maintenance/models/equipment_maintenance_history.model.dart';
 import 'package:fitman_app/modules/maintenance/providers/maintenance_provider.dart';
+import 'package:fitman_app/providers/auth_provider.dart';
 import 'package:fitman_app/services/api_service.dart';
-import 'package:intl/intl.dart';
+
 
 // Helper class to manage photos and their comments
 class _PhotoWithComment {
@@ -94,6 +96,18 @@ class _EquipmentMaintenanceHistoryEditScreenState
       final isCreating = widget.historyRecord == null;
       EquipmentMaintenanceHistory recordToSave;
 
+      final authState = ref.read(authProvider);
+      final userId = authState.valueOrNull?.user?.id;
+
+      if (userId == null) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Ошибка: не удалось определить пользователя'), backgroundColor: Colors.red),
+        );
+        setState(() => _isLoading = false);
+        return;
+      }
+
       if (isCreating) {
         recordToSave = EquipmentMaintenanceHistory(
           id: '', // Ignored by backend on create
@@ -102,8 +116,10 @@ class _EquipmentMaintenanceHistoryEditScreenState
           workDescription: _workDescriptionController.text,
           type: _selectedType,
           status: _selectedStatus,
-          reportedBy: '', // This should be the current user ID, handled by backend/provider
+          reportedBy: userId.toString(),
         );
+        print('--- SENDING JSON TO CREATE ---');
+        print(recordToSave.toJson());
         recordToSave = await ApiService.createMaintenanceHistory(recordToSave);
       } else {
         recordToSave = widget.historyRecord!.copyWith(
@@ -147,8 +163,18 @@ class _EquipmentMaintenanceHistoryEditScreenState
       );
       Navigator.of(context).pop(true);
 
-    } catch (e) {
+    } catch (e, st) {
       if (!mounted) return;
+      
+      print('--- SAVE FAILED ---');
+      print('ERROR: $e');
+      print('STACK TRACE: $st');
+
+      if (e is DioException) {
+          print('--- DIO RESPONSE DATA---');
+          print(e.response?.data);
+      }
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Ошибка сохранения: $e'), backgroundColor: Colors.red),
       );
@@ -182,7 +208,7 @@ class _EquipmentMaintenanceHistoryEditScreenState
                 initialValue: _selectedType,
                 decoration: const InputDecoration(labelText: 'Тип ТО', border: OutlineInputBorder()),
                 items: MaintenanceType.values.map((type) {
-                  return DropdownMenuItem(value: type, child: Text(toBeginningOfSentenceCase(type.name) ?? type.name));
+                  return DropdownMenuItem(value: type, child: Text(type.title));
                 }).toList(),
                 onChanged: (value) {
                   if (value != null) {
@@ -195,7 +221,7 @@ class _EquipmentMaintenanceHistoryEditScreenState
                 initialValue: _selectedStatus,
                 decoration: const InputDecoration(labelText: 'Статус', border: OutlineInputBorder()),
                 items: MaintenanceStatus.values.map((status) {
-                  return DropdownMenuItem(value: status, child: Text(toBeginningOfSentenceCase(status.name) ?? status.name));
+                  return DropdownMenuItem(value: status, child: Text(status.title));
                 }).toList(),
                 onChanged: (value) {
                   if (value != null) {

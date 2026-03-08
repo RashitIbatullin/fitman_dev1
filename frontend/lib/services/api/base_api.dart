@@ -64,12 +64,19 @@ class BaseApiService {
 
   /// Helper method to perform a POST request.
   Future<dynamic> post(String endpoint, {required Map<String, dynamic> body}) async {
-    final response = await client.post(
-      Uri.parse('$baseUrl$endpoint'),
-      headers: BaseApiService.headers,
-      body: jsonEncode(body),
-    );
-    return _handleResponse(response);
+    try {
+      final response = await client.post(
+        Uri.parse('$baseUrl$endpoint'),
+        headers: BaseApiService.headers,
+        body: jsonEncode(body),
+      );
+      return _handleResponse(response);
+    } catch (e, st) {
+      print('--- EXCEPTION INSIDE POST METHOD ---');
+      print(e);
+      print(st);
+      rethrow;
+    }
   }
 
   /// Helper method to perform a PUT request.
@@ -126,10 +133,19 @@ class BaseApiService {
       if (response.body.isEmpty) return null;
       return jsonDecode(response.body);
     } else {
-      final errorData = jsonDecode(response.body);
-      throw Exception(
-        errorData['error'] ?? 'Request failed with status ${response.statusCode}',
-      );
+      String errorMessage = 'Request failed with status ${response.statusCode}';
+      try {
+        final errorData = jsonDecode(response.body);
+        if (errorData is Map && errorData.containsKey('error')) {
+          errorMessage = errorData['error'];
+        }
+      } catch (e) {
+        // Not a JSON response, or malformed. Use the raw body if it's not too long.
+        if (response.body.isNotEmpty && response.body.length < 500) {
+          errorMessage = response.body;
+        }
+      }
+      throw Exception(errorMessage);
     }
   }
 }

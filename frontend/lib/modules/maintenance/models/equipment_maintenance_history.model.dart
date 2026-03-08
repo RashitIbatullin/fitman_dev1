@@ -7,27 +7,58 @@ part 'equipment_maintenance_history.model.g.dart';
 enum MaintenanceType {
   /// Плановое профилактическое
   preventive,
+
   /// Ремонт по факту неисправности
   corrective
+}
+
+extension MaintenanceTypeX on MaintenanceType {
+  String get title {
+    switch (this) {
+      case MaintenanceType.preventive:
+        return 'Плановое';
+      case MaintenanceType.corrective:
+        return 'Ремонт';
+    }
+  }
 }
 
 /// Статус ТО
 enum MaintenanceStatus {
   /// Проблема зафиксирована
   reported,
+
   /// В работе
   inProgress,
+
   /// Завершено
   completed,
+
   /// Отменено
   cancelled
 }
 
-/// Фотография ТО
-enum PhotoTiming { 
-  before, 
-  after 
+extension MaintenanceStatusX on MaintenanceStatus {
+  String get title {
+    switch (this) {
+      case MaintenanceStatus.reported:
+        return 'Заявка';
+      case MaintenanceStatus.inProgress:
+        return 'В работе';
+      case MaintenanceStatus.completed:
+        return 'Завершено';
+      case MaintenanceStatus.cancelled:
+        return 'Отменено';
+    }
+  }
 }
+
+/// Фотография ТО
+enum PhotoTiming {
+  before,
+  after,
+}
+
 
 @freezed
 class MaintenancePhoto with _$MaintenancePhoto {

@@ -595,7 +595,8 @@ CREATE TABLE equipment_bookings (
   updated_by BIGINT REFERENCES users(id),
   archived_at TIMESTAMPTZ,
   archived_by BIGINT REFERENCES users(id),
-  
+  archived_reason TEXT,
+ 
   -- Ограничения
   CONSTRAINT valid_booking_time CHECK (end_time > start_time)
 );
