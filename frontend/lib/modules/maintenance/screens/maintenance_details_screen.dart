@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fitman_app/modules/maintenance/models/equipment_maintenance_history.model.dart';
 import 'package:intl/intl.dart';
 
@@ -9,11 +10,16 @@ class MaintenanceDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final baseUrl = dotenv.env['BASE_URL'] ?? 'http://localhost:8080';
+
     // Helper to format dates safely
     String formatDate(DateTime? date) {
       if (date == null) return 'N/A';
       return DateFormat('yyyy-MM-dd HH:mm').format(date.toLocal());
     }
+
+    final beforePhotos = record.photos?.where((p) => p.timing == PhotoTiming.before).toList() ?? [];
+    final afterPhotos = record.photos?.where((p) => p.timing == PhotoTiming.after).toList() ?? [];
 
     return Scaffold(
       appBar: AppBar(
@@ -45,16 +51,36 @@ class MaintenanceDetailsScreen extends StatelessWidget {
             _buildDetailRow(label: 'Начата:', value: formatDate(record.startedAt)),
             _buildDetailRow(label: 'Завершена:', value: formatDate(record.completedAt)),
             
-            if (record.photos != null && record.photos!.isNotEmpty) ...[
+            if (beforePhotos.isNotEmpty) ...[
               const Divider(height: 32),
-              Text('Фотографии:', style: Theme.of(context).textTheme.titleLarge),
+              Text('Фото "До":', style: Theme.of(context).textTheme.titleLarge),
               const SizedBox(height: 8),
-              ...record.photos!.map((photo) => Padding(
+              ...beforePhotos.map((photo) => Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Image.network(photo.url, height: 200, fit: BoxFit.cover, errorBuilder: (c, o, s) => const Icon(Icons.error, size: 40)),
+                    Image.network('$baseUrl${photo.url}', height: 200, fit: BoxFit.cover, errorBuilder: (c, o, s) => const Icon(Icons.error, size: 40)),
+                    if (photo.comment != null && photo.comment!.isNotEmpty) 
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4.0),
+                        child: Text('Примечание: ${photo.comment}'),
+                      ),
+                  ],
+                ),
+              )),
+            ],
+
+            if (afterPhotos.isNotEmpty) ...[
+              const Divider(height: 32),
+              Text('Фото "После":', style: Theme.of(context).textTheme.titleLarge),
+              const SizedBox(height: 8),
+              ...afterPhotos.map((photo) => Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Image.network('$baseUrl${photo.url}', height: 200, fit: BoxFit.cover, errorBuilder: (c, o, s) => const Icon(Icons.error, size: 40)),
                     if (photo.comment != null && photo.comment!.isNotEmpty) 
                       Padding(
                         padding: const EdgeInsets.only(top: 4.0),

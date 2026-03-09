@@ -63,7 +63,9 @@ class _EquipmentMaintenanceHistoryEditScreenState
 
     // Populate photo lists from existing record
     if (record?.photos != null) {
+      print('--- Populating photos from record ---');
       for (final photo in record!.photos!) {
+        print('Photo ID: ${photo.id}, Timing: ${photo.timing}');
         final holder = _PhotoHolder(existingPhoto: photo);
         if (photo.timing == PhotoTiming.before) {
           _beforePhotos.add(holder);
@@ -71,6 +73,7 @@ class _EquipmentMaintenanceHistoryEditScreenState
           _afterPhotos.add(holder);
         }
       }
+      print('--- Finished populating photos ---');
     }
   }
 
@@ -103,6 +106,20 @@ class _EquipmentMaintenanceHistoryEditScreenState
   Future<void> _saveForm() async {
     if (!_formKey.currentState!.validate()) {
       return;
+    }
+    
+    // Manual validation for new photo comments
+    final allNewPhotos = [..._beforePhotos.where((p) => p.isNew), ..._afterPhotos.where((p) => p.isNew)];
+    for (final photo in allNewPhotos) {
+      if (photo.commentController.text.length < 5) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Примечание к каждому новому фото должно быть не менее 5 символов.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
     }
 
     setState(() => _isLoading = true);
@@ -286,7 +303,7 @@ class _EquipmentMaintenanceHistoryEditScreenState
         Text(title, style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: 8),
         SizedBox(
-          height: 180,
+          height: 220,
           child: photos.isEmpty
               ? const Center(child: Text('Нет фото'))
               : ListView.builder(
@@ -295,9 +312,11 @@ class _EquipmentMaintenanceHistoryEditScreenState
                   itemBuilder: (context, index) {
                     final photoHolder = photos[index];
                     
-                    final ImageProvider image;
+                    ImageProvider? image;
                     if (photoHolder.isNew) {
-                      image = MemoryImage(photoHolder.newFile!.bytes!);
+                      if (photoHolder.newFile?.bytes != null) {
+                        image = MemoryImage(photoHolder.newFile!.bytes!);
+                      }
                     } else {
                       image = NetworkImage('$baseUrl${photoHolder.url}');
                     }
@@ -311,15 +330,16 @@ class _EquipmentMaintenanceHistoryEditScreenState
                           children: [
                             Stack(
                               children: [
-                                Image(image: image, width: 150, height: 100, fit: BoxFit.cover),
+                                if (image != null)
+                                  Image(image: image, width: 150, height: 100, fit: BoxFit.cover)
+                                else
+                                  Container(width: 150, height: 100, color: Colors.grey[300], child: const Icon(Icons.image_not_supported)),
                                 Positioned(
                                   top: 0,
                                   right: 0,
                                   child: InkWell(
                                     onTap: () {
                                       setState(() => photos.removeAt(index));
-                                      // Note: This does not delete the photo from the server.
-                                      // A dedicated API call would be needed for that.
                                     },
                                     child: const CircleAvatar(
                                       radius: 12,
@@ -331,17 +351,18 @@ class _EquipmentMaintenanceHistoryEditScreenState
                               ],
                             ),
                             const SizedBox(height: 4),
-                            SizedBox(
-                              height: 50,
+                            Expanded(
                               child: TextFormField(
                                 controller: photoHolder.commentController,
-                                decoration: const InputDecoration(
+                                maxLines: null, // Allows multiline
+                                expands: true,
+                                textAlignVertical: TextAlignVertical.top,
+                                decoration: InputDecoration(
                                   labelText: 'Примечание',
-                                  border: OutlineInputBorder(),
-                                  contentPadding: EdgeInsets.symmetric(horizontal: 8.0),
+                                  border: photoHolder.isNew ? const OutlineInputBorder() : InputBorder.none,
+                                  contentPadding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
                                 ),
                                 style: const TextStyle(fontSize: 12),
-                                // TODO: Add logic to save updated comments
                                 readOnly: !photoHolder.isNew,
                               ),
                             ),
