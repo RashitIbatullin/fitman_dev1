@@ -1,17 +1,26 @@
+import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fitman_app/modules/maintenance/models/equipment_maintenance_history.model.dart';
 import 'package:fitman_app/modules/maintenance/providers/maintenance_provider.dart';
 import 'package:fitman_app/providers/auth_provider.dart';
 import 'package:fitman_app/services/api_service.dart';
 
-// Helper class to manage photos and their comments
-class _PhotoWithComment {
-  final PlatformFile file;
+// Helper class to manage existing and new photos
+class _PhotoHolder {
+  final MaintenancePhoto? existingPhoto;
+  final PlatformFile? newFile;
   final TextEditingController commentController;
 
-  _PhotoWithComment(this.file) : commentController = TextEditingController();
+  _PhotoHolder({this.existingPhoto, this.newFile})
+      : commentController = TextEditingController(text: existingPhoto?.comment ?? ''),
+        assert(existingPhoto != null || newFile != null);
+
+  bool get isNew => newFile != null;
+  String? get url => existingPhoto?.url;
+  String get id => existingPhoto?.id ?? newFile!.name;
 }
 
 class EquipmentMaintenanceHistoryEditScreen extends ConsumerStatefulWidget {
@@ -37,9 +46,9 @@ class _EquipmentMaintenanceHistoryEditScreenState
   late TextEditingController _workDescriptionController;
   late MaintenanceType _selectedType;
   late MaintenanceStatus _selectedStatus;
-  
-  final List<_PhotoWithComment> _beforePhotos = [];
-  final List<_PhotoWithComment> _afterPhotos = [];
+
+  final List<_PhotoHolder> _beforePhotos = [];
+  final List<_PhotoHolder> _afterPhotos = [];
 
   bool _isLoading = false;
 
@@ -51,6 +60,18 @@ class _EquipmentMaintenanceHistoryEditScreenState
     _workDescriptionController = TextEditingController(text: record?.workDescription ?? '');
     _selectedType = record?.type ?? MaintenanceType.corrective;
     _selectedStatus = record?.status ?? MaintenanceStatus.reported;
+
+    // Populate photo lists from existing record
+    if (record?.photos != null) {
+      for (final photo in record!.photos!) {
+        final holder = _PhotoHolder(existingPhoto: photo);
+        if (photo.timing == PhotoTiming.before) {
+          _beforePhotos.add(holder);
+        } else if (photo.timing == PhotoTiming.after) {
+          _afterPhotos.add(holder);
+        }
+      }
+    }
   }
 
   @override
@@ -66,7 +87,7 @@ class _EquipmentMaintenanceHistoryEditScreenState
     super.dispose();
   }
 
-  Future<void> _pickFiles(List<_PhotoWithComment> photoList) async {
+  Future<void> _pickFiles(List<_PhotoHolder> photoList) async {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.image,
       allowMultiple: true,
@@ -74,11 +95,11 @@ class _EquipmentMaintenanceHistoryEditScreenState
 
     if (result != null) {
       setState(() {
-        photoList.addAll(result.files.map((file) => _PhotoWithComment(file)));
+        photoList.addAll(result.files.map((file) => _PhotoHolder(newFile: file)));
       });
     }
   }
-  
+
   Future<void> _saveForm() async {
     if (!_formKey.currentState!.validate()) {
       return;
@@ -111,19 +132,6 @@ class _EquipmentMaintenanceHistoryEditScreenState
           type: _selectedType,
           status: _selectedStatus,
           reportedBy: userId.toString(),
-          assignedToUserId: null,
-          assignedToStaffId: null,
-          relatedBookingId: null,
-          archivedBy: null,
-          archivedReason: null,
-          photos: null,
-          equipmentName: null,
-          createdAt: null,
-          startedAt: null,
-          completedAt: null,
-          equipmentAvailableFrom: null,
-          updatedAt: null,
-          archivedAt: null,
         );
         recordToSave = await ApiService.createMaintenanceHistory(recordToSave);
       } else {
@@ -136,31 +144,39 @@ class _EquipmentMaintenanceHistoryEditScreenState
         recordToSave = await ApiService.updateMaintenanceHistory(recordToSave.id!, recordToSave);
       }
 
-      // Upload photos with comments
-      for (final photo in _beforePhotos) {
-        if (photo.file.bytes != null) {
+      // Upload new photos with comments
+      for (final photo in _beforePhotos.where((p) => p.isNew)) {
+        final platformFile = photo.newFile!;
+        final photoBytes = platformFile.bytes ?? (platformFile.path != null ? await File(platformFile.path!).readAsBytes() : null);
+
+        if (photoBytes != null) {
           await ApiService.uploadMaintenancePhoto(
             maintenanceId: recordToSave.id!,
-            photoBytes: photo.file.bytes!,
-            fileName: photo.file.name,
+            photoBytes: photoBytes,
+            fileName: platformFile.name,
             timing: PhotoTiming.before.name,
             comment: photo.commentController.text,
           );
         }
       }
-      for (final photo in _afterPhotos) {
-         if (photo.file.bytes != null) {
+      for (final photo in _afterPhotos.where((p) => p.isNew)) {
+        final platformFile = photo.newFile!;
+        final photoBytes = platformFile.bytes ?? (platformFile.path != null ? await File(platformFile.path!).readAsBytes() : null);
+
+        if (photoBytes != null) {
           await ApiService.uploadMaintenancePhoto(
             maintenanceId: recordToSave.id!,
-            photoBytes: photo.file.bytes!,
-            fileName: photo.file.name,
+            photoBytes: photoBytes,
+            fileName: platformFile.name,
             timing: PhotoTiming.after.name,
             comment: photo.commentController.text,
           );
         }
       }
       
+      ref.invalidate(allMaintenanceHistoryProvider);
       ref.invalidate(maintenanceHistoryProvider(widget.equipmentItemId));
+
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -205,7 +221,7 @@ class _EquipmentMaintenanceHistoryEditScreenState
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               DropdownButtonFormField<MaintenanceType>(
-                initialValue: _selectedType,
+                value: _selectedType,
                 decoration: const InputDecoration(labelText: 'Тип ТО', border: OutlineInputBorder()),
                 items: MaintenanceType.values.map((type) {
                   return DropdownMenuItem(value: type, child: Text(type.title));
@@ -218,7 +234,7 @@ class _EquipmentMaintenanceHistoryEditScreenState
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<MaintenanceStatus>(
-                initialValue: _selectedStatus,
+                value: _selectedStatus,
                 decoration: const InputDecoration(labelText: 'Статус', border: OutlineInputBorder()),
                 items: MaintenanceStatus.values.map((status) {
                   return DropdownMenuItem(value: status, child: Text(status.title));
@@ -261,7 +277,9 @@ class _EquipmentMaintenanceHistoryEditScreenState
     );
   }
   
-  Widget _buildPhotoSection(BuildContext context, String title, List<_PhotoWithComment> photos) {
+  Widget _buildPhotoSection(BuildContext context, String title, List<_PhotoHolder> photos) {
+    final baseUrl = dotenv.env['BASE_URL'] ?? 'http://localhost:8080';
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -270,12 +288,20 @@ class _EquipmentMaintenanceHistoryEditScreenState
         SizedBox(
           height: 180,
           child: photos.isEmpty
-              ? const Center(child: Text('Нет выбранных фото'))
+              ? const Center(child: Text('Нет фото'))
               : ListView.builder(
                   scrollDirection: Axis.horizontal,
                   itemCount: photos.length,
                   itemBuilder: (context, index) {
-                    final photo = photos[index];
+                    final photoHolder = photos[index];
+                    
+                    final ImageProvider image;
+                    if (photoHolder.isNew) {
+                      image = MemoryImage(photoHolder.newFile!.bytes!);
+                    } else {
+                      image = NetworkImage('$baseUrl${photoHolder.url}');
+                    }
+
                     return Padding(
                       padding: const EdgeInsets.only(right: 12.0),
                       child: SizedBox(
@@ -285,13 +311,15 @@ class _EquipmentMaintenanceHistoryEditScreenState
                           children: [
                             Stack(
                               children: [
-                                Image.memory(photo.file.bytes!, width: 150, height: 100, fit: BoxFit.cover),
+                                Image(image: image, width: 150, height: 100, fit: BoxFit.cover),
                                 Positioned(
                                   top: 0,
                                   right: 0,
                                   child: InkWell(
                                     onTap: () {
                                       setState(() => photos.removeAt(index));
+                                      // Note: This does not delete the photo from the server.
+                                      // A dedicated API call would be needed for that.
                                     },
                                     child: const CircleAvatar(
                                       radius: 12,
@@ -306,13 +334,15 @@ class _EquipmentMaintenanceHistoryEditScreenState
                             SizedBox(
                               height: 50,
                               child: TextFormField(
-                                controller: photo.commentController,
+                                controller: photoHolder.commentController,
                                 decoration: const InputDecoration(
                                   labelText: 'Примечание',
                                   border: OutlineInputBorder(),
                                   contentPadding: EdgeInsets.symmetric(horizontal: 8.0),
                                 ),
                                 style: const TextStyle(fontSize: 12),
+                                // TODO: Add logic to save updated comments
+                                readOnly: !photoHolder.isNew,
                               ),
                             ),
                           ],

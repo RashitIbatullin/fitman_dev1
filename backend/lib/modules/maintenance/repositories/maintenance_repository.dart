@@ -96,21 +96,63 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
   @override
   Future<List<EquipmentMaintenanceHistory>> getAll() async {
     final conn = await _db.connection;
-    final result = await conn.execute(
-      Sql.named('SELECT * FROM equipment_maintenance_history WHERE archived_at IS NULL ORDER BY created_at DESC'),
-    );
+    const query = '''
+      SELECT 
+        emh.*,
+        COALESCE(
+          (SELECT json_agg(p.*)
+           FROM maintenance_photos p
+           WHERE p.maintenance_id = emh.id),
+          '[]'::json
+        ) as photos
+      FROM equipment_maintenance_history emh
+      WHERE emh.archived_at IS NULL
+      ORDER BY emh.created_at DESC
+    ''';
+
+    final result = await conn.execute(Sql.named(query));
 
     return result.map((row) {
       final rowMap = row.toColumnMap();
-      return EquipmentMaintenanceHistory.fromJson(_prepareRowForFromJson(rowMap));
+
+      if (rowMap['photos'] != null && rowMap['photos'] is List) {
+        final photosList = rowMap['photos'] as List;
+        rowMap['photos'] = photosList.map((photo) {
+          final pMap = photo as Map<String, dynamic>;
+          if (pMap['timing'] != null && pMap['timing'] is int) {
+            pMap['timing'] = PhotoTiming.values[pMap['timing']].name;
+          }
+          // Convert relevant photo IDs to string
+          for (final key in ['id', 'maintenance_id', 'taken_by']) {
+            if (pMap[key] != null) pMap[key] = pMap[key].toString();
+          }
+          return pMap;
+        }).toList();
+      }
+
+      final preparedRow = _prepareRowForFromJson(rowMap);
+      return EquipmentMaintenanceHistory.fromJson(preparedRow);
     }).toList();
   }
 
   @override
   Future<EquipmentMaintenanceHistory> getById(String id) async {
     final conn = await _db.connection;
+    const query = '''
+      SELECT 
+        emh.*,
+        COALESCE(
+          (SELECT json_agg(p.*)
+           FROM maintenance_photos p
+           WHERE p.maintenance_id = emh.id),
+          '[]'::json
+        ) as photos
+      FROM equipment_maintenance_history emh
+      WHERE emh.id = @id
+    ''';
+
     final result = await conn.execute(
-      Sql.named('SELECT * FROM equipment_maintenance_history WHERE id = @id'),
+      Sql.named(query),
       parameters: {'id': int.tryParse(id) ?? 0},
     );
 
@@ -119,20 +161,63 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
     }
 
     final rowMap = result.first.toColumnMap();
-    return EquipmentMaintenanceHistory.fromJson(_prepareRowForFromJson(rowMap));
+    if (rowMap['photos'] != null && rowMap['photos'] is List) {
+      final photosList = rowMap['photos'] as List;
+      rowMap['photos'] = photosList.map((photo) {
+        final pMap = photo as Map<String, dynamic>;
+        if (pMap['timing'] != null && pMap['timing'] is int) {
+          pMap['timing'] = PhotoTiming.values[pMap['timing']].name;
+        }
+        for (final key in ['id', 'maintenance_id', 'taken_by']) {
+          if (pMap[key] != null) pMap[key] = pMap[key].toString();
+        }
+        return pMap;
+      }).toList();
+    }
+    
+    final preparedRow = _prepareRowForFromJson(rowMap);
+    return EquipmentMaintenanceHistory.fromJson(preparedRow);
   }
 
   @override
   Future<List<EquipmentMaintenanceHistory>> getByEquipmentItemId(String equipmentItemId) async {
     final conn = await _db.connection;
+    const query = '''
+      SELECT 
+        emh.*,
+        COALESCE(
+          (SELECT json_agg(p.*)
+           FROM maintenance_photos p
+           WHERE p.maintenance_id = emh.id),
+          '[]'::json
+        ) as photos
+      FROM equipment_maintenance_history emh
+      WHERE emh.equipment_item_id = @equipment_item_id AND emh.archived_at IS NULL
+      ORDER BY emh.created_at DESC
+    ''';
+
     final result = await conn.execute(
-      Sql.named('SELECT * FROM equipment_maintenance_history WHERE equipment_item_id = @equipment_item_id AND archived_at IS NULL ORDER BY created_at DESC'),
+      Sql.named(query),
       parameters: {'equipment_item_id': int.tryParse(equipmentItemId) ?? 0},
     );
 
     return result.map((row) {
       final rowMap = row.toColumnMap();
-      return EquipmentMaintenanceHistory.fromJson(_prepareRowForFromJson(rowMap));
+      if (rowMap['photos'] != null && rowMap['photos'] is List) {
+        final photosList = rowMap['photos'] as List;
+        rowMap['photos'] = photosList.map((photo) {
+          final pMap = photo as Map<String, dynamic>;
+          if (pMap['timing'] != null && pMap['timing'] is int) {
+            pMap['timing'] = PhotoTiming.values[pMap['timing']].name;
+          }
+          for (final key in ['id', 'maintenance_id', 'taken_by']) {
+            if (pMap[key] != null) pMap[key] = pMap[key].toString();
+          }
+          return pMap;
+        }).toList();
+      }
+      final preparedRow = _prepareRowForFromJson(rowMap);
+      return EquipmentMaintenanceHistory.fromJson(preparedRow);
     }).toList();
   }
 
@@ -211,18 +296,27 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
   @override
   Future<void> addPhoto(String maintenanceId, String photoUrl, String comment, String timing, String takenBy) async {
     final conn = await _db.connection;
-    await conn.execute(
+    
+    final params = {
+      'maintenance_id': int.tryParse(maintenanceId) ?? 0,
+      'url': photoUrl,
+      'comment': comment,
+      'timing': PhotoTiming.values.byName(timing).index,
+      'taken_by': int.tryParse(takenBy) ?? 0,
+    };
+
+    print('--- ADDING PHOTO TO DB ---');
+    print('Parameters: $params');
+
+    final result = await conn.execute(
       Sql.named('''
         INSERT INTO maintenance_photos (maintenance_id, url, comment, timing, taken_by)
         VALUES (@maintenance_id, @url, @comment, @timing, @taken_by)
       '''),
-      parameters: {
-        'maintenance_id': int.tryParse(maintenanceId) ?? 0,
-        'url': photoUrl,
-        'comment': comment,
-        'timing': PhotoTiming.values.byName(timing).index,
-        'taken_by': int.tryParse(takenBy) ?? 0,
-      },
+      parameters: params,
     );
+
+    print('Result: ${result.affectedRows} row(s) affected.');
+    print('--- FINISHED ADDING PHOTO ---');
   }
 }

@@ -1,12 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:path/path.dart' as p;
 import 'package:shelf/shelf.dart';
-import 'package:mime/mime.dart';
+import 'package:shelf_multipart/shelf_multipart.dart';
 import 'package:shelf_router/shelf_router.dart';
 import 'package:uuid/uuid.dart';
+
 import 'package:fitman_backend/modules/maintenance/models/equipment_maintenance_history.model.dart';
 import 'package:fitman_backend/modules/maintenance/services/maintenance_service.dart';
 
@@ -17,39 +17,29 @@ class MaintenanceController {
 
   Future<Response> _uploadPhoto(Request request, String maintenanceId) async {
     try {
-      final boundary = request.headers['content-type']!;
-      final transformer = MimeMultipartTransformer(boundary);
-      final body = request.read();
-      final parts = await transformer.bind(body).toList();
-
       String? fileName;
       String? comment;
       String? timing;
       List<int>? fileBytes;
 
-      for (final part in parts) {
-        final contentDisposition = part.headers['content-disposition'];
-        if (contentDisposition == null) continue;
-        
-        final fieldName = RegExp(r'name="([^"]*)"').firstMatch(contentDisposition)?.group(1);
-
-        if (fieldName == 'photo') {
-          fileName = RegExp(r'filename="([^"]*)"').firstMatch(contentDisposition)?.group(1);
-          final builder = await part.fold<BytesBuilder>(BytesBuilder(), (builder, d) => builder..add(d));
-          fileBytes = builder.takeBytes();
-
-        } else if (fieldName == 'comment') {
-          final data = await part.cast<List<int>>().transform(utf8.decoder).join();
-          comment = data;
-        } else if (fieldName == 'timing') {
-          final data = await part.cast<List<int>>().transform(utf8.decoder).join();
-          timing = data;
+      if (request.formData() case final form?) {
+        await for (final formData in form.formData) {
+          final fieldName = formData.name;
+          if (fieldName == 'photo') {
+            fileName = formData.filename;
+            fileBytes = await formData.part.readBytes();
+          } else if (fieldName == 'comment') {
+            comment = await formData.part.readString();
+          } else if (fieldName == 'timing') {
+            timing = await formData.part.readString();
+          }
         }
+      } else {
+        return Response.badRequest(body: jsonEncode({'error': 'Not a multipart/form-data request'}));
       }
 
-
       if (fileBytes == null || fileName == null || timing == null) {
-        return Response.badRequest(body: '{"error": "Missing required fields: photo, timing"}');
+        return Response.badRequest(body: jsonEncode({'error': "Missing required fields: 'photo', 'timing'"}));
       }
 
       final userPayload = request.context['user'] as Map<String, dynamic>?;
@@ -75,7 +65,7 @@ class MaintenanceController {
 
       await _maintenanceService.addPhoto(maintenanceId, photoUrl, comment ?? '', timing, userId);
 
-      return Response.ok('{"message": "Photo uploaded successfully", "url": "$photoUrl"}');
+      return Response.ok(jsonEncode({'message': "Photo uploaded successfully", "url": photoUrl}));
 
     } catch (e, st) {
        print('--- BACKEND ERROR: _uploadPhoto ---');

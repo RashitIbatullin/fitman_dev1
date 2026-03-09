@@ -82,7 +82,11 @@ class BaseApiService {
     required http.MultipartFile file,
   }) async {
     var request = http.MultipartRequest('POST', Uri.parse('$baseUrl$endpoint'));
-    request.headers.addAll(BaseApiService.headers);
+
+    final headers = Map<String, String>.from(BaseApiService.headers);
+    headers.remove('Content-Type');
+
+    request.headers.addAll(headers);
     request.fields.addAll(fields);
     request.files.add(file);
 
