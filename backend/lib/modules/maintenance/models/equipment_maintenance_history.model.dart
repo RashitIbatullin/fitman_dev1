@@ -48,7 +48,7 @@ class MaintenancePhoto with _$MaintenancePhoto {
 @freezed
 class EquipmentMaintenanceHistory with _$EquipmentMaintenanceHistory {
   const factory EquipmentMaintenanceHistory({
-    required String id,
+    String? id,
     required String equipmentItemId,
     String? equipmentName,
     required MaintenanceType type,

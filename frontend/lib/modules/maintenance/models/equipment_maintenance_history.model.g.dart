@@ -40,7 +40,7 @@ const _$PhotoTimingEnumMap = {
 _$EquipmentMaintenanceHistoryImpl _$$EquipmentMaintenanceHistoryImplFromJson(
   Map<String, dynamic> json,
 ) => _$EquipmentMaintenanceHistoryImpl(
-  id: json['id'] as String,
+  id: json['id'] as String?,
   equipmentItemId: json['equipment_item_id'] as String,
   equipmentName: json['equipment_name'] as String?,
   type: $enumDecode(_$MaintenanceTypeEnumMap, json['type']),

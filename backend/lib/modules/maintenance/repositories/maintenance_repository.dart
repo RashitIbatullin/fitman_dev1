@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:fitman_backend/config/database.dart';
 import 'package:fitman_backend/modules/maintenance/models/equipment_maintenance_history.model.dart';
 import 'package:postgres/postgres.dart';
@@ -19,50 +18,78 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
 
   final Database _db;
 
+  /// Prepares a row map from the database for consumption by a `fromJson` factory.
+  /// It correctly handles `snake_case` to `camelCase` conversion expectation by:
+  /// 1. Converting integer IDs to strings.
+  /// 2. Converting integer enums to string names.
+  /// 3. Converting DateTime objects to ISO 8601 strings.
+  Map<String, dynamic> _prepareRowForFromJson(Map<String, dynamic> row) {
+    final newRow = {...row};
+
+    // Convert enums from int (from DB) to String name (for fromJson)
+    if (newRow['type'] != null && newRow['type'] is int) {
+      newRow['type'] = MaintenanceType.values[newRow['type']].name;
+    }
+    if (newRow['status'] != null && newRow['status'] is int) {
+      newRow['status'] = MaintenanceStatus.values[newRow['status']].name;
+    }
+
+    // Convert all potential ID columns from int to String
+    final idKeys = ['id', 'equipment_item_id', 'reported_by', 'assigned_to_user_id', 'assigned_to_staff_id', 'related_booking_id', 'archived_by', 'created_by', 'updated_by'];
+    for (final key in idKeys) {
+      if (newRow[key] != null && newRow[key] is! String) {
+        newRow[key] = newRow[key].toString();
+      }
+    }
+    
+    // Convert all potential DateTime columns to ISO 8601 strings
+    final dateKeys = ['created_at', 'started_at', 'completed_at', 'equipment_available_from', 'updated_at', 'archived_at'];
+    for (final key in dateKeys) {
+        if (newRow[key] != null && newRow[key] is DateTime) {
+            newRow[key] = (newRow[key] as DateTime).toIso8601String();
+        }
+    }
+
+    return newRow;
+  }
+
   @override
   Future<EquipmentMaintenanceHistory> create(EquipmentMaintenanceHistory history, String userId) async {
     final conn = await _db.connection;
     final result = await conn.execute(
       Sql.named('''
         INSERT INTO equipment_maintenance_history (
-          equipment_item_id, equipment_name, type, status,
-          created_at, started_at, completed_at, equipment_available_from,
-          reported_problem, work_description, reported_by,
-          assigned_to_user_id, assigned_to_staff_id, related_booking_id,
-          caused_downtime, updated_at, photos,
-          created_by, updated_by
+          equipment_item_id, equipment_name, type, status, created_at, 
+          started_at, completed_at, equipment_available_from, reported_problem, 
+          work_description, reported_by, assigned_to_user_id, assigned_to_staff_id, 
+          related_booking_id, caused_downtime, updated_at
         ) VALUES (
-          @equipmentItemId, @equipmentName, @type, @status,
-          @createdAt, @startedAt, @completedAt, @equipmentAvailableFrom,
-          @reportedProblem, @workDescription, @reportedBy,
-          @assignedToUserId, @assignedToStaffId, @relatedBookingId,
-          @causedDowntime, NOW(), @photos,
-          @createdBy, @updatedBy
-        ) RETURNING id;
+          @equipment_item_id, @equipment_name, @type, @status, @created_at,
+          @started_at, @completed_at, @equipment_available_from, @reported_problem,
+          @work_description, @reported_by, @assigned_to_user_id, @assigned_to_staff_id,
+          @related_booking_id, @caused_downtime, NOW()
+        ) RETURNING *;
       '''),
       parameters: {
-        'equipmentItemId': history.equipmentItemId,
-        'equipmentName': history.equipmentName,
+        'equipment_item_id': int.tryParse(history.equipmentItemId),
+        'equipment_name': history.equipmentName,
         'type': history.type.index,
         'status': history.status.index,
-        'createdAt': history.createdAt ?? DateTime.now(),
-        'startedAt': history.startedAt,
-        'completedAt': history.completedAt,
-        'equipmentAvailableFrom': history.equipmentAvailableFrom,
-        'reportedProblem': history.reportedProblem,
-        'workDescription': history.workDescription,
-        'reportedBy': history.reportedBy,
-        'assignedToUserId': history.assignedToUserId,
-        'assignedToStaffId': history.assignedToStaffId,
-        'relatedBookingId': history.relatedBookingId,
-        'causedDowntime': history.causedDowntime,
-        'photos': history.photos != null ? jsonEncode(history.photos!.map((p) => p.toJson()).toList()) : null,
-        'createdBy': userId,
-        'updatedBy': userId,
+        'created_at': history.createdAt ?? DateTime.now(),
+        'started_at': history.startedAt,
+        'completed_at': history.completedAt,
+        'equipment_available_from': history.equipmentAvailableFrom,
+        'reported_problem': history.reportedProblem,
+        'work_description': history.workDescription,
+        'reported_by': int.tryParse(history.reportedBy),
+        'assigned_to_user_id': history.assignedToUserId != null ? int.tryParse(history.assignedToUserId!) : null,
+        'assigned_to_staff_id': history.assignedToStaffId != null ? int.tryParse(history.assignedToStaffId!) : null,
+        'related_booking_id': history.relatedBookingId != null ? int.tryParse(history.relatedBookingId!) : null,
+        'caused_downtime': history.causedDowntime,
       },
     );
 
-    final newId = result.first.first as int;
+    final newId = result.first[0] as int;
     return await getById(newId.toString());
   }
 
@@ -75,7 +102,7 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
 
     return result.map((row) {
       final rowMap = row.toColumnMap();
-      return EquipmentMaintenanceHistory.fromJson(rowMap);
+      return EquipmentMaintenanceHistory.fromJson(_prepareRowForFromJson(rowMap));
     }).toList();
   }
 
@@ -84,28 +111,28 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
     final conn = await _db.connection;
     final result = await conn.execute(
       Sql.named('SELECT * FROM equipment_maintenance_history WHERE id = @id'),
-      parameters: {'id': id},
+      parameters: {'id': int.tryParse(id) ?? 0},
     );
 
     if (result.isEmpty) {
       throw Exception('EquipmentMaintenanceHistory with id $id not found');
     }
 
-    return EquipmentMaintenanceHistory.fromJson(result.first.toColumnMap());
+    final rowMap = result.first.toColumnMap();
+    return EquipmentMaintenanceHistory.fromJson(_prepareRowForFromJson(rowMap));
   }
 
   @override
   Future<List<EquipmentMaintenanceHistory>> getByEquipmentItemId(String equipmentItemId) async {
     final conn = await _db.connection;
     final result = await conn.execute(
-      Sql.named('SELECT * FROM equipment_maintenance_history WHERE equipment_item_id = @equipmentItemId AND archived_at IS NULL ORDER BY created_at DESC'),
-      parameters: {'equipmentItemId': equipmentItemId},
+      Sql.named('SELECT * FROM equipment_maintenance_history WHERE equipment_item_id = @equipment_item_id AND archived_at IS NULL ORDER BY created_at DESC'),
+      parameters: {'equipment_item_id': int.tryParse(equipmentItemId) ?? 0},
     );
 
     return result.map((row) {
       final rowMap = row.toColumnMap();
-      print('Repository: Raw row from DB: $rowMap'); // Keep this debug line for now
-      return EquipmentMaintenanceHistory.fromJson(rowMap);
+      return EquipmentMaintenanceHistory.fromJson(_prepareRowForFromJson(rowMap));
     }).toList();
   }
 
@@ -115,49 +142,41 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
     await conn.execute(
       Sql.named('''
         UPDATE equipment_maintenance_history SET
-          equipment_name = @equipmentName,
+          equipment_name = @equipment_name,
           type = @type,
           status = @status,
-          created_at = @createdAt,
-          started_at = @startedAt,
-          completed_at = @completedAt,
-          equipment_available_from = @equipmentAvailableFrom,
-          reported_problem = @reportedProblem,
-          work_description = @workDescription,
-          reported_by = @reportedBy,
-          assigned_to_user_id = @assignedToUserId,
-          assigned_to_staff_id = @assignedToStaffId,
-          related_booking_id = @relatedBookingId,
-          caused_downtime = @causedDowntime,
+          started_at = @started_at,
+          completed_at = @completed_at,
+          equipment_available_from = @equipment_available_from,
+          reported_problem = @reported_problem,
+          work_description = @work_description,
+          assigned_to_user_id = @assigned_to_user_id,
+          assigned_to_staff_id = @assigned_to_staff_id,
+          related_booking_id = @related_booking_id,
+          caused_downtime = @caused_downtime,
           updated_at = NOW(),
-          archived_at = @archivedAt,
-          archived_by = @archivedBy,
-          archived_reason = @archivedReason,
-          photos = @photos,
-          updated_by = @updatedBy
+          archived_at = @archived_at,
+          archived_by = @archived_by,
+          archived_reason = @archived_reason
         WHERE id = @id;
       '''),
       parameters: {
-        'id': id,
-        'equipmentName': history.equipmentName,
+        'id': int.tryParse(id) ?? 0,
+        'equipment_name': history.equipmentName,
         'type': history.type.index,
         'status': history.status.index,
-        'createdAt': history.createdAt,
-        'startedAt': history.startedAt,
-        'completedAt': history.completedAt,
-        'equipmentAvailableFrom': history.equipmentAvailableFrom,
-        'reportedProblem': history.reportedProblem,
-        'workDescription': history.workDescription,
-        'reportedBy': history.reportedBy,
-        'assignedToUserId': history.assignedToUserId,
-        'assignedToStaffId': history.assignedToStaffId,
-        'relatedBookingId': history.relatedBookingId,
-        'causedDowntime': history.causedDowntime,
-        'archivedAt': history.archivedAt,
-        'archivedBy': history.archivedBy,
-        'archivedReason': history.archivedReason,
-        'photos': history.photos != null ? jsonEncode(history.photos!.map((p) => p.toJson()).toList()) : null,
-        'updatedBy': userId,
+        'started_at': history.startedAt,
+        'completed_at': history.completedAt,
+        'equipment_available_from': history.equipmentAvailableFrom,
+        'reported_problem': history.reportedProblem,
+        'work_description': history.workDescription,
+        'assigned_to_user_id': history.assignedToUserId != null ? int.tryParse(history.assignedToUserId!) : null,
+        'assigned_to_staff_id': history.assignedToStaffId != null ? int.tryParse(history.assignedToStaffId!) : null,
+        'related_booking_id': history.relatedBookingId != null ? int.tryParse(history.relatedBookingId!) : null,
+        'caused_downtime': history.causedDowntime,
+        'archived_at': history.archivedAt,
+        'archived_by': history.archivedBy != null ? int.tryParse(history.archivedBy!) : null,
+        'archived_reason': history.archivedReason,
       },
     );
     return await getById(id);
@@ -168,11 +187,11 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
     final conn = await _db.connection;
     await conn.execute(
       Sql.named(
-          'UPDATE equipment_maintenance_history SET archived_at = NOW(), archived_by = @userId, archived_reason = @reason WHERE id = @id'),
+          'UPDATE equipment_maintenance_history SET archived_at = NOW(), archived_by = @user_id, archived_reason = @reason WHERE id = @id'),
       parameters: {
-        'id': id,
+        'id': int.tryParse(id) ?? 0,
         'reason': reason,
-        'userId': userId,
+        'user_id': int.tryParse(userId) ?? 0,
       },
     );
   }
@@ -184,7 +203,7 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
       Sql.named(
           'UPDATE equipment_maintenance_history SET archived_at = NULL, archived_by = NULL, archived_reason = NULL WHERE id = @id'),
       parameters: {
-        'id': id,
+        'id': int.tryParse(id) ?? 0,
       },
     );
   }
@@ -195,14 +214,14 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
     await conn.execute(
       Sql.named('''
         INSERT INTO maintenance_photos (maintenance_id, url, comment, timing, taken_by)
-        VALUES (@maintenanceId, @url, @comment, @timing, @takenBy)
+        VALUES (@maintenance_id, @url, @comment, @timing, @taken_by)
       '''),
       parameters: {
-        'maintenanceId': maintenanceId,
+        'maintenance_id': int.tryParse(maintenanceId) ?? 0,
         'url': photoUrl,
         'comment': comment,
-        'timing': timing,
-        'takenBy': takenBy,
+        'timing': PhotoTiming.values.byName(timing).index,
+        'taken_by': int.tryParse(takenBy) ?? 0,
       },
     );
   }

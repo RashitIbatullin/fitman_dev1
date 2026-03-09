@@ -319,7 +319,7 @@ EquipmentMaintenanceHistory _$EquipmentMaintenanceHistoryFromJson(
 
 /// @nodoc
 mixin _$EquipmentMaintenanceHistory {
-  String get id => throw _privateConstructorUsedError;
+  String? get id => throw _privateConstructorUsedError;
   String get equipmentItemId => throw _privateConstructorUsedError;
   String? get equipmentName => throw _privateConstructorUsedError;
   MaintenanceType get type => throw _privateConstructorUsedError;
@@ -363,7 +363,7 @@ abstract class $EquipmentMaintenanceHistoryCopyWith<$Res> {
       >;
   @useResult
   $Res call({
-    String id,
+    String? id,
     String equipmentItemId,
     String? equipmentName,
     MaintenanceType type,
@@ -405,7 +405,7 @@ class _$EquipmentMaintenanceHistoryCopyWithImpl<
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? id = null,
+    Object? id = freezed,
     Object? equipmentItemId = null,
     Object? equipmentName = freezed,
     Object? type = null,
@@ -429,10 +429,10 @@ class _$EquipmentMaintenanceHistoryCopyWithImpl<
   }) {
     return _then(
       _value.copyWith(
-            id: null == id
+            id: freezed == id
                 ? _value.id
                 : id // ignore: cast_nullable_to_non_nullable
-                      as String,
+                      as String?,
             equipmentItemId: null == equipmentItemId
                 ? _value.equipmentItemId
                 : equipmentItemId // ignore: cast_nullable_to_non_nullable
@@ -529,7 +529,7 @@ abstract class _$$EquipmentMaintenanceHistoryImplCopyWith<$Res>
   @override
   @useResult
   $Res call({
-    String id,
+    String? id,
     String equipmentItemId,
     String? equipmentName,
     MaintenanceType type,
@@ -571,7 +571,7 @@ class __$$EquipmentMaintenanceHistoryImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? id = null,
+    Object? id = freezed,
     Object? equipmentItemId = null,
     Object? equipmentName = freezed,
     Object? type = null,
@@ -595,10 +595,10 @@ class __$$EquipmentMaintenanceHistoryImplCopyWithImpl<$Res>
   }) {
     return _then(
       _$EquipmentMaintenanceHistoryImpl(
-        id: null == id
+        id: freezed == id
             ? _value.id
             : id // ignore: cast_nullable_to_non_nullable
-                  as String,
+                  as String?,
         equipmentItemId: null == equipmentItemId
             ? _value.equipmentItemId
             : equipmentItemId // ignore: cast_nullable_to_non_nullable
@@ -689,7 +689,7 @@ class __$$EquipmentMaintenanceHistoryImplCopyWithImpl<$Res>
 class _$EquipmentMaintenanceHistoryImpl
     implements _EquipmentMaintenanceHistory {
   const _$EquipmentMaintenanceHistoryImpl({
-    required this.id,
+    this.id,
     required this.equipmentItemId,
     this.equipmentName,
     required this.type,
@@ -717,7 +717,7 @@ class _$EquipmentMaintenanceHistoryImpl
   ) => _$$EquipmentMaintenanceHistoryImplFromJson(json);
 
   @override
-  final String id;
+  final String? id;
   @override
   final String equipmentItemId;
   @override
@@ -864,7 +864,7 @@ class _$EquipmentMaintenanceHistoryImpl
 abstract class _EquipmentMaintenanceHistory
     implements EquipmentMaintenanceHistory {
   const factory _EquipmentMaintenanceHistory({
-    required final String id,
+    final String? id,
     required final String equipmentItemId,
     final String? equipmentName,
     required final MaintenanceType type,
@@ -891,7 +891,7 @@ abstract class _EquipmentMaintenanceHistory
       _$EquipmentMaintenanceHistoryImpl.fromJson;
 
   @override
-  String get id;
+  String? get id;
   @override
   String get equipmentItemId;
   @override

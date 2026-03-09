@@ -623,10 +623,11 @@ CREATE TABLE equipment_maintenance_history (
   archived_at TIMESTAMPTZ,
   archived_by BIGINT REFERENCES users(id),
   archived_reason TEXT,
-  
+  created_by BIGINT REFERENCES users(id),
+  updated_by BIGINT REFERENCES users(id),
+
   -- Ограничения
-  CONSTRAINT assigned_to_check CHECK (
-    (assigned_to_user_id IS NULL AND assigned_to_staff_id IS NOT NULL) OR
+  CONSTRAINT assigned_to_check CHECK (    (assigned_to_user_id IS NULL AND assigned_to_staff_id IS NOT NULL) OR
     (assigned_to_user_id IS NOT NULL AND assigned_to_staff_id IS NULL) OR
     (assigned_to_user_id IS NULL AND assigned_to_staff_id IS NULL)
   )

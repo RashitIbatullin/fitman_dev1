@@ -52,7 +52,12 @@ class MaintenanceController {
         return Response.badRequest(body: '{"error": "Missing required fields: photo, timing"}');
       }
 
-      final userId = request.context['user_id'] as String;
+      final userPayload = request.context['user'] as Map<String, dynamic>?;
+      final userId = userPayload?['userId']?.toString();
+      if (userId == null) {
+        return Response.forbidden(jsonEncode({'error': 'User not authenticated or userId is missing in token.'}));
+      }
+
       final fileExtension = p.extension(fileName);
       final newFileName = '${const Uuid().v4()}$fileExtension';
       
@@ -72,7 +77,10 @@ class MaintenanceController {
 
       return Response.ok('{"message": "Photo uploaded successfully", "url": "$photoUrl"}');
 
-    } catch (e) {
+    } catch (e, st) {
+       print('--- BACKEND ERROR: _uploadPhoto ---');
+       print('ERROR: $e');
+       print('STACKTRACE: $st');
       return Response.internalServerError(body: jsonEncode({'error': e.toString()}));
     }
   }
@@ -88,7 +96,10 @@ class MaintenanceController {
           jsonResponse,
           headers: {'Content-Type': 'application/json'},
         );
-      } catch (e) {
+      } catch (e, st) {
+        print('--- BACKEND ERROR: GET /maintenance ---');
+        print('ERROR: $e');
+        print('STACKTRACE: $st');
         return Response.internalServerError(body: jsonEncode({'error': e.toString()}));
       }
     });
@@ -101,7 +112,10 @@ class MaintenanceController {
           jsonResponse,
           headers: {'Content-Type': 'application/json'},
         );
-      } catch (e) {
+      } catch (e, st) {
+        print('--- BACKEND ERROR: GET /maintenance/item/<itemId> ---');
+        print('ERROR: $e');
+        print('STACKTRACE: $st');
         return Response.internalServerError(body: jsonEncode({'error': e.toString()}));
       }
     });
@@ -109,14 +123,40 @@ class MaintenanceController {
     router.post('/', (Request request) async {
       try {
         final body = await request.readAsString();
-        final history = EquipmentMaintenanceHistory.fromJson(jsonDecode(body));
-        final userId = request.context['user_id'] as String;
+        final jsonData = jsonDecode(body) as Map<String, dynamic>;
+        
+        final userPayload = request.context['user'] as Map<String, dynamic>?;
+        final userId = userPayload?['userId']?.toString();
+        if (userId == null) {
+          return Response.forbidden(jsonEncode({'error': 'User not authenticated or userId is missing in token.'}));
+        }
+
+        // --- Server-side validation for required client fields ---
+        final equipmentItemId = jsonData['equipment_item_id'];
+        if (equipmentItemId is! String || equipmentItemId.isEmpty) {
+          return Response.badRequest(
+            body: jsonEncode({'error': 'Field "equipment_item_id" must be a non-empty string'}),
+          );
+        }
+
+        final reportedProblem = jsonData['reported_problem'];
+        if (reportedProblem is! String || reportedProblem.isEmpty) {
+          return Response.badRequest(
+            body: jsonEncode({'error': 'Field "reported_problem" must be a non-empty string'}),
+          );
+        }
+        
+        final history = EquipmentMaintenanceHistory.fromJson(jsonData);
+
         final newHistory = await _maintenanceService.create(history, userId);
         return Response.ok(
           jsonEncode(newHistory.toJson()),
           headers: {'Content-Type': 'application/json'},
         );
-      } catch (e) {
+      } catch (e, st) {
+        print('--- BACKEND ERROR: POST /maintenance ---');
+        print('ERROR: $e');
+        print('STACKTRACE: $st');
         return Response.internalServerError(body: jsonEncode({'error': e.toString()}));
       }
     });
@@ -126,14 +166,24 @@ class MaintenanceController {
     router.put('/<id>', (Request request, String id) async {
       try {
         final body = await request.readAsString();
-        final history = EquipmentMaintenanceHistory.fromJson(jsonDecode(body));
-        final userId = request.context['user_id'] as String;
+        final jsonData = jsonDecode(body) as Map<String, dynamic>;
+        final history = EquipmentMaintenanceHistory.fromJson(jsonData);
+        
+        final userPayload = request.context['user'] as Map<String, dynamic>?;
+        final userId = userPayload?['userId']?.toString();
+        if (userId == null) {
+          return Response.forbidden(jsonEncode({'error': 'User not authenticated or userId is missing in token.'}));
+        }
+
         final updatedHistory = await _maintenanceService.update(id, history, userId);
         return Response.ok(
           jsonEncode(updatedHistory.toJson()),
           headers: {'Content-Type': 'application/json'},
         );
-      } catch (e) {
+      } catch (e, st) {
+        print('--- BACKEND ERROR: PUT /maintenance/<id> ---');
+        print('ERROR: $e');
+        print('STACKTRACE: $st');
         return Response.internalServerError(body: jsonEncode({'error': e.toString()}));
       }
     });
@@ -146,10 +196,19 @@ class MaintenanceController {
         if (reason == null) {
           return Response.badRequest(body: '{"error": "Archival reason is required"}');
         }
-        final userId = request.context['user_id'] as String;
+        
+        final userPayload = request.context['user'] as Map<String, dynamic>?;
+        final userId = userPayload?['userId']?.toString();
+        if (userId == null) {
+          return Response.forbidden(jsonEncode({'error': 'User not authenticated or userId is missing in token.'}));
+        }
+
         await _maintenanceService.archive(id, reason, userId);
         return Response.ok('{"message": "Record archived successfully"}');
-      } catch (e) {
+      } catch (e, st) {
+        print('--- BACKEND ERROR: DELETE /maintenance/<id> ---');
+        print('ERROR: $e');
+        print('STACKTRACE: $st');
         return Response.internalServerError(body: jsonEncode({'error': e.toString()}));
       }
     });

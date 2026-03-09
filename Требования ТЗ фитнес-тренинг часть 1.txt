@@ -1823,7 +1823,6 @@ class EquipmentMaintenanceHistory {
   String? relatedBookingId; // Связанное бронирование
   bool causedDowntime; // Привело ли к простою
   DateTime updatedAt;
-  bool isArchived;
 }
 
 7.1.2 Вспомогательные модели
@@ -1908,22 +1907,7 @@ CREATE TABLE equipment_maintenance_history (
   related_booking_id BIGINT REFERENCES equipment_bookings(id),
   caused_downtime BOOLEAN DEFAULT false,
   updated_at TIMESTAMPTZ DEFAULT NOW(),
-  is_archived BOOLEAN DEFAULT false,
   
-  -- Ограничения
-  CONSTRAINT assigned_to_check CHECK (
-    (assigned_to_user_id IS NULL AND assigned_to_staff_id IS NOT NULL) OR
-    (assigned_to_user_id IS NOT NULL AND assigned_to_staff_id IS NULL) OR
-    (assigned_to_user_id IS NULL AND assigned_to_staff_id IS NULL)
-  ),
-  
-  -- Индексы
-  INDEX idx_maintenance_equipment (equipment_item_id),
-  INDEX idx_maintenance_status (status) WHERE NOT is_archived,
-  INDEX idx_maintenance_assigned_user (assigned_to_user_id) WHERE assigned_to_user_id IS NOT NULL,
-  INDEX idx_maintenance_assigned_staff (assigned_to_staff_id) WHERE assigned_to_staff_id IS NOT NULL
-);
-
 7.3.2 Фотографии ТО (maintenance_photos)
 -- Фотографии ТО
 CREATE TABLE maintenance_photos (
@@ -2056,6 +2040,6 @@ GET    /api/maintenance/:id/photos                  # Список фото
 
 
 
-50
+54
 
 

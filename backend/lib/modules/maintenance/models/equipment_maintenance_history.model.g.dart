@@ -10,26 +10,26 @@ _$MaintenancePhotoImpl _$$MaintenancePhotoImplFromJson(
   Map<String, dynamic> json,
 ) => _$MaintenancePhotoImpl(
   id: json['id'] as String,
-  maintenanceId: json['maintenanceId'] as String,
+  maintenanceId: json['maintenance_id'] as String,
   url: json['url'] as String,
   comment: json['comment'] as String?,
   timing: $enumDecode(_$PhotoTimingEnumMap, json['timing']),
-  takenAt: json['takenAt'] == null
+  takenAt: json['taken_at'] == null
       ? null
-      : DateTime.parse(json['takenAt'] as String),
-  takenBy: json['takenBy'] as String?,
+      : DateTime.parse(json['taken_at'] as String),
+  takenBy: json['taken_by'] as String?,
 );
 
 Map<String, dynamic> _$$MaintenancePhotoImplToJson(
   _$MaintenancePhotoImpl instance,
 ) => <String, dynamic>{
   'id': instance.id,
-  'maintenanceId': instance.maintenanceId,
+  'maintenance_id': instance.maintenanceId,
   'url': instance.url,
   'comment': instance.comment,
   'timing': _$PhotoTimingEnumMap[instance.timing]!,
-  'takenAt': instance.takenAt?.toIso8601String(),
-  'takenBy': instance.takenBy,
+  'taken_at': instance.takenAt?.toIso8601String(),
+  'taken_by': instance.takenBy,
 };
 
 const _$PhotoTimingEnumMap = {
@@ -40,38 +40,38 @@ const _$PhotoTimingEnumMap = {
 _$EquipmentMaintenanceHistoryImpl _$$EquipmentMaintenanceHistoryImplFromJson(
   Map<String, dynamic> json,
 ) => _$EquipmentMaintenanceHistoryImpl(
-  id: json['id'] as String,
-  equipmentItemId: json['equipmentItemId'] as String,
-  equipmentName: json['equipmentName'] as String?,
+  id: json['id'] as String?,
+  equipmentItemId: json['equipment_item_id'] as String,
+  equipmentName: json['equipment_name'] as String?,
   type: $enumDecode(_$MaintenanceTypeEnumMap, json['type']),
   status: $enumDecode(_$MaintenanceStatusEnumMap, json['status']),
-  createdAt: json['createdAt'] == null
+  createdAt: json['created_at'] == null
       ? null
-      : DateTime.parse(json['createdAt'] as String),
-  startedAt: json['startedAt'] == null
+      : DateTime.parse(json['created_at'] as String),
+  startedAt: json['started_at'] == null
       ? null
-      : DateTime.parse(json['startedAt'] as String),
-  completedAt: json['completedAt'] == null
+      : DateTime.parse(json['started_at'] as String),
+  completedAt: json['completed_at'] == null
       ? null
-      : DateTime.parse(json['completedAt'] as String),
-  equipmentAvailableFrom: json['equipmentAvailableFrom'] == null
+      : DateTime.parse(json['completed_at'] as String),
+  equipmentAvailableFrom: json['equipment_available_from'] == null
       ? null
-      : DateTime.parse(json['equipmentAvailableFrom'] as String),
-  reportedProblem: json['reportedProblem'] as String,
-  workDescription: json['workDescription'] as String?,
-  reportedBy: json['reportedBy'] as String,
-  assignedToUserId: json['assignedToUserId'] as String?,
-  assignedToStaffId: json['assignedToStaffId'] as String?,
-  relatedBookingId: json['relatedBookingId'] as String?,
-  causedDowntime: json['causedDowntime'] as bool? ?? false,
-  updatedAt: json['updatedAt'] == null
+      : DateTime.parse(json['equipment_available_from'] as String),
+  reportedProblem: json['reported_problem'] as String,
+  workDescription: json['work_description'] as String?,
+  reportedBy: json['reported_by'] as String,
+  assignedToUserId: json['assigned_to_user_id'] as String?,
+  assignedToStaffId: json['assigned_to_staff_id'] as String?,
+  relatedBookingId: json['related_booking_id'] as String?,
+  causedDowntime: json['caused_downtime'] as bool? ?? false,
+  updatedAt: json['updated_at'] == null
       ? null
-      : DateTime.parse(json['updatedAt'] as String),
-  archivedAt: json['archivedAt'] == null
+      : DateTime.parse(json['updated_at'] as String),
+  archivedAt: json['archived_at'] == null
       ? null
-      : DateTime.parse(json['archivedAt'] as String),
-  archivedBy: json['archivedBy'] as String?,
-  archivedReason: json['archivedReason'] as String?,
+      : DateTime.parse(json['archived_at'] as String),
+  archivedBy: json['archived_by'] as String?,
+  archivedReason: json['archived_reason'] as String?,
   photos: (json['photos'] as List<dynamic>?)
       ?.map((e) => MaintenancePhoto.fromJson(e as Map<String, dynamic>))
       .toList(),
@@ -81,25 +81,26 @@ Map<String, dynamic> _$$EquipmentMaintenanceHistoryImplToJson(
   _$EquipmentMaintenanceHistoryImpl instance,
 ) => <String, dynamic>{
   'id': instance.id,
-  'equipmentItemId': instance.equipmentItemId,
-  'equipmentName': instance.equipmentName,
+  'equipment_item_id': instance.equipmentItemId,
+  'equipment_name': instance.equipmentName,
   'type': _$MaintenanceTypeEnumMap[instance.type]!,
   'status': _$MaintenanceStatusEnumMap[instance.status]!,
-  'createdAt': instance.createdAt?.toIso8601String(),
-  'startedAt': instance.startedAt?.toIso8601String(),
-  'completedAt': instance.completedAt?.toIso8601String(),
-  'equipmentAvailableFrom': instance.equipmentAvailableFrom?.toIso8601String(),
-  'reportedProblem': instance.reportedProblem,
-  'workDescription': instance.workDescription,
-  'reportedBy': instance.reportedBy,
-  'assignedToUserId': instance.assignedToUserId,
-  'assignedToStaffId': instance.assignedToStaffId,
-  'relatedBookingId': instance.relatedBookingId,
-  'causedDowntime': instance.causedDowntime,
-  'updatedAt': instance.updatedAt?.toIso8601String(),
-  'archivedAt': instance.archivedAt?.toIso8601String(),
-  'archivedBy': instance.archivedBy,
-  'archivedReason': instance.archivedReason,
+  'created_at': instance.createdAt?.toIso8601String(),
+  'started_at': instance.startedAt?.toIso8601String(),
+  'completed_at': instance.completedAt?.toIso8601String(),
+  'equipment_available_from': instance.equipmentAvailableFrom
+      ?.toIso8601String(),
+  'reported_problem': instance.reportedProblem,
+  'work_description': instance.workDescription,
+  'reported_by': instance.reportedBy,
+  'assigned_to_user_id': instance.assignedToUserId,
+  'assigned_to_staff_id': instance.assignedToStaffId,
+  'related_booking_id': instance.relatedBookingId,
+  'caused_downtime': instance.causedDowntime,
+  'updated_at': instance.updatedAt?.toIso8601String(),
+  'archived_at': instance.archivedAt?.toIso8601String(),
+  'archived_by': instance.archivedBy,
+  'archived_reason': instance.archivedReason,
   'photos': instance.photos,
 };
 

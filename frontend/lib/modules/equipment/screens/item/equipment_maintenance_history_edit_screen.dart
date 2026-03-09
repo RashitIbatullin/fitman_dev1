@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,7 +5,6 @@ import 'package:fitman_app/modules/maintenance/models/equipment_maintenance_hist
 import 'package:fitman_app/modules/maintenance/providers/maintenance_provider.dart';
 import 'package:fitman_app/providers/auth_provider.dart';
 import 'package:fitman_app/services/api_service.dart';
-
 
 // Helper class to manage photos and their comments
 class _PhotoWithComment {
@@ -35,13 +33,11 @@ class _EquipmentMaintenanceHistoryEditScreenState
     extends ConsumerState<EquipmentMaintenanceHistoryEditScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  // Controllers for the new model fields
   late TextEditingController _reportedProblemController;
   late TextEditingController _workDescriptionController;
   late MaintenanceType _selectedType;
   late MaintenanceStatus _selectedStatus;
   
-  // State for holding picked files with comments
   final List<_PhotoWithComment> _beforePhotos = [];
   final List<_PhotoWithComment> _afterPhotos = [];
 
@@ -55,8 +51,6 @@ class _EquipmentMaintenanceHistoryEditScreenState
     _workDescriptionController = TextEditingController(text: record?.workDescription ?? '');
     _selectedType = record?.type ?? MaintenanceType.corrective;
     _selectedStatus = record?.status ?? MaintenanceStatus.reported;
-
-    // TODO: Implement loading existing photos for editing
   }
 
   @override
@@ -110,16 +104,27 @@ class _EquipmentMaintenanceHistoryEditScreenState
 
       if (isCreating) {
         recordToSave = EquipmentMaintenanceHistory(
-          id: '', // Ignored by backend on create
+          id: null,
           equipmentItemId: widget.equipmentItemId,
           reportedProblem: _reportedProblemController.text,
-          workDescription: _workDescriptionController.text,
+          workDescription: _workDescriptionController.text.isNotEmpty ? _workDescriptionController.text : null,
           type: _selectedType,
           status: _selectedStatus,
           reportedBy: userId.toString(),
+          assignedToUserId: null,
+          assignedToStaffId: null,
+          relatedBookingId: null,
+          archivedBy: null,
+          archivedReason: null,
+          photos: null,
+          equipmentName: null,
+          createdAt: null,
+          startedAt: null,
+          completedAt: null,
+          equipmentAvailableFrom: null,
+          updatedAt: null,
+          archivedAt: null,
         );
-        print('--- SENDING JSON TO CREATE ---');
-        print(recordToSave.toJson());
         recordToSave = await ApiService.createMaintenanceHistory(recordToSave);
       } else {
         recordToSave = widget.historyRecord!.copyWith(
@@ -128,14 +133,14 @@ class _EquipmentMaintenanceHistoryEditScreenState
           type: _selectedType,
           status: _selectedStatus,
         );
-        recordToSave = await ApiService.updateMaintenanceHistory(recordToSave.id, recordToSave);
+        recordToSave = await ApiService.updateMaintenanceHistory(recordToSave.id!, recordToSave);
       }
 
       // Upload photos with comments
       for (final photo in _beforePhotos) {
         if (photo.file.bytes != null) {
           await ApiService.uploadMaintenancePhoto(
-            maintenanceId: recordToSave.id,
+            maintenanceId: recordToSave.id!,
             photoBytes: photo.file.bytes!,
             fileName: photo.file.name,
             timing: PhotoTiming.before.name,
@@ -146,7 +151,7 @@ class _EquipmentMaintenanceHistoryEditScreenState
       for (final photo in _afterPhotos) {
          if (photo.file.bytes != null) {
           await ApiService.uploadMaintenancePhoto(
-            maintenanceId: recordToSave.id,
+            maintenanceId: recordToSave.id!,
             photoBytes: photo.file.bytes!,
             fileName: photo.file.name,
             timing: PhotoTiming.after.name,
@@ -169,11 +174,6 @@ class _EquipmentMaintenanceHistoryEditScreenState
       print('--- SAVE FAILED ---');
       print('ERROR: $e');
       print('STACK TRACE: $st');
-
-      if (e is DioException) {
-          print('--- DIO RESPONSE DATA---');
-          print(e.response?.data);
-      }
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Ошибка сохранения: $e'), backgroundColor: Colors.red),
@@ -234,7 +234,15 @@ class _EquipmentMaintenanceHistoryEditScreenState
                 controller: _reportedProblemController,
                 decoration: const InputDecoration(labelText: 'Описание проблемы', border: OutlineInputBorder()),
                 maxLines: 3,
-                validator: (v) => v == null || v.isEmpty ? 'Обязательное поле' : null,
+                validator: (v) {
+                  if (v == null || v.isEmpty) {
+                    return 'Обязательное поле';
+                  }
+                  if (v.length < 5) {
+                    return 'Описание должно быть не менее 5 символов';
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 16),
               TextFormField(
@@ -260,7 +268,7 @@ class _EquipmentMaintenanceHistoryEditScreenState
         Text(title, style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: 8),
         SizedBox(
-          height: 180, // Increased height to accommodate the text field
+          height: 180,
           child: photos.isEmpty
               ? const Center(child: Text('Нет выбранных фото'))
               : ListView.builder(
@@ -271,7 +279,7 @@ class _EquipmentMaintenanceHistoryEditScreenState
                     return Padding(
                       padding: const EdgeInsets.only(right: 12.0),
                       child: SizedBox(
-                        width: 150, // Set a fixed width for the item
+                        width: 150,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
