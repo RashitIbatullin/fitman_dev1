@@ -5,7 +5,7 @@ import 'package:postgres/postgres.dart';
 abstract class MaintenanceRepository {
   Future<List<EquipmentMaintenanceHistory>> getAll();
   Future<EquipmentMaintenanceHistory> getById(String id);
-  Future<List<EquipmentMaintenanceHistory>> getByEquipmentItemId(String equipmentItemId);
+  Future<List<EquipmentMaintenanceHistory>> getByEquipmentItemId(String equipmentItemId, {bool isArchived = false});
   Future<EquipmentMaintenanceHistory> create(EquipmentMaintenanceHistory history, String userId);
   Future<EquipmentMaintenanceHistory> update(String id, EquipmentMaintenanceHistory history, String userId);
   Future<void> archive(String id, String reason, String userId);
@@ -180,9 +180,9 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
   }
 
   @override
-  Future<List<EquipmentMaintenanceHistory>> getByEquipmentItemId(String equipmentItemId) async {
+  Future<List<EquipmentMaintenanceHistory>> getByEquipmentItemId(String equipmentItemId, {bool isArchived = false}) async {
     final conn = await _db.connection;
-    const query = '''
+    var query = '''
       SELECT 
         emh.*,
         COALESCE(
@@ -192,9 +192,16 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
           '[]'::json
         ) as photos
       FROM equipment_maintenance_history emh
-      WHERE emh.equipment_item_id = @equipment_item_id AND emh.archived_at IS NULL
-      ORDER BY emh.created_at DESC
+      WHERE emh.equipment_item_id = @equipment_item_id
     ''';
+
+    if (isArchived) {
+      query += ' AND emh.archived_at IS NOT NULL';
+    } else {
+      query += ' AND emh.archived_at IS NULL';
+    }
+
+    query += ' ORDER BY emh.created_at DESC';
 
     final result = await conn.execute(
       Sql.named(query),

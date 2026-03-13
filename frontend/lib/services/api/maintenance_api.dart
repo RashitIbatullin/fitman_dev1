@@ -11,8 +11,13 @@ class MaintenanceApiService extends BaseApiService {
     return (data as List).map((json) => EquipmentMaintenanceHistory.fromJson(json)).toList();
   }
 
-  Future<List<EquipmentMaintenanceHistory>> getMaintenanceHistory(String itemId) async {
-    final data = await get('/api/maintenance/item/$itemId');
+  Future<List<EquipmentMaintenanceHistory>> getMaintenanceHistory(String itemId, {bool includeArchived = false}) async {
+    final queryParameters = <String, String>{};
+    if (includeArchived) {
+      queryParameters['isArchived'] = 'true';
+    }
+    
+    final data = await get('/api/maintenance/item/$itemId', queryParams: queryParameters);
     return (data as List).map((json) => EquipmentMaintenanceHistory.fromJson(json)).toList();
   }
 
@@ -31,6 +36,10 @@ class MaintenanceApiService extends BaseApiService {
   Future<void> archiveMaintenanceHistory(String historyId, String reason) async {
     // The backend expects the reason in the body for a DELETE request.
     await delete('/api/maintenance/$historyId', body: {'reason': reason});
+  }
+
+  Future<void> unarchiveMaintenanceHistory(String historyId) async {
+    await put('/api/maintenance/$historyId/unarchive', body: {});
   }
 
   Future<String> uploadMaintenancePhoto({

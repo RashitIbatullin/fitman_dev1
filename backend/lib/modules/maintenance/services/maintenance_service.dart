@@ -15,8 +15,8 @@ class MaintenanceService {
     return _maintenanceRepository.getById(id);
   }
 
-  Future<List<EquipmentMaintenanceHistory>> getByEquipmentItemId(String equipmentItemId) {
-    return _maintenanceRepository.getByEquipmentItemId(equipmentItemId);
+  Future<List<EquipmentMaintenanceHistory>> getByEquipmentItemId(String equipmentItemId, {bool isArchived = false}) {
+    return _maintenanceRepository.getByEquipmentItemId(equipmentItemId, isArchived: isArchived);
   }
 
   Future<EquipmentMaintenanceHistory> create(EquipmentMaintenanceHistory history, String userId) {

@@ -1,4 +1,5 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fitman_app/services/api_service.dart';
 import 'package:fitman_app/modules/maintenance/models/equipment_maintenance_history.model.dart';
 
@@ -32,6 +33,16 @@ class Maintenance extends _$Maintenance {
     state = await AsyncValue.guard(() async {
       await ApiService.archiveMaintenanceHistory(historyId, reason);
       ref.invalidate(maintenanceHistoryProvider(itemId));
+      ref.invalidate(allMaintenanceHistoryProvider);
+    });
+  }
+
+  Future<void> unarchiveMaintenanceHistory(String historyId, String itemId) async {
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      await ApiService.unarchiveMaintenanceHistory(historyId);
+      ref.invalidate(maintenanceHistoryProvider(itemId));
+      ref.invalidate(allMaintenanceHistoryProvider);
     });
   }
 }
@@ -41,7 +52,10 @@ final allMaintenanceHistoryProvider =
   return ApiService.getAllMaintenanceHistory();
 });
 
+final maintenanceHistoryFilterIncludeArchivedProvider = StateProvider<bool>((ref) => false);
+
 final maintenanceHistoryProvider =
     FutureProvider.family<List<EquipmentMaintenanceHistory>, String>((ref, itemId) async {
-  return ApiService.getMaintenanceHistory(itemId);
+  final includeArchived = ref.watch(maintenanceHistoryFilterIncludeArchivedProvider);
+  return ApiService.getMaintenanceHistory(itemId, includeArchived: includeArchived);
 });

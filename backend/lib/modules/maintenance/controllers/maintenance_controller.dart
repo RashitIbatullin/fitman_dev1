@@ -96,7 +96,8 @@ class MaintenanceController {
 
     router.get('/item/<itemId>', (Request request, String itemId) async {
       try {
-        final history = await _maintenanceService.getByEquipmentItemId(itemId);
+        final isArchived = request.url.queryParameters['isArchived'] == 'true';
+        final history = await _maintenanceService.getByEquipmentItemId(itemId, isArchived: isArchived);
         final jsonResponse = jsonEncode(history.map((h) => h.toJson()).toList());
         return Response.ok(
           jsonResponse,
@@ -200,6 +201,17 @@ class MaintenanceController {
         print('ERROR: $e');
         print('STACKTRACE: $st');
         return Response.internalServerError(body: jsonEncode({'error': e.toString()}));
+      }
+    });
+
+    router.put('/<id>/unarchive', (Request request, String id) async {
+      try {
+        await _maintenanceService.unarchive(id);
+        return Response.ok('{"message": "Record unarchived successfully"}');
+      } catch (e) {
+        print('--- BACKEND ERROR: PUT /maintenance/<id>/unarchive ---');
+        print('ERROR: $e');
+        return Response.internalServerError(body: jsonEncode({'error': 'Error unarchiving record: $e'}));
       }
     });
 

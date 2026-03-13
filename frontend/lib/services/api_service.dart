@@ -154,8 +154,8 @@ class ApiService {
   // --- Maintenance History Methods ---
   static Future<List<EquipmentMaintenanceHistory>> getAllMaintenanceHistory() =>
       _maintenanceApi.getAllMaintenanceHistory();
-  static Future<List<EquipmentMaintenanceHistory>> getMaintenanceHistory(String itemId) =>
-      _maintenanceApi.getMaintenanceHistory(itemId);
+  static Future<List<EquipmentMaintenanceHistory>> getMaintenanceHistory(String itemId, {bool includeArchived = false}) =>
+      _maintenanceApi.getMaintenanceHistory(itemId, includeArchived: includeArchived);
   static Future<EquipmentMaintenanceHistory> createMaintenanceHistory(
           EquipmentMaintenanceHistory history) =>
       _maintenanceApi.createMaintenanceHistory(history);
@@ -164,6 +164,9 @@ class ApiService {
       _maintenanceApi.updateMaintenanceHistory(historyId, history);
   static Future<void> archiveMaintenanceHistory(String historyId, String reason) =>
       _maintenanceApi.archiveMaintenanceHistory(historyId, reason);
+
+  static Future<void> unarchiveMaintenanceHistory(String historyId) =>
+      _maintenanceApi.unarchiveMaintenanceHistory(historyId);
 
   static Future<String> uploadMaintenancePhoto({
     required String maintenanceId,
