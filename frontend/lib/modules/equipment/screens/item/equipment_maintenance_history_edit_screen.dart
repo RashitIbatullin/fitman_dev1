@@ -107,20 +107,6 @@ class _EquipmentMaintenanceHistoryEditScreenState
     if (!_formKey.currentState!.validate()) {
       return;
     }
-    
-    // Manual validation for new photo comments
-    final allNewPhotos = [..._beforePhotos.where((p) => p.isNew), ..._afterPhotos.where((p) => p.isNew)];
-    for (final photo in allNewPhotos) {
-      if (photo.commentController.text.length < 5) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Примечание к каждому новому фото должно быть не менее 5 символов.'),
-            backgroundColor: Colors.red,
-          ),
-        );
-        return;
-      }
-    }
 
     setState(() => _isLoading = true);
 
@@ -234,11 +220,12 @@ class _EquipmentMaintenanceHistoryEditScreenState
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
+          autovalidateMode: AutovalidateMode.onUserInteraction,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               DropdownButtonFormField<MaintenanceType>(
-                value: _selectedType,
+                initialValue: _selectedType,
                 decoration: const InputDecoration(labelText: 'Тип ТО', border: OutlineInputBorder()),
                 items: MaintenanceType.values.map((type) {
                   return DropdownMenuItem(value: type, child: Text(type.title));
@@ -251,7 +238,7 @@ class _EquipmentMaintenanceHistoryEditScreenState
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<MaintenanceStatus>(
-                value: _selectedStatus,
+                initialValue: _selectedStatus,
                 decoration: const InputDecoration(labelText: 'Статус', border: OutlineInputBorder()),
                 items: MaintenanceStatus.values.map((status) {
                   return DropdownMenuItem(value: status, child: Text(status.title));
@@ -265,14 +252,14 @@ class _EquipmentMaintenanceHistoryEditScreenState
               const SizedBox(height: 16),
               TextFormField(
                 controller: _reportedProblemController,
-                decoration: const InputDecoration(labelText: 'Описание проблемы', border: OutlineInputBorder()),
+                decoration: const InputDecoration(
+                    labelText: 'Описание проблемы',
+                    hintText: 'Минимум 5 символов',
+                    border: OutlineInputBorder()),
                 maxLines: 3,
                 validator: (v) {
-                  if (v == null || v.isEmpty) {
-                    return 'Обязательное поле';
-                  }
-                  if (v.length < 5) {
-                    return 'Описание должно быть не менее 5 символов';
+                  if (v == null || v.trim().length < 5) {
+                    return 'Описание должно быть не менее 5 символов.';
                   }
                   return null;
                 },
@@ -280,8 +267,17 @@ class _EquipmentMaintenanceHistoryEditScreenState
               const SizedBox(height: 16),
               TextFormField(
                 controller: _workDescriptionController,
-                decoration: const InputDecoration(labelText: 'Описание выполненных работ', border: OutlineInputBorder()),
+                decoration: const InputDecoration(
+                    labelText: 'Описание выполненных работ',
+                    hintText: 'Минимум 5 символов',
+                    border: OutlineInputBorder()),
                 maxLines: 3,
+                validator: (v) {
+                  if (v != null && v.isNotEmpty && v.trim().length < 5) {
+                    return 'Описание должно быть не менее 5 символов.';
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 24),
               _buildPhotoSection(context, 'Фото "До"', _beforePhotos),
@@ -359,11 +355,18 @@ class _EquipmentMaintenanceHistoryEditScreenState
                                 textAlignVertical: TextAlignVertical.top,
                                 decoration: InputDecoration(
                                   labelText: 'Примечание',
+                                  hintText: photoHolder.isNew ? 'Мин. 5 символов' : '',
                                   border: photoHolder.isNew ? const OutlineInputBorder() : InputBorder.none,
                                   contentPadding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
                                 ),
                                 style: const TextStyle(fontSize: 12),
                                 readOnly: !photoHolder.isNew,
+                                validator: (v) {
+                                  if (photoHolder.isNew && (v == null || v.trim().length < 5)) {
+                                    return 'Мин. 5 симв.';
+                                  }
+                                  return null;
+                                },
                               ),
                             ),
                           ],
