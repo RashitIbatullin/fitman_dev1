@@ -1,7 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fitman_app/services/api_service.dart';
-import 'package:fitman_app/modules/maintenance/models/equipment_maintenance_history.model.dart';
+import 'package:fitman_app/modules/equipment/models/equipment_maintenance_history.model.dart';
 
 part 'maintenance_provider.g.dart';
 

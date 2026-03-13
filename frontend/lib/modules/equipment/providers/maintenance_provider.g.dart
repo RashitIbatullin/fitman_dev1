@@ -6,7 +6,7 @@ part of 'maintenance_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$maintenanceHash() => r'7fd023dc300bfb9740bff4ad852f126c76dbb3f8';
+String _$maintenanceHash() => r'8eac8061f5a5075d10c28a6881f5e1a8e96faf4b';
 
 /// See also [Maintenance].
 @ProviderFor(Maintenance)

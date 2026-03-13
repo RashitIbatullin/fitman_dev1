@@ -83,6 +83,12 @@ final equipmentTypeByIdProvider =
   return ApiService.getEquipmentTypeById(id);
 });
 
+// Provider that fetches only active equipment types, ignoring filters
+final activeEquipmentTypesProvider =
+    FutureProvider<List<EquipmentType>>((ref) async {
+  return ApiService.getAllEquipmentTypes(isArchived: false);
+});
+
 // --- Equipment Item Providers ---
 
 // All equipment items provider

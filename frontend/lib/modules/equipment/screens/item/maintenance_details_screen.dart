@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:fitman_app/modules/maintenance/models/equipment_maintenance_history.model.dart';
+import 'package:fitman_app/modules/equipment/models/equipment_maintenance_history.model.dart';
 import 'package:intl/intl.dart';
 
 class MaintenanceDetailsScreen extends StatelessWidget {

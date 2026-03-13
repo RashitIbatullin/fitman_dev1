@@ -3,10 +3,11 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fitman_app/modules/maintenance/models/equipment_maintenance_history.model.dart';
-import 'package:fitman_app/modules/maintenance/providers/maintenance_provider.dart';
+import 'package:fitman_app/modules/equipment/models/equipment_maintenance_history.model.dart';
+import 'package:fitman_app/modules/equipment/providers/maintenance_provider.dart';
 import 'package:fitman_app/providers/auth_provider.dart';
 import 'package:fitman_app/services/api_service.dart';
+import 'package:intl/intl.dart';
 
 // Helper class to manage existing and new photos
 class _PhotoHolder {
@@ -44,6 +45,8 @@ class _EquipmentMaintenanceHistoryEditScreenState
 
   late TextEditingController _reportedProblemController;
   late TextEditingController _workDescriptionController;
+  late TextEditingController _startedAtController;
+  late TextEditingController _completedAtController;
   late MaintenanceType _selectedType;
   late MaintenanceStatus _selectedStatus;
 
@@ -58,6 +61,15 @@ class _EquipmentMaintenanceHistoryEditScreenState
     final record = widget.historyRecord;
     _reportedProblemController = TextEditingController(text: record?.reportedProblem ?? '');
     _workDescriptionController = TextEditingController(text: record?.workDescription ?? '');
+    
+    final startedAt = record?.startedAt;
+    _startedAtController = TextEditingController(
+        text: startedAt != null ? DateFormat('yyyy-MM-dd HH:mm').format(startedAt.toLocal()) : '');
+    
+    final completedAt = record?.completedAt;
+    _completedAtController = TextEditingController(
+        text: completedAt != null ? DateFormat('yyyy-MM-dd HH:mm').format(completedAt.toLocal()) : '');
+
     _selectedType = record?.type ?? MaintenanceType.corrective;
     _selectedStatus = record?.status ?? MaintenanceStatus.reported;
 
@@ -81,6 +93,8 @@ class _EquipmentMaintenanceHistoryEditScreenState
   void dispose() {
     _reportedProblemController.dispose();
     _workDescriptionController.dispose();
+    _startedAtController.dispose();
+    _completedAtController.dispose();
     for (var photo in _beforePhotos) {
       photo.commentController.dispose();
     }
@@ -100,6 +114,31 @@ class _EquipmentMaintenanceHistoryEditScreenState
       setState(() {
         photoList.addAll(result.files.map((file) => _PhotoHolder(newFile: file)));
       });
+    }
+  }
+
+  Future<void> _selectDateTime(BuildContext context, TextEditingController controller) async {
+    final initialDate = DateTime.tryParse(controller.text) ?? DateTime.now();
+    
+    final date = await showDatePicker(
+      context: context,
+      initialDate: initialDate,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+
+    if (date == null) return;
+
+    if (mounted) {
+      final time = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.fromDateTime(initialDate),
+      );
+    
+      if (time == null) return;
+
+      final newDateTime = DateTime(date.year, date.month, date.day, time.hour, time.minute);
+      controller.text = DateFormat('yyyy-MM-dd HH:mm').format(newDateTime);
     }
   }
 
@@ -143,6 +182,8 @@ class _EquipmentMaintenanceHistoryEditScreenState
           workDescription: _workDescriptionController.text,
           type: _selectedType,
           status: _selectedStatus,
+          startedAt: _startedAtController.text.isNotEmpty ? DateTime.parse(_startedAtController.text) : null,
+          completedAt: _completedAtController.text.isNotEmpty ? DateTime.parse(_completedAtController.text) : null,
         );
         recordToSave = await ApiService.updateMaintenanceHistory(recordToSave.id!, recordToSave);
       }
@@ -278,6 +319,42 @@ class _EquipmentMaintenanceHistoryEditScreenState
                   }
                   return null;
                 },
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      controller: _startedAtController,
+                      decoration: InputDecoration(
+                        labelText: 'Начата',
+                        border: const OutlineInputBorder(),
+                        suffixIcon: IconButton(
+                          icon: const Icon(Icons.calendar_today),
+                          onPressed: () => _selectDateTime(context, _startedAtController),
+                        ),
+                      ),
+                      readOnly: true,
+                      onTap: () => _selectDateTime(context, _startedAtController),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: TextFormField(
+                      controller: _completedAtController,
+                      decoration: InputDecoration(
+                        labelText: 'Завершена',
+                        border: const OutlineInputBorder(),
+                        suffixIcon: IconButton(
+                          icon: const Icon(Icons.calendar_today),
+                          onPressed: () => _selectDateTime(context, _completedAtController),
+                        ),
+                      ),
+                      readOnly: true,
+                      onTap: () => _selectDateTime(context, _completedAtController),
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 24),
               _buildPhotoSection(context, 'Фото "До"', _beforePhotos),
