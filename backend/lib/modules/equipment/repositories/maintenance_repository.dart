@@ -1,5 +1,5 @@
 import 'package:fitman_backend/config/database.dart';
-import 'package:fitman_backend/modules/maintenance/models/equipment_maintenance_history.model.dart';
+import 'package:fitman_backend/modules/equipment/models/equipment_maintenance_history.model.dart';
 import 'package:postgres/postgres.dart';
 
 abstract class MaintenanceRepository {

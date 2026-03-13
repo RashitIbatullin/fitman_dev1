@@ -1,0 +1,870 @@
+6	Модуль управления оборудованием
+Модуль управления оборудованием и бронированием обеспечивает базовый учёт инфраструктуры фитнес-центра в части оборудования.
+• Контроль расположения оборудования
+• Учёт состояния оборудования
+• Бронирование оборудования для занятий
+5.4 
+6 
+6.1 Тип оборудования
+6 
+6.1 
+6.1.1 Модель типа оборудования (EquipmentType)
+class EquipmentType {
+  String id;
+  String name;                // "Гантели", "Беговая дорожка"
+  String? description;
+  
+  // Классификация
+  EquipmentCategory category; // Категория (cardio, strength, etc.)
+  EquipmentSubType subType;   // Подтип (опционально)
+  
+  // Базовые характеристики
+  String? weightRange;        // "1-30 кг" (для свободных весов)
+  String? dimensions;         // "80x150x200 см"
+  bool isMobile;              // Мобильное оборудование
+    
+}
+
+enum EquipmentCategory {
+  cardio,           // Кардио-оборудование
+  strength,         // Силовые тренажёры
+  freeWeights,      // Свободные веса
+  functional,       // Функциональное оборудование
+  accessories,      // Аксессуары
+  measurement,      // Измерительное оборудование
+  other             // Прочее
+}
+
+6.1.2 Подтипы оборудования (EquipmentSubType)
+// Комментарий: Для детализации внутри категорий
+// Примеры для cardio: treadmill, elliptical, bike, rower
+// Примеры для freeWeights: dumbbell, barbell, kettlebell, plate
+// В БД хранится как SMALLINT
+6.2 Экземпляры оборудования (EquipmentItem)
+Учёт конкретных физических единиц оборудования. Каждый экземпляр имеет инвентарный номер и отслеживается индивидуально.
+6.2 
+6.2.1 Модель экземпляра оборудования (EquipmentItem)
+dart
+class EquipmentItem {
+  String id;
+  String typeId;              // Ссылка на EquipmentType
+  String inventoryNumber;     // Внутренний инвентарный номер "ГАН-001"
+  String? serialNumber;       // Заводской серийный номер (опционально)
+  String? model;              // Модель "Matrix T7xe"
+  String? manufacturer;       // Производитель
+  
+  // Локация
+  String? roomId;             // Где находится (ссылка на Room)
+  String? placementNote;      // "У окна, рядом с колонной"
+  
+  // Состояние
+  EquipmentStatus status;     // available, inUse, maintenance
+  int conditionRating;        // 1-5 (5 = отличное)
+  String? conditionNotes;     // "Поцарапана панель, работает нормально"
+  
+  // Техническое обслуживание (упрощённое)
+  DateTime? lastMaintenanceDate;
+  DateTime? nextMaintenanceDate;
+  String? maintenanceNotes;   // "Заменили ремень"
+  
+  // Покупка/учёт
+  DateTime? purchaseDate;
+  double? purchasePrice;
+  String? supplier;
+  int? warrantyMonths;        // Гарантия в месяцах
+  
+  // Использование
+  int usageHours;             // Накопленные часы использования
+  DateTime? lastUsedDate;
+  
+  // Фотографии конкретного экземпляра
+  List<String> photoUrls;
+}
+6.2.2 Статусы оборудования (EquipmentStatus)
+dart
+enum EquipmentStatus {
+  available,     // Доступно
+  inUse,         // Используется (во время занятия)
+  reserved,      // Забронировано
+  maintenance,   // На обслуживании/ремонте
+  outOfOrder,    // Неисправно
+  storage,       // На складе
+}
+
+6.3 Функционал технического обслуживания оборудования
+6.3.1  Модели данных
+6.3.1.1 Модель истории ТО
+class EquipmentMaintenanceHistory {
+  String id;
+  String equipmentItemId;
+  String equipmentName; // Денормализация
+  MaintenanceType type; // Профилактическое/Корректирующее
+  MaintenanceStatus status;
+  DateTime createdAt; // Дата создания заявки
+  DateTime? startedAt; // Начало работ
+  DateTime? completedAt; // Завершение работ
+  DateTime? equipmentAvailableFrom; // Когда оборудование снова доступно
+  String reportedProblem; // Описание проблемы
+  String workDescription; // Описание выполненных работ
+  String reportedByUserId; // Кто сообщил
+  String? assignedToUserId; // Назначено сотруднику
+  String? assignedToStaffId; // Назначено вспомогательному персоналу
+  List<MaintenancePhoto> beforePhotos; // Фото до
+  List<MaintenancePhoto> afterPhotos; // Фото после
+  String? relatedBookingId; // Связанное бронирование
+  bool causedDowntime; // Привело ли к простою
+  DateTime updatedAt;
+}
+
+6.3.1.2 Вспомогательные модели
+
+// Тип ТО
+enum MaintenanceType {
+  preventive,  // Плановое профилактическое
+  corrective   // Ремонт по факту неисправности
+}
+
+// Статус ТО
+enum MaintenanceStatus {
+  reported,    // Проблема зафиксирована
+  inProgress,  // В работе
+  completed,   // Завершено
+  cancelled    // Отменено
+}
+
+// Фотография ТО
+class MaintenancePhoto {
+  String id;
+  String url;
+  String comment; // Комментарий к фото
+  PhotoTiming timing; // before/after
+  DateTime takenAt;
+  String takenByUserId;
+}
+
+      enum PhotoTiming { before, after }
+
+
+6.4 Бронирование оборудования
+6.4.1 Модель бронирования (EquipmentBooking)
+dart
+class EquipmentBooking {
+  String id;
+  String equipmentItemId;     // Конкретный экземпляр
+  String bookedById;          // Кто забронировал (тренер/менеджер)
+  
+  // Время бронирования
+  DateTime startTime;
+  DateTime endTime;
+  
+  // Контекст
+  String? lessonId;           // Для какого занятия
+  String? trainingGroupId;    // Для какой группы
+  String purpose;             // "Групповое занятие", "Индивидуальная тренировка"
+  
+  // Статус
+  BookingStatus status;       // confirmed, active, completed, cancelled
+  
+  // Дополнительно
+  String? notes;              // Особые пожелания
+}
+
+6.5 Структура таблиц оборудования
+6.5.1 Типы оборудования (equipment_types)
+sql
+CREATE TABLE equipment_types (
+  id BIGSERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,      -- "Гантели", "Беговая дорожка"
+  description TEXT,
+  
+  -- Классификация
+  category SMALLINT NOT NULL,      -- EquipmentCategory enum
+  
+  -- Характеристики
+  weight_range VARCHAR(50),        -- "1-30 кг"
+  dimensions VARCHAR(100),         -- "80x150x200 см"
+  is_mobile BOOLEAN DEFAULT true,
+  
+   schematic_icon VARCHAR(50),
+  -- Системные поля
+  company_id BIGINT DEFAULT -1,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  created_by BIGINT REFERENCES users(id),
+  updated_by BIGINT REFERENCES users(id),
+  archived_at TIMESTAMPTZ,
+  archived_by BIGINT REFERENCES users(id),
+  note VARCHAR(100)
+);
+
+-- Индексы для equipment_types
+CREATE INDEX idx_eq_types_category ON equipment_types(category) WHERE is_active = true;
+
+6.5.2 Экземпляры оборудования (equipment_items)
+sql
+-- Конкретные экземпляры оборудования
+CREATE TABLE equipment_items (
+  id BIGSERIAL PRIMARY KEY,
+  
+  -- Тип оборудования
+  type_id BIGINT NOT NULL REFERENCES equipment_types(id),
+  
+  -- Идентификация
+  inventory_number VARCHAR(50) NOT NULL UNIQUE,  -- "ГАН-001"
+  serial_number VARCHAR(100),                    -- Заводской номер
+  model VARCHAR(100),                            -- "Matrix T7xe"
+  manufacturer VARCHAR(255),                     -- "Johnson Health Tech"
+  
+  -- Локация
+  room_id BIGINT REFERENCES rooms(id),
+  placement_note TEXT,
+  
+  -- Состояние
+  status SMALLINT DEFAULT 0,                     -- EquipmentStatus enum
+  condition_rating INT CHECK (condition_rating >= 1 AND condition_rating <= 5),
+  condition_notes TEXT,
+  
+  -- Обслуживание (упрощённое)
+  last_maintenance_date DATE,
+  next_maintenance_date DATE,
+  maintenance_notes TEXT,
+  
+  -- Учёт
+  purchase_date DATE,
+  purchase_price DECIMAL(10,2),
+  supplier VARCHAR(255),
+  warranty_months INT,
+  
+  -- Использование
+  usage_hours INT DEFAULT 0,
+  last_used_date DATE,
+  
+  -- Фотографии
+  photo_urls JSONB,
+  
+  -- Системные поля
+  company_id BIGINT DEFAULT -1,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  created_by BIGINT REFERENCES users(id),
+  updated_by BIGINT REFERENCES users(id),
+  archived_at TIMESTAMPTZ,
+  archived_by BIGINT REFERENCES users(id),
+  note VARCHAR(100)
+);
+
+-- Индексы для equipment_items
+CREATE INDEX idx_eq_items_type ON equipment_items(type_id);
+CREATE INDEX idx_eq_items_room ON equipment_items(room_id) WHERE room_id IS NOT NULL;
+CREATE INDEX idx_eq_items_status ON equipment_items(status) WHERE status = 0; -- available
+CREATE INDEX idx_eq_items_inventory ON equipment_items(inventory_number);
+
+
+6.5.3 Бронирование оборудования (equipment_bookings)
+sql
+-- Бронирование конкретного оборудования
+CREATE TABLE equipment_bookings (
+  id BIGSERIAL PRIMARY KEY,
+  
+  -- Что бронируем
+  equipment_item_id BIGINT NOT NULL REFERENCES equipment_items(id),
+  
+  -- Кто бронирует
+  booked_by BIGINT NOT NULL REFERENCES users(id),
+  
+  -- Время
+  start_time TIMESTAMPTZ NOT NULL,
+  end_time TIMESTAMPTZ NOT NULL,
+  
+  -- Контекст
+  lesson_id BIGINT REFERENCES lessons(id),
+  training_group_id BIGINT REFERENCES training_groups(id),
+  purpose VARCHAR(255) NOT NULL,
+  
+  -- Статус
+  status SMALLINT DEFAULT 0,  -- BookingStatus enum
+  
+  -- Дополнительно
+  notes TEXT,
+  
+  -- Системные поля
+  company_id BIGINT DEFAULT -1,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  created_by BIGINT REFERENCES users(id),
+  updated_by BIGINT REFERENCES users(id),
+  archived_at TIMESTAMPTZ,
+  archived_by BIGINT REFERENCES users(id),
+  
+  -- Ограничения
+  CONSTRAINT valid_booking_time CHECK (end_time > start_time)
+);
+
+-- Индекс для проверки пересечений бронирований
+CREATE INDEX idx_eq_bookings_time 
+ON equipment_bookings(equipment_item_id, start_time, end_time) 
+WHERE status IN (0, 1); -- confirmed, active
+
+6.5.4 История обслуживания оборудования (equipment_maintenance_history)
+-- История ТО оборудования
+CREATE TABLE equipment_maintenance_history (
+  id BIGSERIAL PRIMARY KEY,
+  equipment_item_id BIGINT NOT NULL REFERENCES equipment_items(id),
+  equipment_name VARCHAR(255),
+  type SMALLINT NOT NULL,
+  status SMALLINT DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  started_at TIMESTAMPTZ,
+  completed_at TIMESTAMPTZ,
+  equipment_available_from TIMESTAMPTZ,
+  reported_problem TEXT NOT NULL,
+  work_description TEXT,
+  reported_by BIGINT NOT NULL REFERENCES users(id),
+  assigned_to_user_id BIGINT REFERENCES users(id),
+  assigned_to_staff_id BIGINT REFERENCES support_staff(id),
+  related_booking_id BIGINT REFERENCES equipment_bookings(id),
+  caused_downtime BOOLEAN DEFAULT false,
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  
+6.5.5 Фотографии ТО (maintenance_photos)
+-- Фотографии ТО
+CREATE TABLE maintenance_photos (
+  id BIGSERIAL PRIMARY KEY,
+  maintenance_id BIGINT NOT NULL REFERENCES equipment_maintenance_history(id) ON DELETE CASCADE,
+  url TEXT NOT NULL,
+  comment TEXT,
+  timing SMALLINT NOT NULL,
+  taken_at TIMESTAMPTZ DEFAULT NOW(),
+  taken_by BIGINT REFERENCES users(id),
+  INDEX idx_maintenance_photos (maintenance_id, timing)
+);
+
+6.6 Бизнес-правила
+6.6.1 Бронирование помещений и оборудования
+1. При создании занятия система проверяет доступность зала
+2. Если для занятия требуется оборудование - проверяет его доступность
+3. Приоритет бронирования:
+o Регулярные занятия тренировочных групп
+o Индивидуальные занятия
+o Разовые мероприятия
+6.6.2 Управление состоянием оборудования
+1. Оборудование со статусом maintenance или outOfOrder не бронируется
+2. При достижении next_maintenance_date система уведомляет ответственного
+3. После ремонта обязательна отметка о проведённых работах
+4. Автоматическое изменение статуса оборудования при создании заявки на ТО
+5. Блокировка бронирования оборудования на время ремонта
+
+6.6.3 Бизнес-процессы ТО
+6.6.3.1 Создание заявки на ТО
+1. Обнаружение проблемы: Сотрудник (тренер, инструктор, администратор) обнаруживает неисправность оборудования
+2. Создание заявки:
+o Делает фото проблемы с разных ракурсов
+o Указывает описание проблемы
+o Выбирает оборудование из списка
+3. Автоматические действия:
+o Оборудование помечается как "на ремонте"
+o Отменяются бронирования этого оборудования на период ремонта
+o Отправляются уведомления администратору и менеджеру
+6.6.3.2 Назначение исполнителя
+1. Выбор исполнителя: Администратор/менеджер выбирает исполнителя из:
+o Внутренних сотрудников с правами на ТО
+o Вспомогательного персонала (техников)
+o Внешних подрядчиков
+2. Критерии выбора:
+o Уровень компетенции (соответствует сложности работ)
+o Специализация (соответствует типу оборудования)
+o Занятость (текущая нагрузка)
+o График работы (для штатных сотрудников)
+6.6.3.3 Выполнение работ
+1. Начало работ: Исполнитель отмечает начало работ
+2. Фотофиксация: Делает фото в процессе и после завершения
+3. Описание работ: Указывает, что было сделано
+4. Завершение: Отмечает завершение работ, указывает когда оборудование снова доступно
+6.6.3.4 Контроль качества
+1. Приемка работ: Администратор/менеджер проверяет:
+o Качество выполненных работ по фото "после"
+o Соответствие описанию работ
+o Отсутствие видимых дефектов
+2. Активация оборудования: Оборудование возвращается в работу
+
+
+6.7  Интеграция с существующими модулями
+6.7.1 С тренировочными группами
+dart
+class TrainingGroup {
+  // ... существующие поля
+  
+  String? primaryRoomId;     // Основной зал для занятий группы
+  List<String> requiredEquipmentTypeIds; // Типы необходимого оборудования
+}
+6.7.2 С расписанием занятий
+При создании занятия в таблицу lessons добавляются:
+sql
+ALTER TABLE lessons ADD COLUMN room_id BIGINT REFERENCES rooms(id);
+ALTER TABLE lessons ADD COLUMN equipment_booking_ids JSONB; -- IDs из equipment_bookings
+• Отмена/перенос занятий, использующих оборудование на ремонте
+• Учет времени простоя оборудования в статистике загрузки
+
+
+6.7.3 С системой уведомлений
+• Уведомления о необходимости ТО оборудования
+• Напоминания о бронировании залов
+• Предупреждения о конфликтах расписания
+• Уведомления о создании новых заявок на ТО
+• Напоминания о назначенных работах
+• Оповещения о завершении ремонта
+6.7.4 С модулем отчетности
+• Отчеты по затратам на ТО (для внешних подрядчиков)
+• Статистика времени простоя оборудования
+• Анализ частоты поломок по типам оборудования
+
+Существующая связь сохраняется:
+text
+exercises_templates → type_exercis_id → equipment_types (через exercise_type_id)
+
+6.8 API endpoints
+6.8.1 Оборудование
+GET    /api/equipment/types         # Типы оборудования
+GET    /api/equipment/items         # Экземпляры оборудования
+GET    /api/equipment/items/:id     # Детали экземпляра
+POST   /api/equipment/items         # Создать экземпляр
+PUT    /api/equipment/items/:id     # Обновить экземпляр
+GET    /api/equipment/availability  # Доступное оборудование
+
+6.8.2 Бронирование
+GET    /api/bookings/equipment      # Бронирования оборудования
+POST   /api/bookings/equipment      # Создать бронирование
+PUT    /api/bookings/equipment/:id/cancel # Отменить бронирование
+GET    /api/bookings/conflicts      # Проверить конфликты
+
+6.8.3 Техническое обслуживание
+GET    /api/maintenance                    # Список заявок на ТО
+POST   /api/maintenance                    # Создать заявку
+GET    /api/maintenance/:id               # Детали заявки
+PUT    /api/maintenance/:id               # Обновить заявку
+PUT    /api/maintenance/:id/assign        # Назначить исполнителя
+PUT    /api/maintenance/:id/start         # Начать работы
+PUT    /api/maintenance/:id/complete      # Завершить работы
+PUT    /api/maintenance/:id/cancel        # Отменить заявку
+GET    /api/maintenance/available-executors # Доступные исполнители
+
+POST   /api/maintenance/:id/photos                  # Добавить фото
+DELETE /api/maintenance/:id/photos/:photoId         # Удалить фото
+GET    /api/maintenance/:id/photos                  # Список фото
+
+
+6.9 Пользовательские интерфейсы
+6.9.1 Меню и правила
+• Меню вызова всех списков и дашбордов оборудования, находится в дашбордах сотрудников, в меню->Каталоги->Оборудование. Роли Тренер и Инструктор имеют доступ только чтение.
+6.9.2 Дашборд оборудования 
+(Equipment Dashboard)
+Назначение:
+Главный экран управления оборудованием, предоставляющий сводку и быстрый доступ ко всем функциям модуля.
+Интерфейс:
+1. Панель ключевых показателей (KPI) вверху:
+o Всего оборудования: [число]
+o Доступно: [число] ([процент]%)
+o В использовании: [число]
+o На ТО: [число]
+o Неисправно: [число]
+2. Навигационные кнопки (крупные, в виде карточек):
+o "Типы оборудования" – переход к списку типов оборудования 
+o "Отчеты по оборудованию" – переход к отчетам 
+3. Список элементов оборудования. Список отображается в 2 столбца. В случае архивации, в записи во 2-м столбце отображается инфа по архивации: когда, кто, причина.
+4. Быстрые действия (кнопки):
+o "Добавить оборудование" (ведет к форме создания экземпляра)
+o "Забронировать оборудование" (открывает форму бронирования)
+o "Отметить ТО" (быстрая форма для отметки обслуживания)
+o "Сканировать QR" (открывает сканер QR-кодов)
+5. Быстрое меню (виджеты):
+o "Требует внимания" – список оборудования, у которого скоро плановое ТО или статус "неисправно"
+o "Последние добавленные" – несколько последних добавленных единиц оборудования
+o "Ближайшие бронирования" – сегодняшние и завтрашние бронирования
+Адаптивность:
+На мобильных устройствах панель KPI может превращаться в горизонтально прокручиваемую полосу, а навигационные кнопки располагаются вертикально в один столбец.
+6.9.3 Список типов оборудования 
+(Equipment Types ListView)
+Переход по кнопке "Типы оборудования"
+Заголовок: "Типы оборудования"
+Панель инструментов:
+• Кнопка "Создать тип"
+• Поиск по названию
+• Фильтры по категории (cardio, strength, etc.)
+Отображаемые колонки (на десктопе) / карточки (на мобильном):
+1. Фото (photo_url, миниатюра)
+2. Название (кликабельно)
+3. Категория (бейдж с цветом категории)
+4. Подтип (если есть)
+5. Характеристики: вес, габариты (сокращенно)
+6. Активен (зеленый/красный индикатор)
+7. Действия: Просмотр, Редактировать, Архивировать
+6.9.4 Список экземпляров оборудования
+(Equipment Items ListView)
+Переход по кнопке "Экземпляры оборудования"
+Заголовок: "Оборудование"
+Панель инструментов:
+• Кнопка "Добавить оборудование"
+• Расширенный поиск: по инв. номеру, модели, производителю
+• Фильтры:
+o По типу оборудования
+o По статусу: Доступно / В использовании / На ТО / Неисправно
+o По помещению (где находится)
+o По состоянию (рейтинг 1-5)
+Отображаемые колонки (на десктопе) / карточки (на мобильном):
+1. Фото (миниатюра из photo_urls или фото типа)
+2. Инвентарный номер (жирный, кликабельно)
+3. Тип оборудования (название)
+4. Модель / Производитель
+5. Местоположение (название помещения, если назначено)
+6. Статус (цветной бейдж):
+o Зеленый: "Доступно"
+o Синий: "В использовании"
+o Желтый: "Забронировано"
+o Оранжевый: "На ТО"
+o Красный: "Неисправно"
+7. Состояние (звезды рейтинга 1-5)
+8. Действия:
+o 👁️ Просмотр
+o ✏️ Редактировать
+o 📋 Бронировать
+o 🔧 Отметить ТО
+o 🗑️ Архивировать
+
+6.9.5 Карточка экземпляра оборудования
+(Equipment Item Detail Card)
+1. Верхняя часть:
+   • Фотографии экземпляра (карусель)
+   • Кнопка "Добавить фото"
+
+2. Основная информация (табы):
+   Таб "Основное":
+   • Тип оборудования (выпадающий список, ссылка на тип)
+   • Инвентарный номер (уникальный, редактируется только при создании)
+   • Серийный номер, модель, производитель
+   • Местоположение (выпадающий список помещений)
+   • Примечание к размещению
+
+   Таб "Состояние":
+   • Статус
+   • Оценка состояния (звезды 1-5)
+   • Накопленные часы использования
+   • Дата последнего использования
+   • Заметки о состоянии
+   • График использования (часы/день за последние 30 дней)
+   • Статистика: всего часов, среднее в день
+
+Таб "Бронирования":
+   • Календарь бронирований на месяц
+   • Список предстоящих бронирований
+   • Кнопка "Забронировать"
+
+
+   Таб "История ТО":
+   • Список истории ТО по экземпляру
+   • Кнопка Создать ТО
+
+
+3. Быстрые действия:
+   • "Забронировать" - открывает форму бронирования с предзаполненным оборудованием
+   • "Отметить ТО" - быстрая форма для отметки обслуживания
+   • "Изменить статус" - выпадающий список статусов
+
+6.9.6 Дашборд ТО оборудования
+• Общая статистика: Количество активных заявок, оборудования в ремонте
+• Списки: Активные заявки, назначенные мне, требующие внимания
+• Быстрые действия: Создать заявку, Назначить исполнителя, Завершить работы
+6.9.7 Форма создания заявки на ТО
+1. Выбор оборудования: Поиск по названию, типу, местоположению
+2. Описание проблемы: Текстовое поле + обязательные фото
+3. Приоритет: Низкий/Средний/Высокий/Критичный
+4. Прикрепление файлов: Фото, видео, документы
+6.9.8 Форма назначения исполнителя
+1. Фильтры: Уровень компетенции, специализация, занятость
+2. Список исполнителей: Внутренние сотрудники + вспомогательный персонал
+3. Информация: Текущая нагрузка, график работы, рейтинг
+4. Назначение: Сроки выполнения, приоритет, комментарии
+6.9.9 Карточка заявки на ТО
+• Основная информация: Оборудование, проблема, статус
+• Фотогалерея: Фото "до" и "после" в сравнительном режиме
+• История действий: Кто, что и когда делал
+• Комментарии: Обсуждение проблемы и решений
+• Кнопки действий: В зависимости от статуса и прав пользователя
+
+
+6.9.10 Форма бронирования оборудования/помещения
+Модальное окно/отдельный экран
+
+1. Выбор типа ресурса:
+   • Радиокнопки: "Зал" / "Оборудование"
+
+2. Поля формы:
+   • Ресурс: выпадающий список (динамически меняется в зависимости от типа)
+     - Для залов: список активных залов
+     - Для оборудования: список доступного оборудования
+   • Дата: date picker (по умолчанию сегодня)
+   • Время начала: time picker
+   • Время окончания: time picker (автоматически +1 час от начала)
+   • Длительность: расчетное поле (вычисляется автоматически)
+   • Цель бронирования: выпадающий список:
+     - Групповое занятие
+     - Индивидуальная тренировка
+     - Техническое обслуживание
+     - Мероприятие
+     - Другое
+   • Связанный объект (если применимо):
+     - Для занятия: выбор клиента/группы
+     - Для ТО: выбор сотрудника
+   • Примечание: textarea
+
+3. Проверка доступности:
+   • Кнопка "Проверить доступность"
+   • При наличии конфликтов - предупреждение со списком пересечений
+   • При свободном времени - сообщение "Время доступно"
+
+4. Кнопки действий:
+   • "Забронировать" (становится активной после успешной проверки)
+   • "Отмена"
+
+6.9.11 Дашборд занятости 
+(Occupancy Dashboard)
+
+1. Вид календаря:
+   • Переключение между днями/неделями/месяцами
+   • Сетка: по вертикали - помещения, по горизонтали - время
+
+2. Цветовая кодировка:
+   • Белый: свободно
+   • Светло-зеленый: частично занято
+   • Зеленый: занято (индивидуальное занятие)
+   • Синий: занято (групповое занятие)
+   • Красный: конфликт/пересечение
+   • Серый: нерабочее время/ремонт
+
+3. Интерактивность:
+   • При наведении на ячейку - всплывающая подсказка с деталями бронирования
+   • При клике - открывается карточка бронирования
+   • Drag & drop для переноса бронирований
+
+4. Фильтры:
+   • Выбор помещений (можно выбрать несколько)
+   • Тип занятий: Все / Групповые / Индивидуальные
+   • Период: день/неделя/месяц
+
+5. Экспорт:
+   • Кнопка "Экспорт в PDF" - расписание на выбранный период
+   • Кнопка "Экспорт в Excel" - детализированный отчет
+
+6.9.12 Панель состояния оборудования
+(Equipment Status Panel)
+
+1. Ключевые метрики:
+   • Всего оборудования: X
+   • Доступно: Y (Z%)
+   • В использовании: A
+   • На ТО: B
+   • Неисправно: C
+
+2. Виджеты:
+   Виджет "Требует ТО":
+   • Список оборудования с подходящим сроком next_maintenance_date
+   • Сортировка по срочности (ближайшие даты сверху)
+   • Кнопка "Отметить как обслуженное"
+
+   Виджет "Неисправное оборудование":
+   • Список оборудования со статусом "outOfOrder"
+   • Дата установки статуса
+   • Причина неисправности
+   • Кнопка "Начать ремонт"
+
+   Виджет "Наиболее используемое":
+   • Топ-10 оборудования по usage_hours
+   • Прогресс-бар использования
+
+   Виджет "Предстоящие бронирования":
+   • Ближайшие бронирования оборудования на сегодня/завтра
+   • Возможность быстрой отмены
+
+
+6.9.13 Отчеты и аналитика
+Доступны в разделе "Отчетность" (раздел 8), но дублируются в модуле оборудования
+
+1. Отчет "Загрузка помещений":
+   • Таблица с помещениями и % загрузки за период
+   • График загрузки по дням недели
+   • Сравнение с предыдущим периодом
+
+2. Отчет "Использование оборудования":
+   • Часы использования по типам оборудования
+   • Стоимость часа использования (амортизация)
+   • Рентабельность оборудования
+
+3. Отчет "Техническое обслуживание":
+   • Количество ТО за период
+   • Затраты на обслуживание
+   • Среднее время между отказами (MTBF)
+
+6.9.14  Настройки модуля
+Доступны только Администратору
+
+1. Параметры:
+   • Время работы по умолчанию для новых помещений
+   • Длительность бронирования по умолчанию
+   • Период напоминания о ТО (дней до next_maintenance_date)
+   • Политика бронирования (максимальное время, приоритеты)
+
+2. Категории и типы:
+   • Управление EquipmentCategory enum (только через код)
+   • Управление EquipmentSubType (только через код)
+   • Настройка цветовых схем для статусов
+
+6.9.15  Архитектура интерфейсов
+Бэкенд архитектура (backend):
+backend/lib/modules/equipment/
+├── models/
+│   ├── equipment_type.model.dart     # Модель для типов оборудования
+│   ├── equipment_item.model.dart     # Модель для экземпляров оборудования
+│   ├── equipment_maintenance_history.model.dart # Модель для истории ТО
+│   ├── equipment_category.enum.dart  # Перечисление категорий
+│   ├── equipment_status.enum.dart    # Перечисление статусов
+│   └── equipment_dto.dart            # DTO для сложных запросов
+├── controllers/
+│   ├── equipment_type.controller.dart  # API для типов оборудования
+│   ├── equipment_item.controller.dart  # API для экземпляров оборудования
+│   ├── maintenance_controller.dart # API для ТО
+│   └── booking.controller.dart         # API для бронирований
+├── services/
+│   ├── equipment.service.dart          # Бизнес-логика для оборудования
+│   ├── booking.service.dart            # Бизнес-логика для бронирований
+│   ├── availability.service.dart       # Бизнес-логика для проверки доступности
+│   └── maintenance.service.dart        # Бизнес-логика для ТО
+├── repositories/
+│   ├── equipment_type.repository.dart  # Репозиторий для типов оборудования
+│   ├── equipment_item.repository.dart  # Репозиторий для экземпляров оборудования
+│   ├── maintenance_repository.dart # Репозиторий для ТО
+│   └── booking.repository.dart         # Репозиторий для бронирований
+└── validators/
+    ├── equipment.validator.dart        # Валидация данных для оборудования
+    └── booking.validator.dart          # Валидация данных для бронирований
+
+Фронтенд архитектура (frontend):
+frontend/lib/modules/equipment/
+├── screens/
+│   ├── dashboard/
+│   │   └── equipment_dashboard_screen.dart # UI главного экрана функционала
+│   ├── type/
+│   │   ├── equipment_types_list_screen.dart # UI списка типов
+│   │   ├── equipment_type_detail_screen.dart# UI деталей типа
+│   │   └── equipment_type_edit_screen.dart  # UI редактирования типа
+│   └── item/
+│       ├── equipment_item_detail_screen.dart# UI деталей экземпляра
+│       ├── equipment_item_edit_screen.dart  # UI редактирования экземпляра
+│       ├── equipment_item_create_screen.dart# UI создания экземпляра
+│       └── maintenance_details_screen.dart # UI экрана деталей заявки на ТО
+├── widgets/
+│   ├── equipment_card.dart             # Виджет карточки оборудования
+│   ├── equipment_status_badge.dart     # Виджет статуса
+│   ├── equipment_category_chip.dart    # Виджет категории
+│   ├── equipment_condition_stars.dart  # Виджет рейтинга состояния
+│   ├── equipment_photos_carousel.dart  # Виджет карусели фото
+│   └── equipment_quick_actions.dart    # Виджет быстрых действий
+├── models/
+│   ├── equipment_type.model.dart     # Модель для типов
+│   ├── equipment_item.model.dart     # Модель для экземпляров
+│   ├── equipment_maintenance_history.model.dart # Модель для истории ТО
+│   ├── equipment_category.enum.dart  # Перечисление категорий
+│   ├── equipment_status.enum.dart    # Перечисление статусов
+│   └── equipment_filter.model.dart   # Модель для фильтров
+├── providers/
+│   ├── equipment_type_provider.dart    # Управляет состоянием UI для типов
+│   ├── equipment_item_provider.dart    # Управляет состоянием UI для экземпляров
+│   ├── maintenance_provider.dart # Управляет состоянием UI для ТО
+│   ├── equipment_filter_provider.dart  # Управляет состоянием UI для фильтров
+│   └── equipment_availability_provider.dart # Управляет состоянием UI для проверки доступности
+├── services/
+│   ├── equipment_service.dart          # Клиентский сервис для API оборудования
+│   └── availability_service.dart       # Клиентский сервис для API доступности
+└── utils/
+    ├── equipment_utils.dart            # Вспомогательные утилиты
+    └── equipment_formatters.dart       # Функции форматирования
+
+Мобильный интерфейс (для инструкторов/тренеров):
+frontend/lib/modules/equipment/mobile/
+├── screens/
+│   ├── mobile_equipment_list.dart    # UI мобильного списка
+│   └── mobile_quick_booking.dart   # UI мобильного окна бронирования
+└── widgets/
+    ├── mobile_equipment_card.dart    # Мобильная карточка
+    └── mobile_booking_form.dart      # Мобильная форма
+
+Интеграционные компоненты:
+frontend/lib/modules/equipment/integration/
+├── schedule_integration.dart       # Интеграция с расписанием
+└── notification_integration.dart   # Интеграция с уведомлениями
+
+Навигация:
+frontend/lib/modules/equipment/navigation/
+├── equipment_routes.dart           # Маршруты навигации
+└── equipment_bottom_nav.dart       # Конфигурация Bottom Navigation Bar
+
+Бронирование (Booking)
+Бэкенд архитектура (backend):
+backend/lib/modules/booking/
+├── models/
+│   ├── equipment_booking.model.dart# Модель бронирования
+│   ├── booking_status.enum.dart    # Перечисление статусов бронирования
+│   └── booking_dto.dart            # DTO для сложных запросов
+├── controllers/
+│   └── booking.controller.dart     # API для бронирований
+├── services/
+│   └── booking.service.dart        # Бизнес-логика для бронирований
+├── repositories/
+│   └── booking.repository.dart     # Репозиторий для бронирований
+└── validators/
+    └── booking.validator.dart      # Валидация данных
+
+Фронтенд архитектура (frontend):
+frontend/lib/modules/booking/
+├── screens/
+│   ├── booking_list_screen.dart    # UI списка бронирований
+│   ├── booking_detail_screen.dart  # UI деталей бронирования
+│   ├── booking_create_screen.dart  # UI создания бронирования
+│   ├── booking_edit_screen.dart    # UI редактирования бронирования
+│   └── booking_calendar_screen.dart# UI календаря бронирований
+├── widgets/
+│   ├── booking_card.dart           # Виджет карточки
+│   ├── booking_status_badge.dart   # Виджет статуса
+│   ├── booking_calendar_widget.dart# Виджет календаря
+│   ├── booking_conflict_warning.dart# Виджет предупреждения о конфликте
+│   └── booking_timeline.dart       # Виджет временной шкалы
+├── models/
+│   ├── equipment_booking.model.dart# Модель бронирования
+│   ├── booking_status.enum.dart    # Перечисление статусов
+│   └── booking_filter.model.dart   # Модель для фильтров
+├── providers/
+│   ├── booking_provider.dart       # Управляет состоянием UI
+│   ├── booking_filter_provider.dart# Управляет состоянием фильтров
+│   └── booking_conflict_provider.dart# Управляет состоянием проверки конфликтов
+├── services/
+│   └── booking_service.dart        # Клиентский сервис для API
+└── utils/
+    ├── booking_utils.dart          # Вспомогательные утилиты
+    └── booking_formatters.dart     # Функции форматирования
+    
+
+6.8.16  Отчетность и аналитика
+6.8.16.1 Ключевые метрики
+• Среднее время ремонта по типам оборудования
+• Частота поломок по производителям
+• Затраты на ТО (внешние подрядчики)
+• Процент времени доступности оборудования
+• Рейтинг исполнителей (по скорости и качеству)
+6.8.16.2 Стандартные отчеты
+1. Отчет по эффективности ТО: Статистика по срокам и качеству
+2. Анализ надежности оборудования: Частота поломок, стоимость обслуживания
+3. Загрузка исполнителей: Количество заявок в работе, среднее время выполнения
+
+8 Архитектура проекта
+7 
+8 
+8.1 Принцип модульности структуры кода
+Проект FitMan разработан с учетом принципа модульности, что обеспечивает его гибкость, масштабируемость и простоту поддержки. Данный подход применяется на всех уровнях архитектуры приложения: от структуры фронтенда и бэкенда до организации баз данных.

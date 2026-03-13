@@ -25,14 +25,14 @@ import '../modules/groups/controllers/training_group_types_controller.dart';
 import '../modules/rooms/controllers/room.controller.dart';
 import '../modules/equipment/controllers/equipment_item.controller.dart';
 import '../modules/equipment/controllers/equipment_type.controller.dart';
-import '../modules/maintenance/controllers/maintenance_controller.dart';
+import '../modules/equipment/controllers/maintenance_controller.dart';
 import '../modules/rooms/controllers/building_controller.dart';
 import '../config/database.dart'; // Add this import
 import '../modules/equipment/services/equipment.service.dart';
 import '../modules/equipment/repositories/equipment_type.repository.dart';
 import '../modules/equipment/repositories/equipment_item.repository.dart';
-import '../modules/maintenance/repositories/maintenance_repository.dart';
-import '../modules/maintenance/services/maintenance_service.dart';
+import '../modules/equipment/repositories/maintenance_repository.dart';
+import '../modules/equipment/services/maintenance_service.dart';
 import '../modules/roles/controllers/manager_controller.dart'; // New manager controller
 import '../modules/roles/controllers/instructor_controller.dart'; // New instructor controller
 import '../modules/supportStaff/controllers/support_staff.controller.dart'; // New SupportStaff controller

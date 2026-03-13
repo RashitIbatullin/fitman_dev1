@@ -117,7 +117,7 @@ class _EquipmentMaintenanceHistoryEditScreenState
     }
   }
 
-  Future<void> _selectDateTime(BuildContext context, TextEditingController controller) async {
+  Future<void> _selectDateTime(TextEditingController controller) async {
     final initialDate = DateTime.tryParse(controller.text) ?? DateTime.now();
     
     final date = await showDatePicker(
@@ -331,11 +331,11 @@ class _EquipmentMaintenanceHistoryEditScreenState
                         border: const OutlineInputBorder(),
                         suffixIcon: IconButton(
                           icon: const Icon(Icons.calendar_today),
-                          onPressed: () => _selectDateTime(context, _startedAtController),
+                          onPressed: () => _selectDateTime(_startedAtController),
                         ),
                       ),
                       readOnly: true,
-                      onTap: () => _selectDateTime(context, _startedAtController),
+                      onTap: () => _selectDateTime(_startedAtController),
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -347,11 +347,11 @@ class _EquipmentMaintenanceHistoryEditScreenState
                         border: const OutlineInputBorder(),
                         suffixIcon: IconButton(
                           icon: const Icon(Icons.calendar_today),
-                          onPressed: () => _selectDateTime(context, _completedAtController),
+                          onPressed: () => _selectDateTime(_completedAtController),
                         ),
                       ),
                       readOnly: true,
-                      onTap: () => _selectDateTime(context, _completedAtController),
+                      onTap: () => _selectDateTime(_completedAtController),
                     ),
                   ),
                 ],
