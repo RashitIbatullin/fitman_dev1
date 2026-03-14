@@ -38,4 +38,8 @@ class MaintenanceService {
   Future<void> addPhoto(String maintenanceId, String photoUrl, String comment, String timing, String takenBy) {
     return _maintenanceRepository.addPhoto(maintenanceId, photoUrl, comment, timing, takenBy);
   }
+
+  Future<Map<String, List<Map<String, dynamic>>>> getAvailableExecutors() {
+    return _maintenanceRepository.getAvailableExecutors();
+  }
 }

@@ -12,6 +12,7 @@ import 'api/manager_api.dart';
 import 'api/recommendation_api.dart';
 import 'api/schedule_api.dart';
 import 'api/support_staff_api.dart';
+import '../models/available_executor.model.dart';
 import '../modules/equipment/models/equipment/equipment_item.model.dart';
 import '../modules/equipment/models/equipment/equipment_type.model.dart';
 import '../modules/roles/models/role.dart';
@@ -181,6 +182,9 @@ class ApiService {
         comment: comment,
         timing: timing,
       );
+
+  static Future<AvailableExecutorsResponse> getAvailableExecutors() =>
+      _maintenanceApi.getAvailableExecutors();
 
 
 

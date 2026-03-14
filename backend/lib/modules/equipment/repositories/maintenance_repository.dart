@@ -11,6 +11,7 @@ abstract class MaintenanceRepository {
   Future<void> archive(String id, String reason, String userId);
   Future<void> unarchive(String id);
   Future<void> addPhoto(String maintenanceId, String photoUrl, String comment, String timing, String takenBy);
+  Future<Map<String, List<Map<String, dynamic>>>> getAvailableExecutors();
 }
 
 class MaintenanceRepositoryImpl implements MaintenanceRepository {
@@ -18,11 +19,22 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
 
   final Database _db;
 
+  String get _selectQueryFragment => '''
+    SELECT 
+      emh.*,
+      COALESCE(u.first_name || ' ' || u.last_name, ss.first_name || ' ' || ss.last_name) as executor_name,
+      COALESCE(
+        (SELECT json_agg(p.*)
+         FROM maintenance_photos p
+         WHERE p.maintenance_id = emh.id),
+        '[]'::json
+      ) as photos
+    FROM equipment_maintenance_history emh
+    LEFT JOIN users u ON emh.executor_id = u.id AND emh.executor_type = 0
+    LEFT JOIN support_staff ss ON emh.executor_id = ss.id AND emh.executor_type = 1
+  ''';
+
   /// Prepares a row map from the database for consumption by a `fromJson` factory.
-  /// It correctly handles `snake_case` to `camelCase` conversion expectation by:
-  /// 1. Converting integer IDs to strings.
-  /// 2. Converting integer enums to string names.
-  /// 3. Converting DateTime objects to ISO 8601 strings.
   Map<String, dynamic> _prepareRowForFromJson(Map<String, dynamic> row) {
     final newRow = {...row};
 
@@ -33,9 +45,12 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
     if (newRow['status'] != null && newRow['status'] is int) {
       newRow['status'] = MaintenanceStatus.values[newRow['status']].name;
     }
+    if (newRow['executor_type'] != null && newRow['executor_type'] is int) {
+      newRow['executor_type'] = ExecutorType.values[newRow['executor_type']].name;
+    }
 
     // Convert all potential ID columns from int to String
-    final idKeys = ['id', 'equipment_item_id', 'reported_by', 'assigned_to_user_id', 'assigned_to_staff_id', 'related_booking_id', 'archived_by', 'created_by', 'updated_by'];
+    final idKeys = ['id', 'equipment_item_id', 'reported_by', 'executor_id', 'related_booking_id', 'archived_by', 'created_by', 'updated_by'];
     for (final key in idKeys) {
       if (newRow[key] != null && newRow[key] is! String) {
         newRow[key] = newRow[key].toString();
@@ -61,14 +76,14 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
         INSERT INTO equipment_maintenance_history (
           equipment_item_id, equipment_name, type, status, created_at, 
           started_at, completed_at, equipment_available_from, reported_problem, 
-          work_description, reported_by, assigned_to_user_id, assigned_to_staff_id, 
-          related_booking_id, caused_downtime, updated_at
+          work_description, reported_by, executor_id, executor_type, 
+          related_booking_id, caused_downtime, updated_at, created_by, updated_by
         ) VALUES (
           @equipment_item_id, @equipment_name, @type, @status, @created_at,
           @started_at, @completed_at, @equipment_available_from, @reported_problem,
-          @work_description, @reported_by, @assigned_to_user_id, @assigned_to_staff_id,
-          @related_booking_id, @caused_downtime, NOW()
-        ) RETURNING *;
+          @work_description, @reported_by, @executor_id, @executor_type,
+          @related_booking_id, @caused_downtime, NOW(), @user_id, @user_id
+        ) RETURNING id;
       '''),
       parameters: {
         'equipment_item_id': int.tryParse(history.equipmentItemId),
@@ -82,10 +97,11 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
         'reported_problem': history.reportedProblem,
         'work_description': history.workDescription,
         'reported_by': int.tryParse(history.reportedBy),
-        'assigned_to_user_id': history.assignedToUserId != null ? int.tryParse(history.assignedToUserId!) : null,
-        'assigned_to_staff_id': history.assignedToStaffId != null ? int.tryParse(history.assignedToStaffId!) : null,
+        'executor_id': history.executorId != null ? int.tryParse(history.executorId!) : null,
+        'executor_type': history.executorType?.index,
         'related_booking_id': history.relatedBookingId != null ? int.tryParse(history.relatedBookingId!) : null,
         'caused_downtime': history.causedDowntime,
+        'user_id': int.tryParse(userId),
       },
     );
 
@@ -96,58 +112,21 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
   @override
   Future<List<EquipmentMaintenanceHistory>> getAll() async {
     final conn = await _db.connection;
-    const query = '''
-      SELECT 
-        emh.*,
-        COALESCE(
-          (SELECT json_agg(p.*)
-           FROM maintenance_photos p
-           WHERE p.maintenance_id = emh.id),
-          '[]'::json
-        ) as photos
-      FROM equipment_maintenance_history emh
+    final query = '''
+      $_selectQueryFragment
       WHERE emh.archived_at IS NULL
       ORDER BY emh.created_at DESC
     ''';
 
     final result = await conn.execute(Sql.named(query));
-
-    return result.map((row) {
-      final rowMap = row.toColumnMap();
-
-      if (rowMap['photos'] != null && rowMap['photos'] is List) {
-        final photosList = rowMap['photos'] as List;
-        rowMap['photos'] = photosList.map((photo) {
-          final pMap = photo as Map<String, dynamic>;
-          if (pMap['timing'] != null && pMap['timing'] is int) {
-            pMap['timing'] = PhotoTiming.values[pMap['timing']].name;
-          }
-          // Convert relevant photo IDs to string
-          for (final key in ['id', 'maintenance_id', 'taken_by']) {
-            if (pMap[key] != null) pMap[key] = pMap[key].toString();
-          }
-          return pMap;
-        }).toList();
-      }
-
-      final preparedRow = _prepareRowForFromJson(rowMap);
-      return EquipmentMaintenanceHistory.fromJson(preparedRow);
-    }).toList();
+    return _mapResultsToHistoryList(result);
   }
 
   @override
   Future<EquipmentMaintenanceHistory> getById(String id) async {
     final conn = await _db.connection;
-    const query = '''
-      SELECT 
-        emh.*,
-        COALESCE(
-          (SELECT json_agg(p.*)
-           FROM maintenance_photos p
-           WHERE p.maintenance_id = emh.id),
-          '[]'::json
-        ) as photos
-      FROM equipment_maintenance_history emh
+    final query = '''
+      $_selectQueryFragment
       WHERE emh.id = @id
     ''';
 
@@ -159,39 +138,15 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
     if (result.isEmpty) {
       throw Exception('EquipmentMaintenanceHistory with id $id not found');
     }
-
-    final rowMap = result.first.toColumnMap();
-    if (rowMap['photos'] != null && rowMap['photos'] is List) {
-      final photosList = rowMap['photos'] as List;
-      rowMap['photos'] = photosList.map((photo) {
-        final pMap = photo as Map<String, dynamic>;
-        if (pMap['timing'] != null && pMap['timing'] is int) {
-          pMap['timing'] = PhotoTiming.values[pMap['timing']].name;
-        }
-        for (final key in ['id', 'maintenance_id', 'taken_by']) {
-          if (pMap[key] != null) pMap[key] = pMap[key].toString();
-        }
-        return pMap;
-      }).toList();
-    }
     
-    final preparedRow = _prepareRowForFromJson(rowMap);
-    return EquipmentMaintenanceHistory.fromJson(preparedRow);
+    return _mapResultsToHistoryList(result).first;
   }
 
   @override
   Future<List<EquipmentMaintenanceHistory>> getByEquipmentItemId(String equipmentItemId, {bool isArchived = false}) async {
     final conn = await _db.connection;
     var query = '''
-      SELECT 
-        emh.*,
-        COALESCE(
-          (SELECT json_agg(p.*)
-           FROM maintenance_photos p
-           WHERE p.maintenance_id = emh.id),
-          '[]'::json
-        ) as photos
-      FROM equipment_maintenance_history emh
+      $_selectQueryFragment
       WHERE emh.equipment_item_id = @equipment_item_id
     ''';
 
@@ -208,24 +163,7 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
       parameters: {'equipment_item_id': int.tryParse(equipmentItemId) ?? 0},
     );
 
-    return result.map((row) {
-      final rowMap = row.toColumnMap();
-      if (rowMap['photos'] != null && rowMap['photos'] is List) {
-        final photosList = rowMap['photos'] as List;
-        rowMap['photos'] = photosList.map((photo) {
-          final pMap = photo as Map<String, dynamic>;
-          if (pMap['timing'] != null && pMap['timing'] is int) {
-            pMap['timing'] = PhotoTiming.values[pMap['timing']].name;
-          }
-          for (final key in ['id', 'maintenance_id', 'taken_by']) {
-            if (pMap[key] != null) pMap[key] = pMap[key].toString();
-          }
-          return pMap;
-        }).toList();
-      }
-      final preparedRow = _prepareRowForFromJson(rowMap);
-      return EquipmentMaintenanceHistory.fromJson(preparedRow);
-    }).toList();
+    return _mapResultsToHistoryList(result);
   }
 
   @override
@@ -242,11 +180,12 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
           equipment_available_from = @equipment_available_from,
           reported_problem = @reported_problem,
           work_description = @work_description,
-          assigned_to_user_id = @assigned_to_user_id,
-          assigned_to_staff_id = @assigned_to_staff_id,
+          executor_id = @executor_id,
+          executor_type = @executor_type,
           related_booking_id = @related_booking_id,
           caused_downtime = @caused_downtime,
           updated_at = NOW(),
+          updated_by = @user_id,
           archived_at = @archived_at,
           archived_by = @archived_by,
           archived_reason = @archived_reason
@@ -262,10 +201,11 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
         'equipment_available_from': history.equipmentAvailableFrom,
         'reported_problem': history.reportedProblem,
         'work_description': history.workDescription,
-        'assigned_to_user_id': history.assignedToUserId != null ? int.tryParse(history.assignedToUserId!) : null,
-        'assigned_to_staff_id': history.assignedToStaffId != null ? int.tryParse(history.assignedToStaffId!) : null,
+        'executor_id': history.executorId != null ? int.tryParse(history.executorId!) : null,
+        'executor_type': history.executorType?.index,
         'related_booking_id': history.relatedBookingId != null ? int.tryParse(history.relatedBookingId!) : null,
         'caused_downtime': history.causedDowntime,
+        'user_id': int.tryParse(userId),
         'archived_at': history.archivedAt,
         'archived_by': history.archivedBy != null ? int.tryParse(history.archivedBy!) : null,
         'archived_reason': history.archivedReason,
@@ -300,6 +240,60 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
     );
   }
 
+    @override
+  Future<Map<String, List<Map<String, dynamic>>>> getAvailableExecutors() async {
+    final conn = await _db.connection;
+
+    final internalUsersQuery = '''
+      SELECT 
+        u.id, 
+        u.first_name, 
+        u.last_name 
+      FROM users u 
+      JOIN user_maintenance_competencies umc ON u.id = umc.user_id 
+      WHERE u.archived_at IS NULL 
+      GROUP BY u.id, u.first_name, u.last_name
+      ORDER BY u.last_name, u.first_name;
+    ''';
+    
+    final externalStaffQuery = '''
+      SELECT 
+        ss.id, 
+        ss.first_name, 
+        ss.last_name 
+      FROM support_staff ss 
+      WHERE ss.can_maintain_equipment = true AND ss.archived_at IS NULL
+      ORDER BY ss.last_name, ss.first_name;
+    ''';
+
+    final internalResult = await conn.execute(Sql.named(internalUsersQuery));
+    final externalResult = await conn.execute(Sql.named(externalStaffQuery));
+
+    final internalExecutors = internalResult.map((row) {
+      final colMap = row.toColumnMap();
+      return {
+        'id': colMap['id'].toString(),
+        'first_name': colMap['first_name'],
+        'last_name': colMap['last_name'],
+      };
+    }).toList();
+
+    final externalExecutors = externalResult.map((row) {
+      final colMap = row.toColumnMap();
+      return {
+        'id': colMap['id'].toString(),
+        'first_name': colMap['first_name'],
+        'last_name': colMap['last_name'],
+      };
+    }).toList();
+
+    return {
+      'users': internalExecutors,
+      'staff': externalExecutors,
+    };
+  }
+
+
   @override
   Future<void> addPhoto(String maintenanceId, String photoUrl, String comment, String timing, String takenBy) async {
     final conn = await _db.connection;
@@ -312,18 +306,33 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
       'taken_by': int.tryParse(takenBy) ?? 0,
     };
 
-    print('--- ADDING PHOTO TO DB ---');
-    print('Parameters: $params');
-
-    final result = await conn.execute(
+    await conn.execute(
       Sql.named('''
         INSERT INTO maintenance_photos (maintenance_id, url, comment, timing, taken_by)
         VALUES (@maintenance_id, @url, @comment, @timing, @taken_by)
       '''),
       parameters: params,
     );
+  }
 
-    print('Result: ${result.affectedRows} row(s) affected.');
-    print('--- FINISHED ADDING PHOTO ---');
+  List<EquipmentMaintenanceHistory> _mapResultsToHistoryList(Result result) {
+    return result.map((row) {
+      final rowMap = row.toColumnMap();
+      if (rowMap['photos'] != null && rowMap['photos'] is List) {
+        final photosList = rowMap['photos'] as List;
+        rowMap['photos'] = photosList.map((photo) {
+          final pMap = photo as Map<String, dynamic>;
+          if (pMap['timing'] != null && pMap['timing'] is int) {
+            pMap['timing'] = PhotoTiming.values[pMap['timing']].name;
+          }
+          for (final key in ['id', 'maintenance_id', 'taken_by']) {
+            if (pMap[key] != null) pMap[key] = pMap[key].toString();
+          }
+          return pMap;
+        }).toList();
+      }
+      final preparedRow = _prepareRowForFromJson(rowMap);
+      return EquipmentMaintenanceHistory.fromJson(preparedRow);
+    }).toList();
   }
 }

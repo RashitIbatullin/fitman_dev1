@@ -94,6 +94,21 @@ class MaintenanceController {
       }
     });
 
+    router.get('/available-executors', (Request request) async {
+      try {
+        final executors = await _maintenanceService.getAvailableExecutors();
+        return Response.ok(
+          jsonEncode(executors),
+          headers: {'Content-Type': 'application/json'},
+        );
+      } catch (e, st) {
+        print('--- BACKEND ERROR: GET /maintenance/available-executors ---');
+        print('ERROR: $e');
+        print('STACKTRACE: $st');
+        return Response.internalServerError(body: jsonEncode({'error': e.toString()}));
+      }
+    });
+
     router.get('/item/<itemId>', (Request request, String itemId) async {
       try {
         final isArchived = request.url.queryParameters['isArchived'] == 'true';

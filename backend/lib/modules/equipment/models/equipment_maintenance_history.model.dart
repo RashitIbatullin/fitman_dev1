@@ -45,6 +45,14 @@ class MaintenancePhoto with _$MaintenancePhoto {
       _$MaintenancePhotoFromJson(json);
 }
 
+/// Тип исполнителя
+enum ExecutorType {
+  /// Внутренний сотрудник (из таблицы users)
+  user,
+  /// Внешний специалист (из таблицы support_staff)
+  staff,
+}
+
 @freezed
 class EquipmentMaintenanceHistory with _$EquipmentMaintenanceHistory {
   const factory EquipmentMaintenanceHistory({
@@ -60,8 +68,9 @@ class EquipmentMaintenanceHistory with _$EquipmentMaintenanceHistory {
     required String reportedProblem,
     String? workDescription,
     required String reportedBy,
-    String? assignedToUserId,
-    String? assignedToStaffId,
+    String? executorId,
+    ExecutorType? executorType,
+    String? executorName,
     String? relatedBookingId,
     @Default(false) bool causedDowntime,
     DateTime? updatedAt,

@@ -40,10 +40,8 @@ class MaintenanceDetailsScreen extends StatelessWidget {
             const Divider(height: 32),
             Text('Исполнители', style: Theme.of(context).textTheme.titleLarge),
             _buildDetailRow(label: 'Заявил:', value: record.reportedBy), // TODO: Fetch user name
-            if (record.assignedToUserId != null)
-              _buildDetailRow(label: 'Назначено (сотрудник):', value: record.assignedToUserId!.toString()), // TODO: Fetch user name
-            if (record.assignedToStaffId != null)
-               _buildDetailRow(label: 'Назначено (внешний):', value: record.assignedToStaffId!.toString()), // TODO: Fetch staff name
+            if (record.executorName != null)
+              _buildDetailRow(label: 'Исполнитель:', value: record.executorName!),
             
             const Divider(height: 32),
             Text('Сроки', style: Theme.of(context).textTheme.titleLarge),

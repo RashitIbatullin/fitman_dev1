@@ -437,6 +437,15 @@ CREATE TABLE support_staff_competencies (
   UNIQUE(staff_id, name)
 );
 
+-- Компетенции внутренних сотрудников (для ТО)
+CREATE TABLE user_maintenance_competencies (
+  id BIGSERIAL PRIMARY KEY,
+  user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  name VARCHAR(100) NOT NULL, -- Название компетенции, напр. "Ремонт кардио"
+  level SMALLINT NOT NULL,      -- Уровень 1-3
+  UNIQUE(user_id, name)
+);
+
 -- Расписание работы
 CREATE TABLE support_staff_schedules (
   id BIGSERIAL PRIMARY KEY,
@@ -615,8 +624,8 @@ CREATE TABLE equipment_maintenance_history (
   reported_problem TEXT NOT NULL,
   work_description TEXT,
   reported_by BIGINT NOT NULL REFERENCES users(id),
-  assigned_to_user_id BIGINT REFERENCES users(id),
-  assigned_to_staff_id BIGINT REFERENCES support_staff(id),
+  executor_id BIGINT,
+  executor_type SMALLINT, -- 0 for User, 1 for SupportStaff
   related_booking_id BIGINT REFERENCES equipment_bookings(id),
   caused_downtime BOOLEAN DEFAULT false,
   updated_at TIMESTAMPTZ DEFAULT NOW(),
@@ -624,13 +633,7 @@ CREATE TABLE equipment_maintenance_history (
   archived_by BIGINT REFERENCES users(id),
   archived_reason TEXT,
   created_by BIGINT REFERENCES users(id),
-  updated_by BIGINT REFERENCES users(id),
-
-  -- Ограничения
-  CONSTRAINT assigned_to_check CHECK (    (assigned_to_user_id IS NULL AND assigned_to_staff_id IS NOT NULL) OR
-    (assigned_to_user_id IS NOT NULL AND assigned_to_staff_id IS NULL) OR
-    (assigned_to_user_id IS NULL AND assigned_to_staff_id IS NULL)
-  )
+  updated_by BIGINT REFERENCES users(id)
 );
 
 -- Фотографии ТО
@@ -738,8 +741,7 @@ CREATE INDEX idx_equipment_bookings_time_status ON equipment_bookings(equipment_
 -- Индексы для equipment_maintenance_history
 CREATE INDEX idx_maintenance_equipment ON equipment_maintenance_history(equipment_item_id);
 CREATE INDEX idx_maintenance_status ON equipment_maintenance_history(status) WHERE archived_at IS NULL;
-CREATE INDEX idx_maintenance_assigned_user ON equipment_maintenance_history(assigned_to_user_id) WHERE assigned_to_user_id IS NOT NULL;
-CREATE INDEX idx_maintenance_assigned_staff ON equipment_maintenance_history(assigned_to_staff_id) WHERE assigned_to_staff_id IS NOT NULL;
+CREATE INDEX idx_maintenance_executor ON equipment_maintenance_history(executor_id, executor_type) WHERE executor_id IS NOT NULL;
 
 -- Индексы для maintenance_photos
 CREATE INDEX idx_maintenance_photos ON maintenance_photos(maintenance_id, timing);
@@ -922,6 +924,13 @@ INSERT INTO support_staff_schedules (staff_id, day_of_week, start_time, end_time
 (4, 3, '07:00:00', '15:00:00'), -- Ср
 (4, 4, '07:00:00', '15:00:00'), -- Чт
 (4, 5, '07:00:00', '15:00:00'); -- Пт
+
+-- 5.23. Заполняем компетенции внутренних сотрудников
+INSERT INTO user_maintenance_competencies (user_id, name, level) VALUES
+(2, 'Общая диагностика оборудования', 1), -- Тренер может проводить первичный осмотр
+(3, 'Ремонт кардио-тренажеров', 2),    -- Инструктор специализируется на кардио
+(4, 'Ремонт силовых тренажеров', 2);     -- Менеджер имеет опыт в ремонте силовых
+
 -- 5.15. Заполняем Здания
 INSERT INTO buildings (name, address, note) VALUES
 ('Основной корпус', 'г. Москва, ул. Центральная, 1', 'Главное здание фитнес-центра'),

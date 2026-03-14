@@ -1,4 +1,5 @@
 import 'package:http/http.dart' as http;
+import '../../models/available_executor.model.dart';
 import '../../modules/equipment/models/equipment_maintenance_history.model.dart';
 import 'base_api.dart';
 
@@ -19,6 +20,10 @@ class MaintenanceApiService extends BaseApiService {
     
     final data = await get('/api/maintenance/item/$itemId', queryParams: queryParameters);
     return (data as List).map((json) => EquipmentMaintenanceHistory.fromJson(json)).toList();
+  }
+    Future<AvailableExecutorsResponse> getAvailableExecutors() async {
+    final data = await get('/api/maintenance/available-executors');
+    return AvailableExecutorsResponse.fromJson(data);
   }
 
   Future<EquipmentMaintenanceHistory> createMaintenanceHistory(EquipmentMaintenanceHistory history) async {

@@ -3,6 +3,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fitman_app/models/available_executor.model.dart';
 import 'package:fitman_app/modules/equipment/models/equipment_maintenance_history.model.dart';
 import 'package:fitman_app/modules/equipment/providers/maintenance_provider.dart';
 import 'package:fitman_app/providers/auth_provider.dart';
@@ -47,8 +48,12 @@ class _EquipmentMaintenanceHistoryEditScreenState
   late TextEditingController _workDescriptionController;
   late TextEditingController _startedAtController;
   late TextEditingController _completedAtController;
+  late TextEditingController _executorNameController;
+
   late MaintenanceType _selectedType;
   late MaintenanceStatus _selectedStatus;
+  String? _executorId;
+  ExecutorType? _executorType;
 
   final List<_PhotoHolder> _beforePhotos = [];
   final List<_PhotoHolder> _afterPhotos = [];
@@ -73,6 +78,10 @@ class _EquipmentMaintenanceHistoryEditScreenState
     _selectedType = record?.type ?? MaintenanceType.corrective;
     _selectedStatus = record?.status ?? MaintenanceStatus.reported;
 
+    _executorNameController = TextEditingController(text: record?.executorName ?? '');
+    _executorId = record?.executorId;
+    _executorType = record?.executorType;
+
     // Populate photo lists from existing record
     if (record?.photos != null) {
       print('--- Populating photos from record ---');
@@ -95,6 +104,7 @@ class _EquipmentMaintenanceHistoryEditScreenState
     _workDescriptionController.dispose();
     _startedAtController.dispose();
     _completedAtController.dispose();
+    _executorNameController.dispose();
     for (var photo in _beforePhotos) {
       photo.commentController.dispose();
     }
@@ -165,6 +175,9 @@ class _EquipmentMaintenanceHistoryEditScreenState
         return;
       }
 
+      final startedAt = _startedAtController.text.isNotEmpty ? DateTime.parse(_startedAtController.text) : null;
+      final completedAt = _completedAtController.text.isNotEmpty ? DateTime.parse(_completedAtController.text) : null;
+
       if (isCreating) {
         recordToSave = EquipmentMaintenanceHistory(
           id: null,
@@ -174,6 +187,10 @@ class _EquipmentMaintenanceHistoryEditScreenState
           type: _selectedType,
           status: _selectedStatus,
           reportedBy: userId.toString(),
+          startedAt: startedAt,
+          completedAt: completedAt,
+          executorId: _executorId,
+          executorType: _executorType,
         );
         recordToSave = await ApiService.createMaintenanceHistory(recordToSave);
       } else {
@@ -182,8 +199,10 @@ class _EquipmentMaintenanceHistoryEditScreenState
           workDescription: _workDescriptionController.text,
           type: _selectedType,
           status: _selectedStatus,
-          startedAt: _startedAtController.text.isNotEmpty ? DateTime.parse(_startedAtController.text) : null,
-          completedAt: _completedAtController.text.isNotEmpty ? DateTime.parse(_completedAtController.text) : null,
+          startedAt: startedAt,
+          completedAt: completedAt,
+          executorId: _executorId,
+          executorType: _executorType,
         );
         recordToSave = await ApiService.updateMaintenanceHistory(recordToSave.id!, recordToSave);
       }
@@ -291,6 +310,20 @@ class _EquipmentMaintenanceHistoryEditScreenState
                 },
               ),
               const SizedBox(height: 16),
+               TextFormField(
+                controller: _executorNameController,
+                readOnly: true,
+                decoration: InputDecoration(
+                  labelText: 'Исполнитель',
+                  border: const OutlineInputBorder(),
+                  suffixIcon: IconButton(
+                    icon: const Icon(Icons.person_search),
+                    onPressed: _showExecutorSelectionDialog,
+                  ),
+                ),
+                onTap: _showExecutorSelectionDialog,
+              ),
+              const SizedBox(height: 16),
               TextFormField(
                 controller: _reportedProblemController,
                 decoration: const InputDecoration(
@@ -352,6 +385,20 @@ class _EquipmentMaintenanceHistoryEditScreenState
                       ),
                       readOnly: true,
                       onTap: () => _selectDateTime(_completedAtController),
+                      validator: (value) {
+                        if (value == null || value.isEmpty || _startedAtController.text.isEmpty) {
+                          return null;
+                        }
+                        final startDate = DateTime.tryParse(_startedAtController.text);
+                        final endDate = DateTime.tryParse(value);
+
+                        if (startDate != null && endDate != null) {
+                          if (!endDate.isAfter(startDate)) {
+                            return 'Дата завершения должна быть после даты начала';
+                          }
+                        }
+                        return null;
+                      },
                     ),
                   ),
                 ],
@@ -365,6 +412,21 @@ class _EquipmentMaintenanceHistoryEditScreenState
         ),
       ),
     );
+  }
+  
+  Future<void> _showExecutorSelectionDialog() async {
+    final result = await showDialog<Map<String, dynamic>>(
+      context: context,
+      builder: (context) => const _ExecutorSelectionDialog(),
+    );
+
+    if (result != null) {
+      setState(() {
+        _executorId = result['id'];
+        _executorType = result['type'];
+        _executorNameController.text = result['name'];
+      });
+    }
   }
   
   Widget _buildPhotoSection(BuildContext context, String title, List<_PhotoHolder> photos) {
@@ -460,6 +522,95 @@ class _EquipmentMaintenanceHistoryEditScreenState
           onPressed: () => _pickFiles(photos),
         ),
       ],
+    );
+  }
+}
+
+class _ExecutorSelectionDialog extends ConsumerStatefulWidget {
+  const _ExecutorSelectionDialog();
+
+  @override
+  ConsumerState<_ExecutorSelectionDialog> createState() => __ExecutorSelectionDialogState();
+}
+
+class __ExecutorSelectionDialogState extends ConsumerState<_ExecutorSelectionDialog> {
+  String _searchQuery = '';
+
+  @override
+  Widget build(BuildContext context) {
+    final executorsAsync = ref.watch(availableExecutorsProvider);
+
+    return AlertDialog(
+      title: const Text('Выбор исполнителя'),
+      content: SizedBox(
+        width: double.maxFinite,
+        height: 400,
+        child: executorsAsync.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (err, stack) => Center(child: Text('Ошибка: $err')),
+          data: (data) {
+            return DefaultTabController(
+              length: 2,
+              child: Column(
+                children: [
+                  TextField(
+                    decoration: const InputDecoration(
+                      labelText: 'Поиск...',
+                      prefixIcon: Icon(Icons.search),
+                    ),
+                    onChanged: (value) => setState(() => _searchQuery = value.toLowerCase()),
+                  ),
+                  const TabBar(
+                    tabs: [
+                      Tab(text: 'Сотрудники'),
+                      Tab(text: 'Внешний персонал'),
+                    ],
+                  ),
+                  Expanded(
+                    child: TabBarView(
+                      children: [
+                        _buildExecutorList(data.users, ExecutorType.user),
+                        _buildExecutorList(data.staff, ExecutorType.staff),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Отмена'),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildExecutorList(List<Executor> executors, ExecutorType type) {
+    final filteredList = executors.where((e) {
+      final fullName = ('${e.firstName ?? ''} ${e.lastName ?? ''}').toLowerCase().trim();
+      return fullName.contains(_searchQuery);
+    }).toList();
+
+    return ListView.builder(
+      itemCount: filteredList.length,
+      itemBuilder: (context, index) {
+        final executor = filteredList[index];
+        final displayName = ('${executor.lastName ?? ''} ${executor.firstName ?? ''}').trim();
+        return ListTile(
+          title: Text(displayName.isNotEmpty ? displayName : 'Имя не указано'),
+          onTap: () {
+            Navigator.of(context).pop({
+              'id': executor.id,
+              'name': displayName.isNotEmpty ? displayName : 'Имя не указано',
+              'type': type,
+            });
+          },
+        );
+      },
     );
   }
 }

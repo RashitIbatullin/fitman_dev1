@@ -60,8 +60,12 @@ _$EquipmentMaintenanceHistoryImpl _$$EquipmentMaintenanceHistoryImplFromJson(
   reportedProblem: json['reported_problem'] as String,
   workDescription: json['work_description'] as String?,
   reportedBy: json['reported_by'] as String,
-  assignedToUserId: json['assigned_to_user_id'] as String?,
-  assignedToStaffId: json['assigned_to_staff_id'] as String?,
+  executorId: json['executor_id'] as String?,
+  executorType: $enumDecodeNullable(
+    _$ExecutorTypeEnumMap,
+    json['executor_type'],
+  ),
+  executorName: json['executor_name'] as String?,
   relatedBookingId: json['related_booking_id'] as String?,
   causedDowntime: json['caused_downtime'] as bool? ?? false,
   updatedAt: json['updated_at'] == null
@@ -93,8 +97,9 @@ Map<String, dynamic> _$$EquipmentMaintenanceHistoryImplToJson(
   'reported_problem': instance.reportedProblem,
   'work_description': instance.workDescription,
   'reported_by': instance.reportedBy,
-  'assigned_to_user_id': instance.assignedToUserId,
-  'assigned_to_staff_id': instance.assignedToStaffId,
+  'executor_id': instance.executorId,
+  'executor_type': _$ExecutorTypeEnumMap[instance.executorType],
+  'executor_name': instance.executorName,
   'related_booking_id': instance.relatedBookingId,
   'caused_downtime': instance.causedDowntime,
   'updated_at': instance.updatedAt?.toIso8601String(),
@@ -114,4 +119,9 @@ const _$MaintenanceStatusEnumMap = {
   MaintenanceStatus.inProgress: 'inProgress',
   MaintenanceStatus.completed: 'completed',
   MaintenanceStatus.cancelled: 'cancelled',
+};
+
+const _$ExecutorTypeEnumMap = {
+  ExecutorType.user: 'user',
+  ExecutorType.staff: 'staff',
 };

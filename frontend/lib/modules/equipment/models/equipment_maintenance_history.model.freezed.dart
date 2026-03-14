@@ -331,8 +331,9 @@ mixin _$EquipmentMaintenanceHistory {
   String get reportedProblem => throw _privateConstructorUsedError;
   String? get workDescription => throw _privateConstructorUsedError;
   String get reportedBy => throw _privateConstructorUsedError;
-  String? get assignedToUserId => throw _privateConstructorUsedError;
-  String? get assignedToStaffId => throw _privateConstructorUsedError;
+  String? get executorId => throw _privateConstructorUsedError;
+  ExecutorType? get executorType => throw _privateConstructorUsedError;
+  String? get executorName => throw _privateConstructorUsedError;
   String? get relatedBookingId => throw _privateConstructorUsedError;
   bool get causedDowntime => throw _privateConstructorUsedError;
   DateTime? get updatedAt => throw _privateConstructorUsedError;
@@ -375,8 +376,9 @@ abstract class $EquipmentMaintenanceHistoryCopyWith<$Res> {
     String reportedProblem,
     String? workDescription,
     String reportedBy,
-    String? assignedToUserId,
-    String? assignedToStaffId,
+    String? executorId,
+    ExecutorType? executorType,
+    String? executorName,
     String? relatedBookingId,
     bool causedDowntime,
     DateTime? updatedAt,
@@ -417,8 +419,9 @@ class _$EquipmentMaintenanceHistoryCopyWithImpl<
     Object? reportedProblem = null,
     Object? workDescription = freezed,
     Object? reportedBy = null,
-    Object? assignedToUserId = freezed,
-    Object? assignedToStaffId = freezed,
+    Object? executorId = freezed,
+    Object? executorType = freezed,
+    Object? executorName = freezed,
     Object? relatedBookingId = freezed,
     Object? causedDowntime = null,
     Object? updatedAt = freezed,
@@ -477,13 +480,17 @@ class _$EquipmentMaintenanceHistoryCopyWithImpl<
                 ? _value.reportedBy
                 : reportedBy // ignore: cast_nullable_to_non_nullable
                       as String,
-            assignedToUserId: freezed == assignedToUserId
-                ? _value.assignedToUserId
-                : assignedToUserId // ignore: cast_nullable_to_non_nullable
+            executorId: freezed == executorId
+                ? _value.executorId
+                : executorId // ignore: cast_nullable_to_non_nullable
                       as String?,
-            assignedToStaffId: freezed == assignedToStaffId
-                ? _value.assignedToStaffId
-                : assignedToStaffId // ignore: cast_nullable_to_non_nullable
+            executorType: freezed == executorType
+                ? _value.executorType
+                : executorType // ignore: cast_nullable_to_non_nullable
+                      as ExecutorType?,
+            executorName: freezed == executorName
+                ? _value.executorName
+                : executorName // ignore: cast_nullable_to_non_nullable
                       as String?,
             relatedBookingId: freezed == relatedBookingId
                 ? _value.relatedBookingId
@@ -541,8 +548,9 @@ abstract class _$$EquipmentMaintenanceHistoryImplCopyWith<$Res>
     String reportedProblem,
     String? workDescription,
     String reportedBy,
-    String? assignedToUserId,
-    String? assignedToStaffId,
+    String? executorId,
+    ExecutorType? executorType,
+    String? executorName,
     String? relatedBookingId,
     bool causedDowntime,
     DateTime? updatedAt,
@@ -583,8 +591,9 @@ class __$$EquipmentMaintenanceHistoryImplCopyWithImpl<$Res>
     Object? reportedProblem = null,
     Object? workDescription = freezed,
     Object? reportedBy = null,
-    Object? assignedToUserId = freezed,
-    Object? assignedToStaffId = freezed,
+    Object? executorId = freezed,
+    Object? executorType = freezed,
+    Object? executorName = freezed,
     Object? relatedBookingId = freezed,
     Object? causedDowntime = null,
     Object? updatedAt = freezed,
@@ -643,13 +652,17 @@ class __$$EquipmentMaintenanceHistoryImplCopyWithImpl<$Res>
             ? _value.reportedBy
             : reportedBy // ignore: cast_nullable_to_non_nullable
                   as String,
-        assignedToUserId: freezed == assignedToUserId
-            ? _value.assignedToUserId
-            : assignedToUserId // ignore: cast_nullable_to_non_nullable
+        executorId: freezed == executorId
+            ? _value.executorId
+            : executorId // ignore: cast_nullable_to_non_nullable
                   as String?,
-        assignedToStaffId: freezed == assignedToStaffId
-            ? _value.assignedToStaffId
-            : assignedToStaffId // ignore: cast_nullable_to_non_nullable
+        executorType: freezed == executorType
+            ? _value.executorType
+            : executorType // ignore: cast_nullable_to_non_nullable
+                  as ExecutorType?,
+        executorName: freezed == executorName
+            ? _value.executorName
+            : executorName // ignore: cast_nullable_to_non_nullable
                   as String?,
         relatedBookingId: freezed == relatedBookingId
             ? _value.relatedBookingId
@@ -701,8 +714,9 @@ class _$EquipmentMaintenanceHistoryImpl
     required this.reportedProblem,
     this.workDescription,
     required this.reportedBy,
-    this.assignedToUserId,
-    this.assignedToStaffId,
+    this.executorId,
+    this.executorType,
+    this.executorName,
     this.relatedBookingId,
     this.causedDowntime = false,
     this.updatedAt,
@@ -741,9 +755,11 @@ class _$EquipmentMaintenanceHistoryImpl
   @override
   final String reportedBy;
   @override
-  final String? assignedToUserId;
+  final String? executorId;
   @override
-  final String? assignedToStaffId;
+  final ExecutorType? executorType;
+  @override
+  final String? executorName;
   @override
   final String? relatedBookingId;
   @override
@@ -769,7 +785,7 @@ class _$EquipmentMaintenanceHistoryImpl
 
   @override
   String toString() {
-    return 'EquipmentMaintenanceHistory(id: $id, equipmentItemId: $equipmentItemId, equipmentName: $equipmentName, type: $type, status: $status, createdAt: $createdAt, startedAt: $startedAt, completedAt: $completedAt, equipmentAvailableFrom: $equipmentAvailableFrom, reportedProblem: $reportedProblem, workDescription: $workDescription, reportedBy: $reportedBy, assignedToUserId: $assignedToUserId, assignedToStaffId: $assignedToStaffId, relatedBookingId: $relatedBookingId, causedDowntime: $causedDowntime, updatedAt: $updatedAt, archivedAt: $archivedAt, archivedBy: $archivedBy, archivedReason: $archivedReason, photos: $photos)';
+    return 'EquipmentMaintenanceHistory(id: $id, equipmentItemId: $equipmentItemId, equipmentName: $equipmentName, type: $type, status: $status, createdAt: $createdAt, startedAt: $startedAt, completedAt: $completedAt, equipmentAvailableFrom: $equipmentAvailableFrom, reportedProblem: $reportedProblem, workDescription: $workDescription, reportedBy: $reportedBy, executorId: $executorId, executorType: $executorType, executorName: $executorName, relatedBookingId: $relatedBookingId, causedDowntime: $causedDowntime, updatedAt: $updatedAt, archivedAt: $archivedAt, archivedBy: $archivedBy, archivedReason: $archivedReason, photos: $photos)';
   }
 
   @override
@@ -798,10 +814,12 @@ class _$EquipmentMaintenanceHistoryImpl
                 other.workDescription == workDescription) &&
             (identical(other.reportedBy, reportedBy) ||
                 other.reportedBy == reportedBy) &&
-            (identical(other.assignedToUserId, assignedToUserId) ||
-                other.assignedToUserId == assignedToUserId) &&
-            (identical(other.assignedToStaffId, assignedToStaffId) ||
-                other.assignedToStaffId == assignedToStaffId) &&
+            (identical(other.executorId, executorId) ||
+                other.executorId == executorId) &&
+            (identical(other.executorType, executorType) ||
+                other.executorType == executorType) &&
+            (identical(other.executorName, executorName) ||
+                other.executorName == executorName) &&
             (identical(other.relatedBookingId, relatedBookingId) ||
                 other.relatedBookingId == relatedBookingId) &&
             (identical(other.causedDowntime, causedDowntime) ||
@@ -833,8 +851,9 @@ class _$EquipmentMaintenanceHistoryImpl
     reportedProblem,
     workDescription,
     reportedBy,
-    assignedToUserId,
-    assignedToStaffId,
+    executorId,
+    executorType,
+    executorName,
     relatedBookingId,
     causedDowntime,
     updatedAt,
@@ -876,8 +895,9 @@ abstract class _EquipmentMaintenanceHistory
     required final String reportedProblem,
     final String? workDescription,
     required final String reportedBy,
-    final String? assignedToUserId,
-    final String? assignedToStaffId,
+    final String? executorId,
+    final ExecutorType? executorType,
+    final String? executorName,
     final String? relatedBookingId,
     final bool causedDowntime,
     final DateTime? updatedAt,
@@ -915,9 +935,11 @@ abstract class _EquipmentMaintenanceHistory
   @override
   String get reportedBy;
   @override
-  String? get assignedToUserId;
+  String? get executorId;
   @override
-  String? get assignedToStaffId;
+  ExecutorType? get executorType;
+  @override
+  String? get executorName;
   @override
   String? get relatedBookingId;
   @override
