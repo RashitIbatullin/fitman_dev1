@@ -9,6 +9,9 @@
 
 -- Удаляем в обратном порядке (сначала дочерние таблицы, затем родительские)
 
+-- Таблица компетенций
+DROP TABLE IF EXISTS user_maintenance_competencies CASCADE;
+
 -- Таблицы бронирования и оборудования
 DROP TABLE IF EXISTS equipment_bookings CASCADE;
 DROP TABLE IF EXISTS maintenance_photos CASCADE;
@@ -430,6 +433,7 @@ CREATE TABLE support_staff_competencies (
   id BIGSERIAL PRIMARY KEY,
   staff_id BIGINT NOT NULL REFERENCES support_staff(id) ON DELETE CASCADE,
   name VARCHAR(100) NOT NULL,
+  description TEXT,
   level SMALLINT NOT NULL,
   certificate_url TEXT,
   verified_at DATE,

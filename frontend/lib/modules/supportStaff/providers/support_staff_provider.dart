@@ -1,3 +1,4 @@
+import 'package:fitman_app/modules/supportStaff/models/competency.model.dart';
 import 'package:fitman_app/services/api/support_staff_api.dart';
 import 'package:fitman_app/modules/supportStaff/models/support_staff.model.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -41,6 +42,24 @@ class SupportStaffNotifier extends _$SupportStaffNotifier {
       await SupportStaffApi().unarchive(id);
       ref.invalidate(allSupportStaffProvider);
       ref.invalidate(supportStaffByIdProvider(id));
+    });
+  }
+
+  Future<void> addCompetency(String staffId, Competency competency) async {
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      await SupportStaffApi().addCompetency(staffId, competency);
+      ref.invalidate(allSupportStaffProvider);
+      ref.invalidate(supportStaffByIdProvider(staffId));
+    });
+  }
+
+  Future<void> deleteCompetency(String staffId, String competencyId) async {
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      await SupportStaffApi().deleteCompetency(staffId, competencyId);
+      ref.invalidate(allSupportStaffProvider);
+      ref.invalidate(supportStaffByIdProvider(staffId));
     });
   }
 }

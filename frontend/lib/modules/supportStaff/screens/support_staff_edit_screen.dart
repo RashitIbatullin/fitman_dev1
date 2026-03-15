@@ -1,3 +1,4 @@
+import 'package:fitman_app/modules/supportStaff/models/competency.model.dart';
 import 'package:fitman_app/modules/supportStaff/models/employment_type.enum.dart';
 import 'package:fitman_app/modules/supportStaff/models/staff_category.enum.dart';
 import 'package:fitman_app/modules/supportStaff/models/support_staff.model.dart';
@@ -72,8 +73,18 @@ class _SupportStaffEditScreenState
 
   Future<void> _saveForm() async {
     if (_formKey.currentState!.validate()) {
-      final newStaff = SupportStaff(
-        id: widget.staff?.id ?? '', // handled by backend
+      final staffToSave = (widget.staff ??
+              SupportStaff(
+                id: '', // Will be ignored by backend on create
+                firstName: '',
+                lastName: '',
+                employmentType: EmploymentType.fullTime,
+                category: StaffCategory.technician,
+                canMaintainEquipment: false,
+                createdAt: DateTime.now(),
+                updatedAt: DateTime.now(),
+              ))
+          .copyWith(
         firstName: _firstNameController.text,
         lastName: _lastNameController.text,
         middleName: _middleNameController.text,
@@ -86,15 +97,13 @@ class _SupportStaffEditScreenState
         contractNumber: _contractNumberController.text,
         contractExpiryDate: _contractExpiryDate,
         notes: _notesController.text,
-        createdAt: widget.staff?.createdAt ?? DateTime.now(),
-        updatedAt: DateTime.now(),
       );
 
       try {
         if (widget.staff == null) {
-          await ApiService.createSupportStaff(newStaff);
+          await ApiService.createSupportStaff(staffToSave);
         } else {
-          await ApiService.updateSupportStaff(widget.staff!.id, newStaff);
+          await ApiService.updateSupportStaff(widget.staff!.id, staffToSave);
         }
         ref.invalidate(allSupportStaffProvider);
         if (widget.staff != null) {
@@ -107,29 +116,117 @@ class _SupportStaffEditScreenState
     }
   }
 
+  void _showAddCompetencyDialog() {
+    final nameController = TextEditingController();
+    final levelController = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Добавить компетенцию'),
+          content: Form(
+            key: formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  controller: nameController,
+                  decoration: const InputDecoration(labelText: 'Название'),
+                  validator: (value) =>
+                      value!.isEmpty ? 'Введите название' : null,
+                ),
+                TextFormField(
+                  controller: levelController,
+                  decoration: const InputDecoration(labelText: 'Уровень (1-5)'),
+                  keyboardType: TextInputType.number,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Введите уровень';
+                    }
+                    final level = int.tryParse(value);
+                    if (level == null || level < 1 || level > 5) {
+                      return 'Уровень должен быть от 1 до 5';
+                    }
+                    return null;
+                  },
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Отмена'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (formKey.currentState!.validate()) {
+                  final newCompetency = Competency(
+                    id: '', // Backend handles ID
+                    name: nameController.text,
+                    level: int.parse(levelController.text), staffId: '',
+                  );
+                  ref.read(supportStaffNotifierProvider.notifier).addCompetency(
+                        widget.staff!.id,
+                        newCompetency,
+                      );
+                  Navigator.of(context).pop();
+                }
+              },
+              child: const Text('Добавить'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    // If we are editing, we watch the provider to get live updates
+    final staffAsyncValue = widget.staff != null
+        ? ref.watch(supportStaffByIdProvider(widget.staff!.id))
+        : null;
+
+    if (staffAsyncValue is AsyncLoading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+    if (staffAsyncValue is AsyncError) {
+      return Scaffold(
+          body: Center(
+              child: Text('Error: ${staffAsyncValue?.error ?? "Unknown error"}')));
+    }
+
+    // Use the fetched staff data if available, otherwise use the initial widget data
+    final currentStaff = staffAsyncValue?.value ?? widget.staff;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.staff == null ? 'Новый сотрудник' : 'Редактировать'),
+        actions: [
+          IconButton(onPressed: _saveForm, icon: const Icon(Icons.save))
+        ],
       ),
       body: Form(
         key: _formKey,
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               TextFormField(
                 controller: _firstNameController,
                 decoration: const InputDecoration(labelText: 'Имя'),
                 validator: (value) =>
-                    value!.isEmpty ? 'Please enter a first name' : null,
+                    value!.isEmpty ? 'Введите имя' : null,
               ),
               TextFormField(
                 controller: _lastNameController,
                 decoration: const InputDecoration(labelText: 'Фамилия'),
                 validator: (value) =>
-                    value!.isEmpty ? 'Please enter a last name' : null,
+                    value!.isEmpty ? 'Введите фамилию' : null,
               ),
               TextFormField(
                 controller: _middleNameController,
@@ -151,9 +248,9 @@ class _SupportStaffEditScreenState
                           value: e,
                           child: Row(
                             children: [
-                              Icon(e.iconData), // Used iconData directly
+                              Icon(e.iconData),
                               const SizedBox(width: 8),
-                              Text(e.localizedName), // Used localizedName
+                              Text(e.localizedName),
                             ],
                           ),
                         ))
@@ -172,9 +269,9 @@ class _SupportStaffEditScreenState
                           value: e,
                           child: Row(
                             children: [
-                              Icon(e.iconData), // Used iconData directly
+                              Icon(e.iconData),
                               const SizedBox(width: 8),
-                              Text(e.localizedName), // Used localizedName
+                              Text(e.localizedName),
                             ],
                           ),
                         ))
@@ -200,12 +297,13 @@ class _SupportStaffEditScreenState
                 decoration: const InputDecoration(labelText: 'Номер контракта'),
               ),
               ListTile(
-                title: Text('Окончание контракта: ${_contractExpiryDate?.toLocal().toString().split(' ')[0] ?? ''}'),
+                title: Text(
+                    'Окончание контракта: ${currentStaff?.contractExpiryDate?.toLocal().toString().split(' ')[0] ?? ''}'),
                 trailing: const Icon(Icons.calendar_today),
                 onTap: () async {
                   final date = await showDatePicker(
                     context: context,
-                    initialDate: _contractExpiryDate ?? DateTime.now(),
+                    initialDate: currentStaff?.contractExpiryDate ?? DateTime.now(),
                     firstDate: DateTime(2000),
                     lastDate: DateTime(2101),
                   );
@@ -221,6 +319,17 @@ class _SupportStaffEditScreenState
                 decoration: const InputDecoration(labelText: 'Заметки'),
                 maxLines: 3,
               ),
+              const SizedBox(height: 24),
+              if (currentStaff != null)
+                _CompetenciesSection(
+                    staff: currentStaff,
+                    onAdd: _showAddCompetencyDialog,
+                    onDelete: (competencyId) {
+                      ref
+                          .read(supportStaffNotifierProvider.notifier)
+                          .deleteCompetency(currentStaff.id, competencyId);
+                    }),
+              const SizedBox(height: 24),
               ElevatedButton(
                 onPressed: _saveForm,
                 child: const Text('Сохранить'),
@@ -229,6 +338,59 @@ class _SupportStaffEditScreenState
           ),
         ),
       ),
+    );
+  }
+}
+
+class _CompetenciesSection extends StatelessWidget {
+  final SupportStaff staff;
+  final VoidCallback onAdd;
+  final ValueChanged<String> onDelete;
+
+  const _CompetenciesSection(
+      {required this.staff, required this.onAdd, required this.onDelete});
+
+  @override
+  Widget build(BuildContext context) {
+    final competencies = staff.competencies ?? [];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Компетенции',
+            style: Theme.of(context).textTheme.titleLarge),
+        const Divider(),
+        if (competencies.isEmpty)
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 16.0),
+            child: Center(child: Text('Компетенции не добавлены')),
+          )
+        else
+          ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: competencies.length,
+            itemBuilder: (context, index) {
+              final competency = competencies[index];
+              return ListTile(
+                title: Text(competency.name),
+                subtitle: Text('Уровень: ${competency.level}'),
+                trailing: IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                  onPressed: () => onDelete(competency.id),
+                ),
+              );
+            },
+          ),
+        const SizedBox(height: 8),
+        Align(
+          alignment: Alignment.centerRight,
+          child: ElevatedButton.icon(
+            onPressed: onAdd,
+            icon: const Icon(Icons.add),
+            label: const Text('Добавить'),
+          ),
+        ),
+      ],
     );
   }
 }

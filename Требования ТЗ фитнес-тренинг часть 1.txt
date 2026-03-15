@@ -1164,25 +1164,36 @@ class EquipmentMaintenanceHistory {
   DateTime? equipmentAvailableFrom; // Когда оборудование снова доступно
   String reportedProblem; // Описание проблемы
   String workDescription; // Описание выполненных работ
-  String reportedByUserId; // Кто сообщил
-  String? assignedToUserId; // Назначено сотруднику
-  String? assignedToStaffId; // Назначено вспомогательному персоналу
+  String reportedByUserId; // Кто сообщил (FK к users)
+  String? executorId;       // FK к users или support_staff. Назначается с учетом компетенций.
+  ExecutorType? executorType; // Тип исполнителя (см. п. 6.6.3.2)
   List<MaintenancePhoto> beforePhotos; // Фото до
   List<MaintenancePhoto> afterPhotos; // Фото после
   String? relatedBookingId; // Связанное бронирование
   bool causedDowntime; // Привело ли к простою
   DateTime updatedAt;
+  String? createdByUserId; // FK к users
+  String? updatedByUserId; // FK к users
+  DateTime? archivedAt;
+  String? archivedByUserId; // FK к users
+  String? archivedReason;
 }
 
 6.3.2 Вспомогательные модели
 
-// Тип ТО
+• Тип исполнителя ТО
+enum ExecutorType {
+  user,         // Внутренний сотрудник (из таблицы users)
+  supportStaff  // Внешний персонал (из таблицы support_staff)
+}
+
+• Тип ТО
 enum MaintenanceType {
   preventive,  // Плановое профилактическое
   corrective   // Ремонт по факту неисправности
 }
 
-// Статус ТО
+• Статус ТО
 enum MaintenanceStatus {
   reported,    // Проблема зафиксирована
   inProgress,  // В работе
@@ -1190,7 +1201,7 @@ enum MaintenanceStatus {
   cancelled    // Отменено
 }
 
-// Фотография ТО
+• Фотография ТО
 class MaintenancePhoto {
   String id;
   String url;
@@ -1364,7 +1375,7 @@ ON equipment_bookings(equipment_item_id, start_time, end_time)
 WHERE status IN (0, 1); -- confirmed, active
 
 6.5.4 История обслуживания оборудования (equipment_maintenance_history)
--- История ТО оборудования
+
 CREATE TABLE equipment_maintenance_history (
   id BIGSERIAL PRIMARY KEY,
   equipment_item_id BIGINT NOT NULL REFERENCES equipment_items(id),
@@ -1378,11 +1389,17 @@ CREATE TABLE equipment_maintenance_history (
   reported_problem TEXT NOT NULL,
   work_description TEXT,
   reported_by BIGINT NOT NULL REFERENCES users(id),
-  assigned_to_user_id BIGINT REFERENCES users(id),
-  assigned_to_staff_id BIGINT REFERENCES support_staff(id),
+  executor_id BIGINT,     -- ID исполнителя (из users или support_staff)
+  executor_type SMALLINT, -- Тип исполнителя (0 для User, 1 для SupportStaff). Выбор исполнителя осуществляется на основе его компетенций (см. п. 6.6.3.2).
   related_booking_id BIGINT REFERENCES equipment_bookings(id),
   caused_downtime BOOLEAN DEFAULT false,
   updated_at TIMESTAMPTZ DEFAULT NOW(),
+  archived_at TIMESTAMPTZ,
+  archived_by BIGINT REFERENCES users(id),
+  archived_reason TEXT,
+  created_by BIGINT REFERENCES users(id),
+  updated_by BIGINT REFERENCES users(id)
+);
   
 6.5.5 Фотографии ТО (maintenance_photos)
 -- Фотографии ТО
@@ -1973,6 +1990,6 @@ frontend/lib/modules/booking/
 
 
 
-5
+38
 
 

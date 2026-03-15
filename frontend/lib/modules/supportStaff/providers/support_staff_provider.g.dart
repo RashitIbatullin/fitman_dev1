@@ -166,7 +166,7 @@ class _SupportStaffByIdProviderElement
 }
 
 String _$supportStaffNotifierHash() =>
-    r'ccf77977182cfb69da0d59663cef1f08ca192b2c';
+    r'ccd48557167cf4b52fbf647d96f340dd59dff368';
 
 /// See also [SupportStaffNotifier].
 @ProviderFor(SupportStaffNotifier)
