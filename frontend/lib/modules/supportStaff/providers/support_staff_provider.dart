@@ -28,39 +28,27 @@ class SupportStaffNotifier extends _$SupportStaffNotifier {
   }
 
   Future<void> archive(String id, String reason) async {
-    state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() async {
-      await SupportStaffApi().archive(id, reason);
-      ref.invalidate(allSupportStaffProvider);
-      ref.invalidate(supportStaffByIdProvider(id));
-    });
+    await SupportStaffApi().archive(id, reason);
+    ref.invalidate(allSupportStaffProvider);
+    ref.invalidate(supportStaffByIdProvider(id));
   }
 
   Future<void> unarchive(String id) async {
-    state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() async {
-      await SupportStaffApi().unarchive(id);
-      ref.invalidate(allSupportStaffProvider);
-      ref.invalidate(supportStaffByIdProvider(id));
-    });
+    await SupportStaffApi().unarchive(id);
+    ref.invalidate(allSupportStaffProvider);
+    ref.invalidate(supportStaffByIdProvider(id));
   }
 
   Future<void> addCompetency(String staffId, Competency competency) async {
-    state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() async {
-      await SupportStaffApi().addCompetency(staffId, competency);
-      ref.invalidate(allSupportStaffProvider);
-      ref.invalidate(supportStaffByIdProvider(staffId));
-    });
+    await SupportStaffApi().addCompetency(staffId, competency);
+    ref.invalidate(allSupportStaffProvider);
+    ref.invalidate(supportStaffByIdProvider(staffId));
   }
 
   Future<void> deleteCompetency(String staffId, String competencyId) async {
-    state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() async {
-      await SupportStaffApi().deleteCompetency(staffId, competencyId);
-      ref.invalidate(allSupportStaffProvider);
-      ref.invalidate(supportStaffByIdProvider(staffId));
-    });
+    await SupportStaffApi().deleteCompetency(staffId, competencyId);
+    ref.invalidate(allSupportStaffProvider);
+    ref.invalidate(supportStaffByIdProvider(staffId));
   }
 }
 

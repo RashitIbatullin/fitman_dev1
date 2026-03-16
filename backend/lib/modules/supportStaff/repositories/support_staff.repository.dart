@@ -1,6 +1,7 @@
 import 'package:fitman_backend/config/database.dart';
 import 'package:fitman_backend/modules/equipment/models/equipment_maintenance_history.model.dart';
 import 'package:fitman_backend/modules/supportStaff/models/competency.model.dart';
+import 'package:fitman_backend/modules/supportStaff/models/competency_level.enum.dart';
 import 'package:fitman_backend/modules/supportStaff/models/support_staff.model.dart';
 import 'package:postgres/postgres.dart';
 
@@ -183,7 +184,7 @@ class SupportStaffRepositoryImpl implements SupportStaffRepository {
         'competentId': int.parse(competency.competentId),
         'executorType': competency.executorType.index,
         'name': competency.name,
-        'level': competency.level,
+        'level': competency.level.index,
         'certificateUrl': competency.certificateUrl,
         'verifiedAt': competency.verifiedAt,
         'verifiedBy': competency.verifiedBy,
@@ -215,8 +216,13 @@ class SupportStaffRepositoryImpl implements SupportStaffRepository {
     );
     return result.map((row) {
       final map = row.toColumnMap();
+      
       final executorTypeInt = map['executor_type'] as int;
       map['executor_type'] = ExecutorType.values[executorTypeInt].name;
+
+      final levelInt = map['level'] as int;
+      map['level'] = CompetencyLevel.values[levelInt].name;
+
       return Competency.fromMap(map);
     }).toList();
   }

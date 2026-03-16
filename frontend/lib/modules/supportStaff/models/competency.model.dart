@@ -1,4 +1,5 @@
 import 'package:fitman_app/modules/equipment/models/equipment_maintenance_history.model.dart';
+import 'package:fitman_app/modules/supportStaff/models/competency_level.enum.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'competency.model.freezed.dart';
@@ -11,7 +12,7 @@ class Competency with _$Competency {
     required String competentId,
     required ExecutorType executorType,
     required String name,
-    required int level,
+    required CompetencyLevel level,
     String? certificateUrl,
     DateTime? verifiedAt,
     String? verifiedBy,

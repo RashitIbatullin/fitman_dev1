@@ -1,5 +1,6 @@
 import 'package:fitman_app/modules/supportStaff/providers/support_staff_provider.dart';
 import 'package:fitman_app/modules/supportStaff/screens/support_staff_edit_screen.dart';
+import 'package:fitman_app/modules/supportStaff/models/competency_level.enum.dart';
 import 'package:fitman_app/modules/supportStaff/models/employment_type.enum.dart'; // Added import
 import 'package:fitman_app/modules/supportStaff/models/staff_category.enum.dart'; // Added import
 import 'package:flutter/material.dart';
@@ -75,7 +76,7 @@ class SupportStaffDetailScreen extends ConsumerWidget {
                       final competency = staff.competencies![index];
                       return ListTile(
                         title: Text(competency.name),
-                        subtitle: Text('Уровень: ${competency.level}'),
+                        subtitle: Text('Уровень: ${competency.level.localizedName}'),
                       );
                     },
                   ),

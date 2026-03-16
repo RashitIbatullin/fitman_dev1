@@ -12,7 +12,7 @@ _$CompetencyImpl _$$CompetencyImplFromJson(Map<String, dynamic> json) =>
       competentId: json['competent_id'] as String,
       executorType: $enumDecode(_$ExecutorTypeEnumMap, json['executor_type']),
       name: json['name'] as String,
-      level: (json['level'] as num).toInt(),
+      level: $enumDecode(_$CompetencyLevelEnumMap, json['level']),
       certificateUrl: json['certificate_url'] as String?,
       verifiedAt: json['verified_at'] == null
           ? null
@@ -26,7 +26,7 @@ Map<String, dynamic> _$$CompetencyImplToJson(_$CompetencyImpl instance) =>
       'competent_id': instance.competentId,
       'executor_type': _$ExecutorTypeEnumMap[instance.executorType]!,
       'name': instance.name,
-      'level': instance.level,
+      'level': _$CompetencyLevelEnumMap[instance.level]!,
       'certificate_url': instance.certificateUrl,
       'verified_at': instance.verifiedAt?.toIso8601String(),
       'verified_by': instance.verifiedBy,
@@ -35,4 +35,12 @@ Map<String, dynamic> _$$CompetencyImplToJson(_$CompetencyImpl instance) =>
 const _$ExecutorTypeEnumMap = {
   ExecutorType.user: 'user',
   ExecutorType.staff: 'staff',
+};
+
+const _$CompetencyLevelEnumMap = {
+  CompetencyLevel.trainee: 'trainee',
+  CompetencyLevel.junior: 'junior',
+  CompetencyLevel.middle: 'middle',
+  CompetencyLevel.senior: 'senior',
+  CompetencyLevel.expert: 'expert',
 };

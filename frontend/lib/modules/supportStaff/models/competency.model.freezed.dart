@@ -25,7 +25,7 @@ mixin _$Competency {
   String get competentId => throw _privateConstructorUsedError;
   ExecutorType get executorType => throw _privateConstructorUsedError;
   String get name => throw _privateConstructorUsedError;
-  int get level => throw _privateConstructorUsedError;
+  CompetencyLevel get level => throw _privateConstructorUsedError;
   String? get certificateUrl => throw _privateConstructorUsedError;
   DateTime? get verifiedAt => throw _privateConstructorUsedError;
   String? get verifiedBy => throw _privateConstructorUsedError;
@@ -52,7 +52,7 @@ abstract class $CompetencyCopyWith<$Res> {
     String competentId,
     ExecutorType executorType,
     String name,
-    int level,
+    CompetencyLevel level,
     String? certificateUrl,
     DateTime? verifiedAt,
     String? verifiedBy,
@@ -104,7 +104,7 @@ class _$CompetencyCopyWithImpl<$Res, $Val extends Competency>
             level: null == level
                 ? _value.level
                 : level // ignore: cast_nullable_to_non_nullable
-                      as int,
+                      as CompetencyLevel,
             certificateUrl: freezed == certificateUrl
                 ? _value.certificateUrl
                 : certificateUrl // ignore: cast_nullable_to_non_nullable
@@ -137,7 +137,7 @@ abstract class _$$CompetencyImplCopyWith<$Res>
     String competentId,
     ExecutorType executorType,
     String name,
-    int level,
+    CompetencyLevel level,
     String? certificateUrl,
     DateTime? verifiedAt,
     String? verifiedBy,
@@ -188,7 +188,7 @@ class __$$CompetencyImplCopyWithImpl<$Res>
         level: null == level
             ? _value.level
             : level // ignore: cast_nullable_to_non_nullable
-                  as int,
+                  as CompetencyLevel,
         certificateUrl: freezed == certificateUrl
             ? _value.certificateUrl
             : certificateUrl // ignore: cast_nullable_to_non_nullable
@@ -232,7 +232,7 @@ class _$CompetencyImpl implements _Competency {
   @override
   final String name;
   @override
-  final int level;
+  final CompetencyLevel level;
   @override
   final String? certificateUrl;
   @override
@@ -299,7 +299,7 @@ abstract class _Competency implements Competency {
     required final String competentId,
     required final ExecutorType executorType,
     required final String name,
-    required final int level,
+    required final CompetencyLevel level,
     final String? certificateUrl,
     final DateTime? verifiedAt,
     final String? verifiedBy,
@@ -317,7 +317,7 @@ abstract class _Competency implements Competency {
   @override
   String get name;
   @override
-  int get level;
+  CompetencyLevel get level;
   @override
   String? get certificateUrl;
   @override

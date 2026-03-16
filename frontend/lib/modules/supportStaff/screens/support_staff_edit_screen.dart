@@ -1,5 +1,6 @@
 import 'package:fitman_app/modules/equipment/models/equipment_maintenance_history.model.dart';
 import 'package:fitman_app/modules/supportStaff/models/competency.model.dart';
+import 'package:fitman_app/modules/supportStaff/models/competency_level.enum.dart';
 import 'package:fitman_app/modules/supportStaff/models/employment_type.enum.dart';
 import 'package:fitman_app/modules/supportStaff/models/staff_category.enum.dart';
 import 'package:fitman_app/modules/supportStaff/models/support_staff.model.dart';
@@ -119,8 +120,8 @@ class _SupportStaffEditScreenState
 
   void _showAddCompetencyDialog() {
     final nameController = TextEditingController();
-    final levelController = TextEditingController();
     final formKey = GlobalKey<FormState>();
+    CompetencyLevel? selectedLevel = CompetencyLevel.trainee;
 
     showDialog(
       context: context,
@@ -138,20 +139,22 @@ class _SupportStaffEditScreenState
                   validator: (value) =>
                       value!.isEmpty ? 'Введите название' : null,
                 ),
-                TextFormField(
-                  controller: levelController,
-                  decoration: const InputDecoration(labelText: 'Уровень (1-5)'),
-                  keyboardType: TextInputType.number,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Введите уровень';
+                DropdownButtonFormField<CompetencyLevel>(
+                  initialValue: selectedLevel,
+                  decoration: const InputDecoration(labelText: 'Уровень'),
+                  items: CompetencyLevel.values.map((level) {
+                    return DropdownMenuItem(
+                      value: level,
+                      child: Text(level.localizedName),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    if (value != null) {
+                      selectedLevel = value;
                     }
-                    final level = int.tryParse(value);
-                    if (level == null || level < 1 || level > 5) {
-                      return 'Уровень должен быть от 1 до 5';
-                    }
-                    return null;
                   },
+                  validator: (value) =>
+                      value == null ? 'Выберите уровень' : null,
                 ),
               ],
             ),
@@ -173,7 +176,7 @@ class _SupportStaffEditScreenState
                     competentId: widget.staff!.id,
                     executorType: ExecutorType.staff,
                     name: nameController.text,
-                    level: int.parse(levelController.text),
+                    level: selectedLevel!,
                   );
                   try {
                     await ref
@@ -393,7 +396,7 @@ class _CompetenciesSection extends StatelessWidget {
               final competency = competencies[index];
               return ListTile(
                 title: Text(competency.name),
-                subtitle: Text('Уровень: ${competency.level}'),
+                subtitle: Text('Уровень: ${competency.level.localizedName}'),
                 trailing: IconButton(
                   icon: const Icon(Icons.delete, color: Colors.red),
                   onPressed: () => onDelete(competency.id),

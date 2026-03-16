@@ -1,4 +1,5 @@
 import 'package:fitman_backend/modules/equipment/models/equipment_maintenance_history.model.dart';
+import 'package:fitman_backend/modules/supportStaff/models/competency_level.enum.dart';
 
 class Competency {
   Competency({
@@ -16,7 +17,7 @@ class Competency {
   final String competentId;
   final ExecutorType executorType;
   final String name;
-  final int level;
+  final CompetencyLevel level;
   final String? certificateUrl;
   final DateTime? verifiedAt;
   final String? verifiedBy;
@@ -27,7 +28,7 @@ class Competency {
       competentId: map['competent_id'].toString(),
       executorType: ExecutorType.values.byName(map['executor_type'] as String),
       name: map['name'] as String,
-      level: map['level'] as int,
+      level: CompetencyLevel.values.byName(map['level'] as String),
       certificateUrl: map['certificate_url'] as String?,
       verifiedAt: map['verified_at'] as DateTime?,
       verifiedBy: map['verified_by']?.toString(),
@@ -39,7 +40,7 @@ class Competency {
     String? competentId,
     ExecutorType? executorType,
     String? name,
-    int? level,
+    CompetencyLevel? level,
     String? certificateUrl,
     DateTime? verifiedAt,
     String? verifiedBy,
@@ -62,7 +63,7 @@ class Competency {
       'competent_id': competentId,
       'executor_type': executorType.name,
       'name': name,
-      'level': level,
+      'level': level.name,
       'certificate_url': certificateUrl,
       'verified_at': verifiedAt?.toIso8601String(),
       'verified_by': verifiedBy,
