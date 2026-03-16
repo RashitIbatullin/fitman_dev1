@@ -1,7 +1,7 @@
 import 'package:fitman_backend/config/database.dart';
+import 'package:fitman_backend/modules/equipment/models/equipment_maintenance_history.model.dart';
 import 'package:fitman_backend/modules/supportStaff/models/competency.model.dart';
 import 'package:fitman_backend/modules/supportStaff/models/support_staff.model.dart';
-import 'package:fitman_backend/modules/supportStaff/models/work_schedule.model.dart';
 import 'package:postgres/postgres.dart';
 
 abstract class SupportStaffRepository {
@@ -14,8 +14,6 @@ abstract class SupportStaffRepository {
   Future<List<Competency>> getCompetencies(String staffId);
   Future<Competency> addCompetency(Competency competency);
   Future<void> deleteCompetency(String competencyId);
-  Future<WorkSchedule?> getSchedule(String staffId);
-  Future<WorkSchedule> updateSchedule(WorkSchedule schedule);
 }
 
 class SupportStaffRepositoryImpl implements SupportStaffRepository {
@@ -87,11 +85,9 @@ class SupportStaffRepositoryImpl implements SupportStaffRepository {
     for (final row in result) {
       final staff = SupportStaff.fromMap(row.toColumnMap());
       final competencies = await getCompetencies(staff.id);
-      final schedule = await getSchedule(staff.id);
       staffList.add(
         staff.copyWith(
           competencies: competencies,
-          schedule: schedule,
         ),
       );
     }
@@ -112,11 +108,9 @@ class SupportStaffRepositoryImpl implements SupportStaffRepository {
 
     final staff = SupportStaff.fromMap(result.first.toColumnMap());
     final competencies = await getCompetencies(staff.id);
-    final schedule = await getSchedule(staff.id);
 
     return staff.copyWith(
       competencies: competencies,
-      schedule: schedule,
     );
   }
 
@@ -179,14 +173,15 @@ class SupportStaffRepositoryImpl implements SupportStaffRepository {
     final conn = await _db.connection;
     final result = await conn.execute(
       Sql.named('''
-        INSERT INTO support_staff_competencies (
-          staff_id, name, level, certificate_url, verified_at, verified_by
+        INSERT INTO competencies (
+          competent_id, executor_type, name, level, certificate_url, verified_at, verified_by
         ) VALUES (
-          @staffId, @name, @level, @certificateUrl, @verifiedAt, @verifiedBy
+          @competentId, @executorType, @name, @level, @certificateUrl, @verifiedAt, @verifiedBy
         ) RETURNING id;
       '''),
       parameters: {
-        'staffId': competency.staffId,
+        'competentId': int.parse(competency.competentId),
+        'executorType': competency.executorType.index,
         'name': competency.name,
         'level': competency.level,
         'certificateUrl': competency.certificateUrl,
@@ -202,7 +197,7 @@ class SupportStaffRepositoryImpl implements SupportStaffRepository {
   Future<void> deleteCompetency(String competencyId) async {
     final conn = await _db.connection;
     await conn.execute(
-      Sql.named('DELETE FROM support_staff_competencies WHERE id = @id'),
+      Sql.named('DELETE FROM competencies WHERE id = @id'),
       parameters: {'id': int.parse(competencyId)},
     );
   }
@@ -211,45 +206,18 @@ class SupportStaffRepositoryImpl implements SupportStaffRepository {
   Future<List<Competency>> getCompetencies(String staffId) async {
     final conn = await _db.connection;
     final result = await conn.execute(
-      Sql.named('SELECT * FROM support_staff_competencies WHERE staff_id = @staffId'),
-      parameters: {'staffId': int.parse(staffId)},
-    );
-    return result.map((row) => Competency.fromMap(row.toColumnMap())).toList();
-  }
-
-  @override
-  Future<WorkSchedule?> getSchedule(String staffId) async {
-    final conn = await _db.connection;
-    final result = await conn.execute(
-      Sql.named('SELECT * FROM support_staff_schedules WHERE staff_id = @staffId'),
-      parameters: {'staffId': int.parse(staffId)},
-    );
-    if (result.isEmpty) {
-      return null;
-    }
-    return WorkSchedule.fromMap(result.first.toColumnMap());
-  }
-
-  @override
-  Future<WorkSchedule> updateSchedule(WorkSchedule schedule) async {
-    final conn = await _db.connection;
-    await conn.execute(
-      Sql.named('''
-        INSERT INTO support_staff_schedules (
-          staff_id, day_of_week, start_time, end_time
-        ) VALUES (
-          @staffId, @dayOfWeek, @startTime, @endTime
-        ) ON CONFLICT (staff_id, day_of_week) DO UPDATE SET
-          start_time = @startTime,
-          end_time = @endTime;
-      '''),
+      Sql.named(
+          'SELECT * FROM competencies WHERE competent_id = @staffId AND executor_type = @executorType'),
       parameters: {
-        'staffId': schedule.staffId,
-        'dayOfWeek': schedule.dayOfWeek,
-        'startTime': schedule.startTime,
-        'endTime': schedule.endTime,
+        'staffId': int.parse(staffId),
+        'executorType': 1, // ExecutorType.staff.index
       },
     );
-    return schedule;
+    return result.map((row) {
+      final map = row.toColumnMap();
+      final executorTypeInt = map['executor_type'] as int;
+      map['executor_type'] = ExecutorType.values[executorTypeInt].name;
+      return Competency.fromMap(map);
+    }).toList();
   }
 }

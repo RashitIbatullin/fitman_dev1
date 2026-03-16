@@ -1,7 +1,7 @@
 import 'package:fitman_backend/modules/supportStaff/models/competency.model.dart';
 import 'package:fitman_backend/modules/supportStaff/models/employment_type.enum.dart';
 import 'package:fitman_backend/modules/supportStaff/models/staff_category.enum.dart';
-import 'package:fitman_backend/modules/supportStaff/models/work_schedule.model.dart';
+
 
 class SupportStaff {
   SupportStaff({
@@ -16,7 +16,7 @@ class SupportStaff {
     this.competencies,
     this.accessibleEquipmentTypes,
     required this.canMaintainEquipment,
-    this.schedule,
+
     this.companyName,
     this.contractNumber,
     this.contractExpiryDate,
@@ -39,7 +39,7 @@ class SupportStaff {
   final List<Competency>? competencies;
   final List<String>? accessibleEquipmentTypes;
   final bool canMaintainEquipment;
-  final WorkSchedule? schedule;
+
   final String? companyName;
   final String? contractNumber;
   final DateTime? contractExpiryDate;
@@ -87,7 +87,7 @@ class SupportStaff {
     List<Competency>? competencies,
     List<String>? accessibleEquipmentTypes,
     bool? canMaintainEquipment,
-    WorkSchedule? schedule,
+
     String? companyName,
     String? contractNumber,
     DateTime? contractExpiryDate,
@@ -110,7 +110,7 @@ class SupportStaff {
       competencies: competencies ?? this.competencies,
       accessibleEquipmentTypes: accessibleEquipmentTypes ?? this.accessibleEquipmentTypes,
       canMaintainEquipment: canMaintainEquipment ?? this.canMaintainEquipment,
-      schedule: schedule ?? this.schedule,
+
       companyName: companyName ?? this.companyName,
       contractNumber: contractNumber ?? this.contractNumber,
       contractExpiryDate: contractExpiryDate ?? this.contractExpiryDate,
@@ -145,7 +145,7 @@ class SupportStaff {
       'archived_by': archivedBy,
       'archived_reason': archivedReason,
       'competencies': competencies?.map((c) => c.toJson()).toList(),
-      'schedule': schedule?.toJson(),
+
     };
   }
 }

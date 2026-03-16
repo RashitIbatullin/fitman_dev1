@@ -5,6 +5,7 @@ DROP TABLE IF EXISTS
 "manager_instructors",
 "manager_trainers",
 "exercises_templates",
+"competencies",
 "goals_training",
 "levels_training",
 "client_profiles",
@@ -12,6 +13,7 @@ DROP TABLE IF EXISTS
 "instructor_clients",
 "trainer_profiles",
 "manager_profiles",
+"admin_profiles",
 "work_schedules",
 "anthropometry_fix",
 "anthropometry_start",
@@ -181,6 +183,7 @@ CREATE TABLE instructor_profiles (
     is_duty BOOLEAN DEFAULT false,
     can_replace_trainer BOOLEAN DEFAULT false,
     can_create_plan BOOLEAN DEFAULT false,
+    can_maintain_equipment BOOLEAN DEFAULT false,
     company_id BIGINT DEFAULT -1,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
@@ -194,6 +197,7 @@ CREATE TABLE trainer_profiles (
     user_id BIGINT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
     specialization VARCHAR(255),
     work_experience INTEGER,
+    can_maintain_equipment BOOLEAN DEFAULT false,
     company_id BIGINT DEFAULT -1,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
@@ -208,6 +212,7 @@ CREATE TABLE manager_profiles (
     specialization VARCHAR(255),
     work_experience INTEGER,
     is_duty BOOLEAN DEFAULT false,
+    can_maintain_equipment BOOLEAN DEFAULT false,
     company_id BIGINT DEFAULT -1,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
@@ -216,6 +221,39 @@ CREATE TABLE manager_profiles (
     archived_at TIMESTAMPTZ,
     archived_by BIGINT REFERENCES users(id)
 );
+
+CREATE TABLE admin_profiles (
+    user_id BIGINT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    company_id BIGINT DEFAULT -1,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    created_by BIGINT REFERENCES users(id),
+    updated_by BIGINT REFERENCES users(id),
+    archived_at TIMESTAMPTZ,
+    archived_by BIGINT REFERENCES users(id)
+);
+
+-- Таблица компетенций для сотрудников и вспом.персонала(полиморфная)
+CREATE TABLE competencies (
+  id BIGSERIAL PRIMARY KEY,
+  competent_id BIGINT NOT NULL,
+  executor_type  SMALLINT NOT NULL, -- 'user' или 'support_staff'
+  name VARCHAR(100) NOT NULL,
+  level SMALLINT NOT NULL,
+  certificate_url TEXT,
+  verified_at DATE,
+  verified_by BIGINT REFERENCES users(id),
+  company_id BIGINT DEFAULT -1,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  created_by BIGINT REFERENCES users(id),
+  updated_by BIGINT REFERENCES users(id),
+  archived_at TIMESTAMPTZ,
+  archived_by BIGINT REFERENCES users(id),
+  UNIQUE(competent_id, executor_type, name)
+);
+CREATE INDEX idx_competencies_polymorphic ON competencies(competent_id, executor_type);
+
 
 CREATE TABLE instructor_clients (
     instructor_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,

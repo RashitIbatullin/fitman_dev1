@@ -1,7 +1,10 @@
+import 'package:fitman_backend/modules/equipment/models/equipment_maintenance_history.model.dart';
+
 class Competency {
   Competency({
     required this.id,
-    required this.staffId,
+    required this.competentId,
+    required this.executorType,
     required this.name,
     required this.level,
     this.certificateUrl,
@@ -10,7 +13,8 @@ class Competency {
   });
 
   final String id;
-  final String staffId;
+  final String competentId;
+  final ExecutorType executorType;
   final String name;
   final int level;
   final String? certificateUrl;
@@ -20,7 +24,8 @@ class Competency {
   factory Competency.fromMap(Map<String, dynamic> map) {
     return Competency(
       id: map['id'].toString(),
-      staffId: map['staff_id'].toString(),
+      competentId: map['competent_id'].toString(),
+      executorType: ExecutorType.values.byName(map['executor_type'] as String),
       name: map['name'] as String,
       level: map['level'] as int,
       certificateUrl: map['certificate_url'] as String?,
@@ -31,7 +36,8 @@ class Competency {
 
   Competency copyWith({
     String? id,
-    String? staffId,
+    String? competentId,
+    ExecutorType? executorType,
     String? name,
     int? level,
     String? certificateUrl,
@@ -40,7 +46,8 @@ class Competency {
   }) {
     return Competency(
       id: id ?? this.id,
-      staffId: staffId ?? this.staffId,
+      competentId: competentId ?? this.competentId,
+      executorType: executorType ?? this.executorType,
       name: name ?? this.name,
       level: level ?? this.level,
       certificateUrl: certificateUrl ?? this.certificateUrl,
@@ -52,7 +59,8 @@ class Competency {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'staff_id': staffId,
+      'competent_id': competentId,
+      'executor_type': executorType.name,
       'name': name,
       'level': level,
       'certificate_url': certificateUrl,

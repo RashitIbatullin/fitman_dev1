@@ -308,7 +308,19 @@ o user_id (Primary Key, Foreign Key -> users)
 o specialization (String, Nullable) // Специализация
 o work_experience (Integer, Nullable) // Стаж в годах
 o is_duty (Boolean, default: false) // Дежурный (логика на основе employees_duty)
+• Таблица admin_profiles (для администраторов):
+• user_id (Primary Key, Foreign Key -> users)
 
+• Таблица competencies (полиморфная, для пользователей и вспомогательного персонала):
+o id (BIGSERIAL PRIMARY KEY)
+o competent_id (BIGINT NOT NULL)
+o executor_type(SMALLINT NOT NULL) -- 0: user, 1: supportStaff
+o name (VARCHAR(100) NOT NULL)
+o level (SMALLINT NOT NULL)
+o certificate_url (TEXT, Nullable)
+o verified_at (DATE, Nullable)
+o verified_by (BIGINT FK -> users(id), Nullable)
+o UNIQUE(competent_id, competent_type, name) // Составной уникальный ключ
 2.2.4 Требования к ролям в пользовательских интерфейсах
 
 1. Пользователи с ролями "Инструктор", "Тренер", "Менеджер" могут иметь несколько ролей, кроме роли "Клиент".
@@ -405,17 +417,14 @@ class SupportStaff {
   String? email;
   EmploymentType employmentType; // Штатный/Внешний/Подрядчик
   StaffCategory category; // Техник/Уборщик/Медик и т.д.
-  List<Competency> competencies; // Компетенции
   List<String> accessibleEquipmentTypes; // Типы оборудования для работы
-  bool canMaintainEquipment; // Может выполнять ТО
   WorkSchedule? schedule; // График работы
   String? companyName; // Для подрядчиков
   String? contractNumber;
   DateTime? contractExpiryDate;
   String? notes;
   DateTime createdAt;
-  DateTime updatedAt;
-}
+  DateTime updatedAt;}
 3.3 Перечисления (Enums)
 // Тип занятости
 enum EmploymentType {
@@ -447,7 +456,6 @@ CREATE TABLE support_staff (
   employment_type SMALLINT NOT NULL,
   category SMALLINT NOT NULL,
   can_maintain_equipment BOOLEAN DEFAULT false,
-  accessible_equipment_types JSONB,
   company_name VARCHAR(255),
   contract_number VARCHAR(100),
   contract_expiry_date DATE,
@@ -459,27 +467,6 @@ CREATE TABLE support_staff (
   updated_by BIGINT REFERENCES users(id),
   archived_at TIMESTAMPTZ,
   archived_by BIGINT REFERENCES users(id)
-);
-
--- Компетенции вспомогательного персонала
-CREATE TABLE support_staff_competencies (
-  id BIGSERIAL PRIMARY KEY,
-  staff_id BIGINT NOT NULL REFERENCES support_staff(id) ON DELETE CASCADE,
-  name VARCHAR(100) NOT NULL,
-  level SMALLINT NOT NULL,
-  certificate_url TEXT,
-  verified_at DATE,
-  verified_by BIGINT REFERENCES users(id),
-  UNIQUE(staff_id, name)
-);
-
--- Расписание работы
-CREATE TABLE support_staff_schedules (
-  id BIGSERIAL PRIMARY KEY,
-  staff_id BIGINT NOT NULL REFERENCES support_staff(id) ON DELETE CASCADE,
-  day_of_week SMALLINT NOT NULL,
-  start_time TIME NOT NULL,
-  end_time TIME NOT NULL,
 );
 
 3.5 API endpoints
@@ -1990,6 +1977,6 @@ frontend/lib/modules/booking/
 
 
 
-38
+14
 
 

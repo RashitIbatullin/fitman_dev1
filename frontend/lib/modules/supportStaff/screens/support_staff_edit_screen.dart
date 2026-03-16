@@ -1,3 +1,4 @@
+import 'package:fitman_app/modules/equipment/models/equipment_maintenance_history.model.dart';
 import 'package:fitman_app/modules/supportStaff/models/competency.model.dart';
 import 'package:fitman_app/modules/supportStaff/models/employment_type.enum.dart';
 import 'package:fitman_app/modules/supportStaff/models/staff_category.enum.dart';
@@ -161,18 +162,37 @@ class _SupportStaffEditScreenState
               child: const Text('Отмена'),
             ),
             ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 if (formKey.currentState!.validate()) {
+                  // Capture context-dependent variables before the async gap.
+                  final navigator = Navigator.of(context);
+                  final scaffoldMessenger = ScaffoldMessenger.of(context);
+
                   final newCompetency = Competency(
                     id: '', // Backend handles ID
+                    competentId: widget.staff!.id,
+                    executorType: ExecutorType.staff,
                     name: nameController.text,
-                    level: int.parse(levelController.text), staffId: '',
+                    level: int.parse(levelController.text),
                   );
-                  ref.read(supportStaffNotifierProvider.notifier).addCompetency(
-                        widget.staff!.id,
-                        newCompetency,
-                      );
-                  Navigator.of(context).pop();
+                  try {
+                    await ref
+                        .read(supportStaffNotifierProvider.notifier)
+                        .addCompetency(
+                          widget.staff!.id,
+                          newCompetency,
+                        );
+
+                    scaffoldMessenger.showSnackBar(
+                      const SnackBar(
+                          content: Text('Компетенция успешно добавлена')),
+                    );
+                    navigator.pop();
+                  } catch (e) {
+                    scaffoldMessenger.showSnackBar(
+                      SnackBar(content: Text('Ошибка: $e')),
+                    );
+                  }
                 }
               },
               child: const Text('Добавить'),

@@ -27,9 +27,6 @@ _$SupportStaffImpl _$$SupportStaffImplFromJson(Map<String, dynamic> json) =>
               ?.map((e) => e as String)
               .toList(),
       canMaintainEquipment: json['can_maintain_equipment'] as bool,
-      schedule: json['schedule'] == null
-          ? null
-          : WorkSchedule.fromJson(json['schedule'] as Map<String, dynamic>),
       companyName: json['company_name'] as String?,
       contractNumber: json['contract_number'] as String?,
       contractExpiryDate: json['contract_expiry_date'] == null
@@ -58,7 +55,6 @@ Map<String, dynamic> _$$SupportStaffImplToJson(_$SupportStaffImpl instance) =>
       'competencies': instance.competencies,
       'accessible_equipment_types': instance.accessibleEquipmentTypes,
       'can_maintain_equipment': instance.canMaintainEquipment,
-      'schedule': instance.schedule,
       'company_name': instance.companyName,
       'contract_number': instance.contractNumber,
       'contract_expiry_date': instance.contractExpiryDate?.toIso8601String(),

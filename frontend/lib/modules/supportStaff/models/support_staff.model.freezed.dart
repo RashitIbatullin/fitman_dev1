@@ -33,7 +33,6 @@ mixin _$SupportStaff {
   List<String>? get accessibleEquipmentTypes =>
       throw _privateConstructorUsedError;
   bool get canMaintainEquipment => throw _privateConstructorUsedError;
-  WorkSchedule? get schedule => throw _privateConstructorUsedError;
   String? get companyName => throw _privateConstructorUsedError;
   String? get contractNumber => throw _privateConstructorUsedError;
   DateTime? get contractExpiryDate => throw _privateConstructorUsedError;
@@ -73,7 +72,6 @@ abstract class $SupportStaffCopyWith<$Res> {
     List<Competency>? competencies,
     List<String>? accessibleEquipmentTypes,
     bool canMaintainEquipment,
-    WorkSchedule? schedule,
     String? companyName,
     String? contractNumber,
     DateTime? contractExpiryDate,
@@ -84,8 +82,6 @@ abstract class $SupportStaffCopyWith<$Res> {
     String? archivedBy,
     String? archivedReason,
   });
-
-  $WorkScheduleCopyWith<$Res>? get schedule;
 }
 
 /// @nodoc
@@ -114,7 +110,6 @@ class _$SupportStaffCopyWithImpl<$Res, $Val extends SupportStaff>
     Object? competencies = freezed,
     Object? accessibleEquipmentTypes = freezed,
     Object? canMaintainEquipment = null,
-    Object? schedule = freezed,
     Object? companyName = freezed,
     Object? contractNumber = freezed,
     Object? contractExpiryDate = freezed,
@@ -171,10 +166,6 @@ class _$SupportStaffCopyWithImpl<$Res, $Val extends SupportStaff>
                 ? _value.canMaintainEquipment
                 : canMaintainEquipment // ignore: cast_nullable_to_non_nullable
                       as bool,
-            schedule: freezed == schedule
-                ? _value.schedule
-                : schedule // ignore: cast_nullable_to_non_nullable
-                      as WorkSchedule?,
             companyName: freezed == companyName
                 ? _value.companyName
                 : companyName // ignore: cast_nullable_to_non_nullable
@@ -215,20 +206,6 @@ class _$SupportStaffCopyWithImpl<$Res, $Val extends SupportStaff>
           as $Val,
     );
   }
-
-  /// Create a copy of SupportStaff
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @pragma('vm:prefer-inline')
-  $WorkScheduleCopyWith<$Res>? get schedule {
-    if (_value.schedule == null) {
-      return null;
-    }
-
-    return $WorkScheduleCopyWith<$Res>(_value.schedule!, (value) {
-      return _then(_value.copyWith(schedule: value) as $Val);
-    });
-  }
 }
 
 /// @nodoc
@@ -252,7 +229,6 @@ abstract class _$$SupportStaffImplCopyWith<$Res>
     List<Competency>? competencies,
     List<String>? accessibleEquipmentTypes,
     bool canMaintainEquipment,
-    WorkSchedule? schedule,
     String? companyName,
     String? contractNumber,
     DateTime? contractExpiryDate,
@@ -263,9 +239,6 @@ abstract class _$$SupportStaffImplCopyWith<$Res>
     String? archivedBy,
     String? archivedReason,
   });
-
-  @override
-  $WorkScheduleCopyWith<$Res>? get schedule;
 }
 
 /// @nodoc
@@ -293,7 +266,6 @@ class __$$SupportStaffImplCopyWithImpl<$Res>
     Object? competencies = freezed,
     Object? accessibleEquipmentTypes = freezed,
     Object? canMaintainEquipment = null,
-    Object? schedule = freezed,
     Object? companyName = freezed,
     Object? contractNumber = freezed,
     Object? contractExpiryDate = freezed,
@@ -350,10 +322,6 @@ class __$$SupportStaffImplCopyWithImpl<$Res>
             ? _value.canMaintainEquipment
             : canMaintainEquipment // ignore: cast_nullable_to_non_nullable
                   as bool,
-        schedule: freezed == schedule
-            ? _value.schedule
-            : schedule // ignore: cast_nullable_to_non_nullable
-                  as WorkSchedule?,
         companyName: freezed == companyName
             ? _value.companyName
             : companyName // ignore: cast_nullable_to_non_nullable
@@ -410,7 +378,6 @@ class _$SupportStaffImpl implements _SupportStaff {
     final List<Competency>? competencies,
     final List<String>? accessibleEquipmentTypes,
     required this.canMaintainEquipment,
-    this.schedule,
     this.companyName,
     this.contractNumber,
     this.contractExpiryDate,
@@ -466,8 +433,6 @@ class _$SupportStaffImpl implements _SupportStaff {
   @override
   final bool canMaintainEquipment;
   @override
-  final WorkSchedule? schedule;
-  @override
   final String? companyName;
   @override
   final String? contractNumber;
@@ -488,7 +453,7 @@ class _$SupportStaffImpl implements _SupportStaff {
 
   @override
   String toString() {
-    return 'SupportStaff(id: $id, firstName: $firstName, lastName: $lastName, middleName: $middleName, phone: $phone, email: $email, employmentType: $employmentType, category: $category, competencies: $competencies, accessibleEquipmentTypes: $accessibleEquipmentTypes, canMaintainEquipment: $canMaintainEquipment, schedule: $schedule, companyName: $companyName, contractNumber: $contractNumber, contractExpiryDate: $contractExpiryDate, notes: $notes, createdAt: $createdAt, updatedAt: $updatedAt, archivedAt: $archivedAt, archivedBy: $archivedBy, archivedReason: $archivedReason)';
+    return 'SupportStaff(id: $id, firstName: $firstName, lastName: $lastName, middleName: $middleName, phone: $phone, email: $email, employmentType: $employmentType, category: $category, competencies: $competencies, accessibleEquipmentTypes: $accessibleEquipmentTypes, canMaintainEquipment: $canMaintainEquipment, companyName: $companyName, contractNumber: $contractNumber, contractExpiryDate: $contractExpiryDate, notes: $notes, createdAt: $createdAt, updatedAt: $updatedAt, archivedAt: $archivedAt, archivedBy: $archivedBy, archivedReason: $archivedReason)';
   }
 
   @override
@@ -519,8 +484,6 @@ class _$SupportStaffImpl implements _SupportStaff {
             ) &&
             (identical(other.canMaintainEquipment, canMaintainEquipment) ||
                 other.canMaintainEquipment == canMaintainEquipment) &&
-            (identical(other.schedule, schedule) ||
-                other.schedule == schedule) &&
             (identical(other.companyName, companyName) ||
                 other.companyName == companyName) &&
             (identical(other.contractNumber, contractNumber) ||
@@ -555,7 +518,6 @@ class _$SupportStaffImpl implements _SupportStaff {
     const DeepCollectionEquality().hash(_competencies),
     const DeepCollectionEquality().hash(_accessibleEquipmentTypes),
     canMaintainEquipment,
-    schedule,
     companyName,
     contractNumber,
     contractExpiryDate,
@@ -594,7 +556,6 @@ abstract class _SupportStaff implements SupportStaff {
     final List<Competency>? competencies,
     final List<String>? accessibleEquipmentTypes,
     required final bool canMaintainEquipment,
-    final WorkSchedule? schedule,
     final String? companyName,
     final String? contractNumber,
     final DateTime? contractExpiryDate,
@@ -631,8 +592,6 @@ abstract class _SupportStaff implements SupportStaff {
   List<String>? get accessibleEquipmentTypes;
   @override
   bool get canMaintainEquipment;
-  @override
-  WorkSchedule? get schedule;
   @override
   String? get companyName;
   @override

@@ -57,13 +57,28 @@ class SupportStaffDetailScreen extends ConsumerWidget {
                   _buildDetailRow('Заметки:', staff.notes!),
 
                 const SizedBox(height: 20),
-                const Text('Компетенции:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-                // Placeholder for competencies
-                const Text('...'), 
-                const SizedBox(height: 20),
-                const Text('Расписание:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-                // Placeholder for schedule
-                const Text('...'),
+                const Text('Компетенции:',
+                    style:
+                        TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                const Divider(),
+                if (staff.competencies == null || staff.competencies!.isEmpty)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8.0),
+                    child: Text('Компетенции не добавлены.'),
+                  )
+                else
+                  ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: staff.competencies!.length,
+                    itemBuilder: (context, index) {
+                      final competency = staff.competencies![index];
+                      return ListTile(
+                        title: Text(competency.name),
+                        subtitle: Text('Уровень: ${competency.level}'),
+                      );
+                    },
+                  ),
 
               ],
             ),

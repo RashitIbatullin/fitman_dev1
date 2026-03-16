@@ -22,7 +22,8 @@ Competency _$CompetencyFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$Competency {
   String get id => throw _privateConstructorUsedError;
-  String get staffId => throw _privateConstructorUsedError;
+  String get competentId => throw _privateConstructorUsedError;
+  ExecutorType get executorType => throw _privateConstructorUsedError;
   String get name => throw _privateConstructorUsedError;
   int get level => throw _privateConstructorUsedError;
   String? get certificateUrl => throw _privateConstructorUsedError;
@@ -48,7 +49,8 @@ abstract class $CompetencyCopyWith<$Res> {
   @useResult
   $Res call({
     String id,
-    String staffId,
+    String competentId,
+    ExecutorType executorType,
     String name,
     int level,
     String? certificateUrl,
@@ -73,7 +75,8 @@ class _$CompetencyCopyWithImpl<$Res, $Val extends Competency>
   @override
   $Res call({
     Object? id = null,
-    Object? staffId = null,
+    Object? competentId = null,
+    Object? executorType = null,
     Object? name = null,
     Object? level = null,
     Object? certificateUrl = freezed,
@@ -86,10 +89,14 @@ class _$CompetencyCopyWithImpl<$Res, $Val extends Competency>
                 ? _value.id
                 : id // ignore: cast_nullable_to_non_nullable
                       as String,
-            staffId: null == staffId
-                ? _value.staffId
-                : staffId // ignore: cast_nullable_to_non_nullable
+            competentId: null == competentId
+                ? _value.competentId
+                : competentId // ignore: cast_nullable_to_non_nullable
                       as String,
+            executorType: null == executorType
+                ? _value.executorType
+                : executorType // ignore: cast_nullable_to_non_nullable
+                      as ExecutorType,
             name: null == name
                 ? _value.name
                 : name // ignore: cast_nullable_to_non_nullable
@@ -127,7 +134,8 @@ abstract class _$$CompetencyImplCopyWith<$Res>
   @useResult
   $Res call({
     String id,
-    String staffId,
+    String competentId,
+    ExecutorType executorType,
     String name,
     int level,
     String? certificateUrl,
@@ -151,7 +159,8 @@ class __$$CompetencyImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? id = null,
-    Object? staffId = null,
+    Object? competentId = null,
+    Object? executorType = null,
     Object? name = null,
     Object? level = null,
     Object? certificateUrl = freezed,
@@ -164,10 +173,14 @@ class __$$CompetencyImplCopyWithImpl<$Res>
             ? _value.id
             : id // ignore: cast_nullable_to_non_nullable
                   as String,
-        staffId: null == staffId
-            ? _value.staffId
-            : staffId // ignore: cast_nullable_to_non_nullable
+        competentId: null == competentId
+            ? _value.competentId
+            : competentId // ignore: cast_nullable_to_non_nullable
                   as String,
+        executorType: null == executorType
+            ? _value.executorType
+            : executorType // ignore: cast_nullable_to_non_nullable
+                  as ExecutorType,
         name: null == name
             ? _value.name
             : name // ignore: cast_nullable_to_non_nullable
@@ -198,7 +211,8 @@ class __$$CompetencyImplCopyWithImpl<$Res>
 class _$CompetencyImpl implements _Competency {
   const _$CompetencyImpl({
     required this.id,
-    required this.staffId,
+    required this.competentId,
+    required this.executorType,
     required this.name,
     required this.level,
     this.certificateUrl,
@@ -212,7 +226,9 @@ class _$CompetencyImpl implements _Competency {
   @override
   final String id;
   @override
-  final String staffId;
+  final String competentId;
+  @override
+  final ExecutorType executorType;
   @override
   final String name;
   @override
@@ -226,7 +242,7 @@ class _$CompetencyImpl implements _Competency {
 
   @override
   String toString() {
-    return 'Competency(id: $id, staffId: $staffId, name: $name, level: $level, certificateUrl: $certificateUrl, verifiedAt: $verifiedAt, verifiedBy: $verifiedBy)';
+    return 'Competency(id: $id, competentId: $competentId, executorType: $executorType, name: $name, level: $level, certificateUrl: $certificateUrl, verifiedAt: $verifiedAt, verifiedBy: $verifiedBy)';
   }
 
   @override
@@ -235,7 +251,10 @@ class _$CompetencyImpl implements _Competency {
         (other.runtimeType == runtimeType &&
             other is _$CompetencyImpl &&
             (identical(other.id, id) || other.id == id) &&
-            (identical(other.staffId, staffId) || other.staffId == staffId) &&
+            (identical(other.competentId, competentId) ||
+                other.competentId == competentId) &&
+            (identical(other.executorType, executorType) ||
+                other.executorType == executorType) &&
             (identical(other.name, name) || other.name == name) &&
             (identical(other.level, level) || other.level == level) &&
             (identical(other.certificateUrl, certificateUrl) ||
@@ -251,7 +270,8 @@ class _$CompetencyImpl implements _Competency {
   int get hashCode => Object.hash(
     runtimeType,
     id,
-    staffId,
+    competentId,
+    executorType,
     name,
     level,
     certificateUrl,
@@ -276,7 +296,8 @@ class _$CompetencyImpl implements _Competency {
 abstract class _Competency implements Competency {
   const factory _Competency({
     required final String id,
-    required final String staffId,
+    required final String competentId,
+    required final ExecutorType executorType,
     required final String name,
     required final int level,
     final String? certificateUrl,
@@ -290,7 +311,9 @@ abstract class _Competency implements Competency {
   @override
   String get id;
   @override
-  String get staffId;
+  String get competentId;
+  @override
+  ExecutorType get executorType;
   @override
   String get name;
   @override

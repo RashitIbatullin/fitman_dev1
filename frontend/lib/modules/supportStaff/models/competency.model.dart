@@ -1,3 +1,4 @@
+import 'package:fitman_app/modules/equipment/models/equipment_maintenance_history.model.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'competency.model.freezed.dart';
@@ -7,7 +8,8 @@ part 'competency.model.g.dart';
 class Competency with _$Competency {
   const factory Competency({
     required String id,
-    required String staffId,
+    required String competentId,
+    required ExecutorType executorType,
     required String name,
     required int level,
     String? certificateUrl,

@@ -9,18 +9,12 @@
 
 -- Удаляем в обратном порядке (сначала дочерние таблицы, затем родительские)
 
--- Таблица компетенций
-DROP TABLE IF EXISTS user_maintenance_competencies CASCADE;
-
 -- Таблицы бронирования и оборудования
 DROP TABLE IF EXISTS equipment_bookings CASCADE;
 DROP TABLE IF EXISTS maintenance_photos CASCADE;
 DROP TABLE IF EXISTS equipment_maintenance_history CASCADE;
 DROP TABLE IF EXISTS equipment_items CASCADE;
 
--- Таблицы вспомогательного персонала
-DROP TABLE IF EXISTS support_staff_schedules CASCADE;
-DROP TABLE IF EXISTS support_staff_competencies CASCADE;
 DROP TABLE IF EXISTS support_staff CASCADE;
 
 DROP TABLE IF EXISTS rooms CASCADE;
@@ -413,7 +407,6 @@ CREATE TABLE support_staff (
   employment_type SMALLINT NOT NULL,
   category SMALLINT NOT NULL,
   can_maintain_equipment BOOLEAN DEFAULT false,
-  accessible_equipment_types JSONB,
   company_name VARCHAR(255),
   contract_number VARCHAR(100),
   contract_expiry_date DATE,
@@ -428,36 +421,6 @@ CREATE TABLE support_staff (
   archived_reason TEXT
 );
 
--- Компетенции вспомогательного персонала
-CREATE TABLE support_staff_competencies (
-  id BIGSERIAL PRIMARY KEY,
-  staff_id BIGINT NOT NULL REFERENCES support_staff(id) ON DELETE CASCADE,
-  name VARCHAR(100) NOT NULL,
-  description TEXT,
-  level SMALLINT NOT NULL,
-  certificate_url TEXT,
-  verified_at DATE,
-  verified_by BIGINT REFERENCES users(id),
-  UNIQUE(staff_id, name)
-);
-
--- Компетенции внутренних сотрудников (для ТО)
-CREATE TABLE user_maintenance_competencies (
-  id BIGSERIAL PRIMARY KEY,
-  user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  name VARCHAR(100) NOT NULL, -- Название компетенции, напр. "Ремонт кардио"
-  level SMALLINT NOT NULL,      -- Уровень 1-3
-  UNIQUE(user_id, name)
-);
-
--- Расписание работы
-CREATE TABLE support_staff_schedules (
-  id BIGSERIAL PRIMARY KEY,
-  staff_id BIGINT NOT NULL REFERENCES support_staff(id) ON DELETE CASCADE,
-  day_of_week SMALLINT NOT NULL,
-  start_time TIME NOT NULL,
-  end_time TIME NOT NULL
-);
 
 -- ============================================
 -- 3. ТАБЛИЦЫ ПОМЕЩЕНИЙ И ОБОРУДОВАНИЯ
@@ -898,42 +861,48 @@ INSERT INTO bmr_formulas (name, formula, for_men, for_women, is_active, note) VA
 ('Харриса-Бенедикта', '447.593 + (9.247 × вес[кг]) + (3.098 × рост[см]) - (4.330 × возраст[лет])', false, true, true, 'Классическая формула для женщин'),
 ('Кетча-МакАрдла', '370 + (21.6 × LBM)', true, true, true, 'LBM = масса тела × (100 - %жира) / 100');
 
--- 5.20. Заполняем вспомогательный персонал
-INSERT INTO support_staff (first_name, last_name, middle_name, phone, email, employment_type, category, can_maintain_equipment, accessible_equipment_types, company_name, contract_number, contract_expiry_date, notes, created_by, updated_by) VALUES
-('Александр', 'Иванов', 'Петрович', '+79001234567', 'a.ivanov@fitman.com', 0, 0, TRUE, '["1","2"]', 'ООО "ФитнесСервис"', 'FS-2023-001', '2024-12-31', 'Отвечает за обслуживание кардио-оборудования', 1, 1),
-('Мария', 'Смирнова', 'Александровна', '+79007654321', 'm.smirnova@fitman.com', 1, 1, FALSE, NULL, NULL, NULL, NULL, 'Администратор зала, встречает клиентов', 1, 1),
-('Дмитрий', 'Кузнецов', 'Сергеевич', '+79001112233', 'd.kuznetsov@fitman.com', 0, 2, TRUE, '["4","5","6","7"]', 'ИП "ТехСервис"', 'TS-2023-005', '2025-06-30', 'Обслуживание силовых тренажеров и гантелей', 1, 1),
-('Елена', 'Петрова', 'Игоревна', '+79004445566', 'e.petrova@fitman.com', 1, 3, FALSE, NULL, NULL, NULL, NULL, 'Уборка помещений, дезинфекция оборудования', 1, 1);
+DO $$
+DECLARE
+    -- Declaring variables for support staff IDs
+    support_staff_alexander_id BIGINT;
+    support_staff_dmitry_id BIGINT;
+    admin_user_id BIGINT; -- Assuming admin_id is 1, as per setup.sql
+BEGIN
+    -- Assuming admin_id is 1, as set in setup.sql, or retrieve it
+    SELECT id INTO admin_user_id FROM users WHERE login = 'admin@fitman.ru' LIMIT 1;
+    IF admin_user_id IS NULL THEN
+      -- Fallback if admin user not found, or log an error
+      admin_user_id := 1; -- Default to 1 if not found, to avoid breaking
+    END IF;
 
--- 5.21. Заполняем компетенции вспомогательного персонала
-INSERT INTO support_staff_competencies (staff_id, name, level, certificate_url, verified_at, verified_by) VALUES
-(1, 'Ремонт беговых дорожек', 2, 'http://cert.com/alex-treadmill', '2023-03-10', 1),
-(1, 'Диагностика эллипсов', 1, NULL, NULL, NULL),
-(3, 'Ремонт силовых тренажеров', 3, 'http://cert.com/dmitry-strength', '2023-05-20', 1),
-(3, 'Сварка металлоконструкций', 2, NULL, NULL, NULL);
 
--- 5.22. Заполняем расписание работы вспомогательного персонала
-INSERT INTO support_staff_schedules (staff_id, day_of_week, start_time, end_time) VALUES
-(1, 1, '09:00:00', '18:00:00'), -- Пн
-(1, 3, '09:00:00', '18:00:00'), -- Ср
-(1, 5, '09:00:00', '18:00:00'), -- Пт
-(2, 2, '08:00:00', '16:00:00'), -- Вт
-(2, 4, '08:00:00', '16:00:00'), -- Чт
-(2, 6, '10:00:00', '14:00:00'), -- Сб
-(3, 1, '10:00:00', '19:00:00'), -- Пн
-(3, 2, '10:00:00', '19:00:00'), -- Вт
-(3, 3, '10:00:00', '19:00:00'), -- Ср
-(4, 1, '07:00:00', '15:00:00'), -- Пн
-(4, 2, '07:00:00', '15:00:00'), -- Вт
-(4, 3, '07:00:00', '15:00:00'), -- Ср
-(4, 4, '07:00:00', '15:00:00'), -- Чт
-(4, 5, '07:00:00', '15:00:00'); -- Пт
+    -- 5.20. Заполняем вспомогательный персонал
+    INSERT INTO support_staff (first_name, last_name, middle_name, phone, email, employment_type, category, can_maintain_equipment, company_name, contract_number, contract_expiry_date, notes, created_by, updated_by) VALUES
+    ('Александр', 'Иванов', 'Петрович', '+79001234567', 'a.ivanov@fitman.com', 0, 0, TRUE, 'ООО "ФитнесСервис"', 'FS-2023-001', '2024-12-31', 'Отвечает за обслуживание кардио-оборудования', admin_user_id, admin_user_id)
+    RETURNING id INTO support_staff_alexander_id;
 
--- 5.23. Заполняем компетенции внутренних сотрудников
-INSERT INTO user_maintenance_competencies (user_id, name, level) VALUES
-(2, 'Общая диагностика оборудования', 1), -- Тренер может проводить первичный осмотр
-(3, 'Ремонт кардио-тренажеров', 2),    -- Инструктор специализируется на кардио
-(4, 'Ремонт силовых тренажеров', 2);     -- Менеджер имеет опыт в ремонте силовых
+    INSERT INTO support_staff (first_name, last_name, middle_name, phone, email, employment_type, category, can_maintain_equipment, company_name, contract_number, contract_expiry_date, notes, created_by, updated_by) VALUES
+    ('Мария', 'Смирнова', 'Александровна', '+79007654321', 'm.smirnova@fitman.com', 1, 1, FALSE, NULL, NULL, NULL, 'Администратор зала, встречает клиентов', admin_user_id, admin_user_id);
+
+    INSERT INTO support_staff (first_name, last_name, middle_name, phone, email, employment_type, category, can_maintain_equipment, company_name, contract_number, contract_expiry_date, notes, created_by, updated_by) VALUES
+    ('Дмитрий', 'Кузнецов', 'Сергеевич', '+79001112233', 'd.kuznetsov@fitman.com', 0, 2, TRUE, 'ИП "ТехСервис"', 'TS-2023-005', '2025-06-30', 'Обслуживание силовых тренажеров и гантелей', admin_user_id, admin_user_id)
+    RETURNING id INTO support_staff_dmitry_id;
+
+    INSERT INTO support_staff (first_name, last_name, middle_name, phone, email, employment_type, category, can_maintain_equipment, company_name, contract_number, contract_expiry_date, notes, created_by, updated_by) VALUES
+    ('Елена', 'Петрова', 'Игоревна', '+79004445566', 'e.petrova@fitman.com', 1, 3, FALSE, NULL, NULL, NULL, 'Уборка помещений, дезинфекция оборудования', admin_user_id, admin_user_id);
+
+    -- Inserting competencies for support staff
+    IF support_staff_alexander_id IS NOT NULL THEN
+        INSERT INTO competencies (competent_id, executor_type, name, level, verified_at, created_by, updated_by) VALUES
+        (support_staff_alexander_id, 1, 'Обслуживание кардио-оборудования', 3, NOW(), admin_user_id, admin_user_id);
+    END IF;
+
+    IF support_staff_dmitry_id IS NOT NULL THEN
+        INSERT INTO competencies (competent_id, executor_type, name, level, verified_at, created_by, updated_by) VALUES
+        (support_staff_dmitry_id, 1, 'Обслуживание силовых тренажеров', 4, NOW(), admin_user_id, admin_user_id),
+        (support_staff_dmitry_id, 1, 'Обслуживание гантелей', 4, NOW(), admin_user_id, admin_user_id);
+    END IF;
+END $$;
 
 -- 5.15. Заполняем Здания
 INSERT INTO buildings (name, address, note) VALUES
