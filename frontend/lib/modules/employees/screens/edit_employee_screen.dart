@@ -11,6 +11,7 @@ import '../../../services/api_service.dart';
 import '../../../screens/client/full_screen_photo_editor.dart';
 import 'employees_list_screen.dart';
 import 'manage_user_roles_screen.dart';
+import '../widgets/competency_tab.dart';
 
 class EditEmployeeScreen extends ConsumerStatefulWidget {
   final User user;
@@ -21,7 +22,8 @@ class EditEmployeeScreen extends ConsumerStatefulWidget {
   ConsumerState<EditEmployeeScreen> createState() => _EditEmployeeScreenState();
 }
 
-class _EditEmployeeScreenState extends ConsumerState<EditEmployeeScreen> {
+class _EditEmployeeScreenState extends ConsumerState<EditEmployeeScreen> with SingleTickerProviderStateMixin {
+  late TabController _tabController;
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _firstNameController = TextEditingController();
@@ -55,6 +57,7 @@ class _EditEmployeeScreenState extends ConsumerState<EditEmployeeScreen> {
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: 2, vsync: this);
     final user = widget.user;
     _emailController.text = user.email;
     _firstNameController.text = user.firstName;
@@ -67,11 +70,9 @@ class _EditEmployeeScreenState extends ConsumerState<EditEmployeeScreen> {
     _sendNotification = user.sendNotification;
     _photoUrl = user.photoUrl;
 
-    // Client specific
     _trackCalories = user.clientProfile?.trackCalories ?? true;
     _coeffActivity = user.clientProfile?.coeffActivity ?? 1.2;
 
-    // Employee specific
     _specializationController.text = user.employeeProfile?.specialization ?? '';
     _workExperienceController.text = user.employeeProfile?.workExperience?.toString() ?? '';
     _canMaintainEquipment = user.employeeProfile?.canMaintainEquipment ?? false;
@@ -81,6 +82,20 @@ class _EditEmployeeScreenState extends ConsumerState<EditEmployeeScreen> {
 
 
     _updateAvatarUrlForCacheBusting();
+  }
+  
+  @override
+  void dispose() {
+    _tabController.dispose();
+    _emailController.dispose();
+    _firstNameController.dispose();
+    _lastNameController.dispose();
+    _middleNameController.dispose();
+    _phoneController.dispose();
+    _dateOfBirthController.dispose();
+    _specializationController.dispose();
+    _workExperienceController.dispose();
+    super.dispose();
   }
 
   void _updateAvatarUrlForCacheBusting() {
@@ -252,7 +267,7 @@ class _EditEmployeeScreenState extends ConsumerState<EditEmployeeScreen> {
           };
         }
         if (widget.user.roles.any((r) => r.name == 'trainer')) {
-          trainerProfileData = {}; // Empty map as it has no specific fields
+          trainerProfileData = {};
         }
       }
 
@@ -302,16 +317,36 @@ class _EditEmployeeScreenState extends ConsumerState<EditEmployeeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final authState = ref.watch(authProvider);
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Редактирование: ${widget.user.shortName}'),
+        bottom: TabBar(
+          controller: _tabController,
+          tabs: const [
+            Tab(text: 'Основная информация'),
+            Tab(text: 'Компетенции ТО'),
+          ],
+        ),
+      ),
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          _buildInfoForm(),
+          CompetencyTab(employeeId: widget.user.id.toString()),
+        ],
+      ),
+    );
+  }
+  
+  Widget _buildInfoForm() {
+     final authState = ref.watch(authProvider);
     final currentUser = authState.value?.user;
     final canEditPhoto =
         currentUser != null && !currentUser.roles.any((role) => role.name == 'client');
 
     final isEmployee = widget.user.roles.any((r) => ['manager', 'trainer', 'instructor'].contains(r.name));
 
-    return Scaffold(
-      appBar: AppBar(title: Text('Редактирование: ${widget.user.shortName}')),
-      body: Padding(
+    return Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
@@ -337,8 +372,7 @@ class _EditEmployeeScreenState extends ConsumerState<EditEmployeeScreen> {
             ],
           ),
         ),
-      ),
-    );
+      );
   }
 
   Widget _buildAvatarSection() {
@@ -778,18 +812,5 @@ class _EditEmployeeScreenState extends ConsumerState<EditEmployeeScreen> {
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _firstNameController.dispose();
-    _lastNameController.dispose();
-    _middleNameController.dispose();
-    _phoneController.dispose();
-    _dateOfBirthController.dispose();
-    _specializationController.dispose();
-    _workExperienceController.dispose();
-    super.dispose();
   }
 }

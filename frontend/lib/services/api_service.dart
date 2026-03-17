@@ -12,6 +12,7 @@ import 'api/manager_api.dart';
 import 'api/recommendation_api.dart';
 import 'api/schedule_api.dart';
 import 'api/support_staff_api.dart';
+import 'api/employee_api.dart';
 import '../models/available_executor.model.dart';
 import '../modules/equipment/models/equipment/equipment_item.model.dart';
 import '../modules/equipment/models/equipment/equipment_type.model.dart';
@@ -49,6 +50,7 @@ class ApiService {
   static final AdminApiService _adminApi = AdminApiService();
   static final RecommendationApiService _recommendationApi = RecommendationApiService();
   static final SupportStaffApi _supportStaffApi = SupportStaffApi();
+  static final EmployeeApiService _employeeApi = EmployeeApiService();
 
 
   // --- Token and Session Management ---
@@ -99,6 +101,14 @@ class ApiService {
       _authApi.uploadAvatar(photoBytes, fileName, userId);
   static Future<void> resetUserPassword(int userId, String newPassword) =>
       _authApi.resetUserPassword(userId, newPassword);
+
+  // --- Employee Competency Methods ---
+  static Future<List<Competency>> getEmployeeCompetencies(String userId) =>
+      _employeeApi.getCompetencies(userId);
+  static Future<Competency> addEmployeeCompetency(String userId, Competency competency) =>
+      _employeeApi.addCompetency(userId, competency);
+  static Future<void> deleteEmployeeCompetency(String userId, String competencyId) =>
+      _employeeApi.deleteCompetency(userId, competencyId);
 
   // --- Infrastructure Methods ---
   static Future<List<Room>> getAllRooms({String? buildingId, int? roomType, bool? isActive, bool? isArchived}) =>

@@ -1,7 +1,6 @@
 import 'package:fitman_backend/config/database.dart';
+import 'package:fitman_backend/modules/competencies/repositories/competency_repository.dart';
 import 'package:fitman_backend/modules/equipment/models/equipment_maintenance_history.model.dart';
-import 'package:fitman_backend/modules/supportStaff/models/competency.model.dart';
-import 'package:fitman_backend/modules/supportStaff/models/competency_level.enum.dart';
 import 'package:fitman_backend/modules/supportStaff/models/support_staff.model.dart';
 import 'package:postgres/postgres.dart';
 
@@ -12,15 +11,13 @@ abstract class SupportStaffRepository {
   Future<SupportStaff> update(String id, SupportStaff supportStaff, String userId);
   Future<void> archive(String id, String userId, String? archivedReason);
   Future<void> unarchive(String id);
-  Future<List<Competency>> getCompetencies(String staffId);
-  Future<Competency> addCompetency(Competency competency);
-  Future<void> deleteCompetency(String competencyId);
 }
 
 class SupportStaffRepositoryImpl implements SupportStaffRepository {
-  SupportStaffRepositoryImpl(this._db);
+  SupportStaffRepositoryImpl(this._db, this._competencyRepository);
 
   final Database _db;
+  final CompetencyRepository _competencyRepository;
 
   @override
   Future<void> archive(String id, String userId, String? archivedReason) async {
@@ -85,7 +82,7 @@ class SupportStaffRepositoryImpl implements SupportStaffRepository {
     final staffList = <SupportStaff>[];
     for (final row in result) {
       final staff = SupportStaff.fromMap(row.toColumnMap());
-      final competencies = await getCompetencies(staff.id);
+      final competencies = await _competencyRepository.getCompetencies(staff.id, ExecutorType.staff);
       staffList.add(
         staff.copyWith(
           competencies: competencies,
@@ -108,7 +105,7 @@ class SupportStaffRepositoryImpl implements SupportStaffRepository {
     }
 
     final staff = SupportStaff.fromMap(result.first.toColumnMap());
-    final competencies = await getCompetencies(staff.id);
+    final competencies = await _competencyRepository.getCompetencies(staff.id, ExecutorType.staff);
 
     return staff.copyWith(
       competencies: competencies,
@@ -167,63 +164,5 @@ class SupportStaffRepositoryImpl implements SupportStaffRepository {
       },
     );
     return await getById(id);
-  }
-
-  @override
-  Future<Competency> addCompetency(Competency competency) async {
-    final conn = await _db.connection;
-    final result = await conn.execute(
-      Sql.named('''
-        INSERT INTO competencies (
-          competent_id, executor_type, name, level, certificate_url, verified_at, verified_by
-        ) VALUES (
-          @competentId, @executorType, @name, @level, @certificateUrl, @verifiedAt, @verifiedBy
-        ) RETURNING id;
-      '''),
-      parameters: {
-        'competentId': int.parse(competency.competentId),
-        'executorType': competency.executorType.index,
-        'name': competency.name,
-        'level': competency.level.index,
-        'certificateUrl': competency.certificateUrl,
-        'verifiedAt': competency.verifiedAt,
-        'verifiedBy': competency.verifiedBy,
-      },
-    );
-    final newId = result.first.first as int;
-    return competency.copyWith(id: newId.toString());
-  }
-
-  @override
-  Future<void> deleteCompetency(String competencyId) async {
-    final conn = await _db.connection;
-    await conn.execute(
-      Sql.named('DELETE FROM competencies WHERE id = @id'),
-      parameters: {'id': int.parse(competencyId)},
-    );
-  }
-
-  @override
-  Future<List<Competency>> getCompetencies(String staffId) async {
-    final conn = await _db.connection;
-    final result = await conn.execute(
-      Sql.named(
-          'SELECT * FROM competencies WHERE competent_id = @staffId AND executor_type = @executorType'),
-      parameters: {
-        'staffId': int.parse(staffId),
-        'executorType': 1, // ExecutorType.staff.index
-      },
-    );
-    return result.map((row) {
-      final map = row.toColumnMap();
-      
-      final executorTypeInt = map['executor_type'] as int;
-      map['executor_type'] = ExecutorType.values[executorTypeInt].name;
-
-      final levelInt = map['level'] as int;
-      map['level'] = CompetencyLevel.values[levelInt].name;
-
-      return Competency.fromMap(map);
-    }).toList();
   }
 }

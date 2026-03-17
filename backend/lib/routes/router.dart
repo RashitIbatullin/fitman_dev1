@@ -4,8 +4,6 @@ import '../controllers/auth_controller.dart';
 import '../modules/users/controllers/users_controller.dart';
 import '../controllers/training_controller.dart';
 import '../controllers/schedule_controller.dart';
-// Removed old manager_controller.dart
-// Removed old instructor_controller.dart
 import '../middleware/auth_middleware.dart';
 import '../controllers/dashboard_controller.dart';
 import '../controllers/anthropometry_controller.dart';
@@ -15,9 +13,7 @@ import '../controllers/catalogs/work_schedule_controller.dart';
 import '../controllers/client_preference_controller.dart';
 import '../controllers/catalogs_controller.dart';
 import '../controllers/recommendations_controller.dart';
-// Removed old chat_controller.dart
-import '../modules/chat/controllers/chat_http_controller.dart'; // New HTTP chat controller
-// import '../modules/chat/controllers/chat_ws_controller.dart'; // WebSocket chat controller is not used directly in router.
+import '../modules/chat/controllers/chat_http_controller.dart';
 import '../modules/groups/controllers/training_group_controller.dart';
 import '../modules/groups/controllers/analytic_group_controller.dart';
 import '../modules/groups/controllers/group_schedule_controller.dart';
@@ -27,87 +23,53 @@ import '../modules/equipment/controllers/equipment_item.controller.dart';
 import '../modules/equipment/controllers/equipment_type.controller.dart';
 import '../modules/equipment/controllers/maintenance_controller.dart';
 import '../modules/rooms/controllers/building_controller.dart';
-import '../config/database.dart'; // Add this import
+import '../config/database.dart';
 import '../modules/equipment/services/equipment.service.dart';
 import '../modules/equipment/repositories/equipment_type.repository.dart';
 import '../modules/equipment/repositories/equipment_item.repository.dart';
 import '../modules/equipment/repositories/maintenance_repository.dart';
 import '../modules/equipment/services/maintenance_service.dart';
-import '../modules/roles/controllers/manager_controller.dart'; // New manager controller
-import '../modules/roles/controllers/instructor_controller.dart'; // New instructor controller
-import '../modules/supportStaff/controllers/support_staff.controller.dart'; // New SupportStaff controller
-import '../modules/supportStaff/services/support_staff.service.dart'; // New SupportStaff service
-import '../modules/supportStaff/repositories/support_staff.repository.dart'; // New SupportStaff repository
+import '../modules/roles/controllers/manager_controller.dart';
+import '../modules/roles/controllers/instructor_controller.dart';
+import '../modules/supportStaff/controllers/support_staff.controller.dart';
+import '../modules/supportStaff/services/support_staff.service.dart';
+import '../modules/supportStaff/repositories/support_staff.repository.dart';
+import '../modules/competencies/repositories/competency_repository.dart';
+import '../modules/employees/services/employee_competency_service.dart';
+import '../modules/employees/controllers/employee_competency_controller.dart';
 
-
-final Database _db = Database(); // Instantiate Database once
+final Database _db = Database();
 
 // Repositories
 final _equipmentTypeRepository = EquipmentTypeRepositoryImpl(_db);
 final _equipmentItemRepository = EquipmentItemRepositoryImpl(_db);
 final _maintenanceRepository = MaintenanceRepositoryImpl(_db);
-
+final _competencyRepository = CompetencyRepositoryImpl(_db);
+final _supportStaffRepository = SupportStaffRepositoryImpl(_db, _competencyRepository);
 
 // Services
 final _equipmentService = EquipmentServiceImpl(_equipmentTypeRepository, _equipmentItemRepository);
 final _maintenanceService = MaintenanceService(_maintenanceRepository);
+final _supportStaffService = SupportStaffService(_supportStaffRepository, _competencyRepository);
+final _employeeCompetencyService = EmployeeCompetencyService(_competencyRepository);
 
-
-
-
-
-// SupportStaff Repositories
-
-
-final _supportStaffRepository = SupportStaffRepositoryImpl(_db);
-
-
-
-
-
-// SupportStaff Service
-
-
-final _supportStaffService = SupportStaffService(_supportStaffRepository);
-
-
-
-
-
-// SupportStaff Controller
-
-
+// Controllers
 final _supportStaffController = SupportStaffController(_supportStaffService);
-
-
-
-
-
-
-
-
-// Group-related controllers
-
-
+final _employeeCompetencyController = EmployeeCompetencyController(_employeeCompetencyService);
 final _trainingGroupsController = TrainingGroupsController(_db);
 final _analyticGroupsController = AnalyticGroupsController(_db);
 final _groupScheduleController = GroupScheduleController(_db);
 final _trainingGroupTypesController = TrainingGroupTypesController(_db);
-
-
-// Infrastructure controllers
 final _roomController = RoomController(_db);
 final _equipmentItemController = EquipmentItemController(_db);
-final _equipmentTypeController = EquipmentTypeController(_db, _equipmentService); // Inject _equipmentService
+final _equipmentTypeController = EquipmentTypeController(_db, _equipmentService);
 final _maintenanceController = MaintenanceController(_maintenanceService);
 final _buildingController = BuildingController(_db);
 
-// Создаем обертки для protected routes
 Handler _protectedHandler(Handler handler) {
   return requireAuth()(handler);
 }
 
-// Middleware для проверки роли 'trainer' или 'admin'
 Middleware _requireTrainerOrAdmin() {
   return (Handler innerHandler) {
     return (Request request) {
@@ -121,7 +83,6 @@ Middleware _requireTrainerOrAdmin() {
   };
 }
 
-// Middleware для проверки роли 'manager' или 'admin'
 Middleware _requireManagerOrAdmin() {
   return (Handler innerHandler) {
     return (Request request) {
@@ -135,23 +96,18 @@ Middleware _requireManagerOrAdmin() {
   };
 }
 
-// Оборачиваем хендлеры в цепочку middleware
 Handler _adminHandler(Handler handler) {
-  // Сначала аутентификация, потом проверка роли
   return requireAuth()(requireRole('admin')(handler));
 }
 
 Handler _trainerHandler(Handler handler) {
-  // Сначала аутентификация, потом проверка роли
   return requireAuth()(_requireTrainerOrAdmin()(handler));
 }
 
 Handler _managerHandler(Handler handler) {
-  // Сначала аутентификация, потом проверка роли
   return requireAuth()(_requireManagerOrAdmin()(handler));
 }
 
-// Middleware для проверки роли 'instructor' или 'admin'
 Middleware _requireInstructorOrAdmin() {
   return (Handler innerHandler) {
     return (Request request) {
@@ -166,11 +122,9 @@ Middleware _requireInstructorOrAdmin() {
 }
 
 Handler _instructorHandler(Handler handler) {
-  // Сначала аутентификация, потом проверка роли
   return requireAuth()(_requireInstructorOrAdmin()(handler));
 }
 
-// Создаем и экспортируем роутер
 final Router router = Router()
 // Public routes
   ..get('/api/health', (_) => Response.ok('{"status": "OK", "message": "FitMan Dart API MVP1"}'))
@@ -195,6 +149,17 @@ final Router router = Router()
   ..post('/api/users/<id>/avatar', (Request request, String id) => _protectedHandler((Request req) => UsersController.uploadAvatar(req, id))(request))
   ..post('/api/users/reset-password', (Request request) => _adminHandler(UsersController.resetPassword)(request))
   ..get('/api/roles', (Request request) => _adminHandler(UsersController.getRoles)(request))
+
+// Employee Competency routes (только для админа)
+  ..get('/api/employees/<userId>/competencies', (Request request, String userId) {
+    return _adminHandler((Request req) => _employeeCompetencyController.getCompetencies(req, userId))(request);
+  })
+  ..post('/api/employees/<userId>/competencies', (Request request, String userId) {
+    return _adminHandler((Request req) => _employeeCompetencyController.addCompetency(req, userId))(request);
+  })
+  ..delete('/api/employees/<userId>/competencies/<compId>', (Request request, String userId, String compId) {
+    return _adminHandler((Request req) => _employeeCompetencyController.deleteCompetency(req, userId, compId))(request);
+  })
 
 // Training routes
   ..get('/api/training/plans', (Request request) => _protectedHandler(TrainingController.getTrainingPlans)(request))
@@ -308,5 +273,3 @@ final Router router = Router()
   ..delete('/api/support-staff/<staffId>/competencies/<compId>', (Request request, String staffId, String compId) {
     return _adminHandler((Request req) => _supportStaffController.deleteCompetency(req, staffId, compId))(request);
   });
-
-

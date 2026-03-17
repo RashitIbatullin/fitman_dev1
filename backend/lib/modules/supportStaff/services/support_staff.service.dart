@@ -1,11 +1,14 @@
+import 'package:fitman_backend/modules/competencies/repositories/competency_repository.dart';
+import 'package:fitman_backend/modules/equipment/models/equipment_maintenance_history.model.dart';
 import 'package:fitman_backend/modules/supportStaff/models/competency.model.dart';
 import 'package:fitman_backend/modules/supportStaff/models/support_staff.model.dart';
 import 'package:fitman_backend/modules/supportStaff/repositories/support_staff.repository.dart';
 
 class SupportStaffService {
-  SupportStaffService(this._supportStaffRepository);
+  SupportStaffService(this._supportStaffRepository, this._competencyRepository);
 
   final SupportStaffRepository _supportStaffRepository;
+  final CompetencyRepository _competencyRepository;
 
   Future<List<SupportStaff>> getAll({bool includeArchived = false}) {
     return _supportStaffRepository.getAll(includeArchived: includeArchived);
@@ -32,14 +35,14 @@ class SupportStaffService {
   }
 
   Future<List<Competency>> getCompetencies(String staffId) {
-    return _supportStaffRepository.getCompetencies(staffId);
+    return _competencyRepository.getCompetencies(staffId, ExecutorType.staff);
   }
 
   Future<Competency> addCompetency(Competency competency) {
-    return _supportStaffRepository.addCompetency(competency);
+    return _competencyRepository.addCompetency(competency);
   }
 
   Future<void> deleteCompetency(String competencyId) {
-    return _supportStaffRepository.deleteCompetency(competencyId);
+    return _competencyRepository.deleteCompetency(competencyId);
   }
 }
