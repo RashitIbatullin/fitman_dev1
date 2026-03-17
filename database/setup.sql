@@ -176,14 +176,25 @@ CREATE TABLE client_profiles (
     archived_by BIGINT REFERENCES users(id)
 );
 
-CREATE TABLE instructor_profiles (
+CREATE TABLE employee_profiles (
     user_id BIGINT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
     specialization VARCHAR(255),
     work_experience INTEGER,
+    can_maintain_equipment BOOLEAN DEFAULT false,
+    company_id BIGINT DEFAULT -1,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    created_by BIGINT REFERENCES users(id),
+    updated_by BIGINT REFERENCES users(id),
+    archived_at TIMESTAMPTZ,
+    archived_by BIGINT REFERENCES users(id)
+);
+
+CREATE TABLE instructor_profiles (
+    user_id BIGINT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
     is_duty BOOLEAN DEFAULT false,
     can_replace_trainer BOOLEAN DEFAULT false,
     can_create_plan BOOLEAN DEFAULT false,
-    can_maintain_equipment BOOLEAN DEFAULT false,
     company_id BIGINT DEFAULT -1,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
@@ -195,9 +206,6 @@ CREATE TABLE instructor_profiles (
 
 CREATE TABLE trainer_profiles (
     user_id BIGINT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
-    specialization VARCHAR(255),
-    work_experience INTEGER,
-    can_maintain_equipment BOOLEAN DEFAULT false,
     company_id BIGINT DEFAULT -1,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
@@ -209,10 +217,7 @@ CREATE TABLE trainer_profiles (
 
 CREATE TABLE manager_profiles (
     user_id BIGINT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
-    specialization VARCHAR(255),
-    work_experience INTEGER,
     is_duty BOOLEAN DEFAULT false,
-    can_maintain_equipment BOOLEAN DEFAULT false,
     company_id BIGINT DEFAULT -1,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
@@ -357,21 +362,24 @@ BEGIN
     VALUES ('manager@fitman.ru', '$2a$10$gH1uvOKi0oiI4nwhiapDgeKZjHx2Oo0OiojVABKYL5DWBaxOAKDWa', '+79603949646', 'manager@fitman.ru', 'Менеджеров', 'Менеджер', 0, '1997-01-15', admin_id, admin_id)
     RETURNING id INTO manager_id;
     INSERT INTO user_roles (user_id, role_id, created_by, updated_by) VALUES (manager_id, manager_role_id, admin_id, admin_id);
-    INSERT INTO manager_profiles (user_id, specialization, work_experience, created_by, updated_by) VALUES (manager_id, 'Управление', 3, admin_id, admin_id);
+    INSERT INTO employee_profiles (user_id, specialization, work_experience, created_by, updated_by) VALUES (manager_id, 'Управление', 3, admin_id, admin_id);
+    INSERT INTO manager_profiles (user_id, created_by, updated_by) VALUES (manager_id, admin_id, admin_id);
 
     -- Создание Тренера (пароль: trainer123)
     INSERT INTO users (login, password_hash, phone, email, last_name, first_name, gender, date_of_birth, created_by, updated_by)
     VALUES ('trainer@fitman.ru', '$2a$10$eMnEUxZ5YndkG8KJjfrDrugj0UbvaoRkBeopAVnzWgo18kmQIs6PG', '+79603949647', 'trainer@fitman.ru', 'Тренеров', 'Тренер', 0, '1999-03-20', admin_id, admin_id)
     RETURNING id INTO trainer_id;
     INSERT INTO user_roles (user_id, role_id, created_by, updated_by) VALUES (trainer_id, trainer_role_id, admin_id, admin_id);
-    INSERT INTO trainer_profiles (user_id, specialization, work_experience, created_by, updated_by) VALUES (trainer_id, 'Силовой тренинг', 5, admin_id, admin_id);
+    INSERT INTO employee_profiles (user_id, specialization, work_experience, created_by, updated_by) VALUES (trainer_id, 'Силовой тренинг', 5, admin_id, admin_id);
+    INSERT INTO trainer_profiles (user_id, created_by, updated_by) VALUES (trainer_id, admin_id, admin_id);
 
     -- Создание Инструктора (пароль: instructor123)
     INSERT INTO users (login, password_hash, phone, email, last_name, first_name, gender, date_of_birth, created_by, updated_by)
     VALUES ('instructor@fitman.ru', '$2a$10$zo5j5Qm0OJAZkiwVWfIHyeSSs831kV95YsNIK0/8/rlm3WvXxY6Mi', '+79603949648', 'instructor@fitman.ru', 'Инструкторов', 'Инструктор', 1, '2002-07-01', admin_id, admin_id)
     RETURNING id INTO instructor_id;
     INSERT INTO user_roles (user_id, role_id, created_by, updated_by) VALUES (instructor_id, instructor_role_id, admin_id, admin_id);
-    INSERT INTO instructor_profiles (user_id, specialization, work_experience, created_by, updated_by) VALUES (instructor_id, 'Групповые занятия', 2, admin_id, admin_id);
+    INSERT INTO employee_profiles (user_id, specialization, work_experience, created_by, updated_by) VALUES (instructor_id, 'Групповые занятия', 2, admin_id, admin_id);
+    INSERT INTO instructor_profiles (user_id, created_by, updated_by) VALUES (instructor_id, admin_id, admin_id);
 
     -- Создание Клиента (пароль: client123)
     INSERT INTO users (login, password_hash, phone, email, last_name, first_name, gender, date_of_birth, created_by, updated_by)

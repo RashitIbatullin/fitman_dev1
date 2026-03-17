@@ -1,5 +1,9 @@
 import '../../roles/models/role.dart';
-import '../../../models/client_profile.dart'; // Adjusted import path
+import '../../employees/models/employee_profile.dart';
+import '../../employees/models/instructor_profile.dart';
+import '../../employees/models/manager_profile.dart';
+import '../../employees/models/trainer_profile.dart';
+import '../../../models/client_profile.dart';
 
 class User {
   final int id;
@@ -16,8 +20,12 @@ class User {
   final DateTime createdAt;
   final DateTime updatedAt;
   final ClientProfile? clientProfile;
+  final EmployeeProfile? employeeProfile;
+  final InstructorProfile? instructorProfile;
+  final TrainerProfile? trainerProfile;
+  final ManagerProfile? managerProfile;
   final DateTime? archivedAt;
-  final String? archivedReason; // Added archivedReason field
+  final String? archivedReason;
 
   int? get age {
     if (dateOfBirth == null) return null;
@@ -45,8 +53,12 @@ class User {
     required this.createdAt,
     required this.updatedAt,
     this.clientProfile,
+    this.employeeProfile,
+    this.instructorProfile,
+    this.trainerProfile,
+    this.managerProfile,
     this.archivedAt,
-    this.archivedReason, // Added to constructor
+    this.archivedReason,
   });
 
   factory User.fromMap(Map<String, dynamic> map) {
@@ -71,8 +83,7 @@ class User {
           ? map['updated_at']
           : DateTime.parse(map['updated_at'].toString()),
       archivedAt: map['archived_at'] as DateTime?,
-      archivedReason: map['archived_reason']?.toString(), // Added to fromMap
-      // clientProfile is populated separately after creation
+      archivedReason: map['archived_reason']?.toString(),
     );
   }
 
@@ -91,8 +102,12 @@ class User {
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
       'client_profile': clientProfile?.toJson(),
+      'employee_profile': employeeProfile?.toMap(),
+      'instructor_profile': instructorProfile?.toMap(),
+      'trainer_profile': trainerProfile?.toMap(),
+      'manager_profile': managerProfile?.toMap(),
       'archivedAt': archivedAt?.toIso8601String(),
-      'archivedReason': archivedReason, // Added to toSafeJson
+      'archivedReason': archivedReason,
     };
   }
 
@@ -110,8 +125,12 @@ class User {
     DateTime? dateOfBirth,
     List<Role>? roles,
     ClientProfile? clientProfile,
+    EmployeeProfile? employeeProfile,
+    InstructorProfile? instructorProfile,
+    TrainerProfile? trainerProfile,
+    ManagerProfile? managerProfile,
     DateTime? archivedAt,
-    String? archivedReason, // Added to copyWith
+    String? archivedReason,
   }) {
     return User(
       id: id,
@@ -128,8 +147,12 @@ class User {
       createdAt: createdAt,
       updatedAt: DateTime.now(),
       clientProfile: clientProfile ?? this.clientProfile,
+      employeeProfile: employeeProfile ?? this.employeeProfile,
+      instructorProfile: instructorProfile ?? this.instructorProfile,
+      trainerProfile: trainerProfile ?? this.trainerProfile,
+      managerProfile: managerProfile ?? this.managerProfile,
       archivedAt: archivedAt ?? this.archivedAt,
-      archivedReason: archivedReason ?? this.archivedReason, // Added to copyWith return
+      archivedReason: archivedReason ?? this.archivedReason,
     );
   }
 }

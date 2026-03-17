@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../models/user.dart';
+import '../../users/models/user.dart';
 import '../../../services/api_service.dart';
 
 // Провайдер для получения всех тренеров

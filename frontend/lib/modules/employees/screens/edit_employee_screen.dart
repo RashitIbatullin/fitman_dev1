@@ -5,23 +5,23 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../models/user.dart';
+import '../../users/models/user.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../services/api_service.dart';
 import '../../../screens/client/full_screen_photo_editor.dart';
-import 'users_list_screen.dart';
-import 'manage_user_roles_screen.dart'; // New import
+import 'employees_list_screen.dart';
+import 'manage_user_roles_screen.dart';
 
-class EditUserScreen extends ConsumerStatefulWidget {
+class EditEmployeeScreen extends ConsumerStatefulWidget {
   final User user;
 
-  const EditUserScreen({super.key, required this.user});
+  const EditEmployeeScreen({super.key, required this.user});
 
   @override
-  ConsumerState<EditUserScreen> createState() => _EditUserScreenState();
+  ConsumerState<EditEmployeeScreen> createState() => _EditEmployeeScreenState();
 }
 
-class _EditUserScreenState extends ConsumerState<EditUserScreen> {
+class _EditEmployeeScreenState extends ConsumerState<EditEmployeeScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _firstNameController = TextEditingController();
@@ -29,6 +29,8 @@ class _EditUserScreenState extends ConsumerState<EditUserScreen> {
   final _middleNameController = TextEditingController();
   final _phoneController = TextEditingController();
   final _dateOfBirthController = TextEditingController();
+  final _specializationController = TextEditingController();
+  final _workExperienceController = TextEditingController();
 
   String? _selectedGender;
   bool _sendNotification = true;
@@ -36,6 +38,11 @@ class _EditUserScreenState extends ConsumerState<EditUserScreen> {
   int _hourNotification = 1;
   double _coeffActivity = 1.2;
   String? _photoUrl;
+
+  bool _canMaintainEquipment = false;
+  bool _isDuty = false;
+  bool _canReplaceTrainer = false;
+  bool _canCreatePlan = false;
 
   Matrix4 _currentAvatarTransform = Matrix4.identity();
   String? _avatarUrlWithCacheBust;
@@ -58,10 +65,20 @@ class _EditUserScreenState extends ConsumerState<EditUserScreen> {
         user.dateOfBirth?.toIso8601String().split('T').first ?? '';
     _selectedGender = user.gender;
     _sendNotification = user.sendNotification;
-    _trackCalories = user.clientProfile?.trackCalories ?? true;
-    _hourNotification = user.hourNotification;
-    _coeffActivity = user.clientProfile?.coeffActivity ?? 1.2;
     _photoUrl = user.photoUrl;
+
+    // Client specific
+    _trackCalories = user.clientProfile?.trackCalories ?? true;
+    _coeffActivity = user.clientProfile?.coeffActivity ?? 1.2;
+
+    // Employee specific
+    _specializationController.text = user.employeeProfile?.specialization ?? '';
+    _workExperienceController.text = user.employeeProfile?.workExperience?.toString() ?? '';
+    _canMaintainEquipment = user.employeeProfile?.canMaintainEquipment ?? false;
+    _isDuty = (user.instructorProfile?.isDuty ?? user.managerProfile?.isDuty) ?? false;
+    _canReplaceTrainer = user.instructorProfile?.canReplaceTrainer ?? false;
+    _canCreatePlan = user.instructorProfile?.canCreatePlan ?? false;
+
 
     _updateAvatarUrlForCacheBusting();
   }
@@ -109,7 +126,7 @@ class _EditUserScreenState extends ConsumerState<EditUserScreen> {
         _currentAvatarTransform = Matrix4.identity();
         _updateAvatarUrlForCacheBusting();
       });
-      ref.invalidate(usersProvider);
+      ref.invalidate(employeesProvider);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Фото успешно сохранено'),
@@ -151,7 +168,7 @@ class _EditUserScreenState extends ConsumerState<EditUserScreen> {
         _updateAvatarUrlForCacheBusting();
       });
 
-      ref.invalidate(usersProvider);
+      ref.invalidate(employeesProvider);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Фото успешно сохранено'),
@@ -208,6 +225,37 @@ class _EditUserScreenState extends ConsumerState<EditUserScreen> {
         };
       }
 
+      Map<String, dynamic>? employeeProfileData;
+      Map<String, dynamic>? instructorProfileData;
+      Map<String, dynamic>? managerProfileData;
+      Map<String, dynamic>? trainerProfileData;
+
+      bool isEmployee = widget.user.roles.any((r) => ['manager', 'trainer', 'instructor'].contains(r.name));
+
+      if (isEmployee) {
+        employeeProfileData = {
+          'specialization': _specializationController.text.trim(),
+          'work_experience': int.tryParse(_workExperienceController.text.trim()),
+          'can_maintain_equipment': _canMaintainEquipment,
+        };
+
+        if (widget.user.roles.any((r) => r.name == 'instructor')) {
+          instructorProfileData = {
+            'is_duty': _isDuty,
+            'can_replace_trainer': _canReplaceTrainer,
+            'can_create_plan': _canCreatePlan,
+          };
+        }
+        if (widget.user.roles.any((r) => r.name == 'manager')) {
+          managerProfileData = {
+            'is_duty': _isDuty,
+          };
+        }
+        if (widget.user.roles.any((r) => r.name == 'trainer')) {
+          trainerProfileData = {}; // Empty map as it has no specific fields
+        }
+      }
+
       final request = UpdateUserRequest(
         id: widget.user.id,
         email: _emailController.text.trim(),
@@ -220,11 +268,15 @@ class _EditUserScreenState extends ConsumerState<EditUserScreen> {
             ? DateTime.parse(_dateOfBirthController.text.trim())
             : null,
         clientProfile: clientProfileData,
+        employeeProfile: employeeProfileData,
+        instructorProfile: instructorProfileData,
+        managerProfile: managerProfileData,
+        trainerProfile: trainerProfileData,
       );
 
       final updatedUser = await ApiService.updateUser(request);
       
-      ref.invalidate(usersProvider);
+      ref.invalidate(employeesProvider);
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -255,6 +307,8 @@ class _EditUserScreenState extends ConsumerState<EditUserScreen> {
     final canEditPhoto =
         currentUser != null && !currentUser.roles.any((role) => role.name == 'client');
 
+    final isEmployee = widget.user.roles.any((r) => ['manager', 'trainer', 'instructor'].contains(r.name));
+
     return Scaffold(
       appBar: AppBar(title: Text('Редактирование: ${widget.user.shortName}')),
       body: Padding(
@@ -271,10 +325,12 @@ class _EditUserScreenState extends ConsumerState<EditUserScreen> {
               const SizedBox(height: 20),
               if (widget.user.roles.any((r) => r.name == 'client'))
                 _buildClientSpecificSection(),
-              if (!widget.user.roles.any((r) => r.name == 'admin')) ...[ // Added ...[ ] to correctly wrap multiple widgets
+              if (isEmployee)
+                _buildEmployeeInfoSection(),
+              if (!widget.user.roles.any((r) => r.name == 'admin')) ...[
                 _buildNotificationSection(),
                 const SizedBox(height: 20),
-                _buildRolesSection(), // Call the new roles section
+                _buildRolesSection(),
                 const SizedBox(height: 20),
               ],
               _buildActionButtons(),
@@ -509,6 +565,84 @@ class _EditUserScreenState extends ConsumerState<EditUserScreen> {
     );
   }
 
+  Widget _buildEmployeeInfoSection() {
+    final user = widget.user;
+    final isInstructor = user.roles.any((r) => r.name == 'instructor');
+    final isManager = user.roles.any((r) => r.name == 'manager');
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Данные сотрудника',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _specializationController,
+              decoration: const InputDecoration(
+                labelText: 'Специализация',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _workExperienceController,
+              decoration: const InputDecoration(
+                labelText: 'Опыт работы (лет)',
+                border: OutlineInputBorder(),
+              ),
+              keyboardType: TextInputType.number,
+            ),
+            const SizedBox(height: 16),
+            SwitchListTile(
+              title: const Text('Может обслуживать оборудование'),
+              value: _canMaintainEquipment,
+              onChanged: (value) {
+                setState(() {
+                  _canMaintainEquipment = value;
+                });
+              },
+            ),
+            if (isInstructor || isManager)
+              SwitchListTile(
+                title: const Text('Дежурный'),
+                value: _isDuty,
+                onChanged: (value) {
+                  setState(() {
+                    _isDuty = value;
+                  });
+                },
+              ),
+            if (isInstructor) ...[
+              SwitchListTile(
+                title: const Text('Может заменять тренера'),
+                value: _canReplaceTrainer,
+                onChanged: (value) {
+                  setState(() {
+                    _canReplaceTrainer = value;
+                  });
+                },
+              ),
+              SwitchListTile(
+                title: const Text('Может составлять планы'),
+                value: _canCreatePlan,
+                onChanged: (value) {
+                  setState(() {
+                    _canCreatePlan = value;
+                  });
+                },
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildNotificationSection() {
     return Card(
       child: Padding(
@@ -629,13 +763,7 @@ class _EditUserScreenState extends ConsumerState<EditUserScreen> {
                       builder: (context) => ManageUserRolesScreen(user: widget.user),
                     ),
                   );
-                  // Refresh the user data or just the roles after returning
-                  // For simplicity, we can just invalidate the usersProvider
-                  // and potentially refresh the current user's roles if needed.
-                  // However, for the EditUserScreen itself, a full refresh of the user
-                  // might be more robust if other properties could be affected by role changes.
-                  // For now, let's just refresh the overall users list in case roles affect filters.
-                  ref.invalidate(usersProvider);
+                  ref.invalidate(employeesProvider);
                 },
                 icon: const Icon(Icons.manage_accounts),
                 label: const Text('Изменить роли пользователя'),
@@ -660,6 +788,8 @@ class _EditUserScreenState extends ConsumerState<EditUserScreen> {
     _middleNameController.dispose();
     _phoneController.dispose();
     _dateOfBirthController.dispose();
+    _specializationController.dispose();
+    _workExperienceController.dispose();
     super.dispose();
   }
 }

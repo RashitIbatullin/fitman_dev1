@@ -1,4 +1,8 @@
 import '../../roles/models/role.dart';
+import '../../employees/models/employee_profile.dart';
+import '../../employees/models/instructor_profile.dart';
+import '../../employees/models/manager_profile.dart';
+import '../../employees/models/trainer_profile.dart';
 import 'client_profile.dart';
 
 // --- Main User Model ---
@@ -17,10 +21,14 @@ class User {
   final bool sendNotification;
   final int hourNotification;
   final ClientProfile? clientProfile;
+  final EmployeeProfile? employeeProfile;
+  final InstructorProfile? instructorProfile;
+  final TrainerProfile? trainerProfile;
+  final ManagerProfile? managerProfile;
   final DateTime createdAt;
   final DateTime updatedAt;
   final DateTime? archivedAt;
-  final String? archivedReason; // Added archivedReason field
+  final String? archivedReason;
 
   User({
     required this.id,
@@ -37,16 +45,20 @@ class User {
     this.sendNotification = true,
     this.hourNotification = 1,
     this.clientProfile,
+    this.employeeProfile,
+    this.instructorProfile,
+    this.trainerProfile,
+    this.managerProfile,
     required this.createdAt,
     required this.updatedAt,
     this.archivedAt,
-    this.archivedReason, // Added to constructor
+    this.archivedReason,
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
       id: json['id'],
-      email: json['email'] ?? json['login'], // Accept login as fallback for email
+      email: json['email'] ?? json['login'],
       passwordHash: json['passwordHash'] ?? '',
       firstName: json['firstName'] ?? '',
       lastName: json['lastName'] ?? '',
@@ -64,10 +76,22 @@ class User {
       clientProfile: json['client_profile'] != null
           ? ClientProfile.fromJson(json['client_profile'])
           : null,
+      employeeProfile: json['employee_profile'] != null
+          ? EmployeeProfile.fromJson(json['employee_profile'])
+          : null,
+      instructorProfile: json['instructor_profile'] != null
+          ? InstructorProfile.fromJson(json['instructor_profile'])
+          : null,
+      trainerProfile: json['trainer_profile'] != null
+          ? TrainerProfile.fromJson(json['trainer_profile'])
+          : null,
+      managerProfile: json['manager_profile'] != null
+          ? ManagerProfile.fromJson(json['manager_profile'])
+          : null,
       createdAt: DateTime.parse(json['createdAt']),
       updatedAt: DateTime.parse(json['updatedAt']),
       archivedAt: json['archivedAt'] != null ? DateTime.parse(json['archivedAt'] as String) : null,
-      archivedReason: json['archivedReason'] as String?, // Added to fromJson
+      archivedReason: json['archivedReason'] as String?,
     );
   }
 
@@ -111,10 +135,14 @@ class User {
     bool? sendNotification,
     int? hourNotification,
     ClientProfile? clientProfile,
+    EmployeeProfile? employeeProfile,
+    InstructorProfile? instructorProfile,
+    TrainerProfile? trainerProfile,
+    ManagerProfile? managerProfile,
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? archivedAt,
-    String? archivedReason, // Added to copyWith
+    String? archivedReason,
   }) {
     return User(
       id: id ?? this.id,
@@ -131,10 +159,14 @@ class User {
       sendNotification: sendNotification ?? this.sendNotification,
       hourNotification: hourNotification ?? this.hourNotification,
       clientProfile: clientProfile ?? this.clientProfile,
+      employeeProfile: employeeProfile ?? this.employeeProfile,
+      instructorProfile: instructorProfile ?? this.instructorProfile,
+      trainerProfile: trainerProfile ?? this.trainerProfile,
+      managerProfile: managerProfile ?? this.managerProfile,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       archivedAt: archivedAt ?? this.archivedAt,
-      archivedReason: archivedReason ?? this.archivedReason, // Added to copyWith return
+      archivedReason: archivedReason ?? this.archivedReason,
     );
   }
 
@@ -153,10 +185,14 @@ class User {
       'sendNotification': sendNotification,
       'hourNotification': hourNotification,
       'client_profile': clientProfile?.toJson(),
+      'employee_profile': employeeProfile?.toJson(),
+      'instructor_profile': instructorProfile?.toJson(),
+      'trainer_profile': trainerProfile?.toJson(),
+      'manager_profile': managerProfile?.toJson(),
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
       'archivedAt': archivedAt?.toIso8601String(),
-      'archivedReason': archivedReason, // Added to toJson
+      'archivedReason': archivedReason,
     };
   }
 }
@@ -189,8 +225,11 @@ class CreateUserRequest {
   final DateTime? dateOfBirth;
   final bool sendNotification;
   final int hourNotification;
-  // This can be provided when creating a client
   final Map<String, dynamic>? clientProfile;
+  final Map<String, dynamic>? employeeProfile;
+  final Map<String, dynamic>? instructorProfile;
+  final Map<String, dynamic>? managerProfile;
+  final Map<String, dynamic>? trainerProfile;
 
   CreateUserRequest({
     required this.email,
@@ -205,6 +244,10 @@ class CreateUserRequest {
     this.sendNotification = true,
     this.hourNotification = 1,
     this.clientProfile,
+    this.employeeProfile,
+    this.instructorProfile,
+    this.managerProfile,
+    this.trainerProfile,
   });
 
   Map<String, dynamic> toJson() {
@@ -222,6 +265,10 @@ class CreateUserRequest {
     if (gender != null) data['gender'] = gender;
     if (dateOfBirth != null) data['dateOfBirth'] = dateOfBirth!.toIso8601String();
     if (clientProfile != null) data['client_profile'] = clientProfile;
+    if (employeeProfile != null) data['employee_profile'] = employeeProfile;
+    if (instructorProfile != null) data['instructor_profile'] = instructorProfile;
+    if (managerProfile != null) data['manager_profile'] = managerProfile;
+    if (trainerProfile != null) data['trainer_profile'] = trainerProfile;
     
     return data;
   }
@@ -237,8 +284,12 @@ class UpdateUserRequest {
   final String? gender;
   final DateTime? dateOfBirth;
   final Map<String, dynamic>? clientProfile;
+  final Map<String, dynamic>? employeeProfile;
+  final Map<String, dynamic>? instructorProfile;
+  final Map<String, dynamic>? managerProfile;
+  final Map<String, dynamic>? trainerProfile;
   final DateTime? archivedAt;
-  final String? archivedReason; // Added archivedReason to UpdateUserRequest
+  final String? archivedReason;
 
   UpdateUserRequest({
     required this.id,
@@ -250,8 +301,12 @@ class UpdateUserRequest {
     this.gender,
     this.dateOfBirth,
     this.clientProfile,
+    this.employeeProfile,
+    this.instructorProfile,
+    this.managerProfile,
+    this.trainerProfile,
     this.archivedAt,
-    this.archivedReason, // Added to constructor
+    this.archivedReason,
   });
 
   Map<String, dynamic> toJson() {
@@ -266,10 +321,14 @@ class UpdateUserRequest {
     if (gender != null) data['gender'] = gender;
     if (dateOfBirth != null) data['dateOfBirth'] = dateOfBirth!.toIso8601String();
     if (clientProfile != null) data['client_profile'] = clientProfile;
+    if (employeeProfile != null) data['employee_profile'] = employeeProfile;
+    if (instructorProfile != null) data['instructor_profile'] = instructorProfile;
+    if (managerProfile != null) data['manager_profile'] = managerProfile;
+    if (trainerProfile != null) data['trainer_profile'] = trainerProfile;
     if (archivedAt != null) {
       data['archivedAt'] = archivedAt!.toIso8601String();
     }
-    if (archivedReason != null) { // Added archivedReason to toJson
+    if (archivedReason != null) {
       data['archivedReason'] = archivedReason;
     }
     

@@ -4,6 +4,10 @@ import '../models/client_profile.dart';
 import 'app_config.dart';
 import '../modules/users/models/user.dart';
 import '../modules/roles/models/role.dart';
+import '../modules/employees/models/employee_profile.dart';
+import '../modules/employees/models/instructor_profile.dart';
+import '../modules/employees/models/manager_profile.dart';
+import '../modules/employees/models/trainer_profile.dart';
 
 import '../modules/groups/repositories/group_repository.dart'; // New import
 import '../modules/rooms/repositories/room.repository.dart';
@@ -175,9 +179,17 @@ class Database {
           u.id, u.email, u.password_hash, u.first_name, u.last_name, u.middle_name, 
           u.phone, u.gender, u.date_of_birth, u.photo_url, u.created_at, u.updated_at, u.archived_at,
           cp.user_id as cp_user_id, cp.goal_training_id, cp.level_training_id, 
-          cp.track_calories, cp.coeff_activity
+          cp.track_calories, cp.coeff_activity,
+          ep.user_id as ep_user_id, ep.specialization, ep.work_experience, ep.can_maintain_equipment,
+          ip.user_id as ip_user_id, ip.is_duty as ip_is_duty, ip.can_replace_trainer, ip.can_create_plan,
+          tp.user_id as tp_user_id,
+          mp.user_id as mp_user_id, mp.is_duty as mp_is_duty
         FROM users u
         LEFT JOIN client_profiles cp ON u.id = cp.user_id
+        LEFT JOIN employee_profiles ep ON u.id = ep.user_id
+        LEFT JOIN instructor_profiles ip ON u.id = ip.user_id
+        LEFT JOIN trainer_profiles tp ON u.id = tp.user_id
+        LEFT JOIN manager_profiles mp ON u.id = mp.user_id
         $joinRoles
         $whereString
         ORDER BY u.last_name, u.first_name
@@ -193,7 +205,6 @@ class Database {
         final userMap = row.toColumnMap();
         
         ClientProfile? clientProfile;
-        // Check if a client profile exists (cp_user_id will not be null)
         if (userMap['cp_user_id'] != null) {
           clientProfile = ClientProfile.fromMap({
             'user_id': userMap['cp_user_id'],
@@ -203,10 +214,53 @@ class Database {
             'coeff_activity': userMap['coeff_activity'],
           });
         }
+        
+        EmployeeProfile? employeeProfile;
+        if (userMap['ep_user_id'] != null) {
+          employeeProfile = EmployeeProfile.fromMap({
+            'user_id': userMap['ep_user_id'],
+            'specialization': userMap['specialization'],
+            'work_experience': userMap['work_experience'],
+            'can_maintain_equipment': userMap['can_maintain_equipment'],
+          });
+        }
 
-        final user = User.fromMap(userMap).copyWith(clientProfile: clientProfile);
+        InstructorProfile? instructorProfile;
+        if (userMap['ip_user_id'] != null) {
+          instructorProfile = InstructorProfile.fromMap({
+            'user_id': userMap['ip_user_id'],
+            'is_duty': userMap['ip_is_duty'],
+            'can_replace_trainer': userMap['can_replace_trainer'],
+            'can_create_plan': userMap['can_create_plan'],
+          });
+        }
+        
+        TrainerProfile? trainerProfile;
+        if (userMap['tp_user_id'] != null) {
+          trainerProfile = TrainerProfile.fromMap({
+            'user_id': userMap['tp_user_id'],
+          });
+        }
+        
+        ManagerProfile? managerProfile;
+        if (userMap['mp_user_id'] != null) {
+          managerProfile = ManagerProfile.fromMap({
+            'user_id': userMap['mp_user_id'],
+            'is_duty': userMap['mp_is_duty'],
+          });
+        }
+
+        var user = User.fromMap(userMap).copyWith(
+          clientProfile: clientProfile,
+          employeeProfile: employeeProfile,
+          instructorProfile: instructorProfile,
+          trainerProfile: trainerProfile,
+          managerProfile: managerProfile,
+        );
+
         final roles = await getRolesForUser(user.id);
-        users.add(user.copyWith(roles: roles));
+        user = user.copyWith(roles: roles);
+        users.add(user);
       }
       return users;
     } catch (e) {
@@ -241,19 +295,9 @@ class Database {
         final roles = await getRolesForUser(user.id);
         user = user.copyWith(roles: roles);
   
-        if (user.roles.any((r) => r.name == 'client')) {
-          final profileResult = await conn.execute(
-            Sql.named('SELECT * FROM client_profiles WHERE user_id = @id'),
-            parameters: {'id': user.id},
-          );
-          if (profileResult.isNotEmpty) {
-            final profileMap = profileResult.first.toColumnMap();
-            final clientProfile = ClientProfile.fromMap(profileMap);
-            user = user.copyWith(
-              clientProfile: clientProfile,
-            );
-          }
-        }
+        // Fetch profiles
+        user = await _fetchAndAttachProfiles(user, conn);
+
         return user;
       } catch (e) {
         print('❌ getUserByEmail error: $e');
@@ -287,19 +331,9 @@ class Database {
         final roles = await getRolesForUser(user.id);
         user = user.copyWith(roles: roles);
   
-        if (user.roles.any((r) => r.name == 'client')) {
-          final profileResult = await conn.execute(
-            Sql.named('SELECT * FROM client_profiles WHERE user_id = @id'),
-            parameters: {'id': user.id},
-          );
-          if (profileResult.isNotEmpty) {
-            final profileMap = profileResult.first.toColumnMap();
-            final clientProfile = ClientProfile.fromMap(profileMap);
-            user = user.copyWith(
-              clientProfile: clientProfile,
-            );
-          }
-        }
+        // Fetch profiles
+        user = await _fetchAndAttachProfiles(user, conn);
+
         return user;
       } catch (e) {
         print('❌ getUserByPhone error: $e');
@@ -333,19 +367,9 @@ class Database {
         final roles = await getRolesForUser(user.id);
         user = user.copyWith(roles: roles);
   
-        if (user.roles.any((r) => r.name == 'client')) {
-          final profileResult = await conn.execute(
-            Sql.named('SELECT * FROM client_profiles WHERE user_id = @id'),
-            parameters: {'id': user.id},
-          );
-          if (profileResult.isNotEmpty) {
-            final profileMap = profileResult.first.toColumnMap();
-            final clientProfile = ClientProfile.fromMap(profileMap);
-            user = user.copyWith(
-              clientProfile: clientProfile,
-            );
-          }
-        }
+        // Fetch profiles
+        user = await _fetchAndAttachProfiles(user, conn);
+
         return user;
       } catch (e) {
         print('❌ getUserById error: $e');
@@ -1389,6 +1413,73 @@ class Database {
       print('❌ getWhtrRefinements error: $e');
       rethrow;
     }
+  }
+
+  Future<User> _fetchAndAttachProfiles(User user, Session context) async {
+    final conn = context;
+    var updatedUser = user;
+
+    final isClient = user.roles.any((r) => r.name == 'client');
+    final isEmployee = user.roles.any((r) => ['instructor', 'trainer', 'manager'].contains(r.name));
+
+    if (isClient) {
+      final profileResult = await conn.execute(
+        Sql.named('SELECT * FROM client_profiles WHERE user_id = @id'),
+        parameters: {'id': user.id},
+      );
+      if (profileResult.isNotEmpty) {
+        updatedUser = updatedUser.copyWith(
+          clientProfile: ClientProfile.fromMap(profileResult.first.toColumnMap()),
+        );
+      }
+    }
+
+    if (isEmployee) {
+      final employeeProfileResult = await conn.execute(
+        Sql.named('SELECT * FROM employee_profiles WHERE user_id = @id'),
+        parameters: {'id': user.id},
+      );
+      if (employeeProfileResult.isNotEmpty) {
+        updatedUser = updatedUser.copyWith(
+          employeeProfile: EmployeeProfile.fromMap(employeeProfileResult.first.toColumnMap()),
+        );
+      }
+
+      if (user.roles.any((r) => r.name == 'instructor')) {
+        final profileResult = await conn.execute(
+          Sql.named('SELECT * FROM instructor_profiles WHERE user_id = @id'),
+          parameters: {'id': user.id},
+        );
+        if (profileResult.isNotEmpty) {
+          updatedUser = updatedUser.copyWith(
+            instructorProfile: InstructorProfile.fromMap(profileResult.first.toColumnMap()),
+          );
+        }
+      }
+      if (user.roles.any((r) => r.name == 'trainer')) {
+        final profileResult = await conn.execute(
+          Sql.named('SELECT * FROM trainer_profiles WHERE user_id = @id'),
+          parameters: {'id': user.id},
+        );
+        if (profileResult.isNotEmpty) {
+          updatedUser = updatedUser.copyWith(
+            trainerProfile: TrainerProfile.fromMap(profileResult.first.toColumnMap()),
+          );
+        }
+      }
+      if (user.roles.any((r) => r.name == 'manager')) {
+        final profileResult = await conn.execute(
+          Sql.named('SELECT * FROM manager_profiles WHERE user_id = @id'),
+          parameters: {'id': user.id},
+        );
+        if (profileResult.isNotEmpty) {
+          updatedUser = updatedUser.copyWith(
+            managerProfile: ManagerProfile.fromMap(profileResult.first.toColumnMap()),
+          );
+        }
+      }
+    }
+    return updatedUser;
   }
 
 }

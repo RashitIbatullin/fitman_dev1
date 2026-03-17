@@ -1,5 +1,5 @@
 import 'package:fitman_app/modules/users/models/user.dart';
-import 'package:fitman_app/modules/users/screens/users_list_screen.dart';
+import 'package:fitman_app/modules/employees/screens/employees_list_screen.dart';
 import 'package:fitman_app/providers/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -81,7 +81,7 @@ class _ManagerDashboardState extends ConsumerState<ManagerDashboard> {
 
     final List<Widget> views = [
       const Center(child: Text('Главное')),
-      UsersListScreen(scrollController: _scrollController, showToolbar: _showBars),
+      EmployeesListScreen(scrollController: _scrollController, showToolbar: _showBars),
       const ScheduleView(),
       const Center(child: Text('Табели - в разработке')),
     ];

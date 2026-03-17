@@ -2,19 +2,19 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../models/user.dart';
+import '../../users/models/user.dart';
 import '../../../services/api_service.dart';
 
-class CreateUserScreen extends ConsumerStatefulWidget {
-  final String userRole; // This can be a suggestion
+class CreateEmployeeScreen extends ConsumerStatefulWidget {
+  final String userRole;
 
-  const CreateUserScreen({super.key, required this.userRole});
+  const CreateEmployeeScreen({super.key, required this.userRole});
 
   @override
-  ConsumerState<CreateUserScreen> createState() => _CreateUserScreenState();
+  ConsumerState<CreateEmployeeScreen> createState() => _CreateEmployeeScreenState();
 }
 
-class _CreateUserScreenState extends ConsumerState<CreateUserScreen> {
+class _CreateEmployeeScreenState extends ConsumerState<CreateEmployeeScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -23,6 +23,8 @@ class _CreateUserScreenState extends ConsumerState<CreateUserScreen> {
   final _middleNameController = TextEditingController();
   final _phoneController = TextEditingController();
   final _dateOfBirthController = TextEditingController();
+  final _specializationController = TextEditingController();
+  final _workExperienceController = TextEditingController();
 
   final List<String> _selectedRoleNames = [];
   String? _selectedGender;
@@ -30,6 +32,11 @@ class _CreateUserScreenState extends ConsumerState<CreateUserScreen> {
   bool _trackCalories = true;
   int _hourNotification = 1;
   double _coeffActivity = 1.2;
+
+  bool _canMaintainEquipment = false;
+  bool _isDuty = false;
+  bool _canReplaceTrainer = false;
+  bool _canCreatePlan = false;
 
   bool _isLoading = false;
   String? _error;
@@ -70,19 +77,8 @@ class _CreateUserScreenState extends ConsumerState<CreateUserScreen> {
   Future<void> _createUser() async {
     if (!_formKey.currentState!.validate()) return;
 
-    // --- Клиентская валидация ролей ---
     if (_selectedRoleNames.isEmpty) {
-      setState(() {
-        _error = 'Необходимо выбрать хотя бы одну роль.';
-      });
-      return;
-    }
-    // Правила валидации уже применяются при выборе чекбоксов, но дублируем на всякий случай
-    if (_selectedRoleNames.contains('client') &&
-        _selectedRoleNames.length > 1) {
-      setState(() {
-        _error = 'Пользователь с ролью "Клиент" не может иметь другие роли.';
-      });
+      setState(() => _error = 'Необходимо выбрать хотя бы одну роль.');
       return;
     }
 
@@ -92,13 +88,43 @@ class _CreateUserScreenState extends ConsumerState<CreateUserScreen> {
     });
 
     try {
-      // Conditionally create the client profile map
       Map<String, dynamic>? clientProfileData;
       if (_selectedRoleNames.contains('client')) {
         clientProfileData = {
           'track_calories': _trackCalories,
           'coeff_activity': _coeffActivity,
         };
+      }
+      
+      Map<String, dynamic>? employeeProfileData;
+      Map<String, dynamic>? instructorProfileData;
+      Map<String, dynamic>? managerProfileData;
+      Map<String, dynamic>? trainerProfileData;
+
+      bool isEmployee = _selectedRoleNames.any((r) => ['manager', 'trainer', 'instructor'].contains(r));
+
+      if (isEmployee) {
+        employeeProfileData = {
+          'specialization': _specializationController.text.trim(),
+          'work_experience': int.tryParse(_workExperienceController.text.trim()),
+          'can_maintain_equipment': _canMaintainEquipment,
+        };
+
+        if (_selectedRoleNames.contains('instructor')) {
+          instructorProfileData = {
+            'is_duty': _isDuty,
+            'can_replace_trainer': _canReplaceTrainer,
+            'can_create_plan': _canCreatePlan,
+          };
+        }
+        if (_selectedRoleNames.contains('manager')) {
+          managerProfileData = {
+            'is_duty': _isDuty,
+          };
+        }
+        if (_selectedRoleNames.contains('trainer')) {
+          trainerProfileData = {}; // Empty map as it has no specific fields
+        }
       }
 
       final request = CreateUserRequest(
@@ -120,6 +146,10 @@ class _CreateUserScreenState extends ConsumerState<CreateUserScreen> {
         sendNotification: _sendNotification,
         hourNotification: _hourNotification,
         clientProfile: clientProfileData,
+        employeeProfile: employeeProfileData,
+        instructorProfile: instructorProfileData,
+        managerProfile: managerProfileData,
+        trainerProfile: trainerProfileData,
       );
 
       final newUser = await ApiService.createUser(request);
@@ -131,7 +161,7 @@ class _CreateUserScreenState extends ConsumerState<CreateUserScreen> {
             backgroundColor: Colors.green,
           ),
         );
-        Navigator.pop(context, newUser); // Возвращаем созданного пользователя
+        Navigator.pop(context, newUser);
       }
     } catch (e) {
       setState(() {
@@ -148,6 +178,8 @@ class _CreateUserScreenState extends ConsumerState<CreateUserScreen> {
 
   @override
   Widget build(BuildContext context) {
+    bool isEmployee = ['manager', 'trainer', 'instructor'].contains(widget.userRole);
+
     return Scaffold(
       appBar: AppBar(title: Text('Создание: ${_getRoleDisplayName(widget.userRole)}')),
       body: Padding(
@@ -160,6 +192,8 @@ class _CreateUserScreenState extends ConsumerState<CreateUserScreen> {
               const SizedBox(height: 20),
               if (_selectedRoleNames.contains('client'))
                 _buildClientSpecificSection(),
+              if (isEmployee)
+                _buildEmployeeInfoSection(),
               if (widget.userRole != 'admin')
                 _buildNotificationSection(),
               const SizedBox(height: 20),
@@ -183,7 +217,6 @@ class _CreateUserScreenState extends ConsumerState<CreateUserScreen> {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-
             TextFormField(
               controller: _phoneController,
               decoration: const InputDecoration(
@@ -324,14 +357,88 @@ class _CreateUserScreenState extends ConsumerState<CreateUserScreen> {
                 return null;
               },
             ),
-
           ],
         ),
       ),
     );
   }
 
+  Widget _buildEmployeeInfoSection() {
+    final isInstructor = _selectedRoleNames.contains('instructor');
+    final isManager = _selectedRoleNames.contains('manager');
 
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Данные сотрудника',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _specializationController,
+              decoration: const InputDecoration(
+                labelText: 'Специализация',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _workExperienceController,
+              decoration: const InputDecoration(
+                labelText: 'Опыт работы (лет)',
+                border: OutlineInputBorder(),
+              ),
+              keyboardType: TextInputType.number,
+            ),
+            const SizedBox(height: 16),
+            SwitchListTile(
+              title: const Text('Может обслуживать оборудование'),
+              value: _canMaintainEquipment,
+              onChanged: (value) {
+                setState(() {
+                  _canMaintainEquipment = value;
+                });
+              },
+            ),
+            if (isInstructor || isManager)
+              SwitchListTile(
+                title: const Text('Дежурный'),
+                value: _isDuty,
+                onChanged: (value) {
+                  setState(() {
+                    _isDuty = value;
+                  });
+                },
+              ),
+            if (isInstructor) ...[
+              SwitchListTile(
+                title: const Text('Может заменять тренера'),
+                value: _canReplaceTrainer,
+                onChanged: (value) {
+                  setState(() {
+                    _canReplaceTrainer = value;
+                  });
+                },
+              ),
+              SwitchListTile(
+                title: const Text('Может составлять планы'),
+                value: _canCreatePlan,
+                onChanged: (value) {
+                  setState(() {
+                    _canCreatePlan = value;
+                  });
+                },
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
 
   Widget _buildClientSpecificSection() {
     return Card(
@@ -487,6 +594,8 @@ class _CreateUserScreenState extends ConsumerState<CreateUserScreen> {
     _middleNameController.dispose();
     _phoneController.dispose();
     _dateOfBirthController.dispose();
+    _specializationController.dispose();
+    _workExperienceController.dispose();
     super.dispose();
   }
 }

@@ -2,16 +2,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../models/user.dart';
+import '../../users/models/user.dart';
 import '../../roles/models/role.dart';
 import '../../../services/api_service.dart';
-import 'create_user_screen.dart';
+import 'create_employee_screen.dart';
 import '../../../screens/client_dashboard.dart';
 import '../../../screens/instructor_dashboard.dart';
 import '../../../screens/manager_dashboard.dart';
 import '../../../screens/trainer_dashboard.dart';
 import '../../roles/screens/unknown_role_screen.dart';
-import 'edit_user_screen.dart';
+import 'edit_employee_screen.dart';
 import '../../roles/widgets/role_dialog_manager.dart';
 import '../../../widgets/reset_password_dialog.dart';
 import '../../../widgets/filter_popup_menu.dart'; // Add this import
@@ -25,7 +25,7 @@ final userIsArchivedFilterProvider = StateProvider<bool?>((ref) => false);
 const int _usersLimit = 20; // Number of users to fetch per page
 
 // 2. Provider to fetch users based on filters and manage pagination
-class UsersNotifier extends AsyncNotifier<List<User>> {
+class EmployeesNotifier extends AsyncNotifier<List<User>> {
   int _offset = 0;
   bool _hasMore = true;
   bool _isLoadingMore = false;
@@ -109,18 +109,18 @@ class UsersNotifier extends AsyncNotifier<List<User>> {
   bool get hasMore => _hasMore;
 }
 
-final usersProvider = AsyncNotifierProvider<UsersNotifier, List<User>>(() {
-  return UsersNotifier();
+final employeesProvider = AsyncNotifierProvider<EmployeesNotifier, List<User>>(() {
+  return EmployeesNotifier();
 });
 
 final newlyCreatedUserProvider = StateProvider<User?>((ref) => null);
 
-class UsersListScreen extends ConsumerStatefulWidget {
+class EmployeesListScreen extends ConsumerStatefulWidget {
   final String? initialFilter;
   final ScrollController scrollController;
   final bool showToolbar;
 
-  const UsersListScreen({
+  const EmployeesListScreen({
     super.key,
     this.initialFilter,
     required this.scrollController,
@@ -128,10 +128,10 @@ class UsersListScreen extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<UsersListScreen> createState() => _UsersListScreenState();
+  ConsumerState<EmployeesListScreen> createState() => _EmployeesListScreenState();
 }
 
-class _UsersListScreenState extends ConsumerState<UsersListScreen> {
+class _EmployeesListScreenState extends ConsumerState<EmployeesListScreen> {
   User? _selectedUser;
   final TextEditingController _searchController = TextEditingController();
   final TextEditingController _archiveReasonController = TextEditingController(); // Added for archive reason
@@ -165,9 +165,9 @@ class _UsersListScreenState extends ConsumerState<UsersListScreen> {
   void _scrollListener() {
     if (widget.scrollController.position.pixels >=
             widget.scrollController.position.maxScrollExtent * 0.8 && // 80% scrolled
-        !ref.read(usersProvider.notifier).isLoadingMore &&
-        ref.read(usersProvider.notifier).hasMore) {
-      ref.read(usersProvider.notifier).loadMoreUsers();
+        !ref.read(employeesProvider.notifier).isLoadingMore &&
+        ref.read(employeesProvider.notifier).hasMore) {
+      ref.read(employeesProvider.notifier).loadMoreUsers();
     }
   }
 
@@ -213,7 +213,7 @@ class _UsersListScreenState extends ConsumerState<UsersListScreen> {
     }
     await Navigator.push(context, MaterialPageRoute(builder: (context) => page));
     // Refresh data on return
-    ref.read(usersProvider.notifier).refreshUsers();
+    ref.read(employeesProvider.notifier).refreshUsers();
   }
 
   String _getRoleDisplayName(Role role) {
@@ -234,11 +234,11 @@ class _UsersListScreenState extends ConsumerState<UsersListScreen> {
   void _navigateToCreateUser(BuildContext context, String role) async {
     final newUser = await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => CreateUserScreen(userRole: role)),
+      MaterialPageRoute(builder: (context) => CreateEmployeeScreen(userRole: role)),
     );
 
     if (newUser != null && newUser is User) {
-      ref.read(usersProvider.notifier).refreshUsers(); // Refresh and refetch
+      ref.read(employeesProvider.notifier).refreshUsers(); // Refresh and refetch
       ref.read(newlyCreatedUserProvider.notifier).state = newUser;
     }
   }
@@ -317,7 +317,7 @@ class _UsersListScreenState extends ConsumerState<UsersListScreen> {
       try {
         await ApiService.archiveUser(userToArchive.id, reason: _archiveReasonController.text.trim());
         // Refresh the user list after successful archival
-        ref.read(usersProvider.notifier).refreshUsers();
+        ref.read(employeesProvider.notifier).refreshUsers();
         // Deselect the user
         setState(() {
           _selectedUser = null;
@@ -359,7 +359,7 @@ class _UsersListScreenState extends ConsumerState<UsersListScreen> {
       try {
         await ApiService.updateUser(UpdateUserRequest(id: userToDeArchive.id, archivedAt: null));
         // Refresh the user list after successful de-archival
-        ref.read(usersProvider.notifier).refreshUsers();
+        ref.read(employeesProvider.notifier).refreshUsers();
         // Deselect the user
         setState(() {
           _selectedUser = null;
@@ -455,10 +455,10 @@ class _UsersListScreenState extends ConsumerState<UsersListScreen> {
                                   await Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => EditUserScreen(user: _selectedUser!),
+                                      builder: (context) => EditEmployeeScreen(user: _selectedUser!),
                                     ),
                                   );
-                                  ref.read(usersProvider.notifier).refreshUsers();
+                                  ref.read(employeesProvider.notifier).refreshUsers();
                                 }
                                 break;
                               case 'reset_password':
@@ -547,7 +547,7 @@ class _UsersListScreenState extends ConsumerState<UsersListScreen> {
                             initialValue: ref.watch(userIsArchivedFilterProvider),
                             onSelected: (value) {
                               ref.read(userIsArchivedFilterProvider.notifier).state = value;
-                              ref.read(usersProvider.notifier).refreshUsers();
+                              ref.read(employeesProvider.notifier).refreshUsers();
                             },
                             allOptionText: 'Статус: Все', // This needs to be changed
                             options: const [
@@ -566,12 +566,12 @@ class _UsersListScreenState extends ConsumerState<UsersListScreen> {
           ),
         ),
         Expanded(
-          child: ref.watch(usersProvider).when(
+          child: ref.watch(employeesProvider).when(
             data: (allUsers) {
               final filteredUsers = _filterUsers(allUsers);
-              final usersNotifier = ref.read(usersProvider.notifier);
-              final isLoadingMore = usersNotifier.isLoadingMore;
-              final hasMore = usersNotifier.hasMore;
+              final employeesNotifier = ref.read(employeesProvider.notifier);
+              final isLoadingMore = employeesNotifier.isLoadingMore;
+              final hasMore = employeesNotifier.hasMore;
 
               if (filteredUsers.isEmpty && !isLoadingMore && !hasMore) {
                 return const Center(child: Text('Пользователи не найдены'));
@@ -687,12 +687,12 @@ class _UsersListScreenState extends ConsumerState<UsersListScreen> {
             },
             loading: () {
               // If we have some data already, display it with a loading indicator at the end
-              if (ref.read(usersProvider).value != null && ref.read(usersProvider).value!.isNotEmpty) {
-                final loadedUsers = ref.read(usersProvider).value!;
+              if (ref.read(employeesProvider).value != null && ref.read(employeesProvider).value!.isNotEmpty) {
+                final loadedUsers = ref.read(employeesProvider).value!;
                 final filteredUsers = _filterUsers(loadedUsers);
-                final usersNotifier = ref.read(usersProvider.notifier);
-                final isLoadingMore = usersNotifier.isLoadingMore;
-                final hasMore = usersNotifier.hasMore; // Ensure hasMore is correctly read
+                final employeesNotifier = ref.read(employeesProvider.notifier);
+                final isLoadingMore = employeesNotifier.isLoadingMore;
+                final hasMore = employeesNotifier.hasMore; // Ensure hasMore is correctly read
 
                 return ListView.builder(
                   controller: widget.scrollController,
