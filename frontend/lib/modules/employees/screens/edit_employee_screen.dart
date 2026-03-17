@@ -23,7 +23,7 @@ class EditEmployeeScreen extends ConsumerStatefulWidget {
 }
 
 class _EditEmployeeScreenState extends ConsumerState<EditEmployeeScreen> with SingleTickerProviderStateMixin {
-  late TabController _tabController;
+  TabController? _tabController;
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _firstNameController = TextEditingController();
@@ -53,11 +53,16 @@ class _EditEmployeeScreenState extends ConsumerState<EditEmployeeScreen> with Si
 
   bool _isLoading = false;
   String? _error;
+  
+  bool get isEmployee => widget.user.roles.any((r) => ['manager', 'trainer', 'instructor'].contains(r.name));
+
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    if (isEmployee) {
+      _tabController = TabController(length: 2, vsync: this);
+    }
     final user = widget.user;
     _emailController.text = user.email;
     _firstNameController.text = user.firstName;
@@ -86,7 +91,7 @@ class _EditEmployeeScreenState extends ConsumerState<EditEmployeeScreen> with Si
   
   @override
   void dispose() {
-    _tabController.dispose();
+    _tabController?.dispose();
     _emailController.dispose();
     _firstNameController.dispose();
     _lastNameController.dispose();
@@ -245,8 +250,6 @@ class _EditEmployeeScreenState extends ConsumerState<EditEmployeeScreen> with Si
       Map<String, dynamic>? managerProfileData;
       Map<String, dynamic>? trainerProfileData;
 
-      bool isEmployee = widget.user.roles.any((r) => ['manager', 'trainer', 'instructor'].contains(r.name));
-
       if (isEmployee) {
         employeeProfileData = {
           'specialization': _specializationController.text.trim(),
@@ -317,25 +320,36 @@ class _EditEmployeeScreenState extends ConsumerState<EditEmployeeScreen> with Si
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Редактирование: ${widget.user.shortName}'),
-        bottom: TabBar(
+    if (isEmployee) {
+      // Build UI with tabs for employees
+      return Scaffold(
+        appBar: AppBar(
+          title: Text('Редактирование: ${widget.user.shortName}'),
+          bottom: TabBar(
+            controller: _tabController,
+            tabs: const [
+              Tab(text: 'Основная информация'),
+              Tab(text: 'Компетенции ТО'),
+            ],
+          ),
+        ),
+        body: TabBarView(
           controller: _tabController,
-          tabs: const [
-            Tab(text: 'Основная информация'),
-            Tab(text: 'Компетенции ТО'),
+          children: [
+            _buildInfoForm(),
+            CompetencyTab(employeeId: widget.user.id.toString()),
           ],
         ),
-      ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          _buildInfoForm(),
-          CompetencyTab(employeeId: widget.user.id.toString()),
-        ],
-      ),
-    );
+      );
+    } else {
+      // Build UI without tabs for clients
+      return Scaffold(
+        appBar: AppBar(
+          title: Text('Редактирование: ${widget.user.shortName}'),
+        ),
+        body: _buildInfoForm(),
+      );
+    }
   }
   
   Widget _buildInfoForm() {
@@ -343,8 +357,6 @@ class _EditEmployeeScreenState extends ConsumerState<EditEmployeeScreen> with Si
     final currentUser = authState.value?.user;
     final canEditPhoto =
         currentUser != null && !currentUser.roles.any((role) => role.name == 'client');
-
-    final isEmployee = widget.user.roles.any((r) => ['manager', 'trainer', 'instructor'].contains(r.name));
 
     return Padding(
         padding: const EdgeInsets.all(16.0),
