@@ -2,16 +2,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../users/models/user.dart';
+import '../models/user.dart';
 import '../../roles/models/role.dart';
 import '../../../services/api_service.dart';
-import 'create_employee_screen.dart';
+import '../../employees/screens/create_employee_screen.dart';
 import '../../../screens/client_dashboard.dart';
 import '../../../screens/instructor_dashboard.dart';
 import '../../../screens/manager_dashboard.dart';
 import '../../../screens/trainer_dashboard.dart';
 import '../../roles/screens/unknown_role_screen.dart';
-import 'edit_employee_screen.dart';
+import '../../employees/screens/edit_employee_screen.dart';
 import '../../roles/widgets/role_dialog_manager.dart';
 import '../../../widgets/reset_password_dialog.dart';
 import '../../../widgets/filter_popup_menu.dart'; 
@@ -110,12 +110,12 @@ final employeesProvider = AsyncNotifierProvider<EmployeesNotifier, List<User>>((
 
 final newlyCreatedUserProvider = StateProvider<User?>((ref) => null);
 
-class EmployeesListScreen extends ConsumerStatefulWidget {
+class UserListScreen extends ConsumerStatefulWidget {
   final String? initialFilter;
   final ScrollController scrollController;
   final bool showToolbar;
 
-  const EmployeesListScreen({
+  const UserListScreen({
     super.key,
     this.initialFilter,
     required this.scrollController,
@@ -123,10 +123,10 @@ class EmployeesListScreen extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<EmployeesListScreen> createState() => _EmployeesListScreenState();
+  ConsumerState<UserListScreen> createState() => _UserListScreenState();
 }
 
-class _EmployeesListScreenState extends ConsumerState<EmployeesListScreen> {
+class _UserListScreenState extends ConsumerState<UserListScreen> {
   final TextEditingController _searchController = TextEditingController();
   final TextEditingController _archiveReasonController = TextEditingController();
   final _formKey = GlobalKey<FormState>();

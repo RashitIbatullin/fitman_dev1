@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/auth_provider.dart';
-import '../modules/employees/screens/employees_list_screen.dart';
+import '../modules/users/screens/user_list_screen.dart';
 import 'admin/catalogs_screen.dart';
 
 class AdminDashboard extends ConsumerStatefulWidget {
@@ -180,7 +180,7 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
     // Only include screens for IndexedStack. TrainingGroupsScreen will be pushed.
     final List<Widget> views = [
       const Center(child: Text('Главное')),
-      EmployeesListScreen(scrollController: _scrollController, showToolbar: _showBars),
+      UserListScreen(scrollController: _scrollController, showToolbar: _showBars),
       // TrainingGroupsScreen is removed from IndexedStack views
     ];
 

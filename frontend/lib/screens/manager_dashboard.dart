@@ -1,5 +1,5 @@
 import 'package:fitman_app/modules/users/models/user.dart';
-import 'package:fitman_app/modules/employees/screens/employees_list_screen.dart';
+import 'package:fitman_app/modules/users/screens/user_list_screen.dart';
 import 'package:fitman_app/providers/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -7,6 +7,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fitman_app/screens/shared/profile_screen.dart';
 
 import 'manager/schedule_view.dart';
+
+import 'package:fitman_app/modules/employees/screens/competency_screen.dart';
 
 class ManagerDashboard extends ConsumerStatefulWidget {
   final User? manager;
@@ -81,10 +83,38 @@ class _ManagerDashboardState extends ConsumerState<ManagerDashboard> {
 
     final List<Widget> views = [
       const Center(child: Text('Главное')),
-      EmployeesListScreen(scrollController: _scrollController, showToolbar: _showBars),
+      UserListScreen(scrollController: _scrollController, showToolbar: _showBars),
       const ScheduleView(),
       const Center(child: Text('Табели - в разработке')),
     ];
+
+    void handleMenuSelection(String value) {
+      switch (value) {
+        case 'main':
+          _onItemTapped(0);
+          break;
+        case 'users':
+          _onItemTapped(1);
+          break;
+        case 'schedule':
+          _onItemTapped(2);
+          break;
+        case 'timesheet':
+          _onItemTapped(3);
+          break;
+        case 'competencies':
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => CompetencyScreen(
+                employeeId: user.id.toString(),
+                employeeName: user.shortName,
+              ),
+            ),
+          );
+          break;
+      }
+    }
 
     return Scaffold(
       appBar: PreferredSize(
@@ -93,7 +123,39 @@ class _ManagerDashboardState extends ConsumerState<ManagerDashboard> {
           duration: const Duration(milliseconds: 200),
           height: _showBars ? kToolbarHeight : 0,
           child: AppBar(
-            leading: widget.showBackButton ? const BackButton() : null,
+            leadingWidth: widget.showBackButton ? 96 : 56,
+            leading: Row(
+              children: [
+                if (widget.showBackButton) const BackButton(),
+                if (widget.showBackButton)
+                  PopupMenuButton<String>(
+                    onSelected: handleMenuSelection,
+                    itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                      const PopupMenuItem<String>(
+                        value: 'main',
+                        child: Text('Главное'),
+                      ),
+                      const PopupMenuItem<String>(
+                        value: 'users',
+                        child: Text('Пользователи'),
+                      ),
+                      const PopupMenuItem<String>(
+                        value: 'schedule',
+                        child: Text('Расписание'),
+                      ),
+                      const PopupMenuItem<String>(
+                        value: 'timesheet',
+                        child: Text('Табели'),
+                      ),
+                      const PopupMenuDivider(),
+                      const PopupMenuItem<String>(
+                        value: 'competencies',
+                        child: Text('Компетенции ТО'),
+                      ),
+                    ],
+                  ),
+              ],
+            ),
             title: Text(_titles[_selectedIndex]),
              actions: [
               if (widget.manager == null)

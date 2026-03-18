@@ -9,7 +9,7 @@ import '../../users/models/user.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../services/api_service.dart';
 import '../../../screens/client/full_screen_photo_editor.dart';
-import 'employees_list_screen.dart';
+import '../../users/screens/user_list_screen.dart';
 import 'manage_user_roles_screen.dart';
 import '../widgets/competency_tab.dart';
 
