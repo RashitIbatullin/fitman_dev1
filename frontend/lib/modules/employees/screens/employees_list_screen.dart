@@ -19,7 +19,7 @@ import '../../../widgets/filter_popup_menu.dart';
 
 // 1. Providers for filters
 final userRoleFilterProvider = StateProvider<String?>((ref) => 'all');
-final userIsArchivedFilterProvider = StateProvider<bool?>((ref) => false);
+final userIsArchivedFilterProvider = StateProvider<bool>((ref) => false);
 
 // Constants for pagination
 const int _usersLimit = 20; // Number of users to fetch per page
@@ -91,7 +91,7 @@ class EmployeesNotifier extends AsyncNotifier<List<User>> {
     state = await AsyncValue.guard(() => _fetchUsers());
   }
 
-  void updateFilters(String? newRole, bool? newIsArchived) {
+  void updateFilters(String? newRole, bool newIsArchived) {
     if (ref.read(userRoleFilterProvider) != newRole ||
         ref.read(userIsArchivedFilterProvider) != newIsArchived) {
       ref.read(userRoleFilterProvider.notifier).state = newRole;
@@ -398,16 +398,16 @@ class _EmployeesListScreenState extends ConsumerState<EmployeesListScreen> {
                             avatar: const Icon(Icons.person_search_outlined),
                           ),
                           const SizedBox(width: 8),
-                          FilterPopupMenuButton<bool>(
-                            tooltip: 'Фильтр по статусу',
-                            initialValue: ref.watch(userIsArchivedFilterProvider),
-                            onSelected: (value) => ref.read(userIsArchivedFilterProvider.notifier).state = value,
-                            allOptionText: 'Статус: Все',
-                            options: const [
-                              FilterOption(label: 'Активные', value: false),
-                              FilterOption(label: 'В архиве', value: true),
+                          Row(
+                            children: [
+                              const Text('Архив'),
+                              Switch(
+                                value: ref.watch(userIsArchivedFilterProvider),
+                                onChanged: (value) {
+                                  ref.read(userIsArchivedFilterProvider.notifier).state = value;
+                                },
+                              ),
                             ],
-                            avatar: const Icon(Icons.archive_outlined),
                           ),
                         ],
                       ),
@@ -521,12 +521,13 @@ class _EmployeesListScreenState extends ConsumerState<EmployeesListScreen> {
                           }
                         },
                         itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                          const PopupMenuItem<String>(value: 'edit', child: Text('Изменить')),
-                          const PopupMenuItem<String>(value: 'reset_password', child: Text('Сбросить пароль')),
-                          if (user.archivedAt == null)
-                            const PopupMenuItem<String>(value: 'archive', child: Text('Архивировать'))
-                          else
+                          if (user.archivedAt == null) ...[
+                            const PopupMenuItem<String>(value: 'edit', child: Text('Изменить')),
+                            const PopupMenuItem<String>(value: 'reset_password', child: Text('Сбросить пароль')),
+                            const PopupMenuItem<String>(value: 'archive', child: Text('Архивировать')),
+                          ] else ...[
                             const PopupMenuItem<String>(value: 'deactivate', child: Text('Деархивировать')),
+                          ],
                         ],
                       ),
                       onTap: () async {

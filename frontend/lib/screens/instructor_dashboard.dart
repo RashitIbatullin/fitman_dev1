@@ -59,7 +59,6 @@ class _InstructorDashboardState extends ConsumerState<InstructorDashboard> {
       EmployeesListScreen(
         scrollController: _scrollController,
         showToolbar: false,
-        initialFilter: 'client',
       ),
       const Center(child: Text('Расписание - в разработке')),
       const Center(child: Text('Табель - в разработке')),

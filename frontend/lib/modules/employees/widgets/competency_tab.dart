@@ -3,14 +3,57 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fitman_app/modules/supportStaff/models/competency.model.dart';
 import 'package:fitman_app/modules/supportStaff/models/competency_level.enum.dart';
 import 'package:fitman_app/modules/equipment/models/equipment_maintenance_history.model.dart';
+import 'package:fitman_app/services/api_service.dart';
 import '../providers/competency_provider.dart';
 
-class CompetencyTab extends ConsumerWidget {
+class CompetencyTab extends ConsumerStatefulWidget {
   final String employeeId;
 
   const CompetencyTab({super.key, required this.employeeId});
 
-  void _showAddCompetencyDialog(BuildContext context, WidgetRef ref) {
+  @override
+  ConsumerState<CompetencyTab> createState() => _CompetencyTabState();
+}
+
+class _CompetencyTabState extends ConsumerState<CompetencyTab> {
+  List<Competency> _competencies = [];
+  List<Competency> _originalCompetencies = [];
+  bool _isLoading = true;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _fetchInitialCompetencies();
+    });
+  }
+
+  Future<void> _fetchInitialCompetencies() async {
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+    try {
+      final competencies = await ref.read(employeeCompetenciesProvider(widget.employeeId).future);
+      if (mounted) {
+        setState(() {
+          _competencies = List.from(competencies);
+          _originalCompetencies = List.from(competencies);
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _error = 'Не удалось загрузить компетенции: $e';
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  void _showAddCompetencyDialog() {
     final nameController = TextEditingController();
     CompetencyLevel? selectedLevel;
 
@@ -25,6 +68,7 @@ class CompetencyTab extends ConsumerWidget {
               TextField(
                 controller: nameController,
                 decoration: const InputDecoration(labelText: 'Название компетенции'),
+                autofocus: true,
               ),
               DropdownButtonFormField<CompetencyLevel>(
                 initialValue: selectedLevel,
@@ -35,7 +79,7 @@ class CompetencyTab extends ConsumerWidget {
                 items: CompetencyLevel.values
                     .map((level) => DropdownMenuItem(
                           value: level,
-                          child: Text(level.toString().split('.').last),
+                          child: Text(level.localizedName),
                         ))
                     .toList(),
               ),
@@ -51,15 +95,15 @@ class CompetencyTab extends ConsumerWidget {
               onPressed: () {
                 if (nameController.text.isNotEmpty && selectedLevel != null) {
                   final newCompetency = Competency(
-                    id: '', // ID is assigned by the backend
-                    competentId: employeeId,
+                    id: '', // Empty ID signifies a new, unsaved competency
+                    competentId: widget.employeeId,
                     executorType: ExecutorType.user,
                     name: nameController.text,
                     level: selectedLevel!,
                   );
-                  ref
-                      .read(employeeCompetenciesProvider(employeeId).notifier)
-                      .addCompetency(newCompetency);
+                  setState(() {
+                    _competencies.add(newCompetency);
+                  });
                   Navigator.of(context).pop();
                 }
               },
@@ -70,40 +114,102 @@ class CompetencyTab extends ConsumerWidget {
     );
   }
 
+  Future<void> _saveChanges() async {
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+
+    try {
+      final toAdd = _competencies.where((c) => c.id.isEmpty).toList();
+      
+      final originalIds = _originalCompetencies.map((c) => c.id).toSet();
+      final currentIds = _competencies.where((c) => c.id.isNotEmpty).map((c) => c.id).toSet();
+      final toDeleteIds = originalIds.difference(currentIds);
+
+      for (final id in toDeleteIds) {
+        await ApiService.deleteEmployeeCompetency(widget.employeeId, id);
+      }
+
+      for (final competency in toAdd) {
+        await ApiService.addEmployeeCompetency(widget.employeeId, competency);
+      }
+      
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Компетенции успешно сохранены'),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+    } catch (e) {
+       if (mounted) {
+        setState(() {
+          _error = 'Ошибка сохранения: $e';
+        });
+      }
+    } finally {
+       await _fetchInitialCompetencies();
+    }
+  }
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final competenciesAsync = ref.watch(employeeCompetenciesProvider(employeeId));
+  Widget build(BuildContext context) {
+    if (_isLoading && _competencies.isEmpty) {
+       return const Center(child: CircularProgressIndicator());
+    }
+    
+    if (_error != null) {
+        return Center(child: Text(_error!));
+    }
 
     return Scaffold(
-      body: competenciesAsync.when(
-        data: (competencies) {
-          if (competencies.isEmpty) {
-            return const Center(child: Text('Компетенции не найдены.'));
-          }
-          return ListView.builder(
-            itemCount: competencies.length,
-            itemBuilder: (context, index) {
-              final competency = competencies[index];
-              return ListTile(
-                title: Text(competency.name),
-                subtitle: Text('Уровень: ${competency.level.toString().split('.').last}'),
-                trailing: IconButton(
-                  icon: const Icon(Icons.delete, color: Colors.red),
-                  onPressed: () {
-                    ref
-                        .read(employeeCompetenciesProvider(employeeId).notifier)
-                        .deleteCompetency(competency.id);
-                  },
+      body: Column(
+        children: [
+          Expanded(
+            child: _competencies.isEmpty
+                ? const Center(child: Text('Компетенции не найдены. Нажмите "+", чтобы добавить.'))
+                : ListView.builder(
+                    itemCount: _competencies.length,
+                    itemBuilder: (context, index) {
+                      final competency = _competencies[index];
+                      final isNew = competency.id.isEmpty;
+                      return ListTile(
+                        leading: isNew ? const Icon(Icons.add_circle_outline, color: Colors.green) : null,
+                        title: Text(competency.name),
+                        subtitle: Text('Уровень: ${competency.level.localizedName}'),
+                        trailing: IconButton(
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          onPressed: () {
+                            setState(() {
+                              _competencies.removeAt(index);
+                            });
+                          },
+                        ),
+                      );
+                    },
+                  ),
+          ),
+          if (_isLoading) const LinearProgressIndicator(),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: _isLoading ? null : _saveChanges,
+                icon: const Icon(Icons.save),
+                label: const Text('Сохранить'),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
-              );
-            },
-          );
-        },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) => Center(child: Text('Ошибка: $err')),
+              ),
+            ),
+          )
+        ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _showAddCompetencyDialog(context, ref),
+        onPressed: () => _showAddCompetencyDialog(),
         child: const Icon(Icons.add),
       ),
     );

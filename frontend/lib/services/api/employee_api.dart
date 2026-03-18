@@ -9,7 +9,7 @@ class EmployeeApiService extends BaseApiService {
   }
 
   Future<Competency> addCompetency(String userId, Competency competency) async {
-    final response = await post('/employees/$userId/competencies', body: competency.toJson());
+    final response = await post('/api/employees/$userId/competencies', body: competency.toJson());
     return Competency.fromJson(response);
   }
 
