@@ -263,6 +263,23 @@ class UsersController {
             );
         }
       }
+
+      // Check for employee profile data and update it if present
+      if (data.containsKey('employee_profile') && data['employee_profile'] is Map) {
+        final employeeProfileData = data['employee_profile'] as Map<String, dynamic>;
+        
+        // Check if the user actually is an employee (instructor, trainer, manager)
+        final userRoles = await _db.getRolesForUser(userId);
+        if (userRoles.any((role) => ['instructor', 'trainer', 'manager'].contains(role.name))) {
+            await _db.updateEmployeeProfile(
+              userId: userId,
+              specialization: employeeProfileData['specialization'] as String?,
+              workExperience: employeeProfileData['work_experience'] as int?,
+              canMaintainEquipment: employeeProfileData['can_maintain_equipment'] as bool?,
+              updatedBy: updaterId ?? userId,
+            );
+        }
+      }
       // --- END OF NEW LOGIC ---
 
       final updatedUser = await _db.getUserById(userId);

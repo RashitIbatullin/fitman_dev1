@@ -589,7 +589,7 @@ class Database {
         setParts.add('coeff_activity = @coeffActivity');
         parameters['coeffActivity'] = coeffActivity;
       }
-      
+
       if (setParts.isEmpty) {
         // нечего обновлять
         return;
@@ -605,7 +605,7 @@ class Database {
         SET ${setParts.join(', ')}
         WHERE user_id = @userId
       ''';
-      
+
       final result = await conn.execute(
         Sql.named(sql),
         parameters: parameters,
@@ -643,6 +643,81 @@ class Database {
     }
   }
 
+  // Обновить профиль сотрудника
+  Future<void> updateEmployeeProfile({
+    required int userId,
+    String? specialization,
+    int? workExperience,
+    bool? canMaintainEquipment,
+    required int updatedBy,
+  }) async {
+    try {
+      final conn = await connection;
+
+      final setParts = <String>[];
+      final parameters = <String, dynamic>{'userId': userId};
+
+      if (specialization != null) {
+        setParts.add('specialization = @specialization');
+        parameters['specialization'] = specialization;
+      }
+      if (workExperience != null) {
+        setParts.add('work_experience = @workExperience');
+        parameters['workExperience'] = workExperience;
+      }
+      if (canMaintainEquipment != null) {
+        setParts.add('can_maintain_equipment = @canMaintainEquipment');
+        parameters['canMaintainEquipment'] = canMaintainEquipment;
+      }
+
+      if (setParts.isEmpty) {
+        return; // Nothing to update
+      }
+
+      setParts.add('updated_at = @updatedAt');
+      parameters['updatedAt'] = DateTime.now();
+      setParts.add('updated_by = @updatedBy');
+      parameters['updatedBy'] = updatedBy;
+
+      final sql = '''
+        UPDATE employee_profiles
+        SET ${setParts.join(', ')}
+        WHERE user_id = @userId
+      ''';
+
+      final result = await conn.execute(
+        Sql.named(sql),
+        parameters: parameters,
+      );
+
+      // If no row was updated, it might mean the employee profile doesn't exist. Create it.
+      if (result.affectedRows == 0) {
+        await conn.execute(
+          Sql.named('''
+            INSERT INTO employee_profiles (user_id, specialization, work_experience, can_maintain_equipment, created_by, updated_by)
+            VALUES (@userId, @specialization, @workExperience, @canMaintainEquipment, @updatedBy, @updatedBy)
+            ON CONFLICT (user_id) DO UPDATE SET
+              specialization = COALESCE(@specialization, employee_profiles.specialization),
+              work_experience = COALESCE(@workExperience, employee_profiles.work_experience),
+              can_maintain_equipment = COALESCE(@canMaintainEquipment, employee_profiles.can_maintain_equipment),
+              updated_at = NOW(),
+              updated_by = @updatedBy
+          '''),
+          parameters: {
+            'userId': userId,
+            'specialization': specialization,
+            'workExperience': workExperience,
+            'canMaintainEquipment': canMaintainEquipment,
+            'updatedBy': updatedBy,
+          }
+        );
+      }
+
+    } catch (e) {
+      print('❌ updateEmployeeProfile error: $e');
+      rethrow;
+    }
+  }
   // Удалить пользователя
   Future<bool> deleteUser(int id) async {
     try {

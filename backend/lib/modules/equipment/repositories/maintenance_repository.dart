@@ -245,14 +245,16 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
     final conn = await _db.connection;
 
     final internalUsersQuery = '''
-      SELECT 
+      SELECT DISTINCT
         u.id, 
         u.first_name, 
         u.last_name 
       FROM users u 
-      JOIN user_maintenance_competencies umc ON u.id = umc.user_id 
+      JOIN employee_profiles ep ON u.id = ep.user_id
+      LEFT JOIN competencies c ON u.id = c.competent_id AND c.executor_type = 0
       WHERE u.archived_at IS NULL 
-      GROUP BY u.id, u.first_name, u.last_name
+        AND ep.can_maintain_equipment = true
+        AND c.competent_id IS NOT NULL
       ORDER BY u.last_name, u.first_name;
     ''';
     
