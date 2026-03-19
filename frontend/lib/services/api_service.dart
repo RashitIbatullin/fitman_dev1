@@ -16,6 +16,7 @@ import 'api/employee_api.dart';
 import '../models/available_executor.model.dart';
 import '../modules/equipment/models/equipment/equipment_item.model.dart';
 import '../modules/equipment/models/equipment/equipment_type.model.dart';
+import '../modules/equipment/models/repair_time_standard.model.dart';
 import '../modules/roles/models/role.dart';
 import '../models/schedule_item.dart';
 import '../modules/rooms/models/building/building.model.dart';
@@ -195,6 +196,18 @@ class ApiService {
 
   static Future<AvailableExecutorsResponse> getAvailableExecutors() =>
       _maintenanceApi.getAvailableExecutors();
+
+  // --- Repair Time Standard Methods ---
+  static Future<List<RepairTimeStandard>> getRepairTimeStandards({bool includeArchived = false}) =>
+      _maintenanceApi.getRepairTimeStandards(includeArchived: includeArchived);
+  static Future<RepairTimeStandard> createRepairTimeStandard(RepairTimeStandard standard) =>
+      _maintenanceApi.createRepairTimeStandard(standard);
+  static Future<RepairTimeStandard> updateRepairTimeStandard(String standardId, RepairTimeStandard standard) =>
+      _maintenanceApi.updateRepairTimeStandard(standardId, standard);
+  static Future<void> archiveRepairTimeStandard(String standardId, String reason) =>
+      _maintenanceApi.archiveRepairTimeStandard(standardId, reason);
+  static Future<void> unarchiveRepairTimeStandard(String standardId) =>
+      _maintenanceApi.unarchiveRepairTimeStandard(standardId);
 
 
 

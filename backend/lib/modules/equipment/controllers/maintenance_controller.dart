@@ -169,6 +169,75 @@ class MaintenanceController {
 
     router.post('/<id>/photos', _uploadPhoto);
 
+    router.post('/<id>/diagnose', (Request request, String id) async {
+      try {
+        final body = await request.readAsString();
+        final jsonData = jsonDecode(body) as Map<String, dynamic>;
+        
+        final userPayload = request.context['user'] as Map<String, dynamic>?;
+        final userId = userPayload?['userId']?.toString();
+        if (userId == null) {
+          return Response.forbidden(jsonEncode({'error': 'User not authenticated'}));
+        }
+
+        final diagnosisNotes = jsonData['diagnosis_notes'] as String?;
+        if (diagnosisNotes == null || diagnosisNotes.isEmpty) {
+          return Response.badRequest(body: jsonEncode({'error': 'diagnosis_notes is required'}));
+        }
+        final repairTimeStandardId = jsonData['repair_time_standard_id'] as String?;
+
+        final updatedHistory = await _maintenanceService.submitDiagnosis(
+          maintenanceId: id,
+          userId: userId,
+          diagnosisNotes: diagnosisNotes,
+          repairTimeStandardId: repairTimeStandardId,
+        );
+
+        return Response.ok(
+          jsonEncode(updatedHistory.toJson()),
+          headers: {'Content-Type': 'application/json'},
+        );
+      } catch (e, st) {
+        print('--- BACKEND ERROR: POST /maintenance/<id>/diagnose ---');
+        print('ERROR: $e');
+        print('STACKTRACE: $st');
+        return Response.internalServerError(body: jsonEncode({'error': e.toString()}));
+      }
+    });
+
+    router.post('/<id>/complete', (Request request, String id) async {
+      try {
+        final body = await request.readAsString();
+        final jsonData = jsonDecode(body) as Map<String, dynamic>;
+
+        final userPayload = request.context['user'] as Map<String, dynamic>?;
+        final userId = userPayload?['userId']?.toString();
+        if (userId == null) {
+          return Response.forbidden(jsonEncode({'error': 'User not authenticated'}));
+        }
+
+        final workDescription = jsonData['work_description'] as String?;
+        if (workDescription == null || workDescription.isEmpty) {
+          return Response.badRequest(body: jsonEncode({'error': 'work_description is required'}));
+        }
+
+        final updatedHistory = await _maintenanceService.completeRepair(
+          maintenanceId: id,
+          userId: userId,
+          workDescription: workDescription,
+        );
+        return Response.ok(
+          jsonEncode(updatedHistory.toJson()),
+          headers: {'Content-Type': 'application/json'},
+        );
+      } catch (e, st) {
+        print('--- BACKEND ERROR: POST /maintenance/<id>/complete ---');
+        print('ERROR: $e');
+        print('STACKTRACE: $st');
+        return Response.internalServerError(body: jsonEncode({'error': e.toString()}));
+      }
+    });
+
     router.put('/<id>', (Request request, String id) async {
       try {
         final body = await request.readAsString();

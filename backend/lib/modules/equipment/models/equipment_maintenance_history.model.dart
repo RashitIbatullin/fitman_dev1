@@ -15,6 +15,8 @@ enum MaintenanceType {
 enum MaintenanceStatus {
   /// Проблема зафиксирована
   reported,
+  /// На диагностике
+  diagnosing,
   /// В работе
   inProgress,
   /// Завершено
@@ -61,6 +63,12 @@ class EquipmentMaintenanceHistory with _$EquipmentMaintenanceHistory {
     String? equipmentName,
     required MaintenanceType type,
     required MaintenanceStatus status,
+
+    // Новые поля
+    String? repairTimeStandardId,
+    String? diagnosisNotes,
+    double? actualDurationHours,
+
     DateTime? createdAt,
     DateTime? startedAt,
     DateTime? completedAt,

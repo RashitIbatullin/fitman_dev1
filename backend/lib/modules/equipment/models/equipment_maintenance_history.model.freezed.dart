@@ -323,7 +323,11 @@ mixin _$EquipmentMaintenanceHistory {
   String get equipmentItemId => throw _privateConstructorUsedError;
   String? get equipmentName => throw _privateConstructorUsedError;
   MaintenanceType get type => throw _privateConstructorUsedError;
-  MaintenanceStatus get status => throw _privateConstructorUsedError;
+  MaintenanceStatus get status =>
+      throw _privateConstructorUsedError; // Новые поля
+  String? get repairTimeStandardId => throw _privateConstructorUsedError;
+  String? get diagnosisNotes => throw _privateConstructorUsedError;
+  double? get actualDurationHours => throw _privateConstructorUsedError;
   DateTime? get createdAt => throw _privateConstructorUsedError;
   DateTime? get startedAt => throw _privateConstructorUsedError;
   DateTime? get completedAt => throw _privateConstructorUsedError;
@@ -369,6 +373,9 @@ abstract class $EquipmentMaintenanceHistoryCopyWith<$Res> {
     String? equipmentName,
     MaintenanceType type,
     MaintenanceStatus status,
+    String? repairTimeStandardId,
+    String? diagnosisNotes,
+    double? actualDurationHours,
     DateTime? createdAt,
     DateTime? startedAt,
     DateTime? completedAt,
@@ -412,6 +419,9 @@ class _$EquipmentMaintenanceHistoryCopyWithImpl<
     Object? equipmentName = freezed,
     Object? type = null,
     Object? status = null,
+    Object? repairTimeStandardId = freezed,
+    Object? diagnosisNotes = freezed,
+    Object? actualDurationHours = freezed,
     Object? createdAt = freezed,
     Object? startedAt = freezed,
     Object? completedAt = freezed,
@@ -452,6 +462,18 @@ class _$EquipmentMaintenanceHistoryCopyWithImpl<
                 ? _value.status
                 : status // ignore: cast_nullable_to_non_nullable
                       as MaintenanceStatus,
+            repairTimeStandardId: freezed == repairTimeStandardId
+                ? _value.repairTimeStandardId
+                : repairTimeStandardId // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            diagnosisNotes: freezed == diagnosisNotes
+                ? _value.diagnosisNotes
+                : diagnosisNotes // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            actualDurationHours: freezed == actualDurationHours
+                ? _value.actualDurationHours
+                : actualDurationHours // ignore: cast_nullable_to_non_nullable
+                      as double?,
             createdAt: freezed == createdAt
                 ? _value.createdAt
                 : createdAt // ignore: cast_nullable_to_non_nullable
@@ -541,6 +563,9 @@ abstract class _$$EquipmentMaintenanceHistoryImplCopyWith<$Res>
     String? equipmentName,
     MaintenanceType type,
     MaintenanceStatus status,
+    String? repairTimeStandardId,
+    String? diagnosisNotes,
+    double? actualDurationHours,
     DateTime? createdAt,
     DateTime? startedAt,
     DateTime? completedAt,
@@ -584,6 +609,9 @@ class __$$EquipmentMaintenanceHistoryImplCopyWithImpl<$Res>
     Object? equipmentName = freezed,
     Object? type = null,
     Object? status = null,
+    Object? repairTimeStandardId = freezed,
+    Object? diagnosisNotes = freezed,
+    Object? actualDurationHours = freezed,
     Object? createdAt = freezed,
     Object? startedAt = freezed,
     Object? completedAt = freezed,
@@ -624,6 +652,18 @@ class __$$EquipmentMaintenanceHistoryImplCopyWithImpl<$Res>
             ? _value.status
             : status // ignore: cast_nullable_to_non_nullable
                   as MaintenanceStatus,
+        repairTimeStandardId: freezed == repairTimeStandardId
+            ? _value.repairTimeStandardId
+            : repairTimeStandardId // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        diagnosisNotes: freezed == diagnosisNotes
+            ? _value.diagnosisNotes
+            : diagnosisNotes // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        actualDurationHours: freezed == actualDurationHours
+            ? _value.actualDurationHours
+            : actualDurationHours // ignore: cast_nullable_to_non_nullable
+                  as double?,
         createdAt: freezed == createdAt
             ? _value.createdAt
             : createdAt // ignore: cast_nullable_to_non_nullable
@@ -707,6 +747,9 @@ class _$EquipmentMaintenanceHistoryImpl
     this.equipmentName,
     required this.type,
     required this.status,
+    this.repairTimeStandardId,
+    this.diagnosisNotes,
+    this.actualDurationHours,
     this.createdAt,
     this.startedAt,
     this.completedAt,
@@ -740,6 +783,13 @@ class _$EquipmentMaintenanceHistoryImpl
   final MaintenanceType type;
   @override
   final MaintenanceStatus status;
+  // Новые поля
+  @override
+  final String? repairTimeStandardId;
+  @override
+  final String? diagnosisNotes;
+  @override
+  final double? actualDurationHours;
   @override
   final DateTime? createdAt;
   @override
@@ -785,7 +835,7 @@ class _$EquipmentMaintenanceHistoryImpl
 
   @override
   String toString() {
-    return 'EquipmentMaintenanceHistory(id: $id, equipmentItemId: $equipmentItemId, equipmentName: $equipmentName, type: $type, status: $status, createdAt: $createdAt, startedAt: $startedAt, completedAt: $completedAt, equipmentAvailableFrom: $equipmentAvailableFrom, reportedProblem: $reportedProblem, workDescription: $workDescription, reportedBy: $reportedBy, executorId: $executorId, executorType: $executorType, executorName: $executorName, relatedBookingId: $relatedBookingId, causedDowntime: $causedDowntime, updatedAt: $updatedAt, archivedAt: $archivedAt, archivedBy: $archivedBy, archivedReason: $archivedReason, photos: $photos)';
+    return 'EquipmentMaintenanceHistory(id: $id, equipmentItemId: $equipmentItemId, equipmentName: $equipmentName, type: $type, status: $status, repairTimeStandardId: $repairTimeStandardId, diagnosisNotes: $diagnosisNotes, actualDurationHours: $actualDurationHours, createdAt: $createdAt, startedAt: $startedAt, completedAt: $completedAt, equipmentAvailableFrom: $equipmentAvailableFrom, reportedProblem: $reportedProblem, workDescription: $workDescription, reportedBy: $reportedBy, executorId: $executorId, executorType: $executorType, executorName: $executorName, relatedBookingId: $relatedBookingId, causedDowntime: $causedDowntime, updatedAt: $updatedAt, archivedAt: $archivedAt, archivedBy: $archivedBy, archivedReason: $archivedReason, photos: $photos)';
   }
 
   @override
@@ -800,6 +850,12 @@ class _$EquipmentMaintenanceHistoryImpl
                 other.equipmentName == equipmentName) &&
             (identical(other.type, type) || other.type == type) &&
             (identical(other.status, status) || other.status == status) &&
+            (identical(other.repairTimeStandardId, repairTimeStandardId) ||
+                other.repairTimeStandardId == repairTimeStandardId) &&
+            (identical(other.diagnosisNotes, diagnosisNotes) ||
+                other.diagnosisNotes == diagnosisNotes) &&
+            (identical(other.actualDurationHours, actualDurationHours) ||
+                other.actualDurationHours == actualDurationHours) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.startedAt, startedAt) ||
@@ -844,6 +900,9 @@ class _$EquipmentMaintenanceHistoryImpl
     equipmentName,
     type,
     status,
+    repairTimeStandardId,
+    diagnosisNotes,
+    actualDurationHours,
     createdAt,
     startedAt,
     completedAt,
@@ -888,6 +947,9 @@ abstract class _EquipmentMaintenanceHistory
     final String? equipmentName,
     required final MaintenanceType type,
     required final MaintenanceStatus status,
+    final String? repairTimeStandardId,
+    final String? diagnosisNotes,
+    final double? actualDurationHours,
     final DateTime? createdAt,
     final DateTime? startedAt,
     final DateTime? completedAt,
@@ -919,7 +981,13 @@ abstract class _EquipmentMaintenanceHistory
   @override
   MaintenanceType get type;
   @override
-  MaintenanceStatus get status;
+  MaintenanceStatus get status; // Новые поля
+  @override
+  String? get repairTimeStandardId;
+  @override
+  String? get diagnosisNotes;
+  @override
+  double? get actualDurationHours;
   @override
   DateTime? get createdAt;
   @override

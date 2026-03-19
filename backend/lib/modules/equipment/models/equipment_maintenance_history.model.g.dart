@@ -45,6 +45,9 @@ _$EquipmentMaintenanceHistoryImpl _$$EquipmentMaintenanceHistoryImplFromJson(
   equipmentName: json['equipment_name'] as String?,
   type: $enumDecode(_$MaintenanceTypeEnumMap, json['type']),
   status: $enumDecode(_$MaintenanceStatusEnumMap, json['status']),
+  repairTimeStandardId: json['repair_time_standard_id'] as String?,
+  diagnosisNotes: json['diagnosis_notes'] as String?,
+  actualDurationHours: (json['actual_duration_hours'] as num?)?.toDouble(),
   createdAt: json['created_at'] == null
       ? null
       : DateTime.parse(json['created_at'] as String),
@@ -89,6 +92,9 @@ Map<String, dynamic> _$$EquipmentMaintenanceHistoryImplToJson(
   'equipment_name': instance.equipmentName,
   'type': _$MaintenanceTypeEnumMap[instance.type]!,
   'status': _$MaintenanceStatusEnumMap[instance.status]!,
+  'repair_time_standard_id': instance.repairTimeStandardId,
+  'diagnosis_notes': instance.diagnosisNotes,
+  'actual_duration_hours': instance.actualDurationHours,
   'created_at': instance.createdAt?.toIso8601String(),
   'started_at': instance.startedAt?.toIso8601String(),
   'completed_at': instance.completedAt?.toIso8601String(),
@@ -116,6 +122,7 @@ const _$MaintenanceTypeEnumMap = {
 
 const _$MaintenanceStatusEnumMap = {
   MaintenanceStatus.reported: 'reported',
+  MaintenanceStatus.diagnosing: 'diagnosing',
   MaintenanceStatus.inProgress: 'inProgress',
   MaintenanceStatus.completed: 'completed',
   MaintenanceStatus.cancelled: 'cancelled',

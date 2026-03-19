@@ -42,4 +42,45 @@ class MaintenanceService {
   Future<Map<String, List<Map<String, dynamic>>>> getAvailableExecutors() {
     return _maintenanceRepository.getAvailableExecutors();
   }
+
+  Future<EquipmentMaintenanceHistory> submitDiagnosis({
+    required String maintenanceId,
+    required String userId,
+    required String diagnosisNotes,
+    String? repairTimeStandardId,
+  }) async {
+    final originalHistory = await _maintenanceRepository.getById(maintenanceId);
+
+    final updatedHistory = originalHistory.copyWith(
+      diagnosisNotes: diagnosisNotes,
+      repairTimeStandardId: repairTimeStandardId,
+      status: MaintenanceStatus.inProgress, // After diagnosis, it's ready to be worked on
+      startedAt: DateTime.now(), // Diagnosis completion marks the official start of repair
+    );
+
+    return _maintenanceRepository.update(maintenanceId, updatedHistory, userId);
+  }
+
+  Future<EquipmentMaintenanceHistory> completeRepair({
+    required String maintenanceId,
+    required String userId,
+    required String workDescription,
+  }) async {
+    final originalHistory = await _maintenanceRepository.getById(maintenanceId);
+
+    final completedAt = DateTime.now();
+    final startedAt = originalHistory.startedAt ?? originalHistory.createdAt ?? completedAt;
+    final duration = completedAt.difference(startedAt);
+    // Round to 2 decimal places
+    final actualDurationHours = (duration.inSeconds / 3600 * 100).round() / 100;
+
+    final updatedHistory = originalHistory.copyWith(
+      workDescription: workDescription,
+      status: MaintenanceStatus.completed,
+      completedAt: completedAt,
+      actualDurationHours: actualDurationHours,
+    );
+
+    return _maintenanceRepository.update(maintenanceId, updatedHistory, userId);
+  }
 }

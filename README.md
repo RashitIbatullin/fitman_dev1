@@ -1,4 +1,4 @@
-# Фитнес-менеджер (FitMan) - MVP 2.0
+# Фитнес-менеджер (FitMan) - DEV1
 
 Система автоматизации процессов фитнес-центра.
 
@@ -16,6 +16,7 @@
 
 ### Backend
 - Dart Frog (Dart)
+- Shelf (Server) 
 - PostgreSQL
 - JWT аутентификация
 

@@ -188,7 +188,11 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
           updated_by = @user_id,
           archived_at = @archived_at,
           archived_by = @archived_by,
-          archived_reason = @archived_reason
+          archived_reason = @archived_reason,
+          -- Новые поля
+          repair_time_standard_id = @repair_time_standard_id,
+          diagnosis_notes = @diagnosis_notes,
+          actual_duration_hours = @actual_duration_hours
         WHERE id = @id;
       '''),
       parameters: {
@@ -209,6 +213,10 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
         'archived_at': history.archivedAt,
         'archived_by': history.archivedBy != null ? int.tryParse(history.archivedBy!) : null,
         'archived_reason': history.archivedReason,
+        // Новые параметры
+        'repair_time_standard_id': history.repairTimeStandardId != null ? int.tryParse(history.repairTimeStandardId!) : null,
+        'diagnosis_notes': history.diagnosisNotes,
+        'actual_duration_hours': history.actualDurationHours,
       },
     );
     return await getById(id);

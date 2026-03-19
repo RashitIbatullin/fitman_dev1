@@ -11,6 +11,7 @@ import 'package:fitman_app/modules/rooms/models/room/room.model.dart';
 import 'package:fitman_app/modules/rooms/utils/room_utils.dart'; // Add this import
 import '../item/equipment_item_detail_screen.dart';
 import '../item/equipment_item_edit_screen.dart';
+import 'package:fitman_app/modules/equipment/screens/standards/repair_time_standards_screen.dart';
 import '../type/equipment_types_list_screen.dart';
 
 class EquipmentDashboardScreen extends ConsumerStatefulWidget {
@@ -65,7 +66,17 @@ class _EquipmentDashboardScreenState
                     builder: (context) => const EquipmentTypesListScreen()),
               );
             },
-            child: const Text('Типы оборудования'),
+            child: const Text('Типы'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const RepairTimeStandardsScreen()),
+              );
+            },
+            child: const Text('Нормативы'),
           ),
         ],
       ),

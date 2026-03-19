@@ -36,6 +36,9 @@ import '../modules/supportStaff/services/support_staff.service.dart';
 import '../modules/supportStaff/repositories/support_staff.repository.dart';
 import '../modules/competencies/repositories/competency_repository.dart';
 import '../modules/employees/services/employee_competency_service.dart';
+import '../modules/equipment/controllers/repair_time_standard_controller.dart';
+import '../modules/equipment/repositories/repair_time_standard_repository.dart';
+import '../modules/equipment/services/repair_time_standard_service.dart';
 import '../modules/employees/controllers/employee_competency_controller.dart';
 
 final Database _db = Database();
@@ -44,12 +47,14 @@ final Database _db = Database();
 final _equipmentTypeRepository = EquipmentTypeRepositoryImpl(_db);
 final _equipmentItemRepository = EquipmentItemRepositoryImpl(_db);
 final _maintenanceRepository = MaintenanceRepositoryImpl(_db);
+final _repairTimeStandardRepository = RepairTimeStandardRepositoryImpl(_db);
 final _competencyRepository = CompetencyRepositoryImpl(_db);
 final _supportStaffRepository = SupportStaffRepositoryImpl(_db, _competencyRepository);
 
 // Services
 final _equipmentService = EquipmentServiceImpl(_equipmentTypeRepository, _equipmentItemRepository);
 final _maintenanceService = MaintenanceService(_maintenanceRepository);
+final _repairTimeStandardService = RepairTimeStandardService(_repairTimeStandardRepository);
 final _supportStaffService = SupportStaffService(_supportStaffRepository, _competencyRepository);
 final _employeeCompetencyService = EmployeeCompetencyService(_competencyRepository);
 
@@ -64,6 +69,7 @@ final _roomController = RoomController(_db);
 final _equipmentItemController = EquipmentItemController(_db);
 final _equipmentTypeController = EquipmentTypeController(_db, _equipmentService);
 final _maintenanceController = MaintenanceController(_maintenanceService);
+final _repairTimeStandardController = RepairTimeStandardController(_repairTimeStandardService);
 final _buildingController = BuildingController(_db);
 
 Handler _protectedHandler(Handler handler) {
@@ -247,6 +253,7 @@ final Router router = Router()
   ..mount('/api/equipment/items', _adminHandler(_equipmentItemController.handler))
   ..mount('/api/equipment/types', _adminHandler(_equipmentTypeController.handler))
   ..mount('/api/maintenance', _adminHandler(_maintenanceController.handler))
+  ..mount('/api/maintenance/standards', _adminHandler(_repairTimeStandardController.router.call))
   ..mount('/api/buildings', _adminHandler(_buildingController.router.call))
 
 // Support Staff routes (Admin access)

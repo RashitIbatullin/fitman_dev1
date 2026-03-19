@@ -1,3 +1,4 @@
+import 'package:fitman_app/modules/equipment/screens/maintenance/maintenance_dashboard_screen.dart';
 import 'package:fitman_app/modules/rooms/screens/dashboard/rooms_dashboard_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:fitman_app/modules/equipment/screens/dashboard/equipment_dashboard_screen.dart';
@@ -36,6 +37,18 @@ class CatalogsScreen extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                   builder: (context) => const EquipmentDashboardScreen(),
+                ),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.build),
+            title: const Text('ТО оборудования'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const MaintenanceDashboardScreen(),
                 ),
               );
             },
