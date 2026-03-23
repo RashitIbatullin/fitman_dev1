@@ -110,6 +110,7 @@ class EquipmentMaintenanceHistory with _$EquipmentMaintenanceHistory {
     DateTime? equipmentAvailableFrom,
     required String reportedProblem,
     String? workDescription,
+    String? notes,
     required String reportedBy,
     String? executorId,
     ExecutorType? executorType,

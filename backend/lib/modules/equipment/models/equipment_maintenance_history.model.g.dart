@@ -62,6 +62,7 @@ _$EquipmentMaintenanceHistoryImpl _$$EquipmentMaintenanceHistoryImplFromJson(
       : DateTime.parse(json['equipment_available_from'] as String),
   reportedProblem: json['reported_problem'] as String,
   workDescription: json['work_description'] as String?,
+  notes: json['notes'] as String?,
   reportedBy: json['reported_by'] as String,
   executorId: json['executor_id'] as String?,
   executorType: $enumDecodeNullable(
@@ -102,6 +103,7 @@ Map<String, dynamic> _$$EquipmentMaintenanceHistoryImplToJson(
       ?.toIso8601String(),
   'reported_problem': instance.reportedProblem,
   'work_description': instance.workDescription,
+  'notes': instance.notes,
   'reported_by': instance.reportedBy,
   'executor_id': instance.executorId,
   'executor_type': _$ExecutorTypeEnumMap[instance.executorType],

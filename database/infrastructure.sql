@@ -489,8 +489,58 @@ CREATE INDEX idx_buildings_name ON buildings(name);
 -- Включаем проверку внешних ключей
 SET session_replication_role = 'origin';
 
--- Заполнение данными таблиц, не связанных с оборудованием...
--- (INSERT'ы для kinds_activity_client, levels_training, rooms, buildings, etc.)
+-- 5.1. Заполняем здания
+INSERT INTO buildings (id, name, address, note) VALUES
+(1, 'Главный корпус', 'ул. Спортивная, д. 1', 'Основное здание с тренажерными залами и студиями'),
+(2, 'Водный комплекс', 'ул. Спортивная, д. 1, стр. 2', 'Здание с бассейном и сауной')
+ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, address = EXCLUDED.address, note = EXCLUDED.note;
+DO $$ BEGIN
+    PERFORM setval('buildings_id_seq', (SELECT MAX(id) FROM buildings), true);
+END $$;
+
+-- 5.2. Заполняем помещения
+INSERT INTO rooms (id, name, building_id, type, floor, max_capacity, area, is_active, note) VALUES
+(1, 'Ресепшен', 1, 9, 1, 20, 50.0, true, 'Зона входа и регистрации'),
+(2, 'Кардио-зона', 1, 1, 2, 25, 150.0, true, 'Зона с кардио-тренажерами'),
+(3, 'Силовая зона', 1, 2, 2, 30, 200.0, true, 'Зона со свободными весами и силовыми тренажерами'),
+(4, 'Зал групповых программ', 1, 0, 3, 20, 100.0, true, 'Для занятий аэробикой и танцами'),
+(5, 'Студия йоги', 1, 4, 3, 15, 80.0, true, 'Для занятий йогой и пилатесом'),
+(6, 'Бассейн 25м', 2, 6, 1, 40, 300.0, true, 'Плавание, аквааэробика'),
+(7, 'Сауна', 2, 7, 1, 10, 20.0, true, 'Финская сауна')
+ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, building_id = EXCLUDED.building_id, type = EXCLUDED.type, floor = EXCLUDED.floor;
+DO $$ BEGIN
+    PERFORM setval('rooms_id_seq', (SELECT MAX(id) FROM rooms), true);
+END $$;
+
+-- 5.3. Заполняем вспомогательный персонал
+INSERT INTO support_staff (id, first_name, last_name, phone, email, employment_type, category, can_maintain_equipment, company_name, notes, created_by, updated_by) VALUES
+(1, 'Петр', 'Сергеев', '+79991112233', 'p.sergeev@techservice.com', 2, 0, true, 'ООО "ТехСервис"', 'Внешний подрядчик по ремонту кардио-оборудования', 1, 1)
+ON CONFLICT (id) DO UPDATE SET first_name = EXCLUDED.first_name, last_name = EXCLUDED.last_name, company_name = EXCLUDED.company_name, updated_at = NOW(), updated_by = 1;
+DO $$ BEGIN PERFORM setval('support_staff_id_seq', (SELECT MAX(id) FROM support_staff), true); END $$;
+
+-- 5.4. Заполняем компетенции
+DO $$
+DECLARE
+    trainer_user_id BIGINT;
+    admin_user_id BIGINT;
+    support_staff_id BIGINT;
+BEGIN
+    SELECT id INTO trainer_user_id FROM users WHERE login = 'trainer@fitman.ru';
+    SELECT id INTO admin_user_id FROM users WHERE login = 'admin@fitman.ru';
+    SELECT id INTO support_staff_id FROM support_staff WHERE first_name = 'Петр' AND last_name = 'Сергеев';
+
+    -- Назначаем компетенцию внешнему технику
+    INSERT INTO competencies (competent_id, executor_type, name, level, certificate_url, verified_at, verified_by, created_by, updated_by) VALUES
+    (support_staff_id, 1, 'Обслуживание кардио-тренажеров Matrix', 3, 'http://certs.com/cert12345', '2023-01-01', admin_user_id, admin_user_id, admin_user_id)
+    ON CONFLICT (competent_id, executor_type, name) DO UPDATE SET level = EXCLUDED.level, updated_at = NOW(), updated_by = admin_user_id;
+
+    -- Назначаем компетенцию штатному тренеру
+    INSERT INTO competencies (competent_id, executor_type, name, level, verified_at, verified_by, created_by, updated_by) VALUES
+    (trainer_user_id, 0, 'Базовое обслуживание силовых тренажеров', 2, '2023-02-01', admin_user_id, admin_user_id, admin_user_id)
+    ON CONFLICT (competent_id, executor_type, name) DO UPDATE SET level = EXCLUDED.level, updated_at = NOW(), updated_by = admin_user_id;
+END $$;
+
+-- (INSERT'ы для kinds_activity_client, levels_training, etc.)
 
 -- 5.6. Заполняем типы оборудования
 INSERT INTO equipment_types (name, description, category, weight_range, dimensions, is_mobile, schematic_icon, note) VALUES

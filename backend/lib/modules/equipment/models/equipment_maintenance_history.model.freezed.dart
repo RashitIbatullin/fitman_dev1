@@ -334,6 +334,7 @@ mixin _$EquipmentMaintenanceHistory {
   DateTime? get equipmentAvailableFrom => throw _privateConstructorUsedError;
   String get reportedProblem => throw _privateConstructorUsedError;
   String? get workDescription => throw _privateConstructorUsedError;
+  String? get notes => throw _privateConstructorUsedError;
   String get reportedBy => throw _privateConstructorUsedError;
   String? get executorId => throw _privateConstructorUsedError;
   ExecutorType? get executorType => throw _privateConstructorUsedError;
@@ -382,6 +383,7 @@ abstract class $EquipmentMaintenanceHistoryCopyWith<$Res> {
     DateTime? equipmentAvailableFrom,
     String reportedProblem,
     String? workDescription,
+    String? notes,
     String reportedBy,
     String? executorId,
     ExecutorType? executorType,
@@ -428,6 +430,7 @@ class _$EquipmentMaintenanceHistoryCopyWithImpl<
     Object? equipmentAvailableFrom = freezed,
     Object? reportedProblem = null,
     Object? workDescription = freezed,
+    Object? notes = freezed,
     Object? reportedBy = null,
     Object? executorId = freezed,
     Object? executorType = freezed,
@@ -497,6 +500,10 @@ class _$EquipmentMaintenanceHistoryCopyWithImpl<
             workDescription: freezed == workDescription
                 ? _value.workDescription
                 : workDescription // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            notes: freezed == notes
+                ? _value.notes
+                : notes // ignore: cast_nullable_to_non_nullable
                       as String?,
             reportedBy: null == reportedBy
                 ? _value.reportedBy
@@ -572,6 +579,7 @@ abstract class _$$EquipmentMaintenanceHistoryImplCopyWith<$Res>
     DateTime? equipmentAvailableFrom,
     String reportedProblem,
     String? workDescription,
+    String? notes,
     String reportedBy,
     String? executorId,
     ExecutorType? executorType,
@@ -618,6 +626,7 @@ class __$$EquipmentMaintenanceHistoryImplCopyWithImpl<$Res>
     Object? equipmentAvailableFrom = freezed,
     Object? reportedProblem = null,
     Object? workDescription = freezed,
+    Object? notes = freezed,
     Object? reportedBy = null,
     Object? executorId = freezed,
     Object? executorType = freezed,
@@ -688,6 +697,10 @@ class __$$EquipmentMaintenanceHistoryImplCopyWithImpl<$Res>
             ? _value.workDescription
             : workDescription // ignore: cast_nullable_to_non_nullable
                   as String?,
+        notes: freezed == notes
+            ? _value.notes
+            : notes // ignore: cast_nullable_to_non_nullable
+                  as String?,
         reportedBy: null == reportedBy
             ? _value.reportedBy
             : reportedBy // ignore: cast_nullable_to_non_nullable
@@ -756,6 +769,7 @@ class _$EquipmentMaintenanceHistoryImpl
     this.equipmentAvailableFrom,
     required this.reportedProblem,
     this.workDescription,
+    this.notes,
     required this.reportedBy,
     this.executorId,
     this.executorType,
@@ -803,6 +817,8 @@ class _$EquipmentMaintenanceHistoryImpl
   @override
   final String? workDescription;
   @override
+  final String? notes;
+  @override
   final String reportedBy;
   @override
   final String? executorId;
@@ -835,7 +851,7 @@ class _$EquipmentMaintenanceHistoryImpl
 
   @override
   String toString() {
-    return 'EquipmentMaintenanceHistory(id: $id, equipmentItemId: $equipmentItemId, equipmentName: $equipmentName, type: $type, status: $status, repairTimeStandardId: $repairTimeStandardId, diagnosisNotes: $diagnosisNotes, actualDurationHours: $actualDurationHours, createdAt: $createdAt, startedAt: $startedAt, completedAt: $completedAt, equipmentAvailableFrom: $equipmentAvailableFrom, reportedProblem: $reportedProblem, workDescription: $workDescription, reportedBy: $reportedBy, executorId: $executorId, executorType: $executorType, executorName: $executorName, relatedBookingId: $relatedBookingId, causedDowntime: $causedDowntime, updatedAt: $updatedAt, archivedAt: $archivedAt, archivedBy: $archivedBy, archivedReason: $archivedReason, photos: $photos)';
+    return 'EquipmentMaintenanceHistory(id: $id, equipmentItemId: $equipmentItemId, equipmentName: $equipmentName, type: $type, status: $status, repairTimeStandardId: $repairTimeStandardId, diagnosisNotes: $diagnosisNotes, actualDurationHours: $actualDurationHours, createdAt: $createdAt, startedAt: $startedAt, completedAt: $completedAt, equipmentAvailableFrom: $equipmentAvailableFrom, reportedProblem: $reportedProblem, workDescription: $workDescription, notes: $notes, reportedBy: $reportedBy, executorId: $executorId, executorType: $executorType, executorName: $executorName, relatedBookingId: $relatedBookingId, causedDowntime: $causedDowntime, updatedAt: $updatedAt, archivedAt: $archivedAt, archivedBy: $archivedBy, archivedReason: $archivedReason, photos: $photos)';
   }
 
   @override
@@ -868,6 +884,7 @@ class _$EquipmentMaintenanceHistoryImpl
                 other.reportedProblem == reportedProblem) &&
             (identical(other.workDescription, workDescription) ||
                 other.workDescription == workDescription) &&
+            (identical(other.notes, notes) || other.notes == notes) &&
             (identical(other.reportedBy, reportedBy) ||
                 other.reportedBy == reportedBy) &&
             (identical(other.executorId, executorId) ||
@@ -909,6 +926,7 @@ class _$EquipmentMaintenanceHistoryImpl
     equipmentAvailableFrom,
     reportedProblem,
     workDescription,
+    notes,
     reportedBy,
     executorId,
     executorType,
@@ -956,6 +974,7 @@ abstract class _EquipmentMaintenanceHistory
     final DateTime? equipmentAvailableFrom,
     required final String reportedProblem,
     final String? workDescription,
+    final String? notes,
     required final String reportedBy,
     final String? executorId,
     final ExecutorType? executorType,
@@ -1000,6 +1019,8 @@ abstract class _EquipmentMaintenanceHistory
   String get reportedProblem;
   @override
   String? get workDescription;
+  @override
+  String? get notes;
   @override
   String get reportedBy;
   @override

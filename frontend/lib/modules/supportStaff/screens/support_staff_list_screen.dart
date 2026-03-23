@@ -1,3 +1,4 @@
+import 'package:fitman_app/modules/supportStaff/models/staff_category.enum.dart';
 import 'package:fitman_app/modules/supportStaff/models/support_staff.model.dart';
 import 'package:fitman_app/modules/supportStaff/providers/support_staff_provider.dart';
 import 'package:fitman_app/modules/supportStaff/screens/support_staff_detail_screen.dart';
@@ -144,7 +145,9 @@ class SupportStaffListScreen extends ConsumerWidget {
                                 staff.archivedReason ?? 'N/A'),
                           ],
                         )
-                      : Text(staff.category.toString()),
+                      : Text(
+        '${staff.category.localizedName}${staff.phone != null && staff.phone!.isNotEmpty ? ', ${staff.phone}' : ''}'
+      ),
                   onTap: () {
                     if (!isArchived) {
                       Navigator.of(context).push(

@@ -76,12 +76,12 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
         INSERT INTO equipment_maintenance_history (
           equipment_item_id, equipment_name, type, status, created_at, 
           started_at, completed_at, equipment_available_from, reported_problem, 
-          work_description, reported_by, executor_id, executor_type, 
+          work_description, notes, reported_by, executor_id, executor_type, 
           related_booking_id, caused_downtime, updated_at, created_by, updated_by
         ) VALUES (
           @equipment_item_id, @equipment_name, @type, @status, @created_at,
           @started_at, @completed_at, @equipment_available_from, @reported_problem,
-          @work_description, @reported_by, @executor_id, @executor_type,
+          @work_description, @notes, @reported_by, @executor_id, @executor_type,
           @related_booking_id, @caused_downtime, NOW(), @user_id, @user_id
         ) RETURNING id;
       '''),
@@ -96,6 +96,7 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
         'equipment_available_from': history.equipmentAvailableFrom,
         'reported_problem': history.reportedProblem,
         'work_description': history.workDescription,
+        'notes': history.notes,
         'reported_by': int.tryParse(history.reportedBy),
         'executor_id': history.executorId != null ? int.tryParse(history.executorId!) : null,
         'executor_type': history.executorType?.index,
@@ -180,6 +181,7 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
           equipment_available_from = @equipment_available_from,
           reported_problem = @reported_problem,
           work_description = @work_description,
+          notes = @notes,
           executor_id = @executor_id,
           executor_type = @executor_type,
           related_booking_id = @related_booking_id,
@@ -205,6 +207,7 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
         'equipment_available_from': history.equipmentAvailableFrom,
         'reported_problem': history.reportedProblem,
         'work_description': history.workDescription,
+        'notes': history.notes,
         'executor_id': history.executorId != null ? int.tryParse(history.executorId!) : null,
         'executor_type': history.executorType?.index,
         'related_booking_id': history.relatedBookingId != null ? int.tryParse(history.relatedBookingId!) : null,
