@@ -336,6 +336,14 @@ mixin _$EquipmentMaintenanceHistory {
   String? get workDescription => throw _privateConstructorUsedError;
   String? get notes => throw _privateConstructorUsedError;
   String get reportedBy => throw _privateConstructorUsedError;
+  String? get inProgressBy => throw _privateConstructorUsedError;
+  String? get inProgressByName => throw _privateConstructorUsedError;
+  String? get completedBy => throw _privateConstructorUsedError;
+  String? get completedByName => throw _privateConstructorUsedError;
+  String? get cancelledBy => throw _privateConstructorUsedError;
+  String? get cancelledByName => throw _privateConstructorUsedError;
+  DateTime? get cancelledAt => throw _privateConstructorUsedError;
+  String? get cancellationReason => throw _privateConstructorUsedError;
   String? get executorId => throw _privateConstructorUsedError;
   ExecutorType? get executorType => throw _privateConstructorUsedError;
   String? get executorName => throw _privateConstructorUsedError;
@@ -385,6 +393,14 @@ abstract class $EquipmentMaintenanceHistoryCopyWith<$Res> {
     String? workDescription,
     String? notes,
     String reportedBy,
+    String? inProgressBy,
+    String? inProgressByName,
+    String? completedBy,
+    String? completedByName,
+    String? cancelledBy,
+    String? cancelledByName,
+    DateTime? cancelledAt,
+    String? cancellationReason,
     String? executorId,
     ExecutorType? executorType,
     String? executorName,
@@ -432,6 +448,14 @@ class _$EquipmentMaintenanceHistoryCopyWithImpl<
     Object? workDescription = freezed,
     Object? notes = freezed,
     Object? reportedBy = null,
+    Object? inProgressBy = freezed,
+    Object? inProgressByName = freezed,
+    Object? completedBy = freezed,
+    Object? completedByName = freezed,
+    Object? cancelledBy = freezed,
+    Object? cancelledByName = freezed,
+    Object? cancelledAt = freezed,
+    Object? cancellationReason = freezed,
     Object? executorId = freezed,
     Object? executorType = freezed,
     Object? executorName = freezed,
@@ -509,6 +533,38 @@ class _$EquipmentMaintenanceHistoryCopyWithImpl<
                 ? _value.reportedBy
                 : reportedBy // ignore: cast_nullable_to_non_nullable
                       as String,
+            inProgressBy: freezed == inProgressBy
+                ? _value.inProgressBy
+                : inProgressBy // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            inProgressByName: freezed == inProgressByName
+                ? _value.inProgressByName
+                : inProgressByName // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            completedBy: freezed == completedBy
+                ? _value.completedBy
+                : completedBy // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            completedByName: freezed == completedByName
+                ? _value.completedByName
+                : completedByName // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            cancelledBy: freezed == cancelledBy
+                ? _value.cancelledBy
+                : cancelledBy // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            cancelledByName: freezed == cancelledByName
+                ? _value.cancelledByName
+                : cancelledByName // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            cancelledAt: freezed == cancelledAt
+                ? _value.cancelledAt
+                : cancelledAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime?,
+            cancellationReason: freezed == cancellationReason
+                ? _value.cancellationReason
+                : cancellationReason // ignore: cast_nullable_to_non_nullable
+                      as String?,
             executorId: freezed == executorId
                 ? _value.executorId
                 : executorId // ignore: cast_nullable_to_non_nullable
@@ -581,6 +637,14 @@ abstract class _$$EquipmentMaintenanceHistoryImplCopyWith<$Res>
     String? workDescription,
     String? notes,
     String reportedBy,
+    String? inProgressBy,
+    String? inProgressByName,
+    String? completedBy,
+    String? completedByName,
+    String? cancelledBy,
+    String? cancelledByName,
+    DateTime? cancelledAt,
+    String? cancellationReason,
     String? executorId,
     ExecutorType? executorType,
     String? executorName,
@@ -628,6 +692,14 @@ class __$$EquipmentMaintenanceHistoryImplCopyWithImpl<$Res>
     Object? workDescription = freezed,
     Object? notes = freezed,
     Object? reportedBy = null,
+    Object? inProgressBy = freezed,
+    Object? inProgressByName = freezed,
+    Object? completedBy = freezed,
+    Object? completedByName = freezed,
+    Object? cancelledBy = freezed,
+    Object? cancelledByName = freezed,
+    Object? cancelledAt = freezed,
+    Object? cancellationReason = freezed,
     Object? executorId = freezed,
     Object? executorType = freezed,
     Object? executorName = freezed,
@@ -705,6 +777,38 @@ class __$$EquipmentMaintenanceHistoryImplCopyWithImpl<$Res>
             ? _value.reportedBy
             : reportedBy // ignore: cast_nullable_to_non_nullable
                   as String,
+        inProgressBy: freezed == inProgressBy
+            ? _value.inProgressBy
+            : inProgressBy // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        inProgressByName: freezed == inProgressByName
+            ? _value.inProgressByName
+            : inProgressByName // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        completedBy: freezed == completedBy
+            ? _value.completedBy
+            : completedBy // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        completedByName: freezed == completedByName
+            ? _value.completedByName
+            : completedByName // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        cancelledBy: freezed == cancelledBy
+            ? _value.cancelledBy
+            : cancelledBy // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        cancelledByName: freezed == cancelledByName
+            ? _value.cancelledByName
+            : cancelledByName // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        cancelledAt: freezed == cancelledAt
+            ? _value.cancelledAt
+            : cancelledAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
+        cancellationReason: freezed == cancellationReason
+            ? _value.cancellationReason
+            : cancellationReason // ignore: cast_nullable_to_non_nullable
+                  as String?,
         executorId: freezed == executorId
             ? _value.executorId
             : executorId // ignore: cast_nullable_to_non_nullable
@@ -771,6 +875,14 @@ class _$EquipmentMaintenanceHistoryImpl
     this.workDescription,
     this.notes,
     required this.reportedBy,
+    this.inProgressBy,
+    this.inProgressByName,
+    this.completedBy,
+    this.completedByName,
+    this.cancelledBy,
+    this.cancelledByName,
+    this.cancelledAt,
+    this.cancellationReason,
     this.executorId,
     this.executorType,
     this.executorName,
@@ -821,6 +933,22 @@ class _$EquipmentMaintenanceHistoryImpl
   @override
   final String reportedBy;
   @override
+  final String? inProgressBy;
+  @override
+  final String? inProgressByName;
+  @override
+  final String? completedBy;
+  @override
+  final String? completedByName;
+  @override
+  final String? cancelledBy;
+  @override
+  final String? cancelledByName;
+  @override
+  final DateTime? cancelledAt;
+  @override
+  final String? cancellationReason;
+  @override
   final String? executorId;
   @override
   final ExecutorType? executorType;
@@ -851,7 +979,7 @@ class _$EquipmentMaintenanceHistoryImpl
 
   @override
   String toString() {
-    return 'EquipmentMaintenanceHistory(id: $id, equipmentItemId: $equipmentItemId, equipmentName: $equipmentName, type: $type, status: $status, repairTimeStandardId: $repairTimeStandardId, diagnosisNotes: $diagnosisNotes, actualDurationHours: $actualDurationHours, createdAt: $createdAt, startedAt: $startedAt, completedAt: $completedAt, equipmentAvailableFrom: $equipmentAvailableFrom, reportedProblem: $reportedProblem, workDescription: $workDescription, notes: $notes, reportedBy: $reportedBy, executorId: $executorId, executorType: $executorType, executorName: $executorName, relatedBookingId: $relatedBookingId, causedDowntime: $causedDowntime, updatedAt: $updatedAt, archivedAt: $archivedAt, archivedBy: $archivedBy, archivedReason: $archivedReason, photos: $photos)';
+    return 'EquipmentMaintenanceHistory(id: $id, equipmentItemId: $equipmentItemId, equipmentName: $equipmentName, type: $type, status: $status, repairTimeStandardId: $repairTimeStandardId, diagnosisNotes: $diagnosisNotes, actualDurationHours: $actualDurationHours, createdAt: $createdAt, startedAt: $startedAt, completedAt: $completedAt, equipmentAvailableFrom: $equipmentAvailableFrom, reportedProblem: $reportedProblem, workDescription: $workDescription, notes: $notes, reportedBy: $reportedBy, inProgressBy: $inProgressBy, inProgressByName: $inProgressByName, completedBy: $completedBy, completedByName: $completedByName, cancelledBy: $cancelledBy, cancelledByName: $cancelledByName, cancelledAt: $cancelledAt, cancellationReason: $cancellationReason, executorId: $executorId, executorType: $executorType, executorName: $executorName, relatedBookingId: $relatedBookingId, causedDowntime: $causedDowntime, updatedAt: $updatedAt, archivedAt: $archivedAt, archivedBy: $archivedBy, archivedReason: $archivedReason, photos: $photos)';
   }
 
   @override
@@ -887,6 +1015,22 @@ class _$EquipmentMaintenanceHistoryImpl
             (identical(other.notes, notes) || other.notes == notes) &&
             (identical(other.reportedBy, reportedBy) ||
                 other.reportedBy == reportedBy) &&
+            (identical(other.inProgressBy, inProgressBy) ||
+                other.inProgressBy == inProgressBy) &&
+            (identical(other.inProgressByName, inProgressByName) ||
+                other.inProgressByName == inProgressByName) &&
+            (identical(other.completedBy, completedBy) ||
+                other.completedBy == completedBy) &&
+            (identical(other.completedByName, completedByName) ||
+                other.completedByName == completedByName) &&
+            (identical(other.cancelledBy, cancelledBy) ||
+                other.cancelledBy == cancelledBy) &&
+            (identical(other.cancelledByName, cancelledByName) ||
+                other.cancelledByName == cancelledByName) &&
+            (identical(other.cancelledAt, cancelledAt) ||
+                other.cancelledAt == cancelledAt) &&
+            (identical(other.cancellationReason, cancellationReason) ||
+                other.cancellationReason == cancellationReason) &&
             (identical(other.executorId, executorId) ||
                 other.executorId == executorId) &&
             (identical(other.executorType, executorType) ||
@@ -928,6 +1072,14 @@ class _$EquipmentMaintenanceHistoryImpl
     workDescription,
     notes,
     reportedBy,
+    inProgressBy,
+    inProgressByName,
+    completedBy,
+    completedByName,
+    cancelledBy,
+    cancelledByName,
+    cancelledAt,
+    cancellationReason,
     executorId,
     executorType,
     executorName,
@@ -976,6 +1128,14 @@ abstract class _EquipmentMaintenanceHistory
     final String? workDescription,
     final String? notes,
     required final String reportedBy,
+    final String? inProgressBy,
+    final String? inProgressByName,
+    final String? completedBy,
+    final String? completedByName,
+    final String? cancelledBy,
+    final String? cancelledByName,
+    final DateTime? cancelledAt,
+    final String? cancellationReason,
     final String? executorId,
     final ExecutorType? executorType,
     final String? executorName,
@@ -1023,6 +1183,22 @@ abstract class _EquipmentMaintenanceHistory
   String? get notes;
   @override
   String get reportedBy;
+  @override
+  String? get inProgressBy;
+  @override
+  String? get inProgressByName;
+  @override
+  String? get completedBy;
+  @override
+  String? get completedByName;
+  @override
+  String? get cancelledBy;
+  @override
+  String? get cancelledByName;
+  @override
+  DateTime? get cancelledAt;
+  @override
+  String? get cancellationReason;
   @override
   String? get executorId;
   @override

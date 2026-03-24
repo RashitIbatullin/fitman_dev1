@@ -23,6 +23,9 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
     SELECT 
       emh.*,
       COALESCE(u.first_name || ' ' || u.last_name, ss.first_name || ' ' || ss.last_name) as executor_name,
+      u_ip.first_name || ' ' || u_ip.last_name as in_progress_by_name,
+      u_c.first_name || ' ' || u_c.last_name as completed_by_name,
+      u_can.first_name || ' ' || u_can.last_name as cancelled_by_name,
       COALESCE(
         (SELECT json_agg(p.*)
          FROM maintenance_photos p
@@ -32,6 +35,9 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
     FROM equipment_maintenance_history emh
     LEFT JOIN users u ON emh.executor_id = u.id AND emh.executor_type = 0
     LEFT JOIN support_staff ss ON emh.executor_id = ss.id AND emh.executor_type = 1
+    LEFT JOIN users u_ip ON emh.in_progress_by = u_ip.id
+    LEFT JOIN users u_c ON emh.completed_by = u_c.id
+    LEFT JOIN users u_can ON emh.cancelled_by = u_can.id
   ''';
 
   /// Prepares a row map from the database for consumption by a `fromJson` factory.
@@ -50,7 +56,7 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
     }
 
     // Convert all potential ID columns from int to String
-    final idKeys = ['id', 'equipment_item_id', 'reported_by', 'executor_id', 'related_booking_id', 'archived_by', 'created_by', 'updated_by'];
+    final idKeys = ['id', 'equipment_item_id', 'reported_by', 'executor_id', 'related_booking_id', 'archived_by', 'created_by', 'updated_by', 'in_progress_by', 'completed_by', 'cancelled_by'];
     for (final key in idKeys) {
       if (newRow[key] != null && newRow[key] is! String) {
         newRow[key] = newRow[key].toString();
@@ -58,7 +64,7 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
     }
     
     // Convert all potential DateTime columns to ISO 8601 strings
-    final dateKeys = ['created_at', 'started_at', 'completed_at', 'equipment_available_from', 'updated_at', 'archived_at'];
+    final dateKeys = ['created_at', 'started_at', 'completed_at', 'equipment_available_from', 'updated_at', 'archived_at', 'cancelled_at'];
     for (final key in dateKeys) {
         if (newRow[key] != null && newRow[key] is DateTime) {
             newRow[key] = (newRow[key] as DateTime).toIso8601String();
@@ -194,7 +200,12 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
           -- Новые поля
           repair_time_standard_id = @repair_time_standard_id,
           diagnosis_notes = @diagnosis_notes,
-          actual_duration_hours = @actual_duration_hours
+          actual_duration_hours = @actual_duration_hours,
+          in_progress_by = @in_progress_by,
+          completed_by = @completed_by,
+          cancelled_by = @cancelled_by,
+          cancelled_at = @cancelled_at,
+          cancellation_reason = @cancellation_reason
         WHERE id = @id;
       '''),
       parameters: {
@@ -220,6 +231,11 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
         'repair_time_standard_id': history.repairTimeStandardId != null ? int.tryParse(history.repairTimeStandardId!) : null,
         'diagnosis_notes': history.diagnosisNotes,
         'actual_duration_hours': history.actualDurationHours,
+        'in_progress_by': history.inProgressBy != null ? int.tryParse(history.inProgressBy!) : null,
+        'completed_by': history.completedBy != null ? int.tryParse(history.completedBy!) : null,
+        'cancelled_by': history.cancelledBy != null ? int.tryParse(history.cancelledBy!) : null,
+        'cancelled_at': history.cancelledAt,
+        'cancellation_reason': history.cancellationReason,
       },
     );
     return await getById(id);

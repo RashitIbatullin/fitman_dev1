@@ -110,6 +110,11 @@ CREATE TABLE equipment_maintenance_history (
   work_description TEXT,
   notes TEXT,
   reported_by BIGINT NOT NULL REFERENCES users(id),
+  in_progress_by BIGINT REFERENCES users(id),
+  completed_by BIGINT REFERENCES users(id),
+  cancelled_by BIGINT REFERENCES users(id),
+  cancelled_at TIMESTAMPTZ,
+  cancellation_reason TEXT,
   executor_id BIGINT,
   executor_type SMALLINT, -- 0 for User, 1 for SupportStaff
   related_booking_id BIGINT, -- REFERENCES equipment_bookings(id), -- Ссылка будет добавлена позже

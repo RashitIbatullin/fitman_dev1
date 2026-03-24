@@ -20,11 +20,50 @@ class MaintenanceService {
   }
 
   Future<EquipmentMaintenanceHistory> create(EquipmentMaintenanceHistory history, String userId) {
-    return _maintenanceRepository.create(history, userId);
+    // When creating, the reported_by should be the creator
+    final newHistory = history.copyWith(reportedBy: userId);
+    return _maintenanceRepository.create(newHistory, userId);
   }
 
-  Future<EquipmentMaintenanceHistory> update(String id, EquipmentMaintenanceHistory history, String userId) {
-    return _maintenanceRepository.update(id, history, userId);
+  Future<EquipmentMaintenanceHistory> update(String id, EquipmentMaintenanceHistory history, String userId) async {
+    final oldHistory = await _maintenanceRepository.getById(id);
+    var updatedHistory = history;
+
+    // Check if status has changed
+    if (oldHistory.status != updatedHistory.status) {
+      switch (updatedHistory.status) {
+        case MaintenanceStatus.inProgress:
+          if (updatedHistory.executorId == null) {
+            throw Exception('Cannot move to "In Progress" without an executor.');
+          }
+          updatedHistory = updatedHistory.copyWith(
+            startedAt: DateTime.now(),
+            inProgressBy: userId,
+          );
+          break;
+        case MaintenanceStatus.completed:
+          updatedHistory = updatedHistory.copyWith(
+            completedAt: DateTime.now(),
+            completedBy: userId,
+          );
+          break;
+        case MaintenanceStatus.cancelled:
+          if (updatedHistory.cancellationReason == null || updatedHistory.cancellationReason!.isEmpty) {
+            throw Exception('Cancellation reason is required.');
+          }
+          updatedHistory = updatedHistory.copyWith(
+            cancelledAt: DateTime.now(),
+            cancelledBy: userId,
+          );
+          break;
+        case MaintenanceStatus.reported:
+        case MaintenanceStatus.diagnosing:
+          // Logic for these cases if any
+          break;
+      }
+    }
+
+    return _maintenanceRepository.update(id, updatedHistory, userId);
   }
 
   Future<void> archive(String id, String reason, String userId) {
@@ -56,6 +95,7 @@ class MaintenanceService {
       repairTimeStandardId: repairTimeStandardId,
       status: MaintenanceStatus.inProgress, // After diagnosis, it's ready to be worked on
       startedAt: DateTime.now(), // Diagnosis completion marks the official start of repair
+      inProgressBy: userId,
     );
 
     return _maintenanceRepository.update(maintenanceId, updatedHistory, userId);
@@ -78,6 +118,7 @@ class MaintenanceService {
       workDescription: workDescription,
       status: MaintenanceStatus.completed,
       completedAt: completedAt,
+      completedBy: userId,
       actualDurationHours: actualDurationHours,
     );
 
