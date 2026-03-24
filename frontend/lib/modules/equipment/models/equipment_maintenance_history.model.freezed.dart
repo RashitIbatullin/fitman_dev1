@@ -320,6 +320,7 @@ EquipmentMaintenanceHistory _$EquipmentMaintenanceHistoryFromJson(
 /// @nodoc
 mixin _$EquipmentMaintenanceHistory {
   String? get id => throw _privateConstructorUsedError;
+  String? get number => throw _privateConstructorUsedError;
   String get equipmentItemId => throw _privateConstructorUsedError;
   String? get equipmentName => throw _privateConstructorUsedError;
   MaintenanceType get type => throw _privateConstructorUsedError;
@@ -332,6 +333,7 @@ mixin _$EquipmentMaintenanceHistory {
   String? get workDescription => throw _privateConstructorUsedError;
   String? get notes => throw _privateConstructorUsedError;
   String get reportedBy => throw _privateConstructorUsedError;
+  String? get reportedByName => throw _privateConstructorUsedError;
   String? get inProgressBy => throw _privateConstructorUsedError;
   String? get inProgressByName => throw _privateConstructorUsedError;
   String? get completedBy => throw _privateConstructorUsedError;
@@ -374,6 +376,7 @@ abstract class $EquipmentMaintenanceHistoryCopyWith<$Res> {
   @useResult
   $Res call({
     String? id,
+    String? number,
     String equipmentItemId,
     String? equipmentName,
     MaintenanceType type,
@@ -386,6 +389,7 @@ abstract class $EquipmentMaintenanceHistoryCopyWith<$Res> {
     String? workDescription,
     String? notes,
     String reportedBy,
+    String? reportedByName,
     String? inProgressBy,
     String? inProgressByName,
     String? completedBy,
@@ -426,6 +430,7 @@ class _$EquipmentMaintenanceHistoryCopyWithImpl<
   @override
   $Res call({
     Object? id = freezed,
+    Object? number = freezed,
     Object? equipmentItemId = null,
     Object? equipmentName = freezed,
     Object? type = null,
@@ -438,6 +443,7 @@ class _$EquipmentMaintenanceHistoryCopyWithImpl<
     Object? workDescription = freezed,
     Object? notes = freezed,
     Object? reportedBy = null,
+    Object? reportedByName = freezed,
     Object? inProgressBy = freezed,
     Object? inProgressByName = freezed,
     Object? completedBy = freezed,
@@ -462,6 +468,10 @@ class _$EquipmentMaintenanceHistoryCopyWithImpl<
             id: freezed == id
                 ? _value.id
                 : id // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            number: freezed == number
+                ? _value.number
+                : number // ignore: cast_nullable_to_non_nullable
                       as String?,
             equipmentItemId: null == equipmentItemId
                 ? _value.equipmentItemId
@@ -511,6 +521,10 @@ class _$EquipmentMaintenanceHistoryCopyWithImpl<
                 ? _value.reportedBy
                 : reportedBy // ignore: cast_nullable_to_non_nullable
                       as String,
+            reportedByName: freezed == reportedByName
+                ? _value.reportedByName
+                : reportedByName // ignore: cast_nullable_to_non_nullable
+                      as String?,
             inProgressBy: freezed == inProgressBy
                 ? _value.inProgressBy
                 : inProgressBy // ignore: cast_nullable_to_non_nullable
@@ -600,6 +614,7 @@ abstract class _$$EquipmentMaintenanceHistoryImplCopyWith<$Res>
   @useResult
   $Res call({
     String? id,
+    String? number,
     String equipmentItemId,
     String? equipmentName,
     MaintenanceType type,
@@ -612,6 +627,7 @@ abstract class _$$EquipmentMaintenanceHistoryImplCopyWith<$Res>
     String? workDescription,
     String? notes,
     String reportedBy,
+    String? reportedByName,
     String? inProgressBy,
     String? inProgressByName,
     String? completedBy,
@@ -652,6 +668,7 @@ class __$$EquipmentMaintenanceHistoryImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? id = freezed,
+    Object? number = freezed,
     Object? equipmentItemId = null,
     Object? equipmentName = freezed,
     Object? type = null,
@@ -664,6 +681,7 @@ class __$$EquipmentMaintenanceHistoryImplCopyWithImpl<$Res>
     Object? workDescription = freezed,
     Object? notes = freezed,
     Object? reportedBy = null,
+    Object? reportedByName = freezed,
     Object? inProgressBy = freezed,
     Object? inProgressByName = freezed,
     Object? completedBy = freezed,
@@ -688,6 +706,10 @@ class __$$EquipmentMaintenanceHistoryImplCopyWithImpl<$Res>
         id: freezed == id
             ? _value.id
             : id // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        number: freezed == number
+            ? _value.number
+            : number // ignore: cast_nullable_to_non_nullable
                   as String?,
         equipmentItemId: null == equipmentItemId
             ? _value.equipmentItemId
@@ -737,6 +759,10 @@ class __$$EquipmentMaintenanceHistoryImplCopyWithImpl<$Res>
             ? _value.reportedBy
             : reportedBy // ignore: cast_nullable_to_non_nullable
                   as String,
+        reportedByName: freezed == reportedByName
+            ? _value.reportedByName
+            : reportedByName // ignore: cast_nullable_to_non_nullable
+                  as String?,
         inProgressBy: freezed == inProgressBy
             ? _value.inProgressBy
             : inProgressBy // ignore: cast_nullable_to_non_nullable
@@ -820,6 +846,7 @@ class _$EquipmentMaintenanceHistoryImpl
     implements _EquipmentMaintenanceHistory {
   const _$EquipmentMaintenanceHistoryImpl({
     this.id,
+    this.number,
     required this.equipmentItemId,
     this.equipmentName,
     required this.type,
@@ -832,6 +859,7 @@ class _$EquipmentMaintenanceHistoryImpl
     this.workDescription,
     this.notes,
     required this.reportedBy,
+    this.reportedByName,
     this.inProgressBy,
     this.inProgressByName,
     this.completedBy,
@@ -859,6 +887,8 @@ class _$EquipmentMaintenanceHistoryImpl
   @override
   final String? id;
   @override
+  final String? number;
+  @override
   final String equipmentItemId;
   @override
   final String? equipmentName;
@@ -882,6 +912,8 @@ class _$EquipmentMaintenanceHistoryImpl
   final String? notes;
   @override
   final String reportedBy;
+  @override
+  final String? reportedByName;
   @override
   final String? inProgressBy;
   @override
@@ -929,7 +961,7 @@ class _$EquipmentMaintenanceHistoryImpl
 
   @override
   String toString() {
-    return 'EquipmentMaintenanceHistory(id: $id, equipmentItemId: $equipmentItemId, equipmentName: $equipmentName, type: $type, status: $status, createdAt: $createdAt, startedAt: $startedAt, completedAt: $completedAt, equipmentAvailableFrom: $equipmentAvailableFrom, reportedProblem: $reportedProblem, workDescription: $workDescription, notes: $notes, reportedBy: $reportedBy, inProgressBy: $inProgressBy, inProgressByName: $inProgressByName, completedBy: $completedBy, completedByName: $completedByName, cancelledBy: $cancelledBy, cancelledByName: $cancelledByName, cancelledAt: $cancelledAt, cancellationReason: $cancellationReason, executorId: $executorId, executorType: $executorType, executorName: $executorName, relatedBookingId: $relatedBookingId, causedDowntime: $causedDowntime, updatedAt: $updatedAt, archivedAt: $archivedAt, archivedBy: $archivedBy, archivedReason: $archivedReason, photos: $photos)';
+    return 'EquipmentMaintenanceHistory(id: $id, number: $number, equipmentItemId: $equipmentItemId, equipmentName: $equipmentName, type: $type, status: $status, createdAt: $createdAt, startedAt: $startedAt, completedAt: $completedAt, equipmentAvailableFrom: $equipmentAvailableFrom, reportedProblem: $reportedProblem, workDescription: $workDescription, notes: $notes, reportedBy: $reportedBy, reportedByName: $reportedByName, inProgressBy: $inProgressBy, inProgressByName: $inProgressByName, completedBy: $completedBy, completedByName: $completedByName, cancelledBy: $cancelledBy, cancelledByName: $cancelledByName, cancelledAt: $cancelledAt, cancellationReason: $cancellationReason, executorId: $executorId, executorType: $executorType, executorName: $executorName, relatedBookingId: $relatedBookingId, causedDowntime: $causedDowntime, updatedAt: $updatedAt, archivedAt: $archivedAt, archivedBy: $archivedBy, archivedReason: $archivedReason, photos: $photos)';
   }
 
   @override
@@ -938,6 +970,7 @@ class _$EquipmentMaintenanceHistoryImpl
         (other.runtimeType == runtimeType &&
             other is _$EquipmentMaintenanceHistoryImpl &&
             (identical(other.id, id) || other.id == id) &&
+            (identical(other.number, number) || other.number == number) &&
             (identical(other.equipmentItemId, equipmentItemId) ||
                 other.equipmentItemId == equipmentItemId) &&
             (identical(other.equipmentName, equipmentName) ||
@@ -959,6 +992,8 @@ class _$EquipmentMaintenanceHistoryImpl
             (identical(other.notes, notes) || other.notes == notes) &&
             (identical(other.reportedBy, reportedBy) ||
                 other.reportedBy == reportedBy) &&
+            (identical(other.reportedByName, reportedByName) ||
+                other.reportedByName == reportedByName) &&
             (identical(other.inProgressBy, inProgressBy) ||
                 other.inProgressBy == inProgressBy) &&
             (identical(other.inProgressByName, inProgressByName) ||
@@ -1001,6 +1036,7 @@ class _$EquipmentMaintenanceHistoryImpl
   int get hashCode => Object.hashAll([
     runtimeType,
     id,
+    number,
     equipmentItemId,
     equipmentName,
     type,
@@ -1013,6 +1049,7 @@ class _$EquipmentMaintenanceHistoryImpl
     workDescription,
     notes,
     reportedBy,
+    reportedByName,
     inProgressBy,
     inProgressByName,
     completedBy,
@@ -1054,6 +1091,7 @@ abstract class _EquipmentMaintenanceHistory
     implements EquipmentMaintenanceHistory {
   const factory _EquipmentMaintenanceHistory({
     final String? id,
+    final String? number,
     required final String equipmentItemId,
     final String? equipmentName,
     required final MaintenanceType type,
@@ -1066,6 +1104,7 @@ abstract class _EquipmentMaintenanceHistory
     final String? workDescription,
     final String? notes,
     required final String reportedBy,
+    final String? reportedByName,
     final String? inProgressBy,
     final String? inProgressByName,
     final String? completedBy,
@@ -1092,6 +1131,8 @@ abstract class _EquipmentMaintenanceHistory
   @override
   String? get id;
   @override
+  String? get number;
+  @override
   String get equipmentItemId;
   @override
   String? get equipmentName;
@@ -1115,6 +1156,8 @@ abstract class _EquipmentMaintenanceHistory
   String? get notes;
   @override
   String get reportedBy;
+  @override
+  String? get reportedByName;
   @override
   String? get inProgressBy;
   @override

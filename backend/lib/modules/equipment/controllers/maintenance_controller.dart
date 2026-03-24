@@ -126,6 +126,22 @@ class MaintenanceController {
       }
     });
 
+    router.get('/<id>', (Request request, String id) async {
+      try {
+        final history = await _maintenanceService.getById(id);
+        final jsonResponse = jsonEncode(history.toJson());
+        return Response.ok(
+          jsonResponse,
+          headers: {'Content-Type': 'application/json'},
+        );
+      } catch (e, st) {
+        print('--- BACKEND ERROR: GET /maintenance/<id> ---');
+        print('ERROR: $e');
+        print('STACKTRACE: $st');
+        return Response.internalServerError(body: jsonEncode({'error': e.toString()}));
+      }
+    });
+
     router.post('/', (Request request) async {
       try {
         final body = await request.readAsString();

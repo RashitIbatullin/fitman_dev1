@@ -13,11 +13,9 @@ DROP TABLE IF EXISTS repair_time_standards CASCADE;
 DROP TABLE IF EXISTS equipment_items CASCADE;
 
 
-
 -- ============================================
 -- 1. ТАБЛИЦЫ ОБОРУДОВАНИЯ И ТЕХНИЧЕСКОГО ОБСЛУЖИВАНИЯ
 -- ============================================
-
 
 
 -- Экземпляры оборудования
@@ -72,6 +70,8 @@ CREATE TABLE equipment_items (
   note VARCHAR(100)
 );
 
+CREATE SEQUENCE equipment_maintenance_history_number_seq START WITH 1;
+
 -- Новая таблица для нормативов времени ремонта
 CREATE TABLE repair_time_standards (
   id BIGSERIAL PRIMARY KEY,
@@ -95,6 +95,7 @@ CREATE TABLE repair_time_standards (
 -- История обслуживания оборудования (модифицированная)
 CREATE TABLE equipment_maintenance_history (
   id BIGSERIAL PRIMARY KEY,
+  number BIGINT NOT NULL DEFAULT nextval('equipment_maintenance_history_number_seq'),
   equipment_item_id BIGINT NOT NULL REFERENCES equipment_items(id),
   equipment_name VARCHAR(255),
   type SMALLINT NOT NULL, -- 0: preventive, 1: corrective
@@ -183,7 +184,6 @@ CREATE TABLE equipment_bookings (
 -- ============================================
 
 
-
 -- Индексы для equipment_items
 CREATE INDEX idx_equipment_items_type ON equipment_items(type_id);
 CREATE INDEX idx_equipment_items_room ON equipment_items(room_id) WHERE room_id IS NOT NULL;
@@ -213,7 +213,6 @@ CREATE INDEX idx_equipment_bookings_time_status ON equipment_bookings(equipment_
 -- ============================================
 -- 3. ИНИЦИАЛИЗАЦИЯ НАЧАЛЬНЫМИ ДАННЫМИ
 -- ============================================
-
 
 
 -- Заполняем экземпляры оборудования

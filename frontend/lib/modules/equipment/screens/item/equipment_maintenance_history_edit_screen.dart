@@ -1,10 +1,11 @@
+import 'package:fitman_app/modules/equipment/screens/maintenance_status_history_screen.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:fitman_app/models/available_executor.model.dart';
 import 'package:fitman_app/modules/equipment/models/equipment/equipment_status.enum.dart';
 import 'package:fitman_app/modules/equipment/models/equipment_maintenance_history.model.dart';
 import 'package:fitman_app/modules/equipment/providers/equipment/equipment_provider.dart';
 import 'package:fitman_app/modules/equipment/providers/maintenance_provider.dart';
-import 'package:fitman_app/modules/equipment/widgets/maintenance_status_history_widget.dart';
+// import 'package:fitman_app/modules/equipment/widgets/maintenance_status_history_widget.dart'; // No longer used
 import 'package:fitman_app/providers/auth_provider.dart';
 import 'package:fitman_app/services/api_service.dart';
 import 'package:flutter/material.dart';
@@ -51,6 +52,7 @@ class _EquipmentMaintenanceHistoryEditScreenState
   late TextEditingController _notesController;
   late TextEditingController _cancellationReasonController;
   late TextEditingController _executorNameController;
+  late TextEditingController _numberController;
 
   late MaintenanceType _selectedType;
   late MaintenanceStatus _selectedStatus;
@@ -74,6 +76,7 @@ class _EquipmentMaintenanceHistoryEditScreenState
     _notesController = TextEditingController(text: record?.notes ?? '');
     _cancellationReasonController =
         TextEditingController(text: record?.cancellationReason ?? '');
+    _numberController = TextEditingController(text: record?.number ?? '');
 
     _selectedType = record?.type ?? MaintenanceType.corrective;
     _selectedStatus = record?.status ?? MaintenanceStatus.reported;
@@ -168,9 +171,13 @@ class _EquipmentMaintenanceHistoryEditScreenState
       }
 
       if (isCreating) {
+        final currentEquipmentItem = await ref
+            .read(equipmentItemByIdProvider(widget.equipmentItemId).future);
+
         recordToSave = EquipmentMaintenanceHistory(
           id: null,
           equipmentItemId: widget.equipmentItemId,
+          equipmentName: currentEquipmentItem.model, // Pass equipmentName here
           reportedProblem: _reportedProblemController.text,
           workDescription: _workDescriptionController.text.isNotEmpty
               ? _workDescriptionController.text
@@ -338,6 +345,20 @@ class _EquipmentMaintenanceHistoryEditScreenState
             ? 'Новая заявка на ТО'
             : 'Редактировать заявку'),
         actions: [
+          if (widget.historyRecord != null)
+            IconButton(
+              icon: const Icon(Icons.history),
+              tooltip: 'История статусов',
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => MaintenanceStatusHistoryScreen(
+                      maintenanceId: widget.historyRecord!.id!,
+                    ),
+                  ),
+                );
+              },
+            ),
           IconButton(
             icon: const Icon(Icons.save),
             onPressed: _isLoading || _isLocked ? null : _saveForm,
@@ -346,139 +367,134 @@ class _EquipmentMaintenanceHistoryEditScreenState
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              flex: 2,
-              child: Form(
-                key: _formKey,
-                autovalidateMode: AutovalidateMode.onUserInteraction,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Dropdown for Maintenance Type
-                    FormField<MaintenanceType>(
-                      builder: (FormFieldState<MaintenanceType> state) {
-                        return InputDecorator(
-                          decoration: const InputDecoration(
-                            labelText: 'Тип ТО',
-                            border: OutlineInputBorder(),
-                          ),
-                          child: DropdownButtonHideUnderline(
-                            child: DropdownButton<MaintenanceType>(
-                              value: _selectedType,
-                              isDense: true,
-                              onChanged: _isLocked ? null : (newValue) {
-                                if (newValue != null) {
-                                  setState(() {
-                                    _selectedType = newValue;
-                                    state.didChange(newValue);
-                                  });
-                                }
-                              },
-                              items: MaintenanceType.values.map((type) {
-                                return DropdownMenuItem(
-                                  value: type,
-                                  child: Text(type.title),
-                                );
-                              }).toList(),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    // Dropdown for Maintenance Status
-                    FormField<MaintenanceStatus>(
-                      builder: (FormFieldState<MaintenanceStatus> state) {
-                        return InputDecorator(
-                          decoration: const InputDecoration(
-                            labelText: 'Статус',
-                            border: OutlineInputBorder(),
-                          ),
-                          child: DropdownButtonHideUnderline(
-                            child: DropdownButton<MaintenanceStatus>(
-                              value: _selectedStatus,
-                              isDense: true,
-                              onChanged: _isLocked ? null : _onStatusChanged,
-                              items: _getAvailableStatuses().map((status) {
-                                return DropdownMenuItem(
-                                  value: status,
-                                  child: Text(status.title),
-                                );
-                              }).toList(),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _executorNameController,
-                      readOnly: true,
-                      decoration: InputDecoration(
-                        labelText: 'Исполнитель',
-                        border: const OutlineInputBorder(),
-                        suffixIcon: IconButton(
-                          icon: const Icon(Icons.person_search),
-                          onPressed: _isLocked ? null : _showExecutorSelectionDialog,
-                        ),
-                      ),
-                      onTap: _isLocked ? null : _showExecutorSelectionDialog,
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _reportedProblemController,
-                      readOnly: _isLocked,
-                      decoration: const InputDecoration(
-                          labelText: 'Описание проблемы',
-                          hintText: 'Минимум 5 символов',
-                          border: OutlineInputBorder()),
-                      maxLines: 3,
-                      validator: (v) {
-                        if (v == null || v.trim().length < 5) {
-                          return 'Описание должно быть не менее 5 символов.';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _workDescriptionController,
-                      readOnly: _isLocked,
-                      decoration: const InputDecoration(
-                          labelText: 'Описание выполненных работ',
-                          border: OutlineInputBorder()),
-                      maxLines: 3,
-                    ),
-                    if (_selectedStatus == MaintenanceStatus.cancelled)
-                      Padding(
-                        padding: const EdgeInsets.only(top:16.0),
-                        child: TextFormField(
-                          controller: _cancellationReasonController,
-                          readOnly: true, // Reason is set via dialog
-                          decoration: const InputDecoration(
-                              labelText: 'Причина отмены',
-                              border: OutlineInputBorder()),
-                          maxLines: 2,
-                        ),
-                      ),
-                    const SizedBox(height: 24),
-                    _buildPhotoSection(context, 'Фото "До"', _beforePhotos),
-                    const SizedBox(height: 16),
-                    _buildPhotoSection(context, 'Фото "После"', _afterPhotos),
-                  ],
+        child: Form(
+          key: _formKey,
+          autovalidateMode: AutovalidateMode.onUserInteraction,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (widget.historyRecord?.number != null) ...[
+                TextFormField(
+                  controller: _numberController,
+                  readOnly: true,
+                  decoration: const InputDecoration(
+                      labelText: 'Номер заявки', border: OutlineInputBorder()),
                 ),
+                const SizedBox(height: 16),
+              ],
+              // Dropdown for Maintenance Type
+              FormField<MaintenanceType>(
+                builder: (FormFieldState<MaintenanceType> state) {
+                  return InputDecorator(
+                    decoration: const InputDecoration(
+                      labelText: 'Тип ТО',
+                      border: OutlineInputBorder(),
+                    ),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<MaintenanceType>(
+                        value: _selectedType,
+                        isDense: true,
+                        onChanged: _isLocked ? null : (newValue) {
+                          if (newValue != null) {
+                            setState(() {
+                              _selectedType = newValue;
+                              state.didChange(newValue);
+                            });
+                          }
+                        },
+                        items: MaintenanceType.values.map((type) {
+                          return DropdownMenuItem(
+                            value: type,
+                            child: Text(type.title),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  );
+                },
               ),
-            ),
-            const SizedBox(width: 16),
-            if (widget.historyRecord != null)
-            Expanded(
-              flex: 1,
-              child: MaintenanceStatusHistoryWidget(history: widget.historyRecord!),
-            ),
-          ],
+              const SizedBox(height: 16),
+              // Dropdown for Maintenance Status
+              FormField<MaintenanceStatus>(
+                builder: (FormFieldState<MaintenanceStatus> state) {
+                  return InputDecorator(
+                    decoration: const InputDecoration(
+                      labelText: 'Статус',
+                      border: OutlineInputBorder(),
+                    ),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<MaintenanceStatus>(
+                        value: _selectedStatus,
+                        isDense: true,
+                        onChanged: _isLocked ? null : _onStatusChanged,
+                        items: _getAvailableStatuses().map((status) {
+                          return DropdownMenuItem(
+                            value: status,
+                            child: Text(status.title),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _executorNameController,
+                readOnly: true,
+                decoration: InputDecoration(
+                  labelText: 'Исполнитель',
+                  border: const OutlineInputBorder(),
+                  suffixIcon: IconButton(
+                    icon: const Icon(Icons.person_search),
+                    onPressed: _isLocked ? null : _showExecutorSelectionDialog,
+                  ),
+                ),
+                onTap: _isLocked ? null : _showExecutorSelectionDialog,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _reportedProblemController,
+                readOnly: _isLocked,
+                decoration: const InputDecoration(
+                    labelText: 'Описание проблемы',
+                    hintText: 'Минимум 5 символов',
+                    border: OutlineInputBorder()),
+                maxLines: 3,
+                validator: (v) {
+                  if (v == null || v.trim().length < 5) {
+                    return 'Описание должно быть не менее 5 символов.';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _workDescriptionController,
+                readOnly: _isLocked,
+                decoration: const InputDecoration(
+                    labelText: 'Описание выполненных работ',
+                    border: OutlineInputBorder()),
+                maxLines: 3,
+              ),
+              if (_selectedStatus == MaintenanceStatus.cancelled)
+                Padding(
+                  padding: const EdgeInsets.only(top: 16.0),
+                  child: TextFormField(
+                    controller: _cancellationReasonController,
+                    readOnly: true, // Reason is set via dialog
+                    decoration: const InputDecoration(
+                        labelText: 'Причина отмены',
+                        border: OutlineInputBorder()),
+                    maxLines: 2,
+                  ),
+                ),
+              const SizedBox(height: 24),
+              _buildPhotoSection(context, 'Фото "До"', _beforePhotos),
+              const SizedBox(height: 16),
+              _buildPhotoSection(context, 'Фото "После"', _afterPhotos),
+            ],
+          ),
         ),
       ),
     );

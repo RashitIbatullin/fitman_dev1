@@ -73,7 +73,7 @@ class MaintenanceStatusHistoryWidget extends StatelessWidget {
               ),
             ),
             const Divider(),
-            buildRow('Заявка', history.reportedBy, history.createdAt),
+            buildRow('Заявка', history.reportedByName, history.createdAt),
             if (history.startedAt != null || history.status == MaintenanceStatus.inProgress)
               buildRow('В работе', history.inProgressByName, history.startedAt),
             if (history.completedAt != null || history.status == MaintenanceStatus.completed)

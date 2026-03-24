@@ -59,6 +59,7 @@ enum ExecutorType {
 class EquipmentMaintenanceHistory with _$EquipmentMaintenanceHistory {
   const factory EquipmentMaintenanceHistory({
     String? id,
+    String? number,
     required String equipmentItemId,
     String? equipmentName,
     required MaintenanceType type,
@@ -77,6 +78,7 @@ class EquipmentMaintenanceHistory with _$EquipmentMaintenanceHistory {
     String? workDescription,
     String? notes,
     required String reportedBy,
+    String? reportedByName,
     String? inProgressBy,
     String? inProgressByName,
     String? completedBy,

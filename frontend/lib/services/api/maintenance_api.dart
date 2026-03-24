@@ -22,7 +22,13 @@ class MaintenanceApiService extends BaseApiService {
     final data = await get('/api/maintenance/item/$itemId', queryParams: queryParameters);
     return (data as List).map((json) => EquipmentMaintenanceHistory.fromJson(json)).toList();
   }
-    Future<AvailableExecutorsResponse> getAvailableExecutors() async {
+
+  Future<EquipmentMaintenanceHistory> getMaintenanceHistoryById(String id) async {
+    final data = await get('/api/maintenance/$id');
+    return EquipmentMaintenanceHistory.fromJson(data);
+  }
+
+  Future<AvailableExecutorsResponse> getAvailableExecutors() async {
     final data = await get('/api/maintenance/available-executors');
     return AvailableExecutorsResponse.fromJson(data);
   }

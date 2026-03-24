@@ -1,3 +1,4 @@
+import 'package:fitman_app/modules/equipment/screens/maintenance_status_history_screen.dart';
 import 'package:fitman_app/modules/equipment/models/equipment/equipment_item.model.dart';
 import 'package:fitman_app/modules/equipment/models/equipment_maintenance_history.model.dart';
 import 'equipment_item_edit_screen.dart';
@@ -10,7 +11,7 @@ import 'package:fitman_app/modules/equipment/models/equipment/equipment_status.e
 import 'package:fitman_app/modules/rooms/providers/room/room_provider.dart';
 import 'package:fitman_app/modules/users/providers/users_provider.dart'; 
 
-import 'package:fitman_app/modules/equipment/screens/item/maintenance_details_screen.dart';
+// import 'package:fitman_app/modules/equipment/screens/item/maintenance_details_screen.dart'; // No longer used
 import 'package:intl/intl.dart';
 
 class EquipmentItemDetailScreen extends ConsumerStatefulWidget {
@@ -330,7 +331,7 @@ class _EquipmentItemDetailScreenState extends ConsumerState<EquipmentItemDetailS
                         onTap: () {
                           Navigator.of(context).push(
                             MaterialPageRoute(
-                              builder: (context) => MaintenanceDetailsScreen(record: record),
+                              builder: (context) => MaintenanceStatusHistoryScreen(maintenanceId: record.id!),
                             ),
                           );
                         },

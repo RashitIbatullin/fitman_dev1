@@ -21,8 +21,10 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
 
   String get _selectQueryFragment => '''
     SELECT 
+      emh.number,
       emh.*,
       COALESCE(u.first_name || ' ' || u.last_name, ss.first_name || ' ' || ss.last_name) as executor_name,
+      u_rb.first_name || ' ' || u_rb.last_name as reported_by_name,
       u_ip.first_name || ' ' || u_ip.last_name as in_progress_by_name,
       u_c.first_name || ' ' || u_c.last_name as completed_by_name,
       u_can.first_name || ' ' || u_can.last_name as cancelled_by_name,
@@ -38,6 +40,7 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
     LEFT JOIN users u_ip ON emh.in_progress_by = u_ip.id
     LEFT JOIN users u_c ON emh.completed_by = u_c.id
     LEFT JOIN users u_can ON emh.cancelled_by = u_can.id
+    LEFT JOIN users u_rb ON emh.reported_by = u_rb.id
   ''';
 
   /// Prepares a row map from the database for consumption by a `fromJson` factory.
@@ -56,7 +59,7 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
     }
 
     // Convert all potential ID columns from int to String
-    final idKeys = ['id', 'equipment_item_id', 'reported_by', 'executor_id', 'related_booking_id', 'archived_by', 'created_by', 'updated_by', 'in_progress_by', 'completed_by', 'cancelled_by'];
+    final idKeys = ['id', 'number', 'equipment_item_id', 'reported_by', 'reported_by_name', 'executor_id', 'related_booking_id', 'archived_by', 'created_by', 'updated_by', 'in_progress_by', 'completed_by', 'cancelled_by'];
     for (final key in idKeys) {
       if (newRow[key] != null && newRow[key] is! String) {
         newRow[key] = newRow[key].toString();

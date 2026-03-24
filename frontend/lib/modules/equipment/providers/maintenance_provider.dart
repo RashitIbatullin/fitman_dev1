@@ -66,3 +66,8 @@ final maintenanceHistoryProvider =
   final includeArchived = ref.watch(maintenanceHistoryFilterIncludeArchivedProvider);
   return ApiService.getMaintenanceHistory(itemId, includeArchived: includeArchived);
 });
+
+final singleMaintenanceHistoryByIdProvider =
+    FutureProvider.family<EquipmentMaintenanceHistory, String>((ref, maintenanceId) async {
+  return ApiService.getMaintenanceHistoryById(maintenanceId);
+});

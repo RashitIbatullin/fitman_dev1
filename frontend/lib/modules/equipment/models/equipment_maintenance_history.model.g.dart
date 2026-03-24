@@ -41,6 +41,7 @@ _$EquipmentMaintenanceHistoryImpl _$$EquipmentMaintenanceHistoryImplFromJson(
   Map<String, dynamic> json,
 ) => _$EquipmentMaintenanceHistoryImpl(
   id: json['id'] as String?,
+  number: json['number'] as String?,
   equipmentItemId: json['equipment_item_id'] as String,
   equipmentName: json['equipment_name'] as String?,
   type: $enumDecode(_$MaintenanceTypeEnumMap, json['type']),
@@ -61,6 +62,7 @@ _$EquipmentMaintenanceHistoryImpl _$$EquipmentMaintenanceHistoryImplFromJson(
   workDescription: json['work_description'] as String?,
   notes: json['notes'] as String?,
   reportedBy: json['reported_by'] as String,
+  reportedByName: json['reported_by_name'] as String?,
   inProgressBy: json['in_progress_by'] as String?,
   inProgressByName: json['in_progress_by_name'] as String?,
   completedBy: json['completed_by'] as String?,
@@ -96,6 +98,7 @@ Map<String, dynamic> _$$EquipmentMaintenanceHistoryImplToJson(
   _$EquipmentMaintenanceHistoryImpl instance,
 ) => <String, dynamic>{
   'id': instance.id,
+  'number': instance.number,
   'equipment_item_id': instance.equipmentItemId,
   'equipment_name': instance.equipmentName,
   'type': _$MaintenanceTypeEnumMap[instance.type]!,
@@ -109,6 +112,7 @@ Map<String, dynamic> _$$EquipmentMaintenanceHistoryImplToJson(
   'work_description': instance.workDescription,
   'notes': instance.notes,
   'reported_by': instance.reportedBy,
+  'reported_by_name': instance.reportedByName,
   'in_progress_by': instance.inProgressBy,
   'in_progress_by_name': instance.inProgressByName,
   'completed_by': instance.completedBy,

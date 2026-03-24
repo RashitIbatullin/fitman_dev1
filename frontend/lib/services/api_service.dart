@@ -180,6 +180,9 @@ class ApiService {
   static Future<void> unarchiveMaintenanceHistory(String historyId) =>
       _maintenanceApi.unarchiveMaintenanceHistory(historyId);
 
+  static Future<EquipmentMaintenanceHistory> getMaintenanceHistoryById(String id) =>
+      _maintenanceApi.getMaintenanceHistoryById(id);
+
   static Future<String> uploadMaintenancePhoto({
     required String maintenanceId,
     required List<int> photoBytes,
