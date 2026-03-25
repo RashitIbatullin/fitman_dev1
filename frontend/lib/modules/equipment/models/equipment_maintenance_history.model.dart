@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:flutter/material.dart';
 
 part 'equipment_maintenance_history.model.freezed.dart';
 part 'equipment_maintenance_history.model.g.dart';
@@ -49,6 +50,18 @@ extension MaintenanceStatusX on MaintenanceStatus {
         return 'Завершено';
       case MaintenanceStatus.cancelled:
         return 'Отменено';
+    }
+  }
+  Color get color {
+    switch (this) {
+      case MaintenanceStatus.reported:
+        return Colors.orange; // Problem exists, awaiting action
+      case MaintenanceStatus.inProgress:
+        return Colors.purple; // Something is happening
+      case MaintenanceStatus.completed:
+        return Colors.green; // Success
+      case MaintenanceStatus.cancelled:
+        return Colors.grey; // Neutral
     }
   }
 }

@@ -1,3 +1,4 @@
+import 'package:fitman_app/modules/equipment/screens/maintenance_status_history_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fitman_app/modules/equipment/models/equipment_maintenance_history.model.dart';
@@ -24,6 +25,24 @@ class MaintenanceDetailsScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(record.equipmentName ?? 'Заявка на ТО'),
+        actions: [
+          if (record.id != null)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: TextButton(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => MaintenanceStatusHistoryScreen(
+                        maintenanceId: record.id!,
+                      ),
+                    ),
+                  );
+                },
+                child: const Text('История статусов'),
+              ),
+            ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),

@@ -1,6 +1,6 @@
 
-import 'package:fitman_app/modules/equipment/screens/item/maintenance_details_screen.dart';
 import 'package:fitman_app/modules/equipment/models/equipment/equipment_item.model.dart';
+import 'package:fitman_app/modules/equipment/widgets/maintenance_list_tile.dart';
 import 'package:fitman_app/modules/equipment/models/equipment_maintenance_history.model.dart';
 import 'equipment_item_edit_screen.dart';
 import 'package:fitman_app/modules/equipment/screens/item/equipment_maintenance_history_edit_screen.dart';
@@ -13,7 +13,7 @@ import 'package:fitman_app/modules/rooms/providers/room/room_provider.dart';
 import 'package:fitman_app/modules/users/providers/users_provider.dart'; 
 
 // import 'package:fitman_app/modules/equipment/screens/item/maintenance_details_screen.dart'; // No longer used
-import 'package:intl/intl.dart';
+
 
 class EquipmentItemDetailScreen extends ConsumerStatefulWidget {
   const EquipmentItemDetailScreen({super.key, required this.itemId});
@@ -318,6 +318,14 @@ class _EquipmentItemDetailScreenState extends ConsumerState<EquipmentItemDetailS
                 if (history.isEmpty) {
                   return const Center(child: Text('Нет записей в истории обслуживания.'));
                 }
+                // Sort the history list
+                history.sort((a, b) {
+                  if (a.createdAt == null && b.createdAt == null) return 0;
+                  if (a.createdAt == null) return 1;
+                  if (b.createdAt == null) return -1;
+                  return b.createdAt!.compareTo(a.createdAt!);
+                });
+
                 return ListView.builder(
                   padding: const EdgeInsets.all(8.0),
                   itemCount: history.length,
@@ -325,76 +333,56 @@ class _EquipmentItemDetailScreenState extends ConsumerState<EquipmentItemDetailS
                     final record = history[index];
                     final isArchived = record.archivedAt != null;
 
-                    return Card(
-                      margin: const EdgeInsets.symmetric(vertical: 4),
-                      color: isArchived ? Colors.grey.shade200 : null,
-                      child: ListTile(
-                        onTap: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => MaintenanceDetailsScreen(record: record),
-                            ),
-                          );
+                    return MaintenanceListTile(
+                      historyItem: record,
+                      statusDetails: isArchived
+                          ? Padding(
+                              padding: const EdgeInsets.only(top: 4.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text('Архивировано', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.brown)),
+                                  _buildInfoRow(context, 'Когда:', record.archivedAt?.toLocal().toString().substring(0, 10) ?? 'N/A'),
+                                  ArchivedByInfo(userId: record.archivedBy, isSmall: true),
+                                  _buildInfoRow(context, 'Причина:', record.archivedReason ?? 'N/A'),
+                                ],
+                              ),
+                            )
+                          : null,
+                      trailing: PopupMenuButton<String>(
+                        onSelected: (value) {
+                          if (value == 'edit') {
+                            Navigator.of(context).push<bool>(
+                              MaterialPageRoute(
+                                builder: (context) => EquipmentMaintenanceHistoryEditScreen(
+                                  equipmentItemId: record.equipmentItemId,
+                                  historyRecord: record,
+                                ),
+                              ),
+                            );
+                          } else if (value == 'archive') {
+                            _showArchiveDialog(context, ref, record);
+                          } else if (value == 'unarchive') {
+                            ref.read(maintenanceProvider.notifier).unarchiveMaintenanceHistory(record.id!, record.equipmentItemId);
+                          }
                         },
-                        title: Text(record.reportedProblem),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (record.number != null)
-                              Text('Номер: ${record.number}'),
-                            Text('Статус: ${record.status.title}'),
-                            if (record.createdAt != null)
-                              Text('Создано: ${DateFormat('yyyy-MM-dd').format(record.createdAt!.toLocal())}'),
-                            if (isArchived)
-                              Padding(
-                                padding: const EdgeInsets.only(top: 4.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Text('Архивировано', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.brown)),
-                                    _buildInfoRow(context, 'Когда:', record.archivedAt?.toLocal().toString().substring(0, 10) ?? 'N/A'),
-                                    ArchivedByInfo(userId: record.archivedBy, isSmall: true),
-                                    _buildInfoRow(context, 'Причина:', record.archivedReason ?? 'N/A'),
-                                  ],
-                                ),
-                              )
-                          ],
-                        ),
-                        trailing: PopupMenuButton<String>(
-                          onSelected: (value) {
-                            if (value == 'edit') {
-                              Navigator.of(context).push<bool>(
-                                MaterialPageRoute(
-                                  builder: (context) => EquipmentMaintenanceHistoryEditScreen(
-                                    equipmentItemId: record.equipmentItemId,
-                                    historyRecord: record,
-                                  ),
-                                ),
-                              );
-                            } else if (value == 'archive') {
-                              _showArchiveDialog(context, ref, record);
-                            } else if (value == 'unarchive') {
-                              ref.read(maintenanceProvider.notifier).unarchiveMaintenanceHistory(record.id!, record.equipmentItemId);
-                            }
-                          },
-                          itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                            if (!isArchived) ...[
-                              const PopupMenuItem<String>(
-                                value: 'edit',
-                                child: Text('Редактировать'),
-                              ),
-                              const PopupMenuItem<String>(
-                                value: 'archive',
-                                child: Text('Архивировать'),
-                              ),
-                            ] else ...[
-                              const PopupMenuItem<String>(
-                                value: 'unarchive',
-                                child: Text('Деархивировать'),
-                              ),
-                            ]
-                          ],
-                        ),
+                        itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                          if (!isArchived) ...[
+                            const PopupMenuItem<String>(
+                              value: 'edit',
+                              child: Text('Редактировать'),
+                            ),
+                            const PopupMenuItem<String>(
+                              value: 'archive',
+                              child: Text('Архивировать'),
+                            ),
+                          ] else ...[
+                            const PopupMenuItem<String>(
+                              value: 'unarchive',
+                              child: Text('Деархивировать'),
+                            ),
+                          ]
+                        ],
                       ),
                     );
                   },

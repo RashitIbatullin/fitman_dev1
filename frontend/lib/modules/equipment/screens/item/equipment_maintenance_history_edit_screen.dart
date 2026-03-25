@@ -346,18 +346,20 @@ class _EquipmentMaintenanceHistoryEditScreenState
             : 'Редактировать заявку'),
         actions: [
           if (widget.historyRecord != null)
-            IconButton(
-              icon: const Icon(Icons.history),
-              tooltip: 'История статусов',
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => MaintenanceStatusHistoryScreen(
-                      maintenanceId: widget.historyRecord!.id!,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: TextButton(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => MaintenanceStatusHistoryScreen(
+                        maintenanceId: widget.historyRecord!.id!,
+                      ),
                     ),
-                  ),
-                );
-              },
+                  );
+                },
+                child: const Text('История статусов'),
+              ),
             ),
           IconButton(
             icon: const Icon(Icons.save),

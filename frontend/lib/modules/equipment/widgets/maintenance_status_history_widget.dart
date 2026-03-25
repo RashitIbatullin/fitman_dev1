@@ -49,18 +49,14 @@ class MaintenanceStatusHistoryWidget extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'История статусов',
-              style: theme.textTheme.titleMedium,
-            ),
-            const SizedBox(height: 8),
+
             const Divider(),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 4),
               child: Row(
                 children: [
                   Expanded(flex: 2, child: Text('Статус', style: theme.textTheme.labelSmall)),
-                  Expanded(flex: 3, child: Text('Исполнитель', style: theme.textTheme.labelSmall)),
+                  Expanded(flex: 3, child: Text('Пользователь', style: theme.textTheme.labelSmall)),
                   Expanded(
                     flex: 3,
                     child: Text(
