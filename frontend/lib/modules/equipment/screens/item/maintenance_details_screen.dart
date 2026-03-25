@@ -1,16 +1,18 @@
+import 'package:fitman_app/modules/equipment/providers/equipment/equipment_provider.dart';
 import 'package:fitman_app/modules/equipment/screens/maintenance_status_history_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fitman_app/modules/equipment/models/equipment_maintenance_history.model.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
-class MaintenanceDetailsScreen extends StatelessWidget {
+class MaintenanceDetailsScreen extends ConsumerWidget { // Changed to ConsumerWidget
   const MaintenanceDetailsScreen({super.key, required this.record});
 
   final EquipmentMaintenanceHistory record;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) { // Added WidgetRef ref
     final baseUrl = dotenv.env['BASE_URL'] ?? 'http://localhost:8080';
 
     // Helper to format dates safely
@@ -22,9 +24,26 @@ class MaintenanceDetailsScreen extends StatelessWidget {
     final beforePhotos = record.photos?.where((p) => p.timing == PhotoTiming.before).toList() ?? [];
     final afterPhotos = record.photos?.where((p) => p.timing == PhotoTiming.after).toList() ?? [];
 
+    // Watch the equipment item to get its name
+    final equipmentItemAsync = ref.watch(equipmentItemByIdProvider(record.equipmentItemId));
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(record.equipmentName ?? 'Заявка на ТО'),
+        title: equipmentItemAsync.when(
+          data: (equipment) {
+            final equipmentDisplayName =
+                '${equipment.manufacturer ?? ''} ${equipment.model ?? ''}'.trim();
+            final finalDisplayName = equipmentDisplayName.isNotEmpty
+                ? equipmentDisplayName
+                : equipment.inventoryNumber;
+            return Text(
+              'Заявка №${record.number}: $finalDisplayName',
+              overflow: TextOverflow.ellipsis,
+            );
+          },
+          loading: () => Text('Заявка №${record.number}...'), // Fallback while loading equipment
+          error: (e, s) => Text('Заявка №${record.number}'), // Fallback on error
+        ),
         actions: [
           if (record.id != null)
             Padding(
@@ -52,11 +71,15 @@ class MaintenanceDetailsScreen extends StatelessWidget {
             if (record.number != null)
               _buildDetailRow(label: 'Номер заявки:', value: record.number!),
             _buildDetailRow(label: 'Проблема:', value: record.reportedProblem),
+            if (record.notes != null && record.notes!.isNotEmpty)
+              _buildDetailRow(label: 'Примечания:', value: record.notes!),
             const Divider(),
             _buildDetailRow(label: 'Статус:', value: record.status.title),
             _buildDetailRow(label: 'Тип:', value: record.type.title),
             if (record.workDescription != null && record.workDescription!.isNotEmpty)
               _buildDetailRow(label: 'Выполненные работы:', value: record.workDescription!),
+            if (record.status == MaintenanceStatus.cancelled && record.cancellationReason != null && record.cancellationReason!.isNotEmpty)
+              _buildDetailRow(label: 'Причина отмены:', value: record.cancellationReason!),
             
             const Divider(height: 32),
             Text('Исполнители', style: Theme.of(context).textTheme.titleLarge),

@@ -344,11 +344,31 @@ class _EquipmentMaintenanceHistoryEditScreenState
         _selectedStatus == MaintenanceStatus.completed ||
         _selectedStatus == MaintenanceStatus.cancelled;
 
+    final equipmentItemAsync = ref.watch(equipmentItemByIdProvider(widget.equipmentItemId));
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.historyRecord == null
-            ? 'Новая заявка на ТО'
-            : 'Редактировать заявку'),
+        title: equipmentItemAsync.when(
+          data: (equipment) {
+            final equipmentDisplayName =
+                '${equipment.manufacturer ?? ''} ${equipment.model ?? ''}'.trim();
+            final finalDisplayName = equipmentDisplayName.isNotEmpty
+                ? equipmentDisplayName
+                : equipment.inventoryNumber;
+            return Text(
+              widget.historyRecord == null
+                  ? 'Новая заявка на ТО: $finalDisplayName'
+                  : 'Редактировать заявку №${widget.historyRecord!.number}: $finalDisplayName',
+              overflow: TextOverflow.ellipsis,
+            );
+          },
+          loading: () => Text(widget.historyRecord == null
+              ? 'Новая заявка на ТО...'
+              : 'Редактировать заявку №${widget.historyRecord!.number}...'),
+          error: (e, s) => Text(widget.historyRecord == null
+              ? 'Новая заявка на ТО'
+              : 'Редактировать заявку №${widget.historyRecord!.number}'),
+        ),
         actions: [
           if (widget.historyRecord != null)
             Padding(
@@ -481,6 +501,15 @@ class _EquipmentMaintenanceHistoryEditScreenState
                 readOnly: _selectedStatus != MaintenanceStatus.inProgress,
                 decoration: const InputDecoration(
                     labelText: 'Описание выполненных работ',
+                    border: OutlineInputBorder()),
+                maxLines: 3,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _notesController,
+                readOnly: isFormLocked,
+                decoration: const InputDecoration(
+                    labelText: 'Примечания',
                     border: OutlineInputBorder()),
                 maxLines: 3,
               ),

@@ -19,6 +19,7 @@ class MaintenanceListTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isArchived = historyItem.archivedAt != null;
+    final String statusLabel = 'Статус:'; // Declare the variable here
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 4),
@@ -38,8 +39,9 @@ class MaintenanceListTile extends ConsumerWidget {
           children: [
             if (historyItem.number != null)
               Text('№${historyItem.number}', style: const TextStyle(fontWeight: FontWeight.bold)),
-            const Text('Статус:', style: TextStyle(color: Colors.black)),
-            Text('${historyItem.status.title}', style: TextStyle(fontWeight: FontWeight.bold, color: historyItem.status.color)),
+            // Fix for unnecessary_string_interpolations info
+            Text(statusLabel, style: TextStyle(color: Colors.black)),
+            Text(historyItem.status.title, style: TextStyle(fontWeight: FontWeight.bold, color: historyItem.status.color)),
             if (historyItem.createdAt != null)
               Text('Создано: ${DateFormat('dd.MM.yy').format(historyItem.createdAt!.toLocal())}'),
             if (statusDetails != null) statusDetails!,

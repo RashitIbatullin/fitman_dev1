@@ -1,3 +1,4 @@
+import 'package:fitman_app/modules/equipment/providers/equipment/equipment_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fitman_app/modules/equipment/providers/maintenance_provider.dart';
@@ -15,21 +16,41 @@ class MaintenanceStatusHistoryScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final maintenanceHistoryAsync = ref.watch(singleMaintenanceHistoryByIdProvider(maintenanceId));
 
-    return Scaffold(
-      appBar: AppBar(
-        title: maintenanceHistoryAsync.when(
-          data: (history) => Text('История статусов: Заявка №${history.number} - ${history.equipmentName} - ${history.reportedProblem}'),
-          loading: () => const Text('Загрузка истории статусов...'),
-          error: (error, stack) => const Text('Ошибка'),
-        ),
+    return maintenanceHistoryAsync.when(
+      data: (history) {
+        final equipmentItemAsync = ref.watch(equipmentItemByIdProvider(history.equipmentItemId));
+
+        return Scaffold(
+          appBar: AppBar(
+            title: equipmentItemAsync.when(
+              data: (equipment) {
+                final equipmentDisplayName =
+                    '${equipment.manufacturer ?? ''} ${equipment.model ?? ''}';
+                final finalDisplayName = equipmentDisplayName.trim().isNotEmpty
+                    ? equipmentDisplayName.trim()
+                    : equipment.inventoryNumber;
+                return Text(
+                  'Заявка №${history.number}: $finalDisplayName',
+                  overflow: TextOverflow.ellipsis,
+                );
+              },
+              loading: () => Text('Заявка №${history.number}...'),
+              error: (e, s) => Text('Заявка №${history.number}'),
+            ),
+          ),
+          body: SingleChildScrollView(
+            padding: const EdgeInsets.all(16.0),
+            child: MaintenanceStatusHistoryWidget(history: history),
+          ),
+        );
+      },
+      loading: () => Scaffold(
+        appBar: AppBar(title: const Text('Загрузка...')),
+        body: const Center(child: CircularProgressIndicator()),
       ),
-      body: maintenanceHistoryAsync.when(
-        data: (history) => SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
-          child: MaintenanceStatusHistoryWidget(history: history),
-        ),
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) => Center(child: Text('Ошибка загрузки: $error')),
+      error: (error, stack) => Scaffold(
+        appBar: AppBar(title: const Text('Ошибка')),
+        body: Center(child: Text('Ошибка загрузки: $error')),
       ),
     );
   }
