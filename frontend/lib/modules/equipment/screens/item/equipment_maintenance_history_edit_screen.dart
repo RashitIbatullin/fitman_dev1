@@ -225,7 +225,32 @@ class _EquipmentMaintenanceHistoryEditScreenState
         }
       }
 
-      // Photo upload logic... (unchanged)
+      // --- Photo Upload Logic ---
+      final List<Future> photoUploadFutures = [];
+
+      void uploadPhotoList(List<_PhotoHolder> photos, PhotoTiming timing) {
+        for (final photoHolder in photos) {
+          if (photoHolder.isNew && photoHolder.newFile?.bytes != null) {
+            photoUploadFutures.add(
+              ApiService.uploadMaintenancePhoto(
+                maintenanceId: recordToSave.id!,
+                photoBytes: photoHolder.newFile!.bytes!,
+                fileName: photoHolder.newFile!.name,
+                comment: photoHolder.commentController.text,
+                timing: timing.name,
+              ),
+            );
+          }
+        }
+      }
+
+      uploadPhotoList(_beforePhotos, PhotoTiming.before);
+      uploadPhotoList(_afterPhotos, PhotoTiming.after);
+
+      if (photoUploadFutures.isNotEmpty) {
+        await Future.wait(photoUploadFutures);
+      }
+      // --- End of Photo Upload Logic ---
 
       ref.invalidate(allMaintenanceHistoryProvider);
       ref.invalidate(maintenanceHistoryProvider(widget.equipmentItemId));
