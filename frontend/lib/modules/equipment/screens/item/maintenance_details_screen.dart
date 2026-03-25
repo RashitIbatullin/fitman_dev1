@@ -5,6 +5,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fitman_app/modules/equipment/models/equipment_maintenance_history.model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:fitman_app/modules/users/providers/users_provider.dart';
 
 class MaintenanceDetailsScreen extends ConsumerWidget { // Changed to ConsumerWidget
   const MaintenanceDetailsScreen({super.key, required this.record});
@@ -83,7 +84,7 @@ class MaintenanceDetailsScreen extends ConsumerWidget { // Changed to ConsumerWi
             
             const Divider(height: 32),
             Text('Исполнители', style: Theme.of(context).textTheme.titleLarge),
-            _buildDetailRow(label: 'Заявил:', value: record.reportedBy), // TODO: Fetch user name
+            ReportedByInfo(userId: record.reportedBy),
             if (record.executorName != null)
               _buildDetailRow(label: 'Исполнитель:', value: record.executorName!),
             
@@ -137,25 +138,47 @@ class MaintenanceDetailsScreen extends ConsumerWidget { // Changed to ConsumerWi
       ),
     );
   }
+}
 
-  Widget _buildDetailRow({required String label, required String value}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 150,
-            child: Text(
-              label,
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-            ),
+Widget _buildDetailRow({required String label, required String value}) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 8.0),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: 150,
+          child: Text(
+            label,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
           ),
-          Expanded(
-            child: Text(value, style: const TextStyle(fontSize: 16)),
-          ),
-        ],
-      ),
+        ),
+        Expanded(
+          child: Text(value, style: const TextStyle(fontSize: 16)),
+        ),
+      ],
+    ),
+  );
+}
+
+class ReportedByInfo extends ConsumerWidget {
+  const ReportedByInfo({super.key, required this.userId});
+
+  final String userId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final userIdInt = int.tryParse(userId);
+    if (userIdInt == null) {
+      return _buildDetailRow(label: 'Заявил:', value: 'Некорректный ID');
+    }
+
+    final userAsync = ref.watch(userByIdProvider(userIdInt));
+
+    return userAsync.when(
+      data: (user) => _buildDetailRow(label: 'Заявил:', value: user.shortName),
+      loading: () => _buildDetailRow(label: 'Заявил:', value: 'Загрузка...'),
+      error: (err, stack) => _buildDetailRow(label: 'Заявил:', value: 'Ошибка'),
     );
   }
 }

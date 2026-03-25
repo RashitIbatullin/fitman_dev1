@@ -581,114 +581,120 @@ class _EquipmentMaintenanceHistoryEditScreenState
     // ... photo section build logic is unchanged
     final baseUrl = dotenv.env['BASE_URL'] ?? 'http://localhost:8080';
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(title, style: Theme.of(context).textTheme.titleLarge),
-        const SizedBox(height: 8),
-        SizedBox(
-          height: 220,
-          child: photos.isEmpty
-              ? const Center(child: Text('Нет фото'))
-              : ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: photos.length,
-                  itemBuilder: (context, index) {
-                    final photoHolder = photos[index];
+    return Container(
+      padding: const EdgeInsets.all(12.0), // Padding inside the border
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey, width: 1.0), // The border itself
+        borderRadius: BorderRadius.circular(8.0), // Rounded corners
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: Theme.of(context).textTheme.titleLarge),
+          const SizedBox(height: 8),
+          SizedBox(
+            height: 220,
+            child: photos.isEmpty
+                ? const Center(child: Text('Нет фото'))
+                : ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: photos.length,
+                    itemBuilder: (context, index) {
+                      final photoHolder = photos[index];
 
-                    ImageProvider? image;
-                    if (photoHolder.isNew) {
-                      if (photoHolder.newFile?.bytes != null) {
-                        image = MemoryImage(photoHolder.newFile!.bytes!);
+                      ImageProvider? image;
+                      if (photoHolder.isNew) {
+                        if (photoHolder.newFile?.bytes != null) {
+                          image = MemoryImage(photoHolder.newFile!.bytes!);
+                        }
+                      } else {
+                        image = NetworkImage('$baseUrl${photoHolder.url}');
                       }
-                    } else {
-                      image = NetworkImage('$baseUrl${photoHolder.url}');
-                    }
 
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 12.0),
-                      child: SizedBox(
-                        width: 150,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Stack(
-                              children: [
-                                if (image != null)
-                                  Image(
-                                      image: image,
-                                      width: 150,
-                                      height: 100,
-                                      fit: BoxFit.cover)
-                                else
-                                  Container(
-                                      width: 150,
-                                      height: 100,
-                                      color: Colors.grey[300],
-                                      child: const Icon(Icons.image_not_supported)),
-                                if (!isLocked)
-                                Positioned(
-                                  top: 0,
-                                  right: 0,
-                                  child: InkWell(
-                                    onTap: () {
-                                      setState(() => photos.removeAt(index));
-                                    },
-                                    child: const CircleAvatar(
-                                      radius: 12,
-                                      backgroundColor: Colors.red,
-                                      child: Icon(Icons.close,
-                                          color: Colors.white, size: 16),
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 12.0),
+                        child: SizedBox(
+                          width: 150,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Stack(
+                                children: [
+                                  if (image != null)
+                                    Image(
+                                        image: image,
+                                        width: 150,
+                                        height: 100,
+                                        fit: BoxFit.cover)
+                                  else
+                                    Container(
+                                        width: 150,
+                                        height: 100,
+                                        color: Colors.grey[300],
+                                        child: const Icon(Icons.image_not_supported)),
+                                  if (!isLocked)
+                                    Positioned(
+                                      top: 0,
+                                      right: 0,
+                                      child: InkWell(
+                                        onTap: () {
+                                          setState(() => photos.removeAt(index));
+                                        },
+                                        child: const CircleAvatar(
+                                          radius: 12,
+                                          backgroundColor: Colors.red,
+                                          child: Icon(Icons.close,
+                                              color: Colors.white, size: 16),
+                                        ),
+                                      ),
                                     ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 4),
-                            Expanded(
-                              child: TextFormField(
-                                controller: photoHolder.commentController,
-                                maxLines: null, // Allows multiline
-                                expands: true,
-                                textAlignVertical: TextAlignVertical.top,
-                                decoration: InputDecoration(
-                                  labelText: 'Примечание',
-                                  hintText:
-                                      photoHolder.isNew ? 'Мин. 5 символов' : '',
-                                  border: photoHolder.isNew && !isLocked
-                                      ? const OutlineInputBorder()
-                                      : InputBorder.none,
-                                  contentPadding: const EdgeInsets.symmetric(
-                                      horizontal: 8.0, vertical: 8.0),
-                                ),
-                                style: const TextStyle(fontSize: 12),
-                                readOnly: !photoHolder.isNew || isLocked,
-                                validator: (v) {
-                                  if (photoHolder.isNew && !isLocked &&
-                                      (v == null || v.trim().length < 5)) {
-                                    return 'Мин. 5 симв.';
-                                  }
-                                  return null;
-                                },
+                                ],
                               ),
-                            ),
-                          ],
+                              const SizedBox(height: 4),
+                              Expanded(
+                                child: TextFormField(
+                                  controller: photoHolder.commentController,
+                                  maxLines: null, // Allows multiline
+                                  expands: true,
+                                  textAlignVertical: TextAlignVertical.top,
+                                  decoration: InputDecoration(
+                                    labelText: 'Примечание',
+                                    hintText:
+                                        photoHolder.isNew ? 'Мин. 5 символов' : '',
+                                    border: photoHolder.isNew && !isLocked
+                                        ? const OutlineInputBorder()
+                                        : InputBorder.none,
+                                    contentPadding: const EdgeInsets.symmetric(
+                                        horizontal: 8.0, vertical: 8.0),
+                                  ),
+                                  style: const TextStyle(fontSize: 12),
+                                  readOnly: !photoHolder.isNew || isLocked,
+                                  validator: (v) {
+                                    if (photoHolder.isNew && !isLocked &&
+                                        (v == null || v.trim().length < 5)) {
+                                      return 'Мин. 5 симв.';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                ),
-        ),
-        const SizedBox(height: 8),
-        if(!isLocked)
-        ElevatedButton.icon(
-          icon: const Icon(Icons.add_a_photo),
-          label: const Text('Добавить фото'),
-          onPressed: () => _pickFiles(photos),
-        ),
-      ],
-    );
-  }
+                      );
+                    },
+                  ),
+          ),
+          const SizedBox(height: 8),
+          if(!isLocked)
+            ElevatedButton.icon(
+              icon: const Icon(Icons.add_a_photo),
+              label: const Text('Добавить фото'),
+              onPressed: () => _pickFiles(photos),
+            ),
+        ],
+      ),
+    );  }
 }
 
 class _ExecutorSelectionDialog extends ConsumerStatefulWidget {
