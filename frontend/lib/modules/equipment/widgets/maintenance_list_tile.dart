@@ -3,6 +3,7 @@ import 'package:fitman_app/modules/equipment/providers/equipment/equipment_provi
 import 'package:fitman_app/modules/equipment/screens/item/equipment_maintenance_history_edit_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fitman_app/modules/equipment/screens/item/maintenance_details_screen.dart';
 import 'package:intl/intl.dart';
 
 class MaintenanceListTile extends ConsumerWidget {
@@ -29,10 +30,20 @@ class MaintenanceListTile extends ConsumerWidget {
               : equipment.inventoryNumber;
 
           return ListTile(
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) =>
+                      MaintenanceDetailsScreen(record: historyItem),
+                ),
+              );
+            },
             title: Text(finalName), // Use the constructed name
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                if (historyItem.number != null)
+                  Text('Номер заявки: ${historyItem.number}'),
                 Text('Проблема: ${historyItem.reportedProblem}'),
                 if (historyItem.createdAt != null)
                   Text(

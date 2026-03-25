@@ -1,4 +1,5 @@
-import 'package:fitman_app/modules/equipment/screens/maintenance_status_history_screen.dart';
+
+import 'package:fitman_app/modules/equipment/screens/item/maintenance_details_screen.dart';
 import 'package:fitman_app/modules/equipment/models/equipment/equipment_item.model.dart';
 import 'package:fitman_app/modules/equipment/models/equipment_maintenance_history.model.dart';
 import 'equipment_item_edit_screen.dart';
@@ -331,7 +332,7 @@ class _EquipmentItemDetailScreenState extends ConsumerState<EquipmentItemDetailS
                         onTap: () {
                           Navigator.of(context).push(
                             MaterialPageRoute(
-                              builder: (context) => MaintenanceStatusHistoryScreen(maintenanceId: record.id!),
+                              builder: (context) => MaintenanceDetailsScreen(record: record),
                             ),
                           );
                         },
@@ -339,6 +340,8 @@ class _EquipmentItemDetailScreenState extends ConsumerState<EquipmentItemDetailS
                         subtitle: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            if (record.number != null)
+                              Text('Номер: ${record.number}'),
                             Text('Статус: ${record.status.title}'),
                             if (record.createdAt != null)
                               Text('Создано: ${DateFormat('yyyy-MM-dd').format(record.createdAt!.toLocal())}'),

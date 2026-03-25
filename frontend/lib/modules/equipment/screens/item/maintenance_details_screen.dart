@@ -30,6 +30,8 @@ class MaintenanceDetailsScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            if (record.number != null)
+              _buildDetailRow(label: 'Номер заявки:', value: record.number!),
             _buildDetailRow(label: 'Проблема:', value: record.reportedProblem),
             const Divider(),
             _buildDetailRow(label: 'Статус:', value: record.status.title),
