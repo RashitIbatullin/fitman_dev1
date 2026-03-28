@@ -9,7 +9,7 @@ final allInstructorsProvider = FutureProvider<List<User>>((ref) async {
 });
 
 // Провайдер для получения ID назначенных инструкторов для конкретного менеджера
-final assignedInstructorIdsProvider = FutureProvider.family<List<int>, int>((
+final assignedInstructorIdsProvider = FutureProvider.family<List<String>, String>((
   ref,
   managerId,
 ) async {
@@ -29,7 +29,7 @@ class AssignInstructorsScreen extends ConsumerStatefulWidget {
 
 class _AssignInstructorsScreenState
     extends ConsumerState<AssignInstructorsScreen> {
-  final Set<int> _selectedInstructorIds = {};
+  final Set<String> _selectedInstructorIds = {};
   bool _isInitialLoad = true;
 
   @override
@@ -39,7 +39,7 @@ class _AssignInstructorsScreenState
       assignedInstructorIdsProvider(widget.manager.id),
     );
 
-    if (_isInitialLoad && assignedIdsAsync is AsyncData<List<int>>) {
+    if (_isInitialLoad && assignedIdsAsync is AsyncData<List<String>>) {
       _selectedInstructorIds.clear();
       _selectedInstructorIds.addAll(assignedIdsAsync.value);
       WidgetsBinding.instance.addPostFrameCallback((_) {

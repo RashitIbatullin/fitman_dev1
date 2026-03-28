@@ -1,6 +1,6 @@
 class ClientProfile {
-  final int? goalTrainingId;
-  final int? levelTrainingId;
+  final String? goalTrainingId;
+  final String? levelTrainingId;
   final bool trackCalories;
   final double coeffActivity;
 
@@ -12,16 +12,9 @@ class ClientProfile {
   });
 
   factory ClientProfile.fromJson(Map<String, dynamic> json) {
-    // Helper to safely parse int from dynamic
-    int? parseInt(dynamic value) {
-      if (value is int) return value;
-      if (value is String) return int.tryParse(value);
-      return null;
-    }
-
     return ClientProfile(
-      goalTrainingId: parseInt(json['goal_training_id']),
-      levelTrainingId: parseInt(json['level_training_id']),
+      goalTrainingId: json['goal_training_id']?.toString(),
+      levelTrainingId: json['level_training_id']?.toString(),
       trackCalories: json['track_calories'] ?? true,
       coeffActivity: (json['coeff_activity'] as num?)?.toDouble() ?? 1.2,
     );

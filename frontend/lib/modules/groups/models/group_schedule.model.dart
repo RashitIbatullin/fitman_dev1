@@ -5,8 +5,8 @@ part 'group_schedule.model.g.dart';
 
 @JsonSerializable()
 class GroupSchedule extends Equatable {
-  final int? id;
-  final int groupId;
+  final String? id;
+  final String groupId;
   final int dayOfWeek;          // 1-7 (понедельник-воскресенье)
   
   // Custom TimeOfDay converter for JSON serialization

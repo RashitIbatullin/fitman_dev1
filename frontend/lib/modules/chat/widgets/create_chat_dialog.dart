@@ -69,7 +69,7 @@ class _CreateChatDialogState extends ConsumerState<CreateChatDialog> {
 
     try {
       final selectedUserIds = _selectedUsers.map((user) => user.id).toList();
-      int newChatId;
+      String newChatId;
 
       if (_selectedUsers.length == 1 && _groupNameController.text.isEmpty) {
         // Private chat

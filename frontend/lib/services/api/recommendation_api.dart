@@ -5,7 +5,7 @@ class RecommendationApiService extends BaseApiService {
   RecommendationApiService({super.client});
 
   /// Fetches a recommendation for a client.
-  Future<Map<String, dynamic>> getRecommendation(int clientId) async {
+  Future<Map<String, dynamic>> getRecommendation(String clientId) async {
     return await get('/api/recommendations/$clientId');
   }
 }

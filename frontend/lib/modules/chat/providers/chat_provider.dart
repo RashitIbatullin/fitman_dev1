@@ -10,9 +10,9 @@ import '../../../providers/auth_provider.dart'; // Adjusted relative path
 @immutable
 class ChatState {
   final List<Chat> chats;
-  final Map<int, List<Message>> messages;
-  final Map<int, MessagePaginationMetadata> messagesMetadata;
-  final int? activeChatId;
+  final Map<String, List<Message>> messages;
+  final Map<String, MessagePaginationMetadata> messagesMetadata;
+  final String? activeChatId;
   final bool isLoading;
   final bool isFetchingMore; // New field for loading more messages
   final String? error;
@@ -31,9 +31,9 @@ class ChatState {
 
   ChatState copyWith({
     List<Chat>? chats,
-    Map<int, List<Message>>? messages,
-    Map<int, MessagePaginationMetadata>? messagesMetadata, // Fixed type
-    int? activeChatId,
+    Map<String, List<Message>>? messages,
+    Map<String, MessagePaginationMetadata>? messagesMetadata, // Fixed type
+    String? activeChatId,
     bool? isLoading,
     bool? isFetchingMore,
     String? error,
@@ -143,7 +143,7 @@ class ChatNotifier extends Notifier<ChatState> {
     }
   }
 
-  Future<void> setActiveChat(int chatId) async {
+  Future<void> setActiveChat(String chatId) async {
     if (state.activeChatId == chatId && state.messages.containsKey(chatId)) {
       // If already active and messages loaded, no need to refetch
       return;
@@ -152,12 +152,12 @@ class ChatNotifier extends Notifier<ChatState> {
     state = state.copyWith(activeChatId: chatId, isLoading: true, error: null);
     try {
       // Reset pagination metadata for the new active chat
-      final newMetadata = Map<int, MessagePaginationMetadata>.from(state.messagesMetadata);
+      final newMetadata = Map<String, MessagePaginationMetadata>.from(state.messagesMetadata);
       newMetadata[chatId] = const MessagePaginationMetadata();
 
       final messages = await ApiService.getMessages(chatId, limit: newMetadata[chatId]!.limit, offset: 0);
       
-      final currentMessages = Map<int, List<Message>>.from(state.messages);
+      final currentMessages = Map<String, List<Message>>.from(state.messages);
       currentMessages[chatId] = messages;
 
       newMetadata[chatId] = newMetadata[chatId]!.copyWith(
@@ -188,12 +188,12 @@ class ChatNotifier extends Notifier<ChatState> {
         offset: metadata.offset,
       );
 
-      final currentMessages = Map<int, List<Message>>.from(state.messages);
+      final currentMessages = Map<String, List<Message>>.from(state.messages);
       final chatMessages = List<Message>.from(currentMessages[chatId] ?? []);
       chatMessages.addAll(newMessages); // Add new messages to the end (bottom of scroll)
       currentMessages[chatId] = chatMessages;
 
-      final newMetadata = Map<int, MessagePaginationMetadata>.from(state.messagesMetadata);
+      final newMetadata = Map<String, MessagePaginationMetadata>.from(state.messagesMetadata);
       newMetadata[chatId] = metadata.copyWith(
         offset: metadata.offset + newMessages.length,
         hasMore: newMessages.length == metadata.limit,
@@ -210,7 +210,7 @@ class ChatNotifier extends Notifier<ChatState> {
     }
   }
   
-  Future<int> openPrivateChat(int peerId) async {
+  Future<String> openPrivateChat(String peerId) async {
     try {
       state = state.copyWith(isLoading: true, error: null);
       final chatId = await ApiService.createOrGetPrivateChat(peerId);
@@ -254,16 +254,17 @@ class ChatNotifier extends Notifier<ChatState> {
   }
   
   void _addMessage(Message message) {
-    final currentMessages = Map<int, List<Message>>.from(state.messages);
+    final currentMessages = Map<String, List<Message>>.from(state.messages);
     final chatMessages = List<Message>.from(currentMessages[message.chatId] ?? []);
     
     if (!chatMessages.any((m) => m.id == message.id)) {
         chatMessages.insert(0, message); // New messages appear at the top
         currentMessages[message.chatId] = chatMessages;
         
-        final newMetadata = Map<int, MessagePaginationMetadata>.from(state.messagesMetadata);
-        newMetadata[message.chatId] = newMetadata[message.chatId]!.copyWith(
-          offset: newMetadata[message.chatId]!.offset + 1, // Increment offset for new message
+        final newMetadata = Map<String, MessagePaginationMetadata>.from(state.messagesMetadata);
+        final currentMeta = newMetadata[message.chatId] ?? const MessagePaginationMetadata();
+        newMetadata[message.chatId] = currentMeta.copyWith(
+          offset: currentMeta.offset + 1, // Increment offset for new message
         );
 
         state = state.copyWith(messages: currentMessages, messagesMetadata: newMetadata);
@@ -276,7 +277,7 @@ class ChatNotifier extends Notifier<ChatState> {
     }
   }
 
-  void sendDeliveredStatus(int chatId, int messageId) {
+  void sendDeliveredStatus(String chatId, String messageId) {
     if (state.webSocketChannel == null) return;
     final statusUpdate = {
       'type': 'status_update',
@@ -287,7 +288,7 @@ class ChatNotifier extends Notifier<ChatState> {
     state.webSocketChannel!.sink.add(jsonEncode(statusUpdate));
   }
 
-  void sendReadStatus(int chatId, int messageId) {
+  void sendReadStatus(String chatId, String messageId) {
     if (state.webSocketChannel == null) return;
     final statusUpdate = {
       'type': 'status_update',

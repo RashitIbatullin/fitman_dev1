@@ -8,7 +8,7 @@ part of 'manager_profile.dart';
 
 ManagerProfile _$ManagerProfileFromJson(Map<String, dynamic> json) =>
     ManagerProfile(
-      userId: (json['user_id'] as num).toInt(),
+      userId: json['user_id'] as String,
       isDuty: json['is_duty'] as bool? ?? false,
     );
 

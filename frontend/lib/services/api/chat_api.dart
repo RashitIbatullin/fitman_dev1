@@ -14,7 +14,7 @@ class ChatApiService extends BaseApiService {
   }
 
   /// Fetches messages for a specific chat.
-  Future<List<Message>> getMessages(int chatId, {int limit = 50, int offset = 0}) async {
+  Future<List<Message>> getMessages(String chatId, {int limit = 50, int offset = 0}) async {
     final data = await get('/api/chats/$chatId/messages', queryParams: {
       'limit': limit.toString(),
       'offset': offset.toString(),
@@ -23,13 +23,13 @@ class ChatApiService extends BaseApiService {
   }
 
   /// Creates a new private chat with a peer or retrieves the existing one.
-  Future<int> createOrGetPrivateChat(int peerId) async {
+  Future<String> createOrGetPrivateChat(String peerId) async {
     final data = await post('/api/chats/private', body: {'peerId': peerId});
-    return data['chat_id'] as int;
+    return data['chat_id'].toString();
   }
 
   /// Creates a new group chat.
-  Future<Chat> createGroupChat(String name, List<int> memberIds) async {
+  Future<Chat> createGroupChat(String name, List<String> memberIds) async {
     final data = await post('/api/chats/group', body: {
       'name': name,
       'member_ids': memberIds,
@@ -39,7 +39,7 @@ class ChatApiService extends BaseApiService {
 
   /// Uploads an attachment to a chat.
   Future<Message> uploadChatAttachment({
-    required int chatId,
+    required String chatId,
     required List<int> fileBytes,
     required String fileName,
   }) async {

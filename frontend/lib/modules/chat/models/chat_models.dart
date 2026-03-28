@@ -4,7 +4,7 @@ enum ChatType {
 }
 
 class Chat {
-  final int id;
+  final String id;
   final String? name;
   final ChatType type;
   final DateTime updatedAt;
@@ -23,18 +23,18 @@ class Chat {
 
   factory Chat.fromJson(Map<String, dynamic> json) {
     return Chat(
-      id: json['id'],
-      name: json['name'],
-      type: ChatType.values[json['type']],
-      updatedAt: DateTime.parse(json['updated_at']),
+      id: json['id'].toString(),
+      name: json['name']?.toString(),
+      type: ChatType.values[json['type'] as int],
+      updatedAt: DateTime.parse(json['updated_at'] as String),
     );
   }
 }
 
 class Message {
-  final int id;
-  final int chatId;
-  final int senderId;
+  final String id;
+  final String chatId;
+  final String senderId;
   final String? content;
   final String? attachmentUrl;
   final String? attachmentType;
@@ -56,15 +56,15 @@ class Message {
 
   factory Message.fromJson(Map<String, dynamic> json) {
     return Message(
-      id: json['id'],
-      chatId: json['chat_id'],
-      senderId: json['sender_id'],
-      content: json['content'],
-      attachmentUrl: json['attachment_url'],
-      attachmentType: json['attachment_type'],
-      createdAt: DateTime.parse(json['created_at']),
-      firstName: json['first_name'],
-      lastName: json['last_name'],
+      id: json['id'].toString(),
+      chatId: json['chat_id'].toString(),
+      senderId: json['sender_id'].toString(),
+      content: json['content']?.toString(),
+      attachmentUrl: json['attachment_url']?.toString(),
+      attachmentType: json['attachment_type']?.toString(),
+      createdAt: DateTime.parse(json['created_at'] as String),
+      firstName: json['first_name']?.toString(),
+      lastName: json['last_name']?.toString(),
     );
   }
 }

@@ -25,7 +25,7 @@ class AnalyticGroupTypeConverter implements JsonConverter<AnalyticGroupType, int
 
 @JsonSerializable(converters: [AnalyticGroupTypeConverter()])
 class AnalyticGroup extends Equatable {
-  final int? id;
+  final String? id;
   final String name;
   final String? description;
   final AnalyticGroupType type;
@@ -37,7 +37,7 @@ class AnalyticGroup extends Equatable {
   
   // ДИНАМИЧЕСКИЙ СОСТАВ
   @JsonKey(name: 'client_ids_cache', defaultValue: [])
-  final List<int> clientIds;      // Кэшированный список клиентов в группе
+  final List<String> clientIds;      // Кэшированный список клиентов в группе
   
   @JsonKey(name: 'last_updated_at')
   final DateTime? lastUpdatedAt;      // Время последнего обновления
@@ -47,7 +47,7 @@ class AnalyticGroup extends Equatable {
   @JsonKey(name: 'archived_at')
   final DateTime? archivedAt;
   @JsonKey(name: 'archived_by')
-  final int? archivedBy;
+  final String? archivedBy;
 
   const AnalyticGroup({
     this.id,

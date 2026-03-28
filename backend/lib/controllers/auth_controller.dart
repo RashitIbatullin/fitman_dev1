@@ -104,7 +104,7 @@ class AuthController {
       final passwordHash = BCrypt.hashpw(password, BCrypt.gensalt());
 
       final newUser = User(
-        id: 0,
+        id: '',
         email: email,
         passwordHash: passwordHash,
         firstName: firstName,

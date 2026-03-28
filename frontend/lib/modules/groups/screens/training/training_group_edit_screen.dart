@@ -17,19 +17,19 @@ class TrainingGroupEditScreen extends ConsumerStatefulWidget {
 
 class _TrainingGroupEditScreenState extends ConsumerState<TrainingGroupEditScreen> {
   final _formKey = GlobalKey<FormState>();
-  late final int? _groupId;
+  late final String? _groupId;
   late TextEditingController _nameController;
   late TextEditingController _descriptionController;
-  int? _selectedGroupTypeId;
-  int? _selectedPrimaryTrainerId;
-  int? _selectedPrimaryInstructorId;
-  int? _selectedResponsibleManagerId;
+  String? _selectedGroupTypeId;
+  String? _selectedPrimaryTrainerId;
+  String? _selectedPrimaryInstructorId;
+  String? _selectedResponsibleManagerId;
   late TextEditingController _maxParticipantsController;
 
   late DateTime _startDate;
   DateTime? _endDate;
   bool _isActive = true;
-  int? _chatId;
+  String? _chatId;
 
   bool _isLoading = true;
   TrainingGroup? _initialGroup;
@@ -40,7 +40,7 @@ class _TrainingGroupEditScreenState extends ConsumerState<TrainingGroupEditScree
   @override
   void initState() {
     super.initState();
-    _groupId = widget.groupId != null ? int.tryParse(widget.groupId!) : null;
+    _groupId = widget.groupId;
     _nameController = TextEditingController();
     _descriptionController = TextEditingController();
     _maxParticipantsController = TextEditingController();
@@ -59,8 +59,6 @@ class _TrainingGroupEditScreenState extends ConsumerState<TrainingGroupEditScree
     } else {
       // Set defaults for a new group
       _maxParticipantsController.text = '15';
-
-      _selectedGroupTypeId = 3; // Default to 'Group' type
     }
     setState(() => _isLoading = false);
   }
@@ -122,7 +120,7 @@ class _TrainingGroupEditScreenState extends ConsumerState<TrainingGroupEditScree
       _formKey.currentState!.save();
 
       final newGroup = TrainingGroup(
-        id: _groupId, // Use the int? _groupId
+        id: _groupId,
         name: _nameController.text,
         description: _descriptionController.text.isEmpty ? null : _descriptionController.text,
         trainingGroupTypeId: _selectedGroupTypeId!,
@@ -198,7 +196,7 @@ class _TrainingGroupEditScreenState extends ConsumerState<TrainingGroupEditScree
                 maxLines: 3,
               ),
               ref.watch(trainingGroupTypesProvider).when(
-                data: (types) => DropdownButtonFormField<int>(
+                data: (types) => DropdownButtonFormField<String>(
                   initialValue: _selectedGroupTypeId,
                   decoration: const InputDecoration(labelText: 'Тип группы'),
                   items: types.map((type) {
@@ -222,16 +220,16 @@ class _TrainingGroupEditScreenState extends ConsumerState<TrainingGroupEditScree
                 loading: () => const SizedBox.shrink(),
                 error: (err, stack) => Center(child: Text('Ошибка: $err')),
               ),
-              DropdownButtonFormField<int?>(
+              DropdownButtonFormField<String?>(
                 initialValue: _selectedPrimaryTrainerId,
                 decoration: const InputDecoration(labelText: 'Основной тренер'),
                 items: [
-                  const DropdownMenuItem<int?>(
+                  const DropdownMenuItem<String?>(
                     value: null,
                     child: Text('Не назначен'),
                   ),
                   ..._trainers.map((user) {
-                    return DropdownMenuItem<int?>(
+                    return DropdownMenuItem<String?>(
                       value: user.id,
                       child: Text(user.fullName),
                     );
@@ -243,13 +241,13 @@ class _TrainingGroupEditScreenState extends ConsumerState<TrainingGroupEditScree
                   });
                 },
               ),
-              DropdownButtonFormField<int>(
+              DropdownButtonFormField<String?>(
                 initialValue: _selectedPrimaryInstructorId,
                 decoration: const InputDecoration(labelText: 'Основной инструктор (опционально)'),
                 items: [
-                  const DropdownMenuItem(value: null, child: Text('Нет')),
+                  const DropdownMenuItem<String?>(value: null, child: Text('Нет')),
                   ..._instructors.map((user) {
-                    return DropdownMenuItem(
+                    return DropdownMenuItem<String?>(
                       value: user.id,
                       child: Text(user.fullName),
                     );
@@ -261,13 +259,13 @@ class _TrainingGroupEditScreenState extends ConsumerState<TrainingGroupEditScree
                   });
                 },
               ),
-              DropdownButtonFormField<int>(
+              DropdownButtonFormField<String?>(
                 initialValue: _selectedResponsibleManagerId,
                 decoration: const InputDecoration(labelText: 'Ответственный менеджер (опционально)'),
                 items: [
-                  const DropdownMenuItem(value: null, child: Text('Нет')),
+                  const DropdownMenuItem<String?>(value: null, child: Text('Нет')),
                   ..._managers.map((user) {
-                    return DropdownMenuItem(
+                    return DropdownMenuItem<String?>(
                       value: user.id,
                       child: Text(user.fullName),
                     );

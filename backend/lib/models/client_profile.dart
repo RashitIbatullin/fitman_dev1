@@ -1,7 +1,7 @@
 class ClientProfile {
-  final int userId;
-  final int? goalTrainingId;
-  final int? levelTrainingId;
+  final String userId;
+  final String? goalTrainingId;
+  final String? levelTrainingId;
   final bool? trackCalories;
   final double? coeffActivity;
 
@@ -15,9 +15,9 @@ class ClientProfile {
 
   factory ClientProfile.fromMap(Map<String, dynamic> map) {
     return ClientProfile(
-      userId: map['user_id'] as int,
-      goalTrainingId: map['goal_training_id'] as int?,
-      levelTrainingId: map['level_training_id'] as int?,
+      userId: map['user_id'].toString(),
+      goalTrainingId: map['goal_training_id']?.toString(),
+      levelTrainingId: map['level_training_id']?.toString(),
       trackCalories: map['track_calories'] as bool?,
       coeffActivity: (map['coeff_activity'] as num?)?.toDouble(),
     );

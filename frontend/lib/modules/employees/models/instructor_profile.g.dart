@@ -9,7 +9,7 @@ part of 'instructor_profile.dart';
 _$InstructorProfileImpl _$$InstructorProfileImplFromJson(
   Map<String, dynamic> json,
 ) => _$InstructorProfileImpl(
-  userId: (json['user_id'] as num).toInt(),
+  userId: json['user_id'] as String,
   isDuty: json['is_duty'] as bool? ?? false,
   canReplaceTrainer: json['can_replace_trainer'] as bool? ?? false,
   canCreatePlan: json['can_create_plan'] as bool? ?? false,

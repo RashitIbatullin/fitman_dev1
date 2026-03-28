@@ -50,7 +50,7 @@ class RecommendationService {
 
   /// Returns a calculated SomatotypeProfile for a given user.
   /// This is the single source of truth for somatotype calculation.
-  Future<SomatotypeProfile?> getSomatotypeProfileForUser(int userId) async {
+  Future<SomatotypeProfile?> getSomatotypeProfileForUser(String userId) async {
     final clientData = await _getClientData(userId);
     if (clientData == null) {
       print('[RecommendationService] Could not get client data for somatotype profile.');
@@ -62,7 +62,7 @@ class RecommendationService {
   }
 
   /// Returns a calculated WhtrProfile for a given user and measurement type.
-  Future<WhtrProfiles?> getWhtrProfilesForUser(int userId) async {
+  Future<WhtrProfiles?> getWhtrProfilesForUser(String userId) async {
     final clientData = await _getClientData(userId);
     if (clientData == null) {
       print('[RecommendationService] Could not get client data for WHtR profile.');
@@ -73,7 +73,7 @@ class RecommendationService {
     return WhtrProfiles(start: startProfile, finish: finishProfile);
   }
 
-  Future<Map<String, String?>> generateRecommendation(int userId) async {
+  Future<Map<String, String?>> generateRecommendation(String userId) async {
     print('[RecommendationService] Starting recommendation generation for userId: $userId');
 
     // 1. Сбор данных
@@ -145,7 +145,7 @@ class RecommendationService {
     };
   }
 
-  Future<_ClientData?> _getClientData(int userId) async {
+  Future<_ClientData?> _getClientData(String userId) async {
     final user = await db.getUserById(userId);
     if (user == null) return null;
 
@@ -313,8 +313,8 @@ class RecommendationService {
   Map<String, String>? _buildFinalRecommendation({
     required String bodyShape,
     required String whtrGradation,
-    required int? goalId,
-    required int? levelId,
+    required String? goalId,
+    required String? levelId,
     required List<Map<String, dynamic>> baseRecommendations,
     required List<Map<String, dynamic>> whtrRefinements,
   }) {

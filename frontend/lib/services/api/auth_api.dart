@@ -90,7 +90,7 @@ class AuthApiService extends BaseApiService {
   }
 
   /// Fetches a single user by their ID.
-  Future<User> getUserById(int userId) async {
+  Future<User> getUserById(String userId) async {
     final data = await get('/api/users/$userId');
     return User.fromJson(data['user']);
   }
@@ -103,19 +103,19 @@ class AuthApiService extends BaseApiService {
   }
 
   /// Fetches the roles for a specific user.
-  Future<List<Role>> getUserRoles(int userId) async {
+  Future<List<Role>> getUserRoles(String userId) async {
     final data = await get('/api/users/$userId/roles');
     final roles = data['roles'] as List;
     return roles.map((roleData) => Role.fromJson(roleData)).toList();
   }
 
   /// Updates the roles for a specific user.
-  Future<void> updateUserRoles(int userId, List<String> roleNames) async {
+  Future<void> updateUserRoles(String userId, List<String> roleNames) async {
     await put('/api/users/$userId/roles', body: {'roles': roleNames});
   }
 
   /// Archives a user.
-  Future<void> archiveUser(int userId, {String? reason}) async {
+  Future<void> archiveUser(String userId, {String? reason}) async {
     final body = <String, dynamic>{'archivedAt': DateTime.now().toIso8601String()};
     if (reason != null && reason.isNotEmpty) {
       body['archivedReason'] = reason;
@@ -124,7 +124,7 @@ class AuthApiService extends BaseApiService {
   }
 
   /// Uploads a user's avatar.
-  Future<Map<String, dynamic>> uploadAvatar(List<int> photoBytes, String fileName, int userId) async {
+  Future<Map<String, dynamic>> uploadAvatar(List<int> photoBytes, String fileName, String userId) async {
     final file = http.MultipartFile.fromBytes('photo', photoBytes, filename: fileName);
     return await multipartPost(
       '/api/users/$userId/avatar',
@@ -134,7 +134,7 @@ class AuthApiService extends BaseApiService {
   }
 
   /// Resets a user's password (admin).
-  Future<void> resetUserPassword(int userId, String newPassword) async {
+  Future<void> resetUserPassword(String userId, String newPassword) async {
     await post('/api/users/$userId/reset-password', body: {'password': newPassword});
   }
 }

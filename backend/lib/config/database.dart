@@ -116,7 +116,7 @@ class Database {
   }
 
   // Получить роли для пользователя
-  Future<List<Role>> getRolesForUser(int userId, [Session? context]) async {
+  Future<List<Role>> getRolesForUser(String userId, [Session? context]) async {
     try {
       final conn = context ?? await connection;
       final results = await conn.execute(
@@ -342,7 +342,7 @@ class Database {
     }
   
     // Получить пользователя по ID
-    Future<User?> getUserById(int id) async {
+    Future<User?> getUserById(String id) async {
       try {
         final conn = await connection;
   
@@ -377,7 +377,7 @@ class Database {
       }
     }
   // Создать пользователя
-  Future<User> createUser(User user, List<String> roleNames, [int? creatorId]) async {
+  Future<User> createUser(User user, List<String> roleNames, [String? creatorId]) async {
     final conn = await connection;
     return await conn.runTx((ctx) async {
       // 1. Вставить пользователя в таблицу users и получить его ID
@@ -401,7 +401,7 @@ class Database {
         },
       );
 
-      final newUserId = userResult.first[0] as int;
+      final newUserId = userResult.first[0] as String;
       final finalCreatorId = creatorId ?? newUserId;
 
       // 2. Обновить created_by и updated_by
@@ -428,7 +428,7 @@ class Database {
         if (roleResult.isEmpty) {
           throw Exception('Role not found: $roleName');
         }
-        final roleId = roleResult.first[0] as int;
+        final roleId = roleResult.first[0] as String;
 
         await ctx.execute(
           Sql.named('INSERT INTO user_roles (user_id, role_id, created_by, updated_by) VALUES (@userId, @roleId, @creatorId, @creatorId)'),
@@ -453,7 +453,7 @@ class Database {
   }
 
   // Обновить роли пользователя
-  Future<void> updateUserRoles(int userId, List<int> newRoleIds) async {
+  Future<void> updateUserRoles(String userId, List<String> newRoleIds) async {
     final conn = await connection;
     await conn.runTx((ctx) async {
       // Удаляем все текущие роли пользователя
@@ -473,7 +473,7 @@ class Database {
   }
 
   Future<User?> updateUser(
-      int id, {
+      String id, {
         String? email,
         String? firstName,
         String? lastName,
@@ -481,7 +481,7 @@ class Database {
         String? phone,
         String? gender,
         DateTime? dateOfBirth,
-        int? updatedBy,
+        String? updatedBy,
         DateTime? archivedAt,
         String? archivedReason, // Added archivedReason parameter
       }) async {
@@ -560,12 +560,12 @@ class Database {
 
   // Обновить профиль клиента (цель, уровень)
   Future<void> updateClientProfile({
-    required int userId,
-    int? goalTrainingId,
-    int? levelTrainingId,
+    required String userId,
+    String? goalTrainingId,
+    String? levelTrainingId,
     bool? trackCalories,
     double? coeffActivity,
-    required int updatedBy,
+    required String updatedBy,
   }) async {
     try {
       final conn = await connection;
@@ -645,11 +645,11 @@ class Database {
 
   // Обновить профиль сотрудника
   Future<void> updateEmployeeProfile({
-    required int userId,
+    required String userId,
     String? specialization,
     int? workExperience,
     bool? canMaintainEquipment,
-    required int updatedBy,
+    required String updatedBy,
   }) async {
     try {
       final conn = await connection;
@@ -719,7 +719,7 @@ class Database {
     }
   }
   // Удалить пользователя
-  Future<bool> deleteUser(int id) async {
+  Future<bool> deleteUser(String id) async {
     try {
       final conn = await connection;
 
@@ -744,7 +744,7 @@ class Database {
   }
 
   // Получить клиентов для менеджера
-  Future<List<User>> getClientsForManager(int managerId) async {
+  Future<List<User>> getClientsForManager(String managerId) async {
     try {
       final conn = await connection;
       final results = await conn.execute(
@@ -768,7 +768,7 @@ class Database {
   }
 
   // Назначить клиентов менеджеру
-  Future<void> assignClientsToManager(int managerId, List<int> clientIds) async {
+  Future<void> assignClientsToManager(String managerId, List<String> clientIds) async {
     final conn = await connection;
     await conn.execute('BEGIN');
     try {
@@ -796,14 +796,14 @@ class Database {
   }
 
   // Получить ID назначенных клиентов для менеджера
-  Future<List<int>> getAssignedClientIds(int managerId) async {
+  Future<List<String>> getAssignedClientIds(String managerId) async {
     try {
       final conn = await connection;
       final results = await conn.execute(
         Sql.named('SELECT client_id FROM manager_clients WHERE manager_id = @managerId'),
         parameters: {'managerId': managerId},
       );
-      return results.map((row) => row[0] as int).toList();
+      return results.map((row) => row[0] as String).toList();
     } catch (e) {
       print('❌ getAssignedClientIds error: $e');
       rethrow;
@@ -811,7 +811,7 @@ class Database {
   }
 
   // Получить инструкторов для менеджера
-  Future<List<User>> getInstructorsForManager(int managerId) async {
+  Future<List<User>> getInstructorsForManager(String managerId) async {
     try {
       final conn = await connection;
       final results = await conn.execute(
@@ -835,7 +835,7 @@ class Database {
   }
 
   // Получить тренеров для менеджера
-  Future<List<User>> getTrainersForManager(int managerId) async {
+  Future<List<User>> getTrainersForManager(String managerId) async {
     try {
       final conn = await connection;
       final results = await conn.execute(
@@ -859,7 +859,7 @@ class Database {
   }
 
   // Назначить инструкторов менеджеру
-  Future<void> assignInstructorsToManager(int managerId, List<int> instructorIds) async {
+  Future<void> assignInstructorsToManager(String managerId, List<String> instructorIds) async {
     final conn = await connection;
     await conn.execute('BEGIN');
     try {
@@ -887,14 +887,14 @@ class Database {
   }
 
   // Получить ID назначенных инструкторов для менеджера
-  Future<List<int>> getAssignedInstructorIds(int managerId) async {
+  Future<List<String>> getAssignedInstructorIds(String managerId) async {
     try {
       final conn = await connection;
       final results = await conn.execute(
         Sql.named('SELECT instructor_id FROM manager_instructors WHERE manager_id = @managerId'),
         parameters: {'managerId': managerId},
       );
-      return results.map((row) => row[0] as int).toList();
+      return results.map((row) => row[0] as String).toList();
     } catch (e) {
       print('❌ getAssignedInstructorIds error: $e');
       rethrow;
@@ -902,7 +902,7 @@ class Database {
   }
 
   // Назначить тренеров менеджеру
-  Future<void> assignTrainersToManager(int managerId, List<int> trainerIds) async {
+  Future<void> assignTrainersToManager(String managerId, List<String> trainerIds) async {
     final conn = await connection;
     await conn.execute('BEGIN');
     try {
@@ -930,14 +930,14 @@ class Database {
   }
 
   // Получить ID назначенных тренеров для менеджера
-  Future<List<int>> getAssignedTrainerIds(int managerId) async {
+  Future<List<String>> getAssignedTrainerIds(String managerId) async {
     try {
       final conn = await connection;
       final results = await conn.execute(
         Sql.named('SELECT trainer_id FROM manager_trainers WHERE manager_id = @managerId'),
         parameters: {'managerId': managerId},
       );
-      return results.map((row) => row[0] as int).toList();
+      return results.map((row) => row[0] as String).toList();
     } catch (e) {
       print('❌ getAssignedTrainerIds error: $e');
       rethrow;
@@ -945,7 +945,7 @@ class Database {
   }
 
   // Получить клиентов для инструктора
-  Future<List<User>> getClientsForInstructor(int instructorId) async {
+  Future<List<User>> getClientsForInstructor(String instructorId) async {
     try {
       final conn = await connection;
       final results = await conn.execute(
@@ -969,7 +969,7 @@ class Database {
   }
 
   // Получить тренеров для инструктора
-  Future<List<User>> getTrainersForInstructor(int instructorId) async {
+  Future<List<User>> getTrainersForInstructor(String instructorId) async {
     try {
       final conn = await connection;
       final results = await conn.execute(
@@ -994,7 +994,7 @@ class Database {
   }
 
   // Получить менеджера для инструктора
-  Future<User?> getManagerForInstructor(int instructorId) async {
+  Future<User?> getManagerForInstructor(String instructorId) async {
     try {
       final conn = await connection;
       final results = await conn.execute(
@@ -1018,7 +1018,7 @@ class Database {
     }
   }
 
-  Future<List<Map<String, dynamic>>> getScheduleForUser(int userId, String role) async {
+  Future<List<Map<String, dynamic>>> getScheduleForUser(String userId, String role) async {
     try {
       final conn = await connection;
       String userColumn;
@@ -1086,12 +1086,12 @@ class Database {
   }
 
   // Получить тренера для клиента
-  Future<User?> getTrainerForClient(int clientId) async {
+  Future<User?> getTrainerForClient(String clientId) async {
     // TODO: Implement actual database query
     print('Fetching trainer for client $clientId');
     // Placeholder implementation
     return User(
-      id: 2,
+      id: '00000000-0000-0000-0000-000000000002',
       email: 'trainer@example.com',
       passwordHash: '',
       firstName: 'Иван',
@@ -1104,12 +1104,12 @@ class Database {
   }
 
   // Получить инструктора для клиента
-  Future<User?> getInstructorForClient(int clientId) async {
+  Future<User?> getInstructorForClient(String clientId) async {
     // TODO: Implement actual database query
     print('Fetching instructor for client $clientId');
     // Placeholder implementation
     return User(
-      id: 3,
+      id: '00000000-0000-0000-0000-000000000003',
       email: 'instructor@example.com',
       passwordHash: '',
       firstName: 'Анна',
@@ -1122,12 +1122,12 @@ class Database {
   }
 
   // Получить менеджера для клиента
-  Future<User?> getManagerForClient(int clientId) async {
+  Future<User?> getManagerForClient(String clientId) async {
     // TODO: Implement actual database query
     print('Fetching manager for client $clientId');
     // Placeholder implementation
     return User(
-      id: 4,
+      id: '00000000-0000-0000-0000-000000000004',
       email: 'manager@example.com',
       passwordHash: '',
       firstName: 'Елена',
@@ -1140,7 +1140,7 @@ class Database {
   }
 
   // Обновить пароль пользователя
-  Future<void> updateUserPassword(int userId, String newPasswordHash) async {
+  Future<void> updateUserPassword(String userId, String newPasswordHash) async {
     try {
       final conn = await connection;
       await conn.execute(
@@ -1162,7 +1162,7 @@ class Database {
   }
 
   // Обновить URL фото пользователя
-  Future<void> updateUserPhotoUrl(int userId, String photoUrl, int updaterId) async {
+  Future<void> updateUserPhotoUrl(String userId, String photoUrl, String updaterId) async {
     try {
       final conn = await connection;
       await conn.execute(
@@ -1184,7 +1184,7 @@ class Database {
   }
 
   // Получить данные антропометрии для клиента
-  Future<Map<String, dynamic>> getAnthropometryData(int clientId) async {
+  Future<Map<String, dynamic>> getAnthropometryData(String clientId) async {
     try {
       final conn = await connection;
       final fixedResult = await conn.execute(
@@ -1230,7 +1230,7 @@ class Database {
     return newMap;
   }
 
-  Future<void> updateAnthropometryPhoto(int clientId, String photoUrl, String type, DateTime? photoDateTime, int creatorId) async {
+  Future<void> updateAnthropometryPhoto(String clientId, String photoUrl, String type, DateTime? photoDateTime, String creatorId) async {
     try {
       final conn = await connection;
       String tableName;
@@ -1283,11 +1283,11 @@ class Database {
   }
 
   Future<void> updateAnthropometryFixed(
-    int clientId,
+    String clientId,
     int? height,
     int? wristCirc,
     int? ankleCirc,
-    int creatorId,
+    String creatorId,
   ) async {
     try {
       final conn = await connection;
@@ -1318,14 +1318,14 @@ class Database {
   }
 
   Future<void> updateAnthropometryMeasurements(
-    int clientId,
+    String clientId,
     String type, // 'start' or 'finish'
     double? weight,
     int? shouldersCirc,
     int? breastCirc,
     int? waistCirc,
     int? hipsCirc,
-    int creatorId,
+    String creatorId,
   ) async {
     try {
       final conn = await connection;
@@ -1364,7 +1364,7 @@ class Database {
   }
 
   // Получить данные отслеживания калорий для клиента
-  Future<List<Map<String, dynamic>>> getCalorieTrackingData(int clientId) async {
+  Future<List<Map<String, dynamic>>> getCalorieTrackingData(String clientId) async {
     // TODO: Implement actual database query
     print('Fetching calorie tracking data for client $clientId');
     // Placeholder implementation
@@ -1387,7 +1387,7 @@ class Database {
   }
 
   // Получить данные прогресса для клиента
-  Future<Map<String, dynamic>> getProgressData(int clientId) async {
+  Future<Map<String, dynamic>> getProgressData(String clientId) async {
     // TODO: Implement actual database query
     print('Fetching progress data for client $clientId');
     // Placeholder implementation
@@ -1423,7 +1423,7 @@ class Database {
   }
 
   // Получить данные биоимпеданса для клиента
-  Future<Map<String, dynamic>> getBioimpedanceData(int clientId) async {
+  Future<Map<String, dynamic>> getBioimpedanceData(String clientId) async {
     try {
       final conn = await connection;
       final startResult = await conn.execute(

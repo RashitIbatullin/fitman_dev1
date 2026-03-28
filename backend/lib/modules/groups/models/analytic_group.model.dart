@@ -39,17 +39,17 @@ List<GroupCondition> _conditionsFromJson(dynamic json) {
   return []; // Return empty list if it's not a list (e.g., a map or null)
 }
 
-List<int> _clientIdsFromJson(dynamic json) {
+List<String> _clientIdsFromJson(dynamic json) {
   if (json is List) {
-    // Ensure all items are integers, handling potential parsing errors
-    return json.map<int>((e) => e is int ? e : int.parse(e.toString())).toList();
+    // Ensure all items are strings
+    return json.map<String>((e) => e.toString()).toList();
   }
   return []; // Return empty list if it's not a list (e.g., a map or null)
 }
 
 @JsonSerializable(converters: [AnalyticGroupTypeConverter()])
 class AnalyticGroup extends Equatable {
-  final int? id;
+  final String? id;
   final String name;
   final String? description;
   final AnalyticGroupType type;
@@ -60,7 +60,7 @@ class AnalyticGroup extends Equatable {
   final List<GroupCondition> conditions;
   
   @JsonKey(name: 'client_ids_cache', fromJson: _clientIdsFromJson)
-  final List<int> clientIds;
+  final List<String> clientIds;
   
   @JsonKey(name: 'last_updated_at', fromJson: _nullableDateTimeFromJson)
   final DateTime? lastUpdatedAt;
@@ -69,19 +69,19 @@ class AnalyticGroup extends Equatable {
 
   // System fields
   @JsonKey(name: 'company_id')
-  final int? companyId;
+  final String? companyId;
   @JsonKey(name: 'created_at', fromJson: _nullableDateTimeFromJson)
   final DateTime? createdAt;
   @JsonKey(name: 'updated_at', fromJson: _nullableDateTimeFromJson)
   final DateTime? updatedAt;
   @JsonKey(name: 'created_by')
-  final int? createdBy;
+  final String? createdBy;
   @JsonKey(name: 'updated_by')
-  final int? updatedBy;
+  final String? updatedBy;
   @JsonKey(name: 'archived_at', fromJson: _nullableDateTimeFromJson)
   final DateTime? archivedAt;
   @JsonKey(name: 'archived_by')
-  final int? archivedBy;
+  final String? archivedBy;
 
   const AnalyticGroup({
     this.id,
@@ -126,22 +126,22 @@ class AnalyticGroup extends Equatable {
       ];
 
   AnalyticGroup copyWith({
-    int? id,
+    String? id,
     String? name,
     String? description,
     AnalyticGroupType? type,
     bool? isAutoUpdate,
     List<GroupCondition>? conditions,
-    List<int>? clientIds,
+    List<String>? clientIds,
     DateTime? lastUpdatedAt,
     Map<String, dynamic>? metadata,
-    int? companyId,
+    String? companyId,
     DateTime? createdAt,
     DateTime? updatedAt,
-    int? createdBy,
-    int? updatedBy,
+    String? createdBy,
+    String? updatedBy,
     DateTime? archivedAt,
-    int? archivedBy,
+    String? archivedBy,
   }) {
     return AnalyticGroup(
       id: id ?? this.id,

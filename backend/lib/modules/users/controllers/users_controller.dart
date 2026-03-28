@@ -17,7 +17,7 @@ class UsersController {
       if (payload == null) {
         return Response.forbidden('Not authorized.');
       }
-      final creatorId = payload['userId'] as int;
+      final creatorId = payload['userId'] as String;
 
       final body = await request.readAsString();
       final data = jsonDecode(body) as Map<String, dynamic>;
@@ -71,7 +71,7 @@ class UsersController {
       final passwordHash = BCrypt.hashpw(password, BCrypt.gensalt());
 
       final newUser = User(
-        id: 0,
+        id: '', // DB will generate it
         email: email,
         passwordHash: passwordHash,
         firstName: firstName,
@@ -99,10 +99,7 @@ class UsersController {
   // Обновить роли пользователя (только для админа)
   static Future<Response> updateUserRoles(Request request, String id) async {
     try {
-      final userId = int.tryParse(id);
-      if (userId == null) {
-        return Response(400, body: jsonEncode({'error': 'Неверный ID пользователя'}));
-      }
+      final userId = id;
 
       final body = await request.readAsString();
       final data = jsonDecode(body) as Map<String, dynamic>;
@@ -174,10 +171,7 @@ class UsersController {
 
   static Future<Response> getUserById(Request request, String id) async {
     try {
-      final userId = int.tryParse(id);
-      if (userId == null) {
-        return Response(400, body: jsonEncode({'error': 'Invalid user ID'}));
-      }
+      final userId = id;
       final user = await _db.getUserById(userId);
       if (user == null) {
         return Response(404, body: jsonEncode({'error': 'User not found'}));
@@ -191,13 +185,10 @@ class UsersController {
 
   static Future<Response> updateUser(Request request, String id) async {
     try {
-      final userId = int.tryParse(id);
-      if (userId == null) {
-        return Response(400, body: jsonEncode({'error': 'Invalid user ID'}));
-      }
+      final userId = id;
 
       final payload = request.context['user'] as Map<String, dynamic>?;
-      final updaterId = payload?['userId'] as int?;
+      final updaterId = payload?['userId'] as String?;
 
       final body = await request.readAsString();
       final data = jsonDecode(body) as Map<String, dynamic>;
@@ -255,8 +246,8 @@ class UsersController {
         if (userRoles.any((role) => role.name == 'client')) {
             await _db.updateClientProfile(
               userId: userId,
-              goalTrainingId: clientProfileData['goal_training_id'] as int?,
-              levelTrainingId: clientProfileData['level_training_id'] as int?,
+              goalTrainingId: clientProfileData['goal_training_id']?.toString(),
+              levelTrainingId: clientProfileData['level_training_id']?.toString(),
               trackCalories: clientProfileData['track_calories'] as bool?,
               coeffActivity: (clientProfileData['coeff_activity'] as num?)?.toDouble(),
               updatedBy: updaterId ?? userId,
@@ -296,10 +287,7 @@ class UsersController {
 
   static Future<Response> deleteUser(Request request, String id) async {
     try {
-      final userId = int.tryParse(id);
-      if (userId == null) {
-        return Response(400, body: jsonEncode({'error': 'Invalid user ID'}));
-      }
+      final userId = id;
       final success = await _db.deleteUser(userId);
       if (!success) {
         return Response(404, body: jsonEncode({'error': 'User not found'}));
@@ -317,7 +305,7 @@ class UsersController {
       if (user == null) {
         return Response(401, body: jsonEncode({'error': 'Not authenticated'}));
       }
-      final userId = user['userId'] as int;
+      final userId = user['userId'] as String;
       final userData = await _db.getUserById(userId);
       if (userData == null) {
         return Response(404, body: jsonEncode({'error': 'User not found'}));
@@ -334,10 +322,7 @@ class UsersController {
   // Получить роли пользователя по ID
   static Future<Response> getUserRoles(Request request, String id) async {
     try {
-      final userId = int.tryParse(id);
-      if (userId == null) {
-        return Response(400, body: jsonEncode({'error': 'Invalid user ID'}));
-      }
+      final userId = id;
 
       final user = await _db.getUserById(userId);
       if (user == null) {
@@ -359,7 +344,7 @@ class UsersController {
         return Response(401, body: jsonEncode({'error': 'Not authenticated'}));
       }
 
-      final clientId = user['userId'] as int;
+      final clientId = user['userId'] as String;
       final trainer = await _db.getTrainerForClient(clientId);
 
       if (trainer == null) {
@@ -381,7 +366,7 @@ class UsersController {
         return Response(401, body: jsonEncode({'error': 'Not authenticated'}));
       }
 
-      final clientId = user['userId'] as int;
+      final clientId = user['userId'] as String;
       final instructor = await _db.getInstructorForClient(clientId);
 
       if (instructor == null) {
@@ -403,7 +388,7 @@ class UsersController {
         return Response(401, body: jsonEncode({'error': 'Not authenticated'}));
       }
 
-      final clientId = user['userId'] as int;
+      final clientId = user['userId'] as String;
       final manager = await _db.getManagerForClient(clientId);
 
       if (manager == null) {
@@ -463,13 +448,13 @@ class UsersController {
       if (payload == null) {
         return Response.unauthorized(jsonEncode({'error': 'Not authenticated'}));
       }
-      final userId = payload['userId'] as int;
+      final userId = payload['userId'] as String;
 
       final body = await request.readAsString();
       final data = jsonDecode(body) as Map<String, dynamic>;
 
-      final goalTrainingId = data['goal_training_id'] as int?;
-      final levelTrainingId = data['level_training_id'] as int?;
+      final goalTrainingId = data['goal_training_id']?.toString();
+      final levelTrainingId = data['level_training_id']?.toString();
 
       if (goalTrainingId == null && levelTrainingId == null) {
         return Response.badRequest(body: jsonEncode({'error': 'At least one field (goal_training_id or level_training_id) must be provided.'}));
@@ -505,12 +490,9 @@ class UsersController {
       if (updater == null) {
         return Response.unauthorized(jsonEncode({'error': 'Not authenticated'}));
       }
-      final updaterId = updater['userId'] as int;
+      final updaterId = updater['userId'] as String;
 
-      final userId = int.tryParse(id);
-      if (userId == null) {
-        return Response.badRequest(body: jsonEncode({'error': 'Invalid user ID'}));
-      }
+      final userId = id;
 
       String? fileName;
       List<int>? fileBytes;

@@ -5,7 +5,7 @@ import '../../../../modules/users/models/user.dart';
 import '../../../../modules/users/providers/users_provider.dart';
 
 class GroupMemberList extends ConsumerWidget {
-  final int groupId;
+  final String groupId;
   const GroupMemberList({super.key, required this.groupId});
 
   @override
@@ -24,7 +24,7 @@ class GroupMemberList extends ConsumerWidget {
                 child: Text('В этой группе пока нет участников.'),
               );
             }
-            
+
             if (allUsersState.isLoading) {
               return const Center(child: CircularProgressIndicator());
             }
@@ -66,7 +66,7 @@ class GroupMemberList extends ConsumerWidget {
     );
   }
 
-  void _showAddMemberDialog(BuildContext context, WidgetRef ref, List<User> allUsers, List<int> currentMemberIds) {
+  void _showAddMemberDialog(BuildContext context, WidgetRef ref, List<User> allUsers, List<String> currentMemberIds) {
     // 1. Filter for clients and exclude current members
     final availableClients = allUsers.where((user) {
       return user.roles.any((role) => role.name == 'client') && !currentMemberIds.contains(user.id);

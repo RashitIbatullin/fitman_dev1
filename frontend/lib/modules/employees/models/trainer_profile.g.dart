@@ -7,7 +7,7 @@ part of 'trainer_profile.dart';
 // **************************************************************************
 
 _$TrainerProfileImpl _$$TrainerProfileImplFromJson(Map<String, dynamic> json) =>
-    _$TrainerProfileImpl(userId: (json['user_id'] as num).toInt());
+    _$TrainerProfileImpl(userId: json['user_id'] as String);
 
 Map<String, dynamic> _$$TrainerProfileImplToJson(
   _$TrainerProfileImpl instance,

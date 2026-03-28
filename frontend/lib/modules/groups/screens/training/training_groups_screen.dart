@@ -18,12 +18,12 @@ class TrainingGroupsScreen extends ConsumerStatefulWidget {
 
 class _TrainingGroupsScreenState extends ConsumerState<TrainingGroupsScreen> {
   String _searchQuery = '';
-  int? _selectedGroupTypeId;
+  String? _selectedGroupTypeId;
   bool? _isActiveFilter = true; // null for 'All', true for 'Active', false for 'Inactive'
   bool? _isArchivedFilter = false; // null for 'All', true for 'Archived', false for 'Not Archived'
-  int? _selectedTrainerId;
-  int? _selectedInstructorId;
-  int? _selectedManagerId;
+  String? _selectedTrainerId;
+  String? _selectedInstructorId;
+  String? _selectedManagerId;
 
   List<User> _trainers = [];
   List<User> _instructors = [];
@@ -182,7 +182,7 @@ class _TrainingGroupsScreenState extends ConsumerState<TrainingGroupsScreen> {
               SizedBox(
                 width: 180, // Fixed width for the dropdown
                 child: IntrinsicWidth( // Added IntrinsicWidth
-                  child: DropdownButtonFormField<int?>(
+                  child: DropdownButtonFormField<String?>(
                     key: ValueKey('trainer_filter_dropdown_$_selectedTrainerId'), // Add Key
                     decoration: const InputDecoration(
                       labelText: 'Тренер',
@@ -191,11 +191,11 @@ class _TrainingGroupsScreenState extends ConsumerState<TrainingGroupsScreen> {
                     ),
                     initialValue: _selectedTrainerId,
                     items: [
-                      const DropdownMenuItem<int?>(
+                      const DropdownMenuItem<String?>(
                         value: null,
                         child: Text('Все тренеры'),
                       ),
-                      ..._trainers.map((user) => DropdownMenuItem<int?>(
+                      ..._trainers.map((user) => DropdownMenuItem<String?>(
                         value: user.id,
                         child: Text(user.fullName),
                       )),
@@ -214,7 +214,7 @@ class _TrainingGroupsScreenState extends ConsumerState<TrainingGroupsScreen> {
               SizedBox(
                 width: 250, // Increased width for the dropdown
                 child: IntrinsicWidth( // Added IntrinsicWidth
-                  child: DropdownButtonFormField<int?>(
+                  child: DropdownButtonFormField<String?>(
                     key: ValueKey('instructor_filter_dropdown_$_selectedInstructorId'), // Add Key
                     decoration: const InputDecoration(
                       labelText: 'Инструктор',
@@ -223,11 +223,11 @@ class _TrainingGroupsScreenState extends ConsumerState<TrainingGroupsScreen> {
                     ),
                     initialValue: _selectedInstructorId,
                     items: [
-                      const DropdownMenuItem<int?>(
+                      const DropdownMenuItem<String?>(
                         value: null,
                         child: Text('Все инструкторы'),
                       ),
-                      ..._instructors.map((user) => DropdownMenuItem<int?>(
+                      ..._instructors.map((user) => DropdownMenuItem<String?>(
                         value: user.id,
                         child: Text(user.fullName),
                       )),
@@ -246,7 +246,7 @@ class _TrainingGroupsScreenState extends ConsumerState<TrainingGroupsScreen> {
               SizedBox(
                 width: 220, // Keep increased width for the dropdown
                 child: IntrinsicWidth( // Added IntrinsicWidth
-                  child: DropdownButtonFormField<int?>(
+                  child: DropdownButtonFormField<String?>(
                     key: ValueKey('manager_filter_dropdown_$_selectedManagerId'), // Add Key
                     decoration: const InputDecoration(
                       labelText: 'Менеджер',
@@ -255,11 +255,11 @@ class _TrainingGroupsScreenState extends ConsumerState<TrainingGroupsScreen> {
                     ),
                     initialValue: _selectedManagerId,
                     items: [
-                      const DropdownMenuItem<int?>(
+                      const DropdownMenuItem<String?>(
                         value: null,
                         child: Text('Все менеджеры'),
                       ),
-                      ..._managers.map((user) => DropdownMenuItem<int?>(
+                      ..._managers.map((user) => DropdownMenuItem<String?>(
                         value: user.id,
                         child: Text(user.fullName),
                       )),

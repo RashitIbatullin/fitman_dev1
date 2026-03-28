@@ -4,7 +4,7 @@ part 'trainer_profile.g.dart';
 
 @JsonSerializable()
 class TrainerProfile {
-  final int userId;
+  final String userId;
 
   TrainerProfile({
     required this.userId,

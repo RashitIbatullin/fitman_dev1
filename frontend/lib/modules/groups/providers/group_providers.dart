@@ -61,7 +61,7 @@ class AnalyticGroups extends _$AnalyticGroups {
     }
   }
 
-  Future<void> deleteAnalyticGroup(int id) async {
+  Future<void> deleteAnalyticGroup(String id) async {
     state = const AsyncValue.loading();
     try {
       await ApiService.deleteAnalyticGroup(id);
@@ -76,12 +76,12 @@ class AnalyticGroups extends _$AnalyticGroups {
 
 class TrainingGroupFilter extends Equatable {
   final String searchQuery;
-  final int? groupTypeId;
+  final String? groupTypeId;
   final bool? isActive;
   final bool? isArchived;
-  final int? trainerId;
-  final int? instructorId;
-  final int? managerId;
+  final String? trainerId;
+  final String? instructorId;
+  final String? managerId;
 
   const TrainingGroupFilter({
     this.searchQuery = '',
@@ -102,12 +102,12 @@ class TrainingGroups extends _$TrainingGroups {
   @override
   Future<List<TrainingGroup>> build({
     String searchQuery = '',
-    int? groupTypeId,
+    String? groupTypeId,
     bool? isActive,
     bool? isArchived,
-    int? trainerId,
-    int? instructorId,
-    int? managerId,
+    String? trainerId,
+    String? instructorId,
+    String? managerId,
   }) async {
     final filteredGroups = await ApiService.getAllTrainingGroups(
       searchQuery: searchQuery,
@@ -141,7 +141,7 @@ class TrainingGroups extends _$TrainingGroups {
     }
   }
 
-  Future<void> deleteTrainingGroup(int id) async {
+  Future<void> deleteTrainingGroup(String id) async {
     state = const AsyncValue.loading();
     try {
       await ApiService.deleteTrainingGroup(id);
@@ -162,7 +162,7 @@ Future<List<TrainingGroupType>> trainingGroupTypes(Ref ref) async {
 @Riverpod(keepAlive: true)
 class GroupSchedules extends _$GroupSchedules {
   @override
-  Future<List<GroupSchedule>> build(int groupId) async {
+  Future<List<GroupSchedule>> build(String groupId) async {
     return ApiService.getGroupSchedules(groupId);
   }
 
@@ -186,7 +186,7 @@ class GroupSchedules extends _$GroupSchedules {
     }
   }
 
-  Future<void> deleteGroupSchedule(int id) async {
+  Future<void> deleteGroupSchedule(String id) async {
     state = const AsyncValue.loading();
     try {
       await ApiService.deleteGroupSchedule(id);
@@ -202,11 +202,11 @@ class GroupSchedules extends _$GroupSchedules {
 @Riverpod(keepAlive: true)
 class GroupMembers extends _$GroupMembers {
   @override
-  Future<List<int>> build(int groupId) async {
+  Future<List<String>> build(String groupId) async {
     return ApiService.getTrainingGroupMembers(groupId);
   }
 
-  Future<void> addMember(int groupId, int userId) async {
+  Future<void> addMember(String groupId, String userId) async {
     state = const AsyncValue.loading();
     try {
       await ApiService.addTrainingGroupMember(groupId, userId);
@@ -217,7 +217,7 @@ class GroupMembers extends _$GroupMembers {
     }
   }
 
-  Future<void> removeMember(int groupId, int userId) async {
+  Future<void> removeMember(String groupId, String userId) async {
     state = const AsyncValue.loading();
     try {
       await ApiService.removeTrainingGroupMember(groupId, userId);

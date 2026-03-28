@@ -8,7 +8,7 @@ part of 'training_group_type.model.dart';
 
 TrainingGroupType _$TrainingGroupTypeFromJson(Map<String, dynamic> json) =>
     TrainingGroupType(
-      id: (json['id'] as num).toInt(),
+      id: json['id'] as String,
       name: json['name'] as String,
       title: json['title'] as String,
       minParticipants: (json['min_participants'] as num).toInt(),

@@ -27,35 +27,35 @@ DateTime _dateTimeFromJson(dynamic json) {
 
 @JsonSerializable()
 class TrainingGroup extends Equatable {
-  final int? id;
+  final String? id;
   final String name;
   final String? description;
   @JsonKey(name: 'training_group_type_id')
-  final int trainingGroupTypeId;
-  
+  final String trainingGroupTypeId;
+
   // ПЕРСОНАЛ (обязательные для тренировочного процесса)
   @JsonKey(name: 'primary_trainer_id')
-  final int? primaryTrainerId;     // Основной тренер группы (обязательно)
+  final String? primaryTrainerId;     // Основной тренер группы (обязательно)
   @JsonKey(name: 'primary_instructor_id')
-  final int? primaryInstructorId; // Основной инструктор группы
+  final String? primaryInstructorId; // Основной инструктор группы
   @JsonKey(name: 'responsible_manager_id')
-  final int? responsibleManagerId; // Ответственный менеджер
-  
+  final String? responsibleManagerId; // Ответственный менеджер
+
   // СОСТАВ ГРУППЫ (фиксированный)
   @JsonKey(name: 'client_ids', defaultValue: [])
-  final List<int> clientIds;      // Фиксированный состав участников
-  
+  final List<String> clientIds;      // Фиксированный состав участников
+
   // РАСПИСАНИЕ ЗАНЯТИЙ - This will be fetched separately or populated by a service
   // List<GroupScheduleSlot> scheduleSlots; 
-  
+
   // ПАРАМЕТРЫ ТРЕНИРОВКИ
   @JsonKey(name: 'program_id')
-  final int? programId;           // Ссылка на программу тренировок
+  final String? programId;           // Ссылка на программу тренировок
   @JsonKey(name: 'goal_id')
-  final int? goalId;              // Цель тренировок (похудение, набор массы и т.д.)
+  final String? goalId;              // Цель тренировок (похудение, набор массы и т.д.)
   @JsonKey(name: 'level_id')
-  final int? levelId;             // Уровень подготовки группы
-  
+  final String? levelId;             // Уровень подготовки группы
+
   // ЛИМИТЫ И ОГРАНИЧЕНИЯ
   @JsonKey(name: 'start_date', fromJson: _dateTimeFromJson)
   final DateTime startDate;          // Дата начала работы группы
@@ -65,27 +65,27 @@ class TrainingGroup extends Equatable {
   final int maxParticipants;         // Максимальное количество участников
   @JsonKey(name: 'current_participants')
   final int? currentParticipants;     // Текущее количество участников
-  
+
   // СТАТУС И СВЯЗИ
   @JsonKey(name: 'is_active')
   final bool? isActive;               // Активна ли группа
   @JsonKey(name: 'chat_id')
-  final int? chatId;              // Ссылка на групповой чат (создается автоматически)
+  final String? chatId;              // Ссылка на групповой чат (создается автоматически)
 
   @JsonKey(name: 'company_id')
-  final int? companyId;
+  final String? companyId;
   @JsonKey(name: 'created_at', fromJson: _nullableDateTimeFromJson)
   final DateTime? createdAt;
   @JsonKey(name: 'updated_at', fromJson: _nullableDateTimeFromJson)
   final DateTime? updatedAt;
   @JsonKey(name: 'created_by')
-  final int? createdBy;
+  final String? createdBy;
   @JsonKey(name: 'updated_by')
-  final int? updatedBy;
+  final String? updatedBy;
   @JsonKey(name: 'archived_at', fromJson: _nullableDateTimeFromJson)
   final DateTime? archivedAt;
   @JsonKey(name: 'archived_by')
-  final int? archivedBy;
+  final String? archivedBy;
 
   const TrainingGroup({
     this.id,
@@ -146,30 +146,30 @@ class TrainingGroup extends Equatable {
       ];
 
   TrainingGroup copyWith({
-    int? id,
+    String? id,
     String? name,
     String? description,
-    int? trainingGroupTypeId,
-    int? primaryTrainerId,
-    int? primaryInstructorId,
-    int? responsibleManagerId,
-    List<int>? clientIds,
-    int? programId,
-    int? goalId,
-    int? levelId,
+    String? trainingGroupTypeId,
+    String? primaryTrainerId,
+    String? primaryInstructorId,
+    String? responsibleManagerId,
+    List<String>? clientIds,
+    String? programId,
+    String? goalId,
+    String? levelId,
     DateTime? startDate,
     DateTime? endDate,
     int? maxParticipants,
     int? currentParticipants,
     bool? isActive,
-    int? chatId,
-    int? companyId,
+    String? chatId,
+    String? companyId,
     DateTime? createdAt,
     DateTime? updatedAt,
-    int? createdBy,
-    int? updatedBy,
+    String? createdBy,
+    String? updatedBy,
     DateTime? archivedAt,
-    int? archivedBy,
+    String? archivedBy,
   }) {
     return TrainingGroup(
       id: id ?? this.id,

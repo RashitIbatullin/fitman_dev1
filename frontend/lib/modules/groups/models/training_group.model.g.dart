@@ -8,21 +8,21 @@ part of 'training_group.model.dart';
 
 TrainingGroup _$TrainingGroupFromJson(Map<String, dynamic> json) =>
     TrainingGroup(
-      id: (json['id'] as num?)?.toInt(),
+      id: json['id'] as String?,
       name: json['name'] as String,
       description: json['description'] as String?,
-      trainingGroupTypeId: (json['training_group_type_id'] as num).toInt(),
-      primaryTrainerId: (json['primary_trainer_id'] as num?)?.toInt(),
-      primaryInstructorId: (json['primary_instructor_id'] as num?)?.toInt(),
-      responsibleManagerId: (json['responsible_manager_id'] as num?)?.toInt(),
+      trainingGroupTypeId: json['training_group_type_id'] as String,
+      primaryTrainerId: json['primary_trainer_id'] as String?,
+      primaryInstructorId: json['primary_instructor_id'] as String?,
+      responsibleManagerId: json['responsible_manager_id'] as String?,
       clientIds:
           (json['client_ids'] as List<dynamic>?)
-              ?.map((e) => (e as num).toInt())
+              ?.map((e) => e as String)
               .toList() ??
           [],
-      programId: (json['program_id'] as num?)?.toInt(),
-      goalId: (json['goal_id'] as num?)?.toInt(),
-      levelId: (json['level_id'] as num?)?.toInt(),
+      programId: json['program_id'] as String?,
+      goalId: json['goal_id'] as String?,
+      levelId: json['level_id'] as String?,
       startDate: DateTime.parse(json['start_date'] as String),
       endDate: json['end_date'] == null
           ? null
@@ -30,11 +30,11 @@ TrainingGroup _$TrainingGroupFromJson(Map<String, dynamic> json) =>
       maxParticipants: (json['max_participants'] as num).toInt(),
       currentParticipants: (json['current_participants'] as num?)?.toInt(),
       isActive: json['is_active'] as bool?,
-      chatId: (json['chat_id'] as num?)?.toInt(),
+      chatId: json['chat_id'] as String?,
       archivedAt: json['archived_at'] == null
           ? null
           : DateTime.parse(json['archived_at'] as String),
-      archivedBy: (json['archived_by'] as num?)?.toInt(),
+      archivedBy: json['archived_by'] as String?,
     );
 
 Map<String, dynamic> _$TrainingGroupToJson(TrainingGroup instance) =>

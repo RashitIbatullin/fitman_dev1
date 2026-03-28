@@ -23,7 +23,7 @@ class GroupScheduleController {
 
   Future<Response> _getGroupSchedules(Request request) async {
     try {
-      final groupId = int.parse(request.params['groupId']!); // Assuming groupId is in context
+      final groupId = request.params['groupId']!; // Assuming groupId is in context
       final slots = await _db.groups.getGroupSchedules(groupId);
       return Response.ok(jsonEncode(slots.map((s) => s.toJson()).toList()));
     } catch (e) {
@@ -33,7 +33,7 @@ class GroupScheduleController {
 
   Future<Response> _createGroupSchedule(Request request) async {
     try {
-      final groupId = int.parse(request.params['groupId']!);
+      final groupId = request.params['groupId']!;
       final payload = jsonDecode(await request.readAsString());
       final newSlot = GroupSchedule.fromJson({...payload, 'groupId': groupId});
       final createdSlot = await _db.groups.createGroupSchedule(newSlot);
@@ -45,7 +45,7 @@ class GroupScheduleController {
 
   Future<Response> _updateGroupSchedule(Request request, String slotId) async {
     try {
-      final id = int.parse(slotId);
+      final id = slotId;
       final payload = jsonDecode(await request.readAsString());
       final updatedSlot = GroupSchedule.fromJson({...payload, 'id': id});
       final resultSlot = await _db.groups.updateGroupSchedule(updatedSlot);
@@ -57,7 +57,7 @@ class GroupScheduleController {
 
   Future<Response> _deleteGroupSchedule(Request request, String slotId) async {
     try {
-      final id = int.parse(slotId);
+      final id = slotId;
       await _db.groups.deleteGroupSchedule(id);
       return Response(204);
     } catch (e) {

@@ -21,7 +21,7 @@ EmployeeProfile _$EmployeeProfileFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$EmployeeProfile {
-  int get userId => throw _privateConstructorUsedError;
+  String get userId => throw _privateConstructorUsedError;
   String? get specialization => throw _privateConstructorUsedError;
   int? get workExperience => throw _privateConstructorUsedError;
   bool get canMaintainEquipment => throw _privateConstructorUsedError;
@@ -44,7 +44,7 @@ abstract class $EmployeeProfileCopyWith<$Res> {
   ) = _$EmployeeProfileCopyWithImpl<$Res, EmployeeProfile>;
   @useResult
   $Res call({
-    int userId,
+    String userId,
     String? specialization,
     int? workExperience,
     bool canMaintainEquipment,
@@ -76,7 +76,7 @@ class _$EmployeeProfileCopyWithImpl<$Res, $Val extends EmployeeProfile>
             userId: null == userId
                 ? _value.userId
                 : userId // ignore: cast_nullable_to_non_nullable
-                      as int,
+                      as String,
             specialization: freezed == specialization
                 ? _value.specialization
                 : specialization // ignore: cast_nullable_to_non_nullable
@@ -105,7 +105,7 @@ abstract class _$$EmployeeProfileImplCopyWith<$Res>
   @override
   @useResult
   $Res call({
-    int userId,
+    String userId,
     String? specialization,
     int? workExperience,
     bool canMaintainEquipment,
@@ -136,7 +136,7 @@ class __$$EmployeeProfileImplCopyWithImpl<$Res>
         userId: null == userId
             ? _value.userId
             : userId // ignore: cast_nullable_to_non_nullable
-                  as int,
+                  as String,
         specialization: freezed == specialization
             ? _value.specialization
             : specialization // ignore: cast_nullable_to_non_nullable
@@ -168,7 +168,7 @@ class _$EmployeeProfileImpl implements _EmployeeProfile {
       _$$EmployeeProfileImplFromJson(json);
 
   @override
-  final int userId;
+  final String userId;
   @override
   final String? specialization;
   @override
@@ -225,7 +225,7 @@ class _$EmployeeProfileImpl implements _EmployeeProfile {
 
 abstract class _EmployeeProfile implements EmployeeProfile {
   const factory _EmployeeProfile({
-    required final int userId,
+    required final String userId,
     final String? specialization,
     final int? workExperience,
     final bool canMaintainEquipment,
@@ -235,7 +235,7 @@ abstract class _EmployeeProfile implements EmployeeProfile {
       _$EmployeeProfileImpl.fromJson;
 
   @override
-  int get userId;
+  String get userId;
   @override
   String? get specialization;
   @override

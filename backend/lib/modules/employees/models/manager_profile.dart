@@ -4,7 +4,7 @@ part 'manager_profile.g.dart';
 
 @JsonSerializable()
 class ManagerProfile {
-  final int userId;
+  final String userId;
   final bool isDuty;
 
   ManagerProfile({

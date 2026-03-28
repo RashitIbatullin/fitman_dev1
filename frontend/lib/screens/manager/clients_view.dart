@@ -8,7 +8,7 @@ import '../../../modules/chat/providers/chat_provider.dart'; // Adjusted relativ
 import '../../../modules/chat/screens/chat_screen.dart'; // Adjusted relative path
 
 // Провайдер для получения клиентов для конкретного менеджера
-final assignedClientsProvider = FutureProvider.family<List<User>, int>((
+final assignedClientsProvider = FutureProvider.family<List<User>, String>((
   ref,
   managerId,
 ) async {
@@ -21,7 +21,7 @@ final assignedClientsProvider = FutureProvider.family<List<User>, int>((
 });
 
 class ClientsView extends ConsumerWidget {
-  final int managerId;
+  final String managerId;
   const ClientsView({super.key, required this.managerId});
 
   @override
@@ -47,7 +47,7 @@ class ClientsView extends ConsumerWidget {
                   final chatNotifier = ref.read(chatProvider.notifier);
                   await chatNotifier.connect();
                   final chatId = await chatNotifier.openPrivateChat(client.id);
-                  
+
                   if (!context.mounted) return;
                   Navigator.of(context).push(
                     MaterialPageRoute(

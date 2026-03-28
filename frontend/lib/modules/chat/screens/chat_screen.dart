@@ -7,7 +7,7 @@ import '../widgets/message_bubble.dart'; // Corrected path within the module
 // Removed: import '../models/chat_models.dart'; // Import the Message model
 
 class ChatScreen extends ConsumerStatefulWidget {
-  final int chatId;
+  final String chatId;
   final String chatTitle;
 
   const ChatScreen({

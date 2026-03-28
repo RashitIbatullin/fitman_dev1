@@ -1,5 +1,5 @@
 class Role {
-  final int id;
+  final String id;
   final String name;
   final String title;
   final String? icon;
@@ -8,7 +8,7 @@ class Role {
 
   factory Role.fromJson(Map<String, dynamic> json) {
     return Role(
-      id: json['id'] is int ? json['id'] : int.parse(json['id'].toString()),
+      id: json['id'].toString(),
       name: json['name'].toString(),
       title: json['title'].toString(),
       icon: json['icon']?.toString(),

@@ -37,7 +37,7 @@ class AnalyticGroupsController {
 
   Future<Response> _getAnalyticGroupById(Request request, String id) async {
     try {
-      final groupId = int.parse(id);
+      final groupId = id;
       final group = await _db.groups.getAnalyticGroupById(groupId);
       if (group == null) {
         return Response.notFound(jsonEncode({'error': 'AnalyticGroup not found'}));
@@ -52,7 +52,7 @@ class AnalyticGroupsController {
     try {
       final payload = jsonDecode(await request.readAsString());
       // TODO: Get creatorId from authenticated user context
-      const creatorId = 1; // Placeholder for now
+      const creatorId = '00000000-0000-0000-0000-000000000000'; // Placeholder for now
 
       final newGroup = AnalyticGroup.fromJson(payload);
       final createdGroup = await _db.groups.createAnalyticGroup(newGroup, creatorId);
@@ -64,14 +64,14 @@ class AnalyticGroupsController {
 
   Future<Response> _updateAnalyticGroup(Request request, String id) async {
     try {
-      final groupId = int.parse(id);
+      final groupId = id;
       final payload = jsonDecode(await request.readAsString());
       // TODO: Get updaterId from authenticated user context
-      const updaterId = 1; // Placeholder for now
+      const updaterId = '00000000-0000-0000-0000-000000000000'; // Placeholder for now
 
       final updatedGroup = AnalyticGroup.fromJson({
         ...payload,
-        'id': groupId, // Ensure ID is from path and is an int
+        'id': groupId, // Ensure ID is from path
       });
       final resultGroup = await _db.groups.updateAnalyticGroup(updatedGroup, updaterId);
       return Response.ok(jsonEncode(resultGroup.toJson()));
@@ -82,9 +82,9 @@ class AnalyticGroupsController {
 
   Future<Response> _deleteAnalyticGroup(Request request, String id) async {
     try {
-      final groupId = int.parse(id);
+      final groupId = id;
       // TODO: Get archiverId from authenticated user context
-      const archiverId = 1; // Placeholder for now
+      const archiverId = '00000000-0000-0000-0000-000000000000'; // Placeholder for now
       await _db.groups.deleteAnalyticGroup(groupId, archiverId);
       return Response(204);
     } catch (e) {

@@ -21,7 +21,7 @@ TrainerProfile _$TrainerProfileFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$TrainerProfile {
-  int get userId => throw _privateConstructorUsedError;
+  String get userId => throw _privateConstructorUsedError;
 
   /// Serializes this TrainerProfile to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -40,7 +40,7 @@ abstract class $TrainerProfileCopyWith<$Res> {
     $Res Function(TrainerProfile) then,
   ) = _$TrainerProfileCopyWithImpl<$Res, TrainerProfile>;
   @useResult
-  $Res call({int userId});
+  $Res call({String userId});
 }
 
 /// @nodoc
@@ -63,7 +63,7 @@ class _$TrainerProfileCopyWithImpl<$Res, $Val extends TrainerProfile>
             userId: null == userId
                 ? _value.userId
                 : userId // ignore: cast_nullable_to_non_nullable
-                      as int,
+                      as String,
           )
           as $Val,
     );
@@ -79,7 +79,7 @@ abstract class _$$TrainerProfileImplCopyWith<$Res>
   ) = __$$TrainerProfileImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({int userId});
+  $Res call({String userId});
 }
 
 /// @nodoc
@@ -101,7 +101,7 @@ class __$$TrainerProfileImplCopyWithImpl<$Res>
         userId: null == userId
             ? _value.userId
             : userId // ignore: cast_nullable_to_non_nullable
-                  as int,
+                  as String,
       ),
     );
   }
@@ -116,7 +116,7 @@ class _$TrainerProfileImpl implements _TrainerProfile {
       _$$TrainerProfileImplFromJson(json);
 
   @override
-  final int userId;
+  final String userId;
 
   @override
   String toString() {
@@ -153,14 +153,14 @@ class _$TrainerProfileImpl implements _TrainerProfile {
 }
 
 abstract class _TrainerProfile implements TrainerProfile {
-  const factory _TrainerProfile({required final int userId}) =
+  const factory _TrainerProfile({required final String userId}) =
       _$TrainerProfileImpl;
 
   factory _TrainerProfile.fromJson(Map<String, dynamic> json) =
       _$TrainerProfileImpl.fromJson;
 
   @override
-  int get userId;
+  String get userId;
 
   /// Create a copy of TrainerProfile
   /// with the given fields replaced by the non-null parameter values.

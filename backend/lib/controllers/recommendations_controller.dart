@@ -13,11 +13,8 @@ class RecommendationsController {
         return Response.unauthorized(jsonEncode({'error': 'Not authenticated'}));
       }
 
-      final userId = int.tryParse(id);
-      if (userId == null) {
-        return Response.badRequest(body: jsonEncode({'error': 'Invalid User ID format'}));
-      }
-      
+      final userId = id;
+
       // Authorization could be added here:
       // e.g., check if the requesting user (user['userId']) is an admin, 
       // or a trainer for the client (userId), or the client themselves.

@@ -6,22 +6,22 @@ import 'base_api.dart';
 class AdminApiService extends BaseApiService {
   AdminApiService({super.client});
 
-  Future<Map<String, dynamic>> getAnthropometryDataForClient(int clientId) async {
+  Future<Map<String, dynamic>> getAnthropometryDataForClient(String clientId) async {
     return await get('/api/admin/clients/$clientId/anthropometry');
   }
 
-  Future<String> getSomatotypeProfileForClient(int clientId) async {
+  Future<String> getSomatotypeProfileForClient(String clientId) async {
     final data = await get('/api/admin/clients/$clientId/anthropometry/somatotype');
     return data['profile_string'] as String? ?? 'Не удалось рассчитать соматотип.';
   }
 
-  Future<WhtrProfiles> getWhtrProfilesForClient(int clientId) async {
+  Future<WhtrProfiles> getWhtrProfilesForClient(String clientId) async {
     final data = await get('/api/admin/clients/$clientId/anthropometry/whtr-profiles');
     return WhtrProfiles.fromJson(data);
   }
 
   Future<void> updateAnthropometryFixedForClient({
-    required int clientId,
+    required String clientId,
     required int height,
     required int wristCirc,
     required int ankleCirc,
@@ -34,7 +34,7 @@ class AdminApiService extends BaseApiService {
   }
 
   Future<void> updateAnthropometryMeasurementsForClient({
-    required int clientId,
+    required String clientId,
     required String type,
     required double weight,
     required int shouldersCirc,
@@ -53,7 +53,7 @@ class AdminApiService extends BaseApiService {
   }
 
   Future<Map<String, dynamic>> uploadAnthropometryPhotoForClient({
-    required int clientId,
+    required String clientId,
     required List<int> photoBytes,
     required String fileName,
     required String type,
@@ -62,7 +62,7 @@ class AdminApiService extends BaseApiService {
     final file = http.MultipartFile.fromBytes('photo', photoBytes, filename: fileName);
     final fields = {
       'type': type,
-      'clientId': clientId.toString(),
+      'clientId': clientId,
     };
     if (photoDateTime != null) {
       fields['photoDateTime'] = photoDateTime.toIso8601String();

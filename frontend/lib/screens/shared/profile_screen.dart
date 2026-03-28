@@ -21,8 +21,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       TransformationController();
 
   // State for form fields
-  int? _selectedGoalId;
-  int? _selectedLevelId;
+  String? _selectedGoalId;
+  String? _selectedLevelId;
   bool _isLoading = false;
 
   // Client profile specific state
@@ -69,7 +69,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       final isSelfEdit = (authUser != null) && (authUser.id == widget.user.id);
 
       late User updatedUser;
-      
+
       // This is the data we want to save for the client profile.
       final clientProfileData = {
         'goal_training_id': _selectedGoalId,
@@ -262,11 +262,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             ),
             const SizedBox(height: 16),
             goalsAsync.when(
-              data: (goals) => DropdownButtonFormField<int>(
+              data: (goals) => DropdownButtonFormField<String>(
                 key: ValueKey<String>('goal_$_selectedGoalId'),
                 initialValue: _selectedGoalId,
                 decoration: const InputDecoration(labelText: 'Цель тренировок', border: OutlineInputBorder()),
-                items: goals.map((goal) => DropdownMenuItem<int>(value: goal.id, child: Text(goal.name))).toList(),
+                items: goals.map((goal) => DropdownMenuItem<String>(value: goal.id, child: Text(goal.name))).toList(),
                 onChanged: canEdit ? (value) => setState(() => _selectedGoalId = value) : null,
               ),
               loading: () => const Center(child: CircularProgressIndicator()),
@@ -274,11 +274,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             ),
             const SizedBox(height: 16),
             levelsAsync.when(
-              data: (levels) => DropdownButtonFormField<int>(
+              data: (levels) => DropdownButtonFormField<String>(
                 key: ValueKey<String>('level_$_selectedLevelId'),
                 initialValue: _selectedLevelId,
                 decoration: const InputDecoration(labelText: 'Уровень подготовки', border: OutlineInputBorder()),
-                items: levels.map((level) => DropdownMenuItem<int>(value: level.id, child: Text(level.name))).toList(),
+                items: levels.map((level) => DropdownMenuItem<String>(value: level.id, child: Text(level.name))).toList(),
                 onChanged: canEdit ? (value) => setState(() => _selectedLevelId = value) : null,
               ),
               loading: () => const Center(child: CircularProgressIndicator()),

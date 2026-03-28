@@ -7,7 +7,7 @@ import '../../../modules/chat/providers/chat_provider.dart'; // Adjusted relativ
 import '../../../modules/chat/screens/chat_screen.dart'; // Adjusted relative path
 
 // Провайдер для получения всех клиентов, назначенных инструктору
-final assignedClientsProvider = FutureProvider.family<List<User>, int>((
+final assignedClientsProvider = FutureProvider.family<List<User>, String>((
   ref,
   instructorId,
 ) async {
@@ -15,7 +15,7 @@ final assignedClientsProvider = FutureProvider.family<List<User>, int>((
 });
 
 class ClientsView extends ConsumerWidget {
-  final int instructorId;
+  final String instructorId;
   const ClientsView({super.key, required this.instructorId});
 
   @override

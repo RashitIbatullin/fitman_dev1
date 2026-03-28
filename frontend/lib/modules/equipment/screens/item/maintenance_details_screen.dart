@@ -168,12 +168,7 @@ class ReportedByInfo extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final userIdInt = int.tryParse(userId);
-    if (userIdInt == null) {
-      return _buildDetailRow(label: 'Заявил:', value: 'Некорректный ID');
-    }
-
-    final userAsync = ref.watch(userByIdProvider(userIdInt));
+    final userAsync = ref.watch(userByIdProvider(userId));
 
     return userAsync.when(
       data: (user) => _buildDetailRow(label: 'Заявил:', value: user.shortName),

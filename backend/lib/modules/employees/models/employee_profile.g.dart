@@ -8,7 +8,7 @@ part of 'employee_profile.dart';
 
 EmployeeProfile _$EmployeeProfileFromJson(Map<String, dynamic> json) =>
     EmployeeProfile(
-      userId: (json['user_id'] as num).toInt(),
+      userId: json['user_id'] as String,
       specialization: json['specialization'] as String?,
       workExperience: (json['work_experience'] as num?)?.toInt(),
       canMaintainEquipment: json['can_maintain_equipment'] as bool? ?? false,

@@ -1,3 +1,6 @@
+-- Подключаем расширение для генерации UUID
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+
 -- Удаление старых таблиц, если они существуют, для идемпотентности скрипта
 DROP TABLE IF EXISTS
 "user_settings",
@@ -34,28 +37,28 @@ DROP TABLE IF EXISTS
 CASCADE;
 
 -- Общие требования к таблицам:
--- - id (BIGSERIAL PRIMARY KEY)
--- - company_id (BIGINT DEFAULT -1)
+-- - id (UUID PRIMARY KEY DEFAULT gen_random_uuid())
+-- - company_id (UUID DEFAULT '00000000-0000-0000-0000-000000000000')
 -- - created_at, updated_at (TIMESTAMPTZ)
--- - created_by, updated_by (BIGINT FK -> users(id))
--- - archived_at, archived_by (TIMESTAMPTZ, BIGINT FK -> users(id))
+-- - created_by, updated_by (UUID FK -> users(id))
+-- - archived_at, archived_by (TIMESTAMPTZ, UUID FK -> users(id))
 
 -- 1. Таблица ролей
 CREATE TABLE roles (
-    id BIGSERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(255) UNIQUE NOT NULL,
     title VARCHAR(255) NOT NULL,
     icon VARCHAR(255),
-    company_id BIGINT DEFAULT -1,
+    company_id UUID DEFAULT '00000000-0000-0000-0000-000000000000',
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
-    created_by BIGINT,
-    updated_by BIGINT,
+    created_by UUID,
+    updated_by UUID,
     archived_at TIMESTAMPTZ,
-    archived_by BIGINT
+    archived_by UUID
 );
 
--- Начальные значения для ролей
+-- Начальные значения для ролей (id будет сгенерирован автоматически)
 INSERT INTO roles (name, title) VALUES
     ('client', 'Клиент'),
     ('instructor', 'Инструктор'),
@@ -65,7 +68,7 @@ INSERT INTO roles (name, title) VALUES
 
 -- 2. Основная таблица пользователей
 CREATE TABLE users (
-    id BIGSERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     login VARCHAR(255) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
     phone VARCHAR(255) UNIQUE,
@@ -76,13 +79,13 @@ CREATE TABLE users (
     gender SMALLINT,
     date_of_birth DATE,
     photo_url VARCHAR(255),
-    company_id BIGINT DEFAULT -1,
+    company_id UUID DEFAULT '00000000-0000-0000-0000-000000000000',
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
-    created_by BIGINT,
-    updated_by BIGINT,
+    created_by UUID,
+    updated_by UUID,
     archived_at TIMESTAMPTZ,
-    archived_by BIGINT,
+    archived_by UUID,
     archived_reason VARCHAR(255) -- Reverted
 );
 
@@ -99,61 +102,61 @@ ALTER TABLE users ADD CONSTRAINT fk_users_archived_by FOREIGN KEY (archived_by) 
 
 -- 3. Связующая таблица пользователи-роли
 CREATE TABLE user_roles (
-    user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    role_id BIGINT NOT NULL REFERENCES roles(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    role_id UUID NOT NULL REFERENCES roles(id) ON DELETE CASCADE,
     assigned_at TIMESTAMPTZ DEFAULT NOW(),
-    company_id BIGINT DEFAULT -1,
+    company_id UUID DEFAULT '00000000-0000-0000-0000-000000000000',
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
-    created_by BIGINT REFERENCES users(id),
-    updated_by BIGINT REFERENCES users(id),
+    created_by UUID REFERENCES users(id),
+    updated_by UUID REFERENCES users(id),
     archived_at TIMESTAMPTZ,
-    archived_by BIGINT REFERENCES users(id),
+    archived_by UUID REFERENCES users(id),
     PRIMARY KEY (user_id, role_id)
 );
 
 -- 4. Таблица настроек пользователя
 CREATE TABLE user_settings (
-    user_id BIGINT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
     send_notifications BOOLEAN DEFAULT true,
     hour_notification INTEGER DEFAULT 2,
     notification_email BOOLEAN DEFAULT true,
     notification_push BOOLEAN DEFAULT true,
-    company_id BIGINT DEFAULT -1,
+    company_id UUID DEFAULT '00000000-0000-0000-0000-000000000000',
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
-    created_by BIGINT REFERENCES users(id),
-    updated_by BIGINT REFERENCES users(id),
+    created_by UUID REFERENCES users(id),
+    updated_by UUID REFERENCES users(id),
     archived_at TIMESTAMPTZ,
-    archived_by BIGINT REFERENCES users(id)
+    archived_by UUID REFERENCES users(id)
 );
 
 -- 5. Вспомогательные каталоги для профилей
 CREATE TABLE goals_training (
-    id BIGSERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(255) UNIQUE NOT NULL,
-    company_id BIGINT DEFAULT -1,
+    company_id UUID DEFAULT '00000000-0000-0000-0000-000000000000',
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
-    created_by BIGINT REFERENCES users(id),
-    updated_by BIGINT REFERENCES users(id),
+    created_by UUID REFERENCES users(id),
+    updated_by UUID REFERENCES users(id),
     archived_at TIMESTAMPTZ,
-    archived_by BIGINT REFERENCES users(id)
+    archived_by UUID REFERENCES users(id)
 );
 
 
 
 CREATE TABLE levels_training (
-    id BIGSERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(255) UNIQUE NOT NULL,
     description text,
-    company_id BIGINT DEFAULT -1,
+    company_id UUID DEFAULT '00000000-0000-0000-0000-000000000000',
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
-    created_by BIGINT REFERENCES users(id),
-    updated_by BIGINT REFERENCES users(id),
+    created_by UUID REFERENCES users(id),
+    updated_by UUID REFERENCES users(id),
     archived_at TIMESTAMPTZ,
-    archived_by BIGINT REFERENCES users(id)
+    archived_by UUID REFERENCES users(id)
 );
 INSERT INTO levels_training (name, description) VALUES 
 ('Новичок', 'Человек, который никогда не занимался или имел длительный перерыв.'),
@@ -163,171 +166,174 @@ INSERT INTO levels_training (name, description) VALUES
 
 -- 6. Таблицы профилей для ролей
 CREATE TABLE client_profiles (
-    user_id BIGINT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
-    goal_training_id BIGINT REFERENCES goals_training(id),
-    level_training_id BIGINT REFERENCES levels_training(id),
+    user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    goal_training_id UUID REFERENCES goals_training(id),
+    level_training_id UUID REFERENCES levels_training(id),
     track_calories BOOLEAN DEFAULT true,
     coeff_activity DOUBLE PRECISION DEFAULT 1.2,
-    company_id BIGINT DEFAULT -1,
+    company_id UUID DEFAULT '00000000-0000-0000-0000-000000000000',
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
-    created_by BIGINT REFERENCES users(id),
-    updated_by BIGINT REFERENCES users(id),
+    created_by UUID REFERENCES users(id),
+    updated_by UUID REFERENCES users(id),
     archived_at TIMESTAMPTZ,
-    archived_by BIGINT REFERENCES users(id)
+    archived_by UUID REFERENCES users(id)
 );
 
 CREATE TABLE employee_profiles (
-    user_id BIGINT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
     specialization VARCHAR(255),
     work_experience INTEGER,
     can_maintain_equipment BOOLEAN DEFAULT false,
-    company_id BIGINT DEFAULT -1,
+    company_id UUID DEFAULT '00000000-0000-0000-0000-000000000000',
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
-    created_by BIGINT REFERENCES users(id),
-    updated_by BIGINT REFERENCES users(id),
+    created_by UUID REFERENCES users(id),
+    updated_by UUID REFERENCES users(id),
     archived_at TIMESTAMPTZ,
-    archived_by BIGINT REFERENCES users(id)
+    archived_by UUID REFERENCES users(id)
 );
 
 CREATE TABLE instructor_profiles (
-    user_id BIGINT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
     is_duty BOOLEAN DEFAULT false,
     can_replace_trainer BOOLEAN DEFAULT false,
     can_create_plan BOOLEAN DEFAULT false,
-    company_id BIGINT DEFAULT -1,
+    company_id UUID DEFAULT '00000000-0000-0000-0000-000000000000',
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
-    created_by BIGINT REFERENCES users(id),
-    updated_by BIGINT REFERENCES users(id),
+    created_by UUID REFERENCES users(id),
+    updated_by UUID REFERENCES users(id),
     archived_at TIMESTAMPTZ,
-    archived_by BIGINT REFERENCES users(id)
+    archived_by UUID REFERENCES users(id)
 );
 
 CREATE TABLE trainer_profiles (
-    user_id BIGINT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
-    company_id BIGINT DEFAULT -1,
+    user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    company_id UUID DEFAULT '00000000-0000-0000-0000-000000000000',
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
-    created_by BIGINT REFERENCES users(id),
-    updated_by BIGINT REFERENCES users(id),
+    created_by UUID REFERENCES users(id),
+    updated_by UUID REFERENCES users(id),
     archived_at TIMESTAMPTZ,
-    archived_by BIGINT REFERENCES users(id)
+    archived_by UUID REFERENCES users(id)
 );
 
 CREATE TABLE manager_profiles (
-    user_id BIGINT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
     is_duty BOOLEAN DEFAULT false,
-    company_id BIGINT DEFAULT -1,
+    company_id UUID DEFAULT '00000000-0000-0000-0000-000000000000',
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
-    created_by BIGINT REFERENCES users(id),
-    updated_by BIGINT REFERENCES users(id),
+    created_by UUID REFERENCES users(id),
+    updated_by UUID REFERENCES users(id),
     archived_at TIMESTAMPTZ,
-    archived_by BIGINT REFERENCES users(id)
+    archived_by UUID REFERENCES users(id)
 );
 
 CREATE TABLE admin_profiles (
-    user_id BIGINT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
-    company_id BIGINT DEFAULT -1,
+    user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    company_id UUID DEFAULT '00000000-0000-0000-0000-000000000000',
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
-    created_by BIGINT REFERENCES users(id),
-    updated_by BIGINT REFERENCES users(id),
+    created_by UUID REFERENCES users(id),
+    updated_by UUID REFERENCES users(id),
     archived_at TIMESTAMPTZ,
-    archived_by BIGINT REFERENCES users(id)
+    archived_by UUID REFERENCES users(id)
 );
 
 -- Таблица компетенций для сотрудников и вспом.персонала(полиморфная)
 CREATE TABLE competencies (
-  id BIGSERIAL PRIMARY KEY,
-  competent_id BIGINT NOT NULL,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  competent_id UUID NOT NULL,
   executor_type  SMALLINT NOT NULL, -- 'user' или 'support_staff'
   name VARCHAR(100) NOT NULL,
   level SMALLINT NOT NULL,
   certificate_url TEXT,
   verified_at DATE,
-  verified_by BIGINT REFERENCES users(id),
-  company_id BIGINT DEFAULT -1,
+  verified_by UUID REFERENCES users(id),
+  company_id UUID DEFAULT '00000000-0000-0000-0000-000000000000',
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
-  created_by BIGINT REFERENCES users(id),
-  updated_by BIGINT REFERENCES users(id),
+  created_by UUID REFERENCES users(id),
+  updated_by UUID REFERENCES users(id),
   archived_at TIMESTAMPTZ,
-  archived_by BIGINT REFERENCES users(id),
+  archived_by UUID REFERENCES users(id),
   UNIQUE(competent_id, executor_type, name)
 );
 CREATE INDEX idx_competencies_polymorphic ON competencies(competent_id, executor_type);
 
 
 CREATE TABLE instructor_clients (
-    instructor_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    client_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    instructor_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    client_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     PRIMARY KEY (instructor_id, client_id),
-    company_id BIGINT DEFAULT -1,
+    company_id UUID DEFAULT '00000000-0000-0000-0000-000000000000',
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
-    created_by BIGINT REFERENCES users(id),
-    updated_by BIGINT REFERENCES users(id),
+    created_by UUID REFERENCES users(id),
+    updated_by UUID REFERENCES users(id),
     archived_at TIMESTAMPTZ,
-    archived_by BIGINT REFERENCES users(id)
+    archived_by UUID REFERENCES users(id)
 );
 
 CREATE TABLE manager_clients (
-    manager_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    client_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    manager_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    client_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     PRIMARY KEY (manager_id, client_id),
-    company_id BIGINT DEFAULT -1,
+    company_id UUID DEFAULT '00000000-0000-0000-0000-000000000000',
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
-    created_by BIGINT REFERENCES users(id),
-    updated_by BIGINT REFERENCES users(id),
+    created_by UUID REFERENCES users(id),
+    updated_by UUID REFERENCES users(id),
     archived_at TIMESTAMPTZ,
-    archived_by BIGINT REFERENCES users(id)
+    archived_by UUID REFERENCES users(id)
 );
 
 CREATE TABLE manager_trainers (
-    manager_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    trainer_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    manager_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    trainer_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     PRIMARY KEY (manager_id, trainer_id),
-    company_id BIGINT DEFAULT -1,
+    company_id UUID DEFAULT '00000000-0000-0000-0000-000000000000',
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
-    created_by BIGINT REFERENCES users(id),
-    updated_by BIGINT REFERENCES users(id),
+    created_by UUID REFERENCES users(id),
+    updated_by UUID REFERENCES users(id),
     archived_at TIMESTAMPTZ,
-    archived_by BIGINT REFERENCES users(id)
+    archived_by UUID REFERENCES users(id)
 );
 
 CREATE TABLE manager_instructors (
-    manager_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    instructor_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    manager_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    instructor_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     PRIMARY KEY (manager_id, instructor_id),
-    company_id BIGINT DEFAULT -1,
+    company_id UUID DEFAULT '00000000-0000-0000-0000-000000000000',
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
-    created_by BIGINT REFERENCES users(id),
-    updated_by BIGINT REFERENCES users(id),
+    created_by UUID REFERENCES users(id),
+    updated_by UUID REFERENCES users(id),
     archived_at TIMESTAMPTZ,
-    archived_by BIGINT REFERENCES users(id)
+    archived_by UUID REFERENCES users(id)
 );
 
 -- 7. Создание начальных пользователей для каждой роли
 -- Logins/emails и пароли взяты из frontend/lib/screens/login_screen.dart
 -- Хеши сгенерированы с помощью bcrypt для соответствующих паролей.
+/*
+-- ЭТОТ БЛОК БОЛЬШЕ НЕ РАБОТАЕТ ИЗ-ЗА ПЕРЕХОДА НА UUID. 
+-- ИНИЦИАЛИЗАЦИЮ ДАННЫХ НУЖНО БУДЕТ ВЫПОЛНЯТЬ ОТДЕЛЬНЫМ СКРИПТОМ/МЕХАНИЗМОМ.
 DO $$
 DECLARE
-    admin_id BIGINT;
-    manager_id BIGINT;
-    trainer_id BIGINT;
-    instructor_id BIGINT;
-    client_id BIGINT;
-    admin_role_id BIGINT;
-    manager_role_id BIGINT;
-    trainer_role_id BIGINT;
-    instructor_role_id BIGINT;
-    client_role_id BIGINT;
+    admin_id UUID;
+    manager_id UUID;
+    trainer_id UUID;
+    instructor_id UUID;
+    client_id UUID;
+    admin_role_id UUID;
+    manager_role_id UUID;
+    trainer_role_id UUID;
+    instructor_role_id UUID;
+    client_role_id UUID;
 BEGIN
     -- Получаем ID ролей
     SELECT id INTO admin_role_id FROM roles WHERE name = 'admin';
@@ -400,21 +406,22 @@ BEGIN
 
     -- Назначаем клиента инструктору
     INSERT INTO instructor_clients (instructor_id, client_id) VALUES (instructor_id, client_id);
-
+END $$;
+*/
 -- Создание таблицы work_schedules
 CREATE TABLE work_schedules (
-    id BIGSERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     day_of_week INT NOT NULL UNIQUE,
     start_time TIME NOT NULL,
     end_time TIME NOT NULL,
     is_day_off BOOLEAN DEFAULT false,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    created_by BIGINT,
-    updated_by BIGINT,
+    created_by UUID,
+    updated_by UUID,
     archived_at TIMESTAMP WITH TIME ZONE,
-    archived_by BIGINT,
-    company_id BIGINT DEFAULT -1
+    archived_by UUID,
+    company_id UUID DEFAULT '00000000-0000-0000-0000-000000000000'
 );
 
 COMMENT ON TABLE work_schedules IS 'Расписание работы центра';
@@ -431,21 +438,19 @@ INSERT INTO work_schedules (day_of_week, start_time, end_time, is_day_off) VALUE
 
 -- Создание таблицы client_schedule_preferences
 CREATE TABLE client_schedule_preferences (
-    id BIGSERIAL PRIMARY KEY,
-    client_id BIGINT NOT NULL REFERENCES users(id),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    client_id UUID NOT NULL REFERENCES users(id),
     day_of_week INT NOT NULL,
     preferred_start_time TIME NOT NULL,
     preferred_end_time TIME NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    created_by BIGINT,
-    updated_by BIGINT,
+    created_by UUID,
+    updated_by UUID,
     archived_at TIMESTAMP WITH TIME ZONE,
-    archived_by BIGINT,
-    company_id BIGINT DEFAULT -1,
+    archived_by UUID,
+    company_id UUID DEFAULT '00000000-0000-0000-0000-000000000000',
     UNIQUE (client_id, day_of_week) -- A client can only have one preference per day
 );
 
 COMMENT ON TABLE client_schedule_preferences IS 'Предпочтения клиента по расписанию';
-
-END $$;

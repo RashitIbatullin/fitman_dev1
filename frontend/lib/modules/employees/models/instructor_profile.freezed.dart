@@ -21,7 +21,7 @@ InstructorProfile _$InstructorProfileFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$InstructorProfile {
-  int get userId => throw _privateConstructorUsedError;
+  String get userId => throw _privateConstructorUsedError;
   bool get isDuty => throw _privateConstructorUsedError;
   bool get canReplaceTrainer => throw _privateConstructorUsedError;
   bool get canCreatePlan => throw _privateConstructorUsedError;
@@ -44,7 +44,7 @@ abstract class $InstructorProfileCopyWith<$Res> {
   ) = _$InstructorProfileCopyWithImpl<$Res, InstructorProfile>;
   @useResult
   $Res call({
-    int userId,
+    String userId,
     bool isDuty,
     bool canReplaceTrainer,
     bool canCreatePlan,
@@ -76,7 +76,7 @@ class _$InstructorProfileCopyWithImpl<$Res, $Val extends InstructorProfile>
             userId: null == userId
                 ? _value.userId
                 : userId // ignore: cast_nullable_to_non_nullable
-                      as int,
+                      as String,
             isDuty: null == isDuty
                 ? _value.isDuty
                 : isDuty // ignore: cast_nullable_to_non_nullable
@@ -105,7 +105,7 @@ abstract class _$$InstructorProfileImplCopyWith<$Res>
   @override
   @useResult
   $Res call({
-    int userId,
+    String userId,
     bool isDuty,
     bool canReplaceTrainer,
     bool canCreatePlan,
@@ -136,7 +136,7 @@ class __$$InstructorProfileImplCopyWithImpl<$Res>
         userId: null == userId
             ? _value.userId
             : userId // ignore: cast_nullable_to_non_nullable
-                  as int,
+                  as String,
         isDuty: null == isDuty
             ? _value.isDuty
             : isDuty // ignore: cast_nullable_to_non_nullable
@@ -168,7 +168,7 @@ class _$InstructorProfileImpl implements _InstructorProfile {
       _$$InstructorProfileImplFromJson(json);
 
   @override
-  final int userId;
+  final String userId;
   @override
   @JsonKey()
   final bool isDuty;
@@ -226,7 +226,7 @@ class _$InstructorProfileImpl implements _InstructorProfile {
 
 abstract class _InstructorProfile implements InstructorProfile {
   const factory _InstructorProfile({
-    required final int userId,
+    required final String userId,
     final bool isDuty,
     final bool canReplaceTrainer,
     final bool canCreatePlan,
@@ -236,7 +236,7 @@ abstract class _InstructorProfile implements InstructorProfile {
       _$InstructorProfileImpl.fromJson;
 
   @override
-  int get userId;
+  String get userId;
   @override
   bool get isDuty;
   @override

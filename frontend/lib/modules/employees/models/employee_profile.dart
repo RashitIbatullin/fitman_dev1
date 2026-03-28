@@ -6,7 +6,7 @@ part 'employee_profile.g.dart';
 @freezed
 class EmployeeProfile with _$EmployeeProfile {
   const factory EmployeeProfile({
-    required int userId,
+    required String userId,
     String? specialization,
     int? workExperience,
     @Default(false) bool canMaintainEquipment,

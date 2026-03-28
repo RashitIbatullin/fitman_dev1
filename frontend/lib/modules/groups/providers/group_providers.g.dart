@@ -25,7 +25,7 @@ final trainingGroupTypesProvider =
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef TrainingGroupTypesRef = FutureProviderRef<List<TrainingGroupType>>;
-String _$analyticGroupsHash() => r'563df3685cb84ce2c3a50dad69d28ef7fe96ab81';
+String _$analyticGroupsHash() => r'6136b61aea60a6eaeba5c48039244677f04ce200';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -206,26 +206,26 @@ class _AnalyticGroupsProviderElement
   bool? get isArchived => (origin as AnalyticGroupsProvider).isArchived;
 }
 
-String _$trainingGroupsHash() => r'cc28fc7f4cb0106484ffdd8a824ef52e18b0b0fb';
+String _$trainingGroupsHash() => r'310694b3ac3c1021d6f15daf267545d6036c83dd';
 
 abstract class _$TrainingGroups
     extends BuildlessAsyncNotifier<List<TrainingGroup>> {
   late final String searchQuery;
-  late final int? groupTypeId;
+  late final String? groupTypeId;
   late final bool? isActive;
   late final bool? isArchived;
-  late final int? trainerId;
-  late final int? instructorId;
-  late final int? managerId;
+  late final String? trainerId;
+  late final String? instructorId;
+  late final String? managerId;
 
   FutureOr<List<TrainingGroup>> build({
     String searchQuery = '',
-    int? groupTypeId,
+    String? groupTypeId,
     bool? isActive,
     bool? isArchived,
-    int? trainerId,
-    int? instructorId,
-    int? managerId,
+    String? trainerId,
+    String? instructorId,
+    String? managerId,
   });
 }
 
@@ -241,12 +241,12 @@ class TrainingGroupsFamily extends Family<AsyncValue<List<TrainingGroup>>> {
   /// See also [TrainingGroups].
   TrainingGroupsProvider call({
     String searchQuery = '',
-    int? groupTypeId,
+    String? groupTypeId,
     bool? isActive,
     bool? isArchived,
-    int? trainerId,
-    int? instructorId,
-    int? managerId,
+    String? trainerId,
+    String? instructorId,
+    String? managerId,
   }) {
     return TrainingGroupsProvider(
       searchQuery: searchQuery,
@@ -295,12 +295,12 @@ class TrainingGroupsProvider
   /// See also [TrainingGroups].
   TrainingGroupsProvider({
     String searchQuery = '',
-    int? groupTypeId,
+    String? groupTypeId,
     bool? isActive,
     bool? isArchived,
-    int? trainerId,
-    int? instructorId,
-    int? managerId,
+    String? trainerId,
+    String? instructorId,
+    String? managerId,
   }) : this._internal(
          () => TrainingGroups()
            ..searchQuery = searchQuery
@@ -344,12 +344,12 @@ class TrainingGroupsProvider
   }) : super.internal();
 
   final String searchQuery;
-  final int? groupTypeId;
+  final String? groupTypeId;
   final bool? isActive;
   final bool? isArchived;
-  final int? trainerId;
-  final int? instructorId;
-  final int? managerId;
+  final String? trainerId;
+  final String? instructorId;
+  final String? managerId;
 
   @override
   FutureOr<List<TrainingGroup>> runNotifierBuild(
@@ -435,7 +435,7 @@ mixin TrainingGroupsRef on AsyncNotifierProviderRef<List<TrainingGroup>> {
   String get searchQuery;
 
   /// The parameter `groupTypeId` of this provider.
-  int? get groupTypeId;
+  String? get groupTypeId;
 
   /// The parameter `isActive` of this provider.
   bool? get isActive;
@@ -444,13 +444,13 @@ mixin TrainingGroupsRef on AsyncNotifierProviderRef<List<TrainingGroup>> {
   bool? get isArchived;
 
   /// The parameter `trainerId` of this provider.
-  int? get trainerId;
+  String? get trainerId;
 
   /// The parameter `instructorId` of this provider.
-  int? get instructorId;
+  String? get instructorId;
 
   /// The parameter `managerId` of this provider.
-  int? get managerId;
+  String? get managerId;
 }
 
 class _TrainingGroupsProviderElement
@@ -461,26 +461,26 @@ class _TrainingGroupsProviderElement
   @override
   String get searchQuery => (origin as TrainingGroupsProvider).searchQuery;
   @override
-  int? get groupTypeId => (origin as TrainingGroupsProvider).groupTypeId;
+  String? get groupTypeId => (origin as TrainingGroupsProvider).groupTypeId;
   @override
   bool? get isActive => (origin as TrainingGroupsProvider).isActive;
   @override
   bool? get isArchived => (origin as TrainingGroupsProvider).isArchived;
   @override
-  int? get trainerId => (origin as TrainingGroupsProvider).trainerId;
+  String? get trainerId => (origin as TrainingGroupsProvider).trainerId;
   @override
-  int? get instructorId => (origin as TrainingGroupsProvider).instructorId;
+  String? get instructorId => (origin as TrainingGroupsProvider).instructorId;
   @override
-  int? get managerId => (origin as TrainingGroupsProvider).managerId;
+  String? get managerId => (origin as TrainingGroupsProvider).managerId;
 }
 
-String _$groupSchedulesHash() => r'4e263b5e213fcadcbc3edc7e8775e09fd0495102';
+String _$groupSchedulesHash() => r'279534e012cf267e4add7f4e9a18e7219bd58aab';
 
 abstract class _$GroupSchedules
     extends BuildlessAsyncNotifier<List<GroupSchedule>> {
-  late final int groupId;
+  late final String groupId;
 
-  FutureOr<List<GroupSchedule>> build(int groupId);
+  FutureOr<List<GroupSchedule>> build(String groupId);
 }
 
 /// See also [GroupSchedules].
@@ -493,7 +493,7 @@ class GroupSchedulesFamily extends Family<AsyncValue<List<GroupSchedule>>> {
   const GroupSchedulesFamily();
 
   /// See also [GroupSchedules].
-  GroupSchedulesProvider call(int groupId) {
+  GroupSchedulesProvider call(String groupId) {
     return GroupSchedulesProvider(groupId);
   }
 
@@ -523,7 +523,7 @@ class GroupSchedulesFamily extends Family<AsyncValue<List<GroupSchedule>>> {
 class GroupSchedulesProvider
     extends AsyncNotifierProviderImpl<GroupSchedules, List<GroupSchedule>> {
   /// See also [GroupSchedules].
-  GroupSchedulesProvider(int groupId)
+  GroupSchedulesProvider(String groupId)
     : this._internal(
         () => GroupSchedules()..groupId = groupId,
         from: groupSchedulesProvider,
@@ -547,7 +547,7 @@ class GroupSchedulesProvider
     required this.groupId,
   }) : super.internal();
 
-  final int groupId;
+  final String groupId;
 
   @override
   FutureOr<List<GroupSchedule>> runNotifierBuild(
@@ -596,7 +596,7 @@ class GroupSchedulesProvider
 // ignore: unused_element
 mixin GroupSchedulesRef on AsyncNotifierProviderRef<List<GroupSchedule>> {
   /// The parameter `groupId` of this provider.
-  int get groupId;
+  String get groupId;
 }
 
 class _GroupSchedulesProviderElement
@@ -605,15 +605,15 @@ class _GroupSchedulesProviderElement
   _GroupSchedulesProviderElement(super.provider);
 
   @override
-  int get groupId => (origin as GroupSchedulesProvider).groupId;
+  String get groupId => (origin as GroupSchedulesProvider).groupId;
 }
 
-String _$groupMembersHash() => r'7330755538d25fab6de6ed7c415838fa9e69c86d';
+String _$groupMembersHash() => r'6453fc68c3b7c0b59f50ebea638eed278b4ff65b';
 
-abstract class _$GroupMembers extends BuildlessAsyncNotifier<List<int>> {
-  late final int groupId;
+abstract class _$GroupMembers extends BuildlessAsyncNotifier<List<String>> {
+  late final String groupId;
 
-  FutureOr<List<int>> build(int groupId);
+  FutureOr<List<String>> build(String groupId);
 }
 
 /// See also [GroupMembers].
@@ -621,12 +621,12 @@ abstract class _$GroupMembers extends BuildlessAsyncNotifier<List<int>> {
 const groupMembersProvider = GroupMembersFamily();
 
 /// See also [GroupMembers].
-class GroupMembersFamily extends Family<AsyncValue<List<int>>> {
+class GroupMembersFamily extends Family<AsyncValue<List<String>>> {
   /// See also [GroupMembers].
   const GroupMembersFamily();
 
   /// See also [GroupMembers].
-  GroupMembersProvider call(int groupId) {
+  GroupMembersProvider call(String groupId) {
     return GroupMembersProvider(groupId);
   }
 
@@ -654,9 +654,9 @@ class GroupMembersFamily extends Family<AsyncValue<List<int>>> {
 
 /// See also [GroupMembers].
 class GroupMembersProvider
-    extends AsyncNotifierProviderImpl<GroupMembers, List<int>> {
+    extends AsyncNotifierProviderImpl<GroupMembers, List<String>> {
   /// See also [GroupMembers].
-  GroupMembersProvider(int groupId)
+  GroupMembersProvider(String groupId)
     : this._internal(
         () => GroupMembers()..groupId = groupId,
         from: groupMembersProvider,
@@ -680,10 +680,10 @@ class GroupMembersProvider
     required this.groupId,
   }) : super.internal();
 
-  final int groupId;
+  final String groupId;
 
   @override
-  FutureOr<List<int>> runNotifierBuild(covariant GroupMembers notifier) {
+  FutureOr<List<String>> runNotifierBuild(covariant GroupMembers notifier) {
     return notifier.build(groupId);
   }
 
@@ -704,7 +704,7 @@ class GroupMembersProvider
   }
 
   @override
-  AsyncNotifierProviderElement<GroupMembers, List<int>> createElement() {
+  AsyncNotifierProviderElement<GroupMembers, List<String>> createElement() {
     return _GroupMembersProviderElement(this);
   }
 
@@ -724,18 +724,18 @@ class GroupMembersProvider
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-mixin GroupMembersRef on AsyncNotifierProviderRef<List<int>> {
+mixin GroupMembersRef on AsyncNotifierProviderRef<List<String>> {
   /// The parameter `groupId` of this provider.
-  int get groupId;
+  String get groupId;
 }
 
 class _GroupMembersProviderElement
-    extends AsyncNotifierProviderElement<GroupMembers, List<int>>
+    extends AsyncNotifierProviderElement<GroupMembers, List<String>>
     with GroupMembersRef {
   _GroupMembersProviderElement(super.provider);
 
   @override
-  int get groupId => (origin as GroupMembersProvider).groupId;
+  String get groupId => (origin as GroupMembersProvider).groupId;
 }
 
 // ignore_for_file: type=lint

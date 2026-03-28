@@ -9,7 +9,7 @@ final allClientsProvider = FutureProvider<List<User>>((ref) async {
 });
 
 // Провайдер для получения ID назначенных клиентов для конкретного менеджера
-final assignedClientIdsProvider = FutureProvider.family<List<int>, int>((
+final assignedClientIdsProvider = FutureProvider.family<List<String>, String>((
   ref,
   managerId,
 ) async {
@@ -27,7 +27,7 @@ class AssignClientsScreen extends ConsumerStatefulWidget {
 }
 
 class _AssignClientsScreenState extends ConsumerState<AssignClientsScreen> {
-  final Set<int> _selectedClientIds = {};
+  final Set<String> _selectedClientIds = {};
   bool _isInitialLoad = true;
 
   @override
@@ -38,7 +38,7 @@ class _AssignClientsScreenState extends ConsumerState<AssignClientsScreen> {
     );
 
     // Инициализируем выбранные ID при первой загрузке
-    if (_isInitialLoad && assignedIdsAsync is AsyncData<List<int>>) {
+    if (_isInitialLoad && assignedIdsAsync is AsyncData<List<String>>) {
       _selectedClientIds.clear();
       _selectedClientIds.addAll(assignedIdsAsync.value);
       // Устанавливаем флаг в false, чтобы это не повторялось при каждой перерисовке
