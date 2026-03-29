@@ -6,7 +6,7 @@ part 'instructor_profile.g.dart';
 @freezed
 class InstructorProfile with _$InstructorProfile {
   const factory InstructorProfile({
-    required int userId,
+    required String userId,
     @Default(false) bool isDuty,
     @Default(false) bool canReplaceTrainer,
     @Default(false) bool canCreatePlan,

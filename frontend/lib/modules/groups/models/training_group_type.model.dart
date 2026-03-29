@@ -5,7 +5,7 @@ part 'training_group_type.model.g.dart';
 
 @JsonSerializable()
 class TrainingGroupType extends Equatable {
-  final int id;
+  final String id;
   final String name;
   final String title;
   @JsonKey(name: 'min_participants')

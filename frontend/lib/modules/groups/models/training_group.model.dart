@@ -5,35 +5,35 @@ part 'training_group.model.g.dart';
 
 @JsonSerializable()
 class TrainingGroup extends Equatable {
-  final int? id;
+  final String? id;
   final String name;
   final String? description;
   @JsonKey(name: 'training_group_type_id')
-  final int trainingGroupTypeId;
-  
+  final String trainingGroupTypeId;
+
   // ПЕРСОНАЛ (обязательные для тренировочного процесса)
   @JsonKey(name: 'primary_trainer_id')
-  final int? primaryTrainerId;     // Основной тренер группы (обязательно)
+  final String? primaryTrainerId;     // Основной тренер группы (обязательно)
   @JsonKey(name: 'primary_instructor_id')
-  final int? primaryInstructorId; // Основной инструктор группы
+  final String? primaryInstructorId; // Основной инструктор группы
   @JsonKey(name: 'responsible_manager_id')
-  final int? responsibleManagerId; // Ответственный менеджер
-  
+  final String? responsibleManagerId; // Ответственный менеджер
+
   // СОСТАВ ГРУППЫ (фиксированный)
   @JsonKey(name: 'client_ids', defaultValue: [])
-  final List<int> clientIds;      // Фиксированный состав участников
-  
+  final List<String> clientIds;      // Фиксированный состав участников
+
   // РАСПИСАНИЕ ЗАНЯТИЙ - This will be fetched separately or populated by a service
   // List<GroupScheduleSlot> scheduleSlots; 
-  
+
   // ПАРАМЕТРЫ ТРЕНИРОВКИ
   @JsonKey(name: 'program_id')
-  final int? programId;           // Ссылка на программу тренировок
+  final String? programId;           // Ссылка на программу тренировок
   @JsonKey(name: 'goal_id')
-  final int? goalId;              // Цель тренировок (похудение, набор массы и т.д.)
+  final String? goalId;              // Цель тренировок (похудение, набор массы и т.д.)
   @JsonKey(name: 'level_id')
-  final int? levelId;             // Уровень подготовки группы
-  
+  final String? levelId;             // Уровень подготовки группы
+
   // ЛИМИТЫ И ОГРАНИЧЕНИЯ
   @JsonKey(name: 'start_date')
   final DateTime startDate;          // Дата начала работы группы
@@ -43,16 +43,16 @@ class TrainingGroup extends Equatable {
   final int maxParticipants;         // Максимальное количество участников
   @JsonKey(name: 'current_participants')
   final int? currentParticipants;     // Текущее количество участников
-  
+
   // СТАТУС И СВЯЗИ
   @JsonKey(name: 'is_active')
   final bool? isActive;               // Активна ли группа
   @JsonKey(name: 'chat_id')
-  final int? chatId;              // Ссылка на групповой чат (создается автоматически)
+  final String? chatId;              // Ссылка на групповой чат (создается автоматически)
   @JsonKey(name: 'archived_at')
   final DateTime? archivedAt;
   @JsonKey(name: 'archived_by')
-  final int? archivedBy;
+  final String? archivedBy;
 
   const TrainingGroup({
     this.id,

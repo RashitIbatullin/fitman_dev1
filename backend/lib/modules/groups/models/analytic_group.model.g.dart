@@ -8,7 +8,7 @@ part of 'analytic_group.model.dart';
 
 AnalyticGroup _$AnalyticGroupFromJson(Map<String, dynamic> json) =>
     AnalyticGroup(
-      id: (json['id'] as num?)?.toInt(),
+      id: json['id'] as String?,
       name: json['name'] as String,
       description: json['description'] as String?,
       type: const AnalyticGroupTypeConverter().fromJson(
@@ -23,13 +23,13 @@ AnalyticGroup _$AnalyticGroupFromJson(Map<String, dynamic> json) =>
           : _clientIdsFromJson(json['client_ids_cache']),
       lastUpdatedAt: _nullableDateTimeFromJson(json['last_updated_at']),
       metadata: json['metadata'] as Map<String, dynamic>?,
-      companyId: (json['company_id'] as num?)?.toInt(),
+      companyId: json['company_id'] as String?,
       createdAt: _nullableDateTimeFromJson(json['created_at']),
       updatedAt: _nullableDateTimeFromJson(json['updated_at']),
-      createdBy: (json['created_by'] as num?)?.toInt(),
-      updatedBy: (json['updated_by'] as num?)?.toInt(),
+      createdBy: json['created_by'] as String?,
+      updatedBy: json['updated_by'] as String?,
       archivedAt: _nullableDateTimeFromJson(json['archived_at']),
-      archivedBy: (json['archived_by'] as num?)?.toInt(),
+      archivedBy: json['archived_by'] as String?,
     );
 
 Map<String, dynamic> _$AnalyticGroupToJson(AnalyticGroup instance) =>

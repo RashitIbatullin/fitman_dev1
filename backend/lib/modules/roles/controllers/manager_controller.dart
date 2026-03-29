@@ -11,7 +11,7 @@ class ManagerController {
       }
 
       // Предполагаем, что 'userId' в payload токена - это ID пользователя (менеджера)
-      final managerId = userPayload['userId'] as int?;
+      final managerId = userPayload['userId'] as String?;
       if (managerId == null) {
         return Response.badRequest(body: '{"error": "Invalid token payload"}');
       }
@@ -20,7 +20,7 @@ class ManagerController {
       final clients = await db.getClientsForManager(managerId);
 
       final clientsJson = clients.map((client) => client.toJson()).toList();
-      
+
       return Response.ok(
         jsonEncode(clientsJson),
         headers: {'Content-Type': 'application/json'},
@@ -41,7 +41,7 @@ class ManagerController {
         return Response.unauthorized('{"error": "Not authenticated"}');
       }
 
-      final managerId = userPayload['userId'] as int?;
+      final managerId = userPayload['userId'] as String?;
       if (managerId == null) {
         return Response.badRequest(body: '{"error": "Invalid token payload"}');
       }
@@ -51,7 +51,7 @@ class ManagerController {
       final instructors = await db.getInstructorsForManager(managerId);
 
       final instructorsJson = instructors.map((instructor) => instructor.toJson()).toList();
-      
+
       return Response.ok(
         jsonEncode(instructorsJson),
         headers: {'Content-Type': 'application/json'},
@@ -72,7 +72,7 @@ class ManagerController {
         return Response.unauthorized('{"error": "Not authenticated"}');
       }
 
-      final managerId = userPayload['userId'] as int?;
+      final managerId = userPayload['userId'] as String?;
       if (managerId == null) {
         return Response.badRequest(body: '{"error": "Invalid token payload"}');
       }
@@ -82,7 +82,7 @@ class ManagerController {
       final trainers = await db.getTrainersForManager(managerId);
 
       final trainersJson = trainers.map((trainer) => trainer.toJson()).toList();
-      
+
       return Response.ok(
         jsonEncode(trainersJson),
         headers: {'Content-Type': 'application/json'},
@@ -96,22 +96,17 @@ class ManagerController {
     }
   }
 
-  static Future<Response> assignClients(Request request, String managerIdStr) async {
+  static Future<Response> assignClients(Request request, String managerId) async {
     try {
-      final managerId = int.tryParse(managerIdStr);
-      if (managerId == null) {
-        return Response.badRequest(body: '{"error": "Invalid manager ID"}');
-      }
-
       final body = await request.readAsString();
       final payload = jsonDecode(body);
-      
+
       final clientIdsRaw = payload['client_ids'] as List?;
       if (clientIdsRaw == null) {
         return Response.badRequest(body: '{"error": "client_ids is required"}');
       }
-      
-      final clientIds = clientIdsRaw.cast<int>().toList();
+
+      final clientIds = clientIdsRaw.cast<String>().toList();
 
       final db = Database();
       await db.assignClientsToManager(managerId, clientIds);
@@ -124,13 +119,8 @@ class ManagerController {
     }
   }
 
-  static Future<Response> getAssignedClientIds(Request request, String managerIdStr) async {
+  static Future<Response> getAssignedClientIds(Request request, String managerId) async {
     try {
-      final managerId = int.tryParse(managerIdStr);
-      if (managerId == null) {
-        return Response.badRequest(body: '{"error": "Invalid manager ID"}');
-      }
-
       final db = Database();
       final clientIds = await db.getAssignedClientIds(managerId);
 
@@ -142,22 +132,17 @@ class ManagerController {
     }
   }
 
-  static Future<Response> assignInstructors(Request request, String managerIdStr) async {
+  static Future<Response> assignInstructors(Request request, String managerId) async {
     try {
-      final managerId = int.tryParse(managerIdStr);
-      if (managerId == null) {
-        return Response.badRequest(body: '{"error": "Invalid manager ID"}');
-      }
-
       final body = await request.readAsString();
       final payload = jsonDecode(body);
-      
+
       final instructorIdsRaw = payload['instructor_ids'] as List?;
       if (instructorIdsRaw == null) {
         return Response.badRequest(body: '{"error": "instructor_ids is required"}');
       }
-      
-      final instructorIds = instructorIdsRaw.cast<int>().toList();
+
+      final instructorIds = instructorIdsRaw.cast<String>().toList();
 
       final db = Database();
       await db.assignInstructorsToManager(managerId, instructorIds);
@@ -170,13 +155,8 @@ class ManagerController {
     }
   }
 
-  static Future<Response> getAssignedInstructorIds(Request request, String managerIdStr) async {
+  static Future<Response> getAssignedInstructorIds(Request request, String managerId) async {
     try {
-      final managerId = int.tryParse(managerIdStr);
-      if (managerId == null) {
-        return Response.badRequest(body: '{"error": "Invalid manager ID"}');
-      }
-
       final db = Database();
       final instructorIds = await db.getAssignedInstructorIds(managerId);
 
@@ -188,22 +168,17 @@ class ManagerController {
     }
   }
 
-  static Future<Response> assignTrainers(Request request, String managerIdStr) async {
+  static Future<Response> assignTrainers(Request request, String managerId) async {
     try {
-      final managerId = int.tryParse(managerIdStr);
-      if (managerId == null) {
-        return Response.badRequest(body: '{"error": "Invalid manager ID"}');
-      }
-
       final body = await request.readAsString();
       final payload = jsonDecode(body);
-      
+
       final trainerIdsRaw = payload['trainer_ids'] as List?;
       if (trainerIdsRaw == null) {
         return Response.badRequest(body: '{"error": "trainer_ids is required"}');
       }
-      
-      final trainerIds = trainerIdsRaw.cast<int>().toList();
+
+      final trainerIds = trainerIdsRaw.cast<String>().toList();
 
       final db = Database();
       await db.assignTrainersToManager(managerId, trainerIds);
@@ -216,13 +191,8 @@ class ManagerController {
     }
   }
 
-  static Future<Response> getAssignedTrainerIds(Request request, String managerIdStr) async {
+  static Future<Response> getAssignedTrainerIds(Request request, String managerId) async {
     try {
-      final managerId = int.tryParse(managerIdStr);
-      if (managerId == null) {
-        return Response.badRequest(body: '{"error": "Invalid manager ID"}');
-      }
-
       final db = Database();
       final trainerIds = await db.getAssignedTrainerIds(managerId);
 
@@ -236,17 +206,12 @@ class ManagerController {
 
   // === FOR ADMINS (getting data for a specific manager) ===
 
-  static Future<Response> getAssignedClientsForManager(Request request, String managerIdStr) async {
+  static Future<Response> getAssignedClientsForManager(Request request, String managerId) async {
     try {
-      final managerId = int.tryParse(managerIdStr);
-      if (managerId == null) {
-        return Response.badRequest(body: '{"error": "Invalid manager ID"}');
-      }
-
       final db = Database();
       final clients = await db.getClientsForManager(managerId);
       final clientsJson = clients.map((client) => client.toJson()).toList();
-      
+
       return Response.ok(
         jsonEncode(clientsJson),
         headers: {'Content-Type': 'application/json'},
@@ -257,17 +222,12 @@ class ManagerController {
     }
   }
 
-  static Future<Response> getAssignedInstructorsForManager(Request request, String managerIdStr) async {
+  static Future<Response> getAssignedInstructorsForManager(Request request, String managerId) async {
     try {
-      final managerId = int.tryParse(managerIdStr);
-      if (managerId == null) {
-        return Response.badRequest(body: '{"error": "Invalid manager ID"}');
-      }
-
       final db = Database();
       final instructors = await db.getInstructorsForManager(managerId);
       final instructorsJson = instructors.map((instructor) => instructor.toJson()).toList();
-      
+
       return Response.ok(
         jsonEncode(instructorsJson),
         headers: {'Content-Type': 'application/json'},
@@ -278,17 +238,12 @@ class ManagerController {
     }
   }
 
-  static Future<Response> getAssignedTrainersForManager(Request request, String managerIdStr) async {
+  static Future<Response> getAssignedTrainersForManager(Request request, String managerId) async {
     try {
-      final managerId = int.tryParse(managerIdStr);
-      if (managerId == null) {
-        return Response.badRequest(body: '{"error": "Invalid manager ID"}');
-      }
-
       final db = Database();
       final trainers = await db.getTrainersForManager(managerId);
       final trainersJson = trainers.map((trainer) => trainer.toJson()).toList();
-      
+
       return Response.ok(
         jsonEncode(trainersJson),
         headers: {'Content-Type': 'application/json'},

@@ -10,7 +10,7 @@ class ScheduleController {
         return Response.unauthorized('{"error": "Not authenticated"}');
       }
 
-      final userId = userPayload['userId'] as int?;
+      final userId = userPayload['userId'] as String?;
       final userRoles = userPayload['roles'] as List<dynamic>?;
       final userRole = userRoles?.isNotEmpty == true ? userRoles!.first as String : null;
 

@@ -1,4 +1,0 @@
--- Запускать скрипты в следующем порядке:
---users.sql
---infrastructure.sql
---equipment.sql

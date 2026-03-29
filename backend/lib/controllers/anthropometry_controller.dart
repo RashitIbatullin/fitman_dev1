@@ -12,12 +12,12 @@ class AnthropometryController {
       if (user == null) {
         return Response.unauthorized(jsonEncode({'error': 'Not authenticated'}));
       }
-      
-      int clientId;
+
+      String clientId;
       if (id != null) {
-        clientId = int.parse(id);
+        clientId = id;
       } else {
-        clientId = user['userId'] as int;
+        clientId = user['userId'] as String;
       }
 
       final recommendationService = RecommendationService();
@@ -42,11 +42,11 @@ class AnthropometryController {
         return Response.unauthorized(jsonEncode({'error': 'Not authenticated'}));
       }
 
-      int clientId;
+      String clientId;
       if (id != null) {
-        clientId = int.parse(id);
+        clientId = id;
       } else {
-        clientId = user['userId'] as int;
+        clientId = user['userId'] as String;
       }
       print('[getAnthropometryDataForClient] Authenticated userId: ${user['userId']}, Using clientId: $clientId');
       final data = await Database().getAnthropometryData(clientId);
@@ -65,11 +65,11 @@ class AnthropometryController {
         return Response.unauthorized(jsonEncode({'error': 'Not authenticated'}));
       }
 
-      int clientId;
+      String clientId;
       if (id != null) {
-        clientId = int.parse(id);
+        clientId = id;
       } else {
-        clientId = user['userId'] as int;
+        clientId = user['userId'] as String;
       }
       print('[uploadPhoto] Authenticated userId: ${user['userId']}, Using clientId: $clientId');
 
@@ -111,7 +111,7 @@ class AnthropometryController {
       final photoUrl = '/uploads/$fileName';
 
       final now = photoDateTimeFromRequest ?? DateTime.now();
-      final creatorId = user['userId'] as int;
+      final creatorId = user['userId'] as String;
       await Database().updateAnthropometryPhoto(clientId, photoUrl, type, now, creatorId);
 
       return Response.ok(jsonEncode({
@@ -132,11 +132,11 @@ class AnthropometryController {
         return Response.unauthorized(jsonEncode({'error': 'Not authenticated'}));
       }
 
-      int clientId;
+      String clientId;
       if (id != null) {
-        clientId = int.parse(id);
+        clientId = id;
       } else {
-        clientId = user['userId'] as int;
+        clientId = user['userId'] as String;
       }
       print('[updateFixedAnthropometry] Authenticated userId: ${user['userId']}, Using clientId: $clientId');
 
@@ -146,7 +146,7 @@ class AnthropometryController {
       final wristCirc = data['wristCirc'] as int?;
       final ankleCirc = data['ankleCirc'] as int?;
 
-      final creatorId = user['userId'] as int;
+      final creatorId = user['userId'] as String;
       await Database().updateAnthropometryFixed(clientId, height, wristCirc, ankleCirc, creatorId);
 
       return Response.ok(jsonEncode({'message': 'Fixed anthropometry updated successfully'}));
@@ -164,11 +164,11 @@ class AnthropometryController {
         return Response.unauthorized(jsonEncode({'error': 'Not authenticated'}));
       }
 
-      int clientId;
+      String clientId;
       if (id != null) {
-        clientId = int.parse(id);
+        clientId = id;
       } else {
-        clientId = user['userId'] as int;
+        clientId = user['userId'] as String;
       }
       print('[updateMeasurementsAnthropometry] Authenticated userId: ${user['userId']}, Using clientId: $clientId');
 
@@ -186,7 +186,7 @@ class AnthropometryController {
         return Response.badRequest(body: jsonEncode({'error': 'Invalid anthropometry type. Must be \'start\' or \'finish\''}));
       }
 
-      final creatorId = user['userId'] as int;
+      final creatorId = user['userId'] as String;
       await Database().updateAnthropometryMeasurements(
         clientId,
         type,
@@ -212,12 +212,12 @@ class AnthropometryController {
       if (user == null) {
         return Response.unauthorized(jsonEncode({'error': 'Not authenticated'}));
       }
-      
-      int clientId;
+
+      String clientId;
       if (id != null) {
-        clientId = int.parse(id);
+        clientId = id;
       } else {
-        clientId = user['userId'] as int;
+        clientId = user['userId'] as String;
       }
 
       final recommendationService = RecommendationService();

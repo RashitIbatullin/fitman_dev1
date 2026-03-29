@@ -1,5 +1,5 @@
 class Role {
-  final int id;
+  final String id;
   final String name;
   final String title;
   final String? icon;
@@ -13,7 +13,7 @@ class Role {
 
   factory Role.fromMap(Map<String, dynamic> map) {
     return Role(
-      id: map['id'] is int ? map['id'] : int.parse(map['id'].toString()),
+      id: map['id'].toString(),
       name: map['name'].toString(),
       title: map['title'].toString(),
       icon: map['icon']?.toString(),

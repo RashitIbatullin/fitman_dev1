@@ -1,5 +1,5 @@
 class ScheduleItem {
-  final int id;
+  final String id;
   final String trainingPlanName;
   final DateTime startTime;
   final DateTime endTime;
@@ -17,7 +17,7 @@ class ScheduleItem {
 
   factory ScheduleItem.fromJson(Map<String, dynamic> json) {
     return ScheduleItem(
-      id: json['id'] as int,
+      id: json['id'].toString(),
       trainingPlanName: json['training_plan_name'] as String,
       startTime: DateTime.parse(json['start_time'] as String),
       endTime: DateTime.parse(json['end_time'] as String),

@@ -1,5 +1,5 @@
 class LevelTraining {
-  final int id;
+  final String id;
   final String name;
 
   LevelTraining({required this.id, required this.name});

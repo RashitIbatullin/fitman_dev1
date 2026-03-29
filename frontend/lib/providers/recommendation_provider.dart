@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 // Provider to hold the state of the recommendation fetch operation
 final recommendationProvider =
-    FutureProvider.family<Map<String, dynamic>, int>((ref, clientId) async {
+    FutureProvider.family<Map<String, dynamic>, String>((ref, clientId) async {
   try {
     final recommendation = await ApiService.getRecommendation(clientId);
     return recommendation;

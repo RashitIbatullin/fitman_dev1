@@ -26,7 +26,7 @@ class BuildingService {
     return _buildingRepository.update(id, building, userId);
   }
 
-  Future<void> deleteBuilding(String id, int userId) {
+  Future<void> deleteBuilding(String id, String userId) {
     return _buildingRepository.archive(id, userId);
   }
 }

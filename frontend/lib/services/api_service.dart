@@ -91,16 +91,16 @@ class ApiService {
   static Future<User> updateUser(UpdateUserRequest request) => _authApi.updateUser(request);
   static Future<List<User>> getUsers({String? role, int? offset, int? limit, bool? isArchived}) =>
       _authApi.getUsers(role: role, offset: offset, limit: limit, isArchived: isArchived);
-  static Future<User> getUserById(int userId) => _authApi.getUserById(userId);
+  static Future<User> getUserById(String userId) => _authApi.getUserById(userId);
   static Future<List<Role>> getAllRoles() => _authApi.getAllRoles();
-  static Future<List<Role>> getUserRoles(int userId) => _authApi.getUserRoles(userId);
-  static Future<void> updateUserRoles(int userId, List<String> roleNames) =>
+  static Future<List<Role>> getUserRoles(String userId) => _authApi.getUserRoles(userId);
+  static Future<void> updateUserRoles(String userId, List<String> roleNames) =>
       _authApi.updateUserRoles(userId, roleNames);
-  static Future<void> archiveUser(int userId, {String? reason}) =>
+  static Future<void> archiveUser(String userId, {String? reason}) =>
       _authApi.archiveUser(userId, reason: reason);
-  static Future<Map<String, dynamic>> uploadAvatar(List<int> photoBytes, String fileName, int userId) =>
+  static Future<Map<String, dynamic>> uploadAvatar(List<int> photoBytes, String fileName, String userId) =>
       _authApi.uploadAvatar(photoBytes, fileName, userId);
-  static Future<void> resetUserPassword(int userId, String newPassword) =>
+  static Future<void> resetUserPassword(String userId, String newPassword) =>
       _authApi.resetUserPassword(userId, newPassword);
 
   // --- Employee Competency Methods ---
@@ -217,12 +217,12 @@ class ApiService {
   // --- Group Methods ---
   static Future<List<TrainingGroup>> getAllTrainingGroups({
     String? searchQuery,
-    int? groupTypeId,
+    String? groupTypeId,
     bool? isActive,
     bool? isArchived,
-    int? trainerId,
-    int? instructorId,
-    int? managerId,
+    String? trainerId,
+    String? instructorId,
+    String? managerId,
   }) =>
       _groupsApi.getAllTrainingGroups(
         searchQuery: searchQuery,
@@ -233,28 +233,28 @@ class ApiService {
         instructorId: instructorId,
         managerId: managerId,
       );
-  static Future<TrainingGroup> getTrainingGroupById(int id) => _groupsApi.getTrainingGroupById(id);
+  static Future<TrainingGroup> getTrainingGroupById(String id) => _groupsApi.getTrainingGroupById(id);
   static Future<TrainingGroup> createTrainingGroup(TrainingGroup group) => _groupsApi.createTrainingGroup(group);
   static Future<TrainingGroup> updateTrainingGroup(TrainingGroup group) => _groupsApi.updateTrainingGroup(group);
-  static Future<void> deleteTrainingGroup(int id) => _groupsApi.deleteTrainingGroup(id);
+  static Future<void> deleteTrainingGroup(String id) => _groupsApi.deleteTrainingGroup(id);
 
   static Future<List<AnalyticGroup>> getAllAnalyticGroups({bool? isActive, bool? isArchived}) =>
       _groupsApi.getAllAnalyticGroups(isActive: isActive, isArchived: isArchived);
-  static Future<AnalyticGroup> getAnalyticGroupById(int id) => _groupsApi.getAnalyticGroupById(id);
+  static Future<AnalyticGroup> getAnalyticGroupById(String id) => _groupsApi.getAnalyticGroupById(id);
   static Future<AnalyticGroup> createAnalyticGroup(AnalyticGroup group) => _groupsApi.createAnalyticGroup(group);
   static Future<AnalyticGroup> updateAnalyticGroup(AnalyticGroup group) => _groupsApi.updateAnalyticGroup(group);
-  static Future<void> deleteAnalyticGroup(int id) => _groupsApi.deleteAnalyticGroup(id);
+  static Future<void> deleteAnalyticGroup(String id) => _groupsApi.deleteAnalyticGroup(id);
 
-  static Future<List<GroupSchedule>> getGroupSchedules(int groupId) => _groupsApi.getGroupSchedules(groupId);
-  static Future<GroupSchedule> createGroupSchedule(int groupId, GroupSchedule slot) =>
+  static Future<List<GroupSchedule>> getGroupSchedules(String groupId) => _groupsApi.getGroupSchedules(groupId);
+  static Future<GroupSchedule> createGroupSchedule(String groupId, GroupSchedule slot) =>
       _groupsApi.createGroupSchedule(groupId, slot);
   static Future<GroupSchedule> updateGroupSchedule(GroupSchedule slot) => _groupsApi.updateGroupSchedule(slot);
-  static Future<void> deleteGroupSchedule(int id) => _groupsApi.deleteGroupSchedule(id);
+  static Future<void> deleteGroupSchedule(String id) => _groupsApi.deleteGroupSchedule(id);
 
-  static Future<List<int>> getTrainingGroupMembers(int groupId) => _groupsApi.getTrainingGroupMembers(groupId);
-  static Future<void> addTrainingGroupMember(int groupId, int userId) =>
+  static Future<List<String>> getTrainingGroupMembers(String groupId) => _groupsApi.getTrainingGroupMembers(groupId);
+  static Future<void> addTrainingGroupMember(String groupId, String userId) =>
       _groupsApi.addTrainingGroupMember(groupId, userId);
-  static Future<void> removeTrainingGroupMember(int groupId, int userId) =>
+  static Future<void> removeTrainingGroupMember(String groupId, String userId) =>
       _groupsApi.removeTrainingGroupMember(groupId, userId);
 
   static Future<List<TrainingGroupType>> getAllTrainingGroupTypes() => _groupsApi.getAllTrainingGroupTypes();
@@ -262,41 +262,41 @@ class ApiService {
 
   // --- Chat Methods ---
   static Future<List<Chat>> getChats() => _chatApi.getChats();
-  static Future<List<Message>> getMessages(int chatId, {int limit = 50, int offset = 0}) =>
+  static Future<List<Message>> getMessages(String chatId, {int limit = 50, int offset = 0}) =>
       _chatApi.getMessages(chatId, limit: limit, offset: offset);
-  static Future<int> createOrGetPrivateChat(int peerId) => _chatApi.createOrGetPrivateChat(peerId);
-  static Future<Chat> createGroupChat(String name, List<int> memberIds) =>
+  static Future<String> createOrGetPrivateChat(String peerId) => _chatApi.createOrGetPrivateChat(peerId);
+  static Future<Chat> createGroupChat(String name, List<String> memberIds) =>
       _chatApi.createGroupChat(name, memberIds);
   static Future<Message> uploadChatAttachment(
-          {required int chatId, required List<int> fileBytes, required String fileName}) =>
+          {required String chatId, required List<int> fileBytes, required String fileName}) =>
       _chatApi.uploadChatAttachment(chatId: chatId, fileBytes: fileBytes, fileName: fileName);
 
 
   // --- Manager Methods ---
-  static Future<List<User>> getAssignedClients(int managerId) => _managerApi.getAssignedClients(managerId);
-  static Future<List<User>> getAssignedInstructors(int managerId) =>
+  static Future<List<User>> getAssignedClients(String managerId) => _managerApi.getAssignedClients(managerId);
+  static Future<List<User>> getAssignedInstructors(String managerId) =>
       _managerApi.getAssignedInstructors(managerId);
-  static Future<List<User>> getAssignedTrainers(int managerId) => _managerApi.getAssignedTrainers(managerId);
+  static Future<List<User>> getAssignedTrainers(String managerId) => _managerApi.getAssignedTrainers(managerId);
 
-  static Future<List<int>> getAssignedClientIds(int managerId) => _managerApi.getAssignedClientIds(managerId);
-  static Future<List<int>> getAssignedInstructorIds(int managerId) =>
+  static Future<List<String>> getAssignedClientIds(String managerId) => _managerApi.getAssignedClientIds(managerId);
+  static Future<List<String>> getAssignedInstructorIds(String managerId) =>
       _managerApi.getAssignedInstructorIds(managerId);
-  static Future<List<int>> getAssignedTrainerIds(int managerId) => _managerApi.getAssignedTrainerIds(managerId);
+  static Future<List<String>> getAssignedTrainerIds(String managerId) => _managerApi.getAssignedTrainerIds(managerId);
 
-  static Future<void> assignClientsToManager(int managerId, List<int> clientIds) =>
+  static Future<void> assignClientsToManager(String managerId, List<String> clientIds) =>
       _managerApi.assignClientsToManager(managerId, clientIds);
-  static Future<void> assignInstructorsToManager(int managerId, List<int> instructorIds) =>
+  static Future<void> assignInstructorsToManager(String managerId, List<String> instructorIds) =>
       _managerApi.assignInstructorsToManager(managerId, instructorIds);
-  static Future<void> assignTrainersToManager(int managerId, List<int> trainerIds) =>
+  static Future<void> assignTrainersToManager(String managerId, List<String> trainerIds) =>
       _managerApi.assignTrainersToManager(managerId, trainerIds);
 
 
   // --- Instructor Methods ---
-  static Future<List<User>> getAssignedClientsForInstructor(int instructorId) =>
+  static Future<List<User>> getAssignedClientsForInstructor(String instructorId) =>
       _instructorApi.getAssignedClientsForInstructor(instructorId);
-  static Future<List<User>> getAssignedTrainersForInstructor(int instructorId) =>
+  static Future<List<User>> getAssignedTrainersForInstructor(String instructorId) =>
       _instructorApi.getAssignedTrainersForInstructor(instructorId);
-  static Future<User> getAssignedManagerForInstructor(int instructorId) =>
+  static Future<User> getAssignedManagerForInstructor(String instructorId) =>
       _instructorApi.getAssignedManagerForInstructor(instructorId);
 
 
@@ -357,20 +357,20 @@ class ApiService {
   static Future<void> updateWorkSchedule(Map<String, dynamic> schedule) =>
       _scheduleApi.updateWorkSchedule(schedule);
 
-  static Future<Map<String, dynamic>> getRecommendation(int clientId) =>
+  static Future<Map<String, dynamic>> getRecommendation(String clientId) =>
       _recommendationApi.getRecommendation(clientId);
 
 
   // --- Admin Methods ---
-  static Future<Map<String, dynamic>> getAnthropometryDataForClient(int clientId) =>
+  static Future<Map<String, dynamic>> getAnthropometryDataForClient(String clientId) =>
       _adminApi.getAnthropometryDataForClient(clientId);
-  static Future<String> getSomatotypeProfileForClient(int clientId) =>
+  static Future<String> getSomatotypeProfileForClient(String clientId) =>
       _adminApi.getSomatotypeProfileForClient(clientId);
-  static Future<WhtrProfiles> getWhtrProfilesForClient(int clientId) =>
+  static Future<WhtrProfiles> getWhtrProfilesForClient(String clientId) =>
       _adminApi.getWhtrProfilesForClient(clientId);
   
   static Future<void> updateAnthropometryFixedForClient({
-    required int clientId,
+    required String clientId,
     required int height,
     required int wristCirc,
     required int ankleCirc,
@@ -378,7 +378,7 @@ class ApiService {
       clientId: clientId, height: height, wristCirc: wristCirc, ankleCirc: ankleCirc);
 
   static Future<void> updateAnthropometryMeasurementsForClient({
-    required int clientId,
+    required String clientId,
     required String type,
     required double weight,
     required int shouldersCirc,
@@ -395,7 +395,7 @@ class ApiService {
       hipsCirc: hipsCirc);
   
   static Future<Map<String, dynamic>> uploadAnthropometryPhotoForClient({
-    required int clientId,
+    required String clientId,
     required List<int> photoBytes,
     required String fileName,
     required String type,

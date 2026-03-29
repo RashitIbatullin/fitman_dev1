@@ -4,7 +4,7 @@ import 'dart:math';
 import '../services/api_service.dart';
 
 class ResetPasswordDialog extends StatefulWidget {
-  final int userId;
+  final String userId;
   final String userName; // New property
 
   const ResetPasswordDialog({super.key, required this.userId, required this.userName});

@@ -14,12 +14,12 @@ class GroupRepository {
 
   Future<List<TrainingGroup>> getAllTrainingGroups({
     String? searchQuery,
-    int? groupTypeId,
+    String? groupTypeId,
     bool? isActive,
     bool? isArchived,
-    int? trainerId,
-    int? instructorId,
-    int? managerId,
+    String? trainerId,
+    String? instructorId,
+    String? managerId,
   }) async {
     final conn = await _db.connection;
     final List<String> whereClauses = [];
@@ -87,7 +87,7 @@ class GroupRepository {
     }).toList();
   }
 
-  Future<TrainingGroup?> getTrainingGroupById(int id) async {
+  Future<TrainingGroup?> getTrainingGroupById(String id) async {
     final conn = await _db.connection;
     final results = await conn.execute(
       Sql.named('''
@@ -103,7 +103,7 @@ class GroupRepository {
     return TrainingGroup.fromJson(results.first.toColumnMap());
   }
 
-  Future<TrainingGroup> createTrainingGroup(TrainingGroup group, int creatorId) async {
+  Future<TrainingGroup> createTrainingGroup(TrainingGroup group, String creatorId) async {
     final conn = await _db.connection;
     final result = await conn.execute(
       Sql.named('''
@@ -144,7 +144,7 @@ class GroupRepository {
     return TrainingGroup.fromJson(result.first.toColumnMap());
   }
 
-  Future<TrainingGroup> updateTrainingGroup(TrainingGroup group, int updaterId) async {
+  Future<TrainingGroup> updateTrainingGroup(TrainingGroup group, String updaterId) async {
     final conn = await _db.connection;
     final result = await conn.execute(
       Sql.named('''
@@ -191,7 +191,7 @@ class GroupRepository {
     return TrainingGroup.fromJson(result.first.toColumnMap());
   }
 
-  Future<void> deleteTrainingGroup(int id, int archiverId) async {
+  Future<void> deleteTrainingGroup(String id, String archiverId) async {
     final conn = await _db.connection;
     await conn.execute(
       Sql.named('''
@@ -243,7 +243,7 @@ class GroupRepository {
     }).toList();
   }
 
-  Future<AnalyticGroup?> getAnalyticGroupById(int id) async {
+  Future<AnalyticGroup?> getAnalyticGroupById(String id) async {
     final conn = await _db.connection;
     final results = await conn.execute(
       Sql.named('SELECT * FROM analytic_groups WHERE id = @id AND archived_at IS NULL'),
@@ -253,7 +253,7 @@ class GroupRepository {
     return AnalyticGroup.fromJson(results.first.toColumnMap());
   }
 
-  Future<AnalyticGroup> createAnalyticGroup(AnalyticGroup group, int creatorId) async {
+  Future<AnalyticGroup> createAnalyticGroup(AnalyticGroup group, String creatorId) async {
     final conn = await _db.connection;
     final result = await conn.execute(
       Sql.named('''
@@ -282,7 +282,7 @@ class GroupRepository {
     return AnalyticGroup.fromJson(result.first.toColumnMap());
   }
 
-  Future<AnalyticGroup> updateAnalyticGroup(AnalyticGroup group, int updaterId) async {
+  Future<AnalyticGroup> updateAnalyticGroup(AnalyticGroup group, String updaterId) async {
     final conn = await _db.connection;
     final result = await conn.execute(
       Sql.named('''
@@ -313,7 +313,7 @@ class GroupRepository {
     return AnalyticGroup.fromJson(result.first.toColumnMap());
   }
 
-  Future<void> deleteAnalyticGroup(int id, int archiverId) async {
+  Future<void> deleteAnalyticGroup(String id, String archiverId) async {
     final conn = await _db.connection;
     await conn.execute(
       Sql.named('''
@@ -329,16 +329,16 @@ class GroupRepository {
 
   // --- Training Group Member Methods ---
 
-  Future<List<int>> getTrainingGroupMembers(int groupId) async {
+  Future<List<String>> getTrainingGroupMembers(String groupId) async {
     final conn = await _db.connection;
     final results = await conn.execute(
       Sql.named('SELECT user_id FROM training_group_members WHERE training_group_id = @groupId'),
       parameters: {'groupId': groupId},
     );
-    return results.map((row) => row[0] as int).toList();
+    return results.map((row) => row[0] as String).toList();
   }
 
-  Future<void> addTrainingGroupMember(int groupId, int userId, int addedById) async {
+  Future<void> addTrainingGroupMember(String groupId, String userId, String addedById) async {
     final conn = await _db.connection;
     await conn.execute(
       Sql.named('''
@@ -350,7 +350,7 @@ class GroupRepository {
     );
   }
 
-  Future<void> removeTrainingGroupMember(int groupId, int userId) async {
+  Future<void> removeTrainingGroupMember(String groupId, String userId) async {
     final conn = await _db.connection;
     await conn.execute(
       Sql.named('''
@@ -363,7 +363,7 @@ class GroupRepository {
 
   // --- Group Schedule Slot Methods ---
 
-  Future<List<GroupSchedule>> getGroupSchedules(int groupId) async {
+  Future<List<GroupSchedule>> getGroupSchedules(String groupId) async {
     final conn = await _db.connection;
     final results = await conn.execute(
       Sql.named('SELECT * FROM group_schedule_slots WHERE group_id = @groupId AND is_active = TRUE'),
@@ -415,7 +415,7 @@ class GroupRepository {
     return GroupSchedule.fromJson(result.first.toColumnMap());
   }
 
-  Future<void> deleteGroupSchedule(int id) async {
+  Future<void> deleteGroupSchedule(String id) async {
     final conn = await _db.connection;
     await conn.execute(
       Sql.named('DELETE FROM group_schedule_slots WHERE id = @id'),

@@ -1,5 +1,5 @@
 class TrainingPlan {
-  final int id;
+  final String id;
   final String name;
   final String goal;
   final String level;
@@ -19,7 +19,7 @@ class TrainingPlan {
 
   factory TrainingPlan.fromMap(Map<String, dynamic> map) {
     return TrainingPlan(
-      id: map['id'] as int,
+      id: map['id'] as String,
       name: map['name'].toString(),
       goal: map['goal'].toString(),
       level: map['level'].toString(),

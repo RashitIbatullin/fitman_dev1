@@ -13,7 +13,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fitman_app/providers/auth_provider.dart';
 
 class PhotoComparisonScreen extends ConsumerStatefulWidget {
-  final int? clientId;
+  final String? clientId;
   final String? initialStartPhotoUrl;
   final String? initialFinishPhotoUrl;
   final DateTime? initialStartPhotoDateTime;
@@ -445,7 +445,7 @@ class _PhotoComparisonScreenState extends ConsumerState<PhotoComparisonScreen> {
 class _PhotoView extends StatefulWidget {
   final String? photoUrl;
   final String type;
-  final int? clientId;
+  final String? clientId;
   final void Function(String type, String newUrl, DateTime newDateTime)
       onPhotoSaved;
 

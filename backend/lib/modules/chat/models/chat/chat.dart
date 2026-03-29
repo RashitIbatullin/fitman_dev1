@@ -4,10 +4,10 @@ enum ChatType {
 }
 
 class Chat {
-  final int id;
+  final String id;
   final String? name;
   final ChatType type;
-  final int? createdBy;
+  final String? createdBy;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -22,12 +22,12 @@ class Chat {
 
   factory Chat.fromJson(Map<String, dynamic> json) {
     return Chat(
-      id: json['id'],
-      name: json['name'],
-      type: ChatType.values[json['type']],
-      createdBy: json['created_by'],
-      createdAt: DateTime.parse(json['created_at']),
-      updatedAt: DateTime.parse(json['updated_at']),
+      id: json['id'].toString(),
+      name: json['name']?.toString(),
+      type: ChatType.values[json['type'] as int],
+      createdBy: json['created_by']?.toString(),
+      createdAt: DateTime.parse(json['created_at'] as String),
+      updatedAt: DateTime.parse(json['updated_at'] as String),
     );
   }
 

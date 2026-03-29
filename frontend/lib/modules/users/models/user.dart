@@ -7,7 +7,7 @@ import 'client_profile.dart';
 
 // --- Main User Model ---
 class User {
-  final int id;
+  final String id;
   final String email;
   final String passwordHash;
   final String firstName;
@@ -57,7 +57,7 @@ class User {
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
-      id: json['id'],
+      id: json['id'].toString(),
       email: json['email'] ?? json['login'],
       passwordHash: json['passwordHash'] ?? '',
       firstName: json['firstName'] ?? '',
@@ -121,7 +121,7 @@ class User {
   }
 
   User copyWith({
-    int? id,
+    String? id,
     String? email,
     String? passwordHash,
     String? firstName,
@@ -275,7 +275,7 @@ class CreateUserRequest {
 }
 
 class UpdateUserRequest {
-  final int id;
+  final String id;
   final String? email;
   final String? firstName;
   final String? lastName;

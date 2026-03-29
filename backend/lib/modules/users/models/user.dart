@@ -6,7 +6,7 @@ import '../../employees/models/trainer_profile.dart';
 import '../../../models/client_profile.dart';
 
 class User {
-  final int id;
+  final String id;
   final String email;
   final String passwordHash;
   final String firstName;
@@ -63,7 +63,7 @@ class User {
 
   factory User.fromMap(Map<String, dynamic> map) {
     return User(
-      id: map['id'] as int,
+      id: map['id'].toString(),
       email: map['email'].toString(),
       passwordHash: map['password_hash'].toString(),
       firstName: map['first_name'].toString(),

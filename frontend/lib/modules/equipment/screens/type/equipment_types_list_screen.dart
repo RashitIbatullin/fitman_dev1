@@ -286,12 +286,7 @@ class ArchivedByInfo extends ConsumerWidget {
     if (userId == null) {
       return _buildInfoRow(context, 'Кто:', 'N/A');
     }
-    final userIdInt = int.tryParse(userId!);
-    if (userIdInt == null) {
-      return _buildInfoRow(context, 'Кто:', 'Invalid ID');
-    }
-
-    final userAsync = ref.watch(userByIdProvider(userIdInt));
+    final userAsync = ref.watch(userByIdProvider(userId!));
 
     return userAsync.when(
       data: (user) => _buildInfoRow(context, 'Кто:', user.shortName),

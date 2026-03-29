@@ -1,5 +1,5 @@
 class GoalTraining {
-  final int id;
+  final String id;
   final String name;
 
   GoalTraining({required this.id, required this.name});

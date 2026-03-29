@@ -32,7 +32,7 @@ class TrainingGroupCard extends ConsumerWidget {
         return _buildInfoRow(context, Icons.person, 'Тренер:', 'Ошибка');
       }
 
-      User? findUser(int? userId) {
+      User? findUser(String? userId) {
         if (userId == null) return null;
         try {
           return usersState.users.firstWhere((user) => user.id == userId);

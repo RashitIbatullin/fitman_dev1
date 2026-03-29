@@ -50,10 +50,10 @@ class EquipmentTypeRepositoryImpl implements EquipmentTypeRepository {
       Sql.named('''
         INSERT INTO equipment_types (
           name, description, category, weight_range, dimensions, is_mobile, schematic_icon,
-          company_id, created_at, updated_at, created_by, updated_by
+          created_by, updated_by
         ) VALUES (
           @name, @description, @category, @weightRange, @dimensions, @isMobile, @schematicIcon,
-          -1, NOW(), NOW(), @createdBy, @updatedBy
+          @createdBy, @updatedBy
         ) RETURNING id;
       '''),
       parameters: {
@@ -69,8 +69,8 @@ class EquipmentTypeRepositoryImpl implements EquipmentTypeRepository {
       },
     );
 
-    final newId = result.first.first as int;
-    return await getById(newId.toString());
+    final newId = result.first.first as String;
+    return await getById(newId);
   }
 
   @override
@@ -103,7 +103,7 @@ class EquipmentTypeRepositoryImpl implements EquipmentTypeRepository {
     final conn = await _db.connection;
     final result = await conn.execute(
       Sql.named('SELECT * FROM equipment_types WHERE id = @id'),
-      parameters: {'id': int.parse(id)},
+      parameters: {'id': id},
     );
 
     if (result.isEmpty) {

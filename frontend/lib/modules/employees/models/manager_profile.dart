@@ -6,7 +6,7 @@ part 'manager_profile.g.dart';
 @freezed
 class ManagerProfile with _$ManagerProfile {
   const factory ManagerProfile({
-    required int userId,
+    required String userId,
     @Default(false) bool isDuty,
   }) = _ManagerProfile;
 

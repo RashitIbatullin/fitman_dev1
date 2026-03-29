@@ -3,10 +3,6 @@
 -- для системы "Фитнес-менеджер" (FitMan)
 -- ============================================
 
--- ============================================
--- УДАЛЕНИЕ СУЩЕСТВУЮЩИХ ТАБЛИЦ (если они созданы)
--- ============================================
-
 DROP TABLE IF EXISTS support_staff CASCADE;
 DROP TABLE IF EXISTS rooms CASCADE;
 DROP TABLE IF EXISTS buildings CASCADE;
@@ -24,361 +20,263 @@ DROP TABLE IF EXISTS types_exercis CASCADE;
 DROP TABLE IF EXISTS equipment_types CASCADE;
 DROP TABLE IF EXISTS kinds_exercis CASCADE;
 DROP TABLE IF EXISTS types_body_build CASCADE;
-DROP TABLE IF EXISTS goals_training CASCADE;
-DROP TABLE IF EXISTS levels_training CASCADE;
 DROP TABLE IF EXISTS kinds_activity_client CASCADE;
 
-
--- Отключаем проверку внешних ключей для удобства
-SET session_replication_role = 'replica';
-
--- ============================================
 -- 1. ТАБЛИЦЫ ДЛЯ УПРАЖНЕНИЙ И ПЛАНОВ ТРЕНИРОВОК
--- ============================================
 
--- Каталог "Виды активности клиента"
 CREATE TABLE kinds_activity_client (
-  id BIGSERIAL PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name VARCHAR(100) NOT NULL,
   coeff_activity REAL NOT NULL DEFAULT 1.2,
-  
-  -- Системные поля
-  company_id BIGINT DEFAULT -1,
+  company_id UUID DEFAULT '00000000-0000-0000-0000-000000000000',
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
-  created_by BIGINT REFERENCES users(id),
-  updated_by BIGINT REFERENCES users(id),
+  created_by UUID REFERENCES users(id),
+  updated_by UUID REFERENCES users(id),
   archived_at TIMESTAMPTZ,
-  archived_by BIGINT REFERENCES users(id),
+  archived_by UUID REFERENCES users(id),
   note VARCHAR(100)
 );
 
--- Каталог "Уровни фитнес-подготовки"
-CREATE TABLE levels_training (
-  id BIGSERIAL PRIMARY KEY,
-  name VARCHAR(20) NOT NULL,
-  
-  -- Системные поля
-  company_id BIGINT DEFAULT -1,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW(),
-  created_by BIGINT REFERENCES users(id),
-  updated_by BIGINT REFERENCES users(id),
-  archived_at TIMESTAMPTZ,
-  archived_by BIGINT REFERENCES users(id),
-  note VARCHAR(100)
-);
-
--- Каталог "Цели тренировок"
-CREATE TABLE goals_training (
-  id BIGSERIAL PRIMARY KEY,
-  name VARCHAR(20) NOT NULL,
-  
-  -- Системные поля
-  company_id BIGINT DEFAULT -1,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW(),
-  created_by BIGINT REFERENCES users(id),
-  updated_by BIGINT REFERENCES users(id),
-  archived_at TIMESTAMPTZ,
-  archived_by BIGINT REFERENCES users(id),
-  note VARCHAR(100)
-);
-
--- Каталог "Типы телосложения"
 CREATE TABLE types_body_build (
-  id BIGSERIAL PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name VARCHAR(20) NOT NULL,
   description VARCHAR(200),
-  gender VARCHAR(20) NOT NULL, -- 'M', 'Ж', 'ALL'
+  gender VARCHAR(20) NOT NULL,
   wrist_max REAL NOT NULL,
   wrist_min REAL NOT NULL,
   ankle_max REAL NOT NULL,
   ankle_min REAL NOT NULL,
-  
-  -- Системные поля
-  company_id BIGINT DEFAULT -1,
+  company_id UUID DEFAULT '00000000-0000-0000-0000-000000000000',
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
-  created_by BIGINT REFERENCES users(id),
-  updated_by BIGINT REFERENCES users(id),
+  created_by UUID REFERENCES users(id),
+  updated_by UUID REFERENCES users(id),
   archived_at TIMESTAMPTZ,
-  archived_by BIGINT REFERENCES users(id),
+  archived_by UUID REFERENCES users(id),
   note VARCHAR(100)
 );
 
--- Каталог "Виды Упражнений"
 CREATE TABLE kinds_exercis (
-  id BIGSERIAL PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name VARCHAR(100) NOT NULL,
-  
-  -- Системные поля
-  company_id BIGINT DEFAULT -1,
+  company_id UUID DEFAULT '00000000-0000-0000-0000-000000000000',
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
-  created_by BIGINT REFERENCES users(id),
-  updated_by BIGINT REFERENCES users(id),
+  created_by UUID REFERENCES users(id),
+  updated_by UUID REFERENCES users(id),
   archived_at TIMESTAMPTZ,
-  archived_by BIGINT REFERENCES users(id),
+  archived_by UUID REFERENCES users(id),
   note VARCHAR(100)
 );
 
--- Таблица типов оборудования (для связи с упражнениями)
 CREATE TABLE equipment_types (
-  id BIGSERIAL PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name VARCHAR(255) NOT NULL,
   description TEXT,
-  
-  -- Классификация
-  category SMALLINT NOT NULL,      -- EquipmentCategory enum (0:cardio, 1:strength, 2:freeWeights, 3:functional, 4:accessories, 5:measurement, 6:other)
-  
-  -- Характеристики
+  category SMALLINT NOT NULL,
   weight_range VARCHAR(50),
   dimensions VARCHAR(100),
-
   is_mobile BOOLEAN DEFAULT true,
-  
-    -- Медиа
   schematic_icon VARCHAR(50),
-
-    -- Системные поля
-  company_id BIGINT DEFAULT -1,
+  company_id UUID DEFAULT '00000000-0000-0000-0000-000000000000',
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
-  created_by BIGINT REFERENCES users(id),
-  updated_by BIGINT REFERENCES users(id),
+  created_by UUID REFERENCES users(id),
+  updated_by UUID REFERENCES users(id),
   archived_at TIMESTAMPTZ,
-  archived_by BIGINT REFERENCES users(id),
+  archived_by UUID REFERENCES users(id),
   archived_reason TEXT,
   note VARCHAR(100)
 );
 
--- Каталог "Типы Упражнений"
 CREATE TABLE types_exercis (
-  id BIGSERIAL PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name VARCHAR(100) NOT NULL,
-  kind_exercis_id BIGINT REFERENCES kinds_exercis(id),
-  equipment_type_id BIGINT REFERENCES equipment_types(id),
-  
-  -- Системные поля
-  company_id BIGINT DEFAULT -1,
+  kind_exercis_id UUID REFERENCES kinds_exercis(id),
+  equipment_type_id UUID REFERENCES equipment_types(id),
+  company_id UUID DEFAULT '00000000-0000-0000-0000-000000000000',
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
-  created_by BIGINT REFERENCES users(id),
-  updated_by BIGINT REFERENCES users(id),
+  created_by UUID REFERENCES users(id),
+  updated_by UUID REFERENCES users(id),
   archived_at TIMESTAMPTZ,
-  archived_by BIGINT REFERENCES users(id),
+  archived_by UUID REFERENCES users(id),
   note VARCHAR(100)
 );
 
--- Каталог "Упражнения" (шаблоны)
 CREATE TABLE exercises_templates (
-  id BIGSERIAL PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name VARCHAR(100) NOT NULL,
   repeat_qty INT,
-  duration_exec REAL,  -- Длительность проведения в минутах
-  duration_rest REAL,  -- Длительность отдыха после упражнения в минутах
-  calories_out REAL,   -- Расход калорий в калориях
+  duration_exec REAL,
+  duration_rest REAL,
+  calories_out REAL,
   is_group BOOLEAN DEFAULT false,
-  type_exercis_id BIGINT REFERENCES types_exercis(id),
-  
-  -- Системные поля
-  company_id BIGINT DEFAULT -1,
+  type_exercis_id UUID REFERENCES types_exercis(id),
+  company_id UUID DEFAULT '00000000-0000-0000-0000-000000000000',
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
-  created_by BIGINT REFERENCES users(id),
-  updated_by BIGINT REFERENCES users(id),
+  created_by UUID REFERENCES users(id),
+  updated_by UUID REFERENCES users(id),
   archived_at TIMESTAMPTZ,
-  archived_by BIGINT REFERENCES users(id),
+  archived_by UUID REFERENCES users(id),
   note VARCHAR(100)
 );
 
--- Каталог "Набор упражнений" (шаблоны)
 CREATE TABLE sets_exercises_templates (
-  id BIGSERIAL PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name VARCHAR(100) NOT NULL,
-  level_training_id BIGINT REFERENCES levels_training(id),
-  
-  -- Системные поля
-  company_id BIGINT DEFAULT -1,
+  level_training_id UUID REFERENCES levels_training(id),
+  description TEXT,
+  company_id UUID DEFAULT '00000000-0000-0000-0000-000000000000',
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
-  created_by BIGINT REFERENCES users(id),
-  updated_by BIGINT REFERENCES users(id),
+  created_by UUID REFERENCES users(id),
+  updated_by UUID REFERENCES users(id),
   archived_at TIMESTAMPTZ,
-  archived_by BIGINT REFERENCES users(id),
+  archived_by UUID REFERENCES users(id),
   note VARCHAR(100)
 );
 
--- Таблица связи "Набор упражнений - Упражнения"
 CREATE TABLE set_exercises_templates_exercis_templates (
-  id BIGSERIAL PRIMARY KEY,
-  set_exercises_template_id BIGINT NOT NULL REFERENCES sets_exercises_templates(id) ON DELETE CASCADE,
-  exercis_template_id BIGINT NOT NULL REFERENCES exercises_templates(id) ON DELETE CASCADE,
-  
-  -- Системные поля
-  company_id BIGINT DEFAULT -1,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  set_exercises_template_id UUID NOT NULL REFERENCES sets_exercises_templates(id) ON DELETE CASCADE,
+  exercis_template_id UUID NOT NULL REFERENCES exercises_templates(id) ON DELETE CASCADE,
+  company_id UUID DEFAULT '00000000-0000-0000-0000-000000000000',
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
-  created_by BIGINT REFERENCES users(id),
-  updated_by BIGINT REFERENCES users(id),
+  created_by UUID REFERENCES users(id),
+  updated_by UUID REFERENCES users(id),
   archived_at TIMESTAMPTZ,
-  archived_by BIGINT REFERENCES users(id),
-  
+  archived_by UUID REFERENCES users(id),
   UNIQUE(set_exercises_template_id, exercis_template_id)
 );
 
--- Каталог "Планы тренировок" (шаблоны)
 CREATE TABLE training_plan_templates (
-  id BIGSERIAL PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name VARCHAR(100) NOT NULL,
-  goal_training_id BIGINT REFERENCES goals_training(id),
-  
-  -- Системные поля
-  company_id BIGINT DEFAULT -1,
+  goal_training_id UUID REFERENCES goals_training(id),
+  company_id UUID DEFAULT '00000000-0000-0000-0000-000000000000',
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
-  created_by BIGINT REFERENCES users(id),
-  updated_by BIGINT REFERENCES users(id),
+  created_by UUID REFERENCES users(id),
+  updated_by UUID REFERENCES users(id),
   archived_at TIMESTAMPTZ,
-  archived_by BIGINT REFERENCES users(id),
+  archived_by UUID REFERENCES users(id),
   note VARCHAR(100)
 );
 
--- Таблица связи "Планы тренировок – Наборы упражнений"
 CREATE TABLE training_plan__templates_set_exercises_templates (
-  id BIGSERIAL PRIMARY KEY,
-  training_plan_template_id BIGINT NOT NULL REFERENCES training_plan_templates(id) ON DELETE CASCADE,
-  set_exercises_template_id BIGINT NOT NULL REFERENCES sets_exercises_templates(id) ON DELETE CASCADE,
-  
-  -- Системные поля
-  company_id BIGINT DEFAULT -1,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  training_plan_template_id UUID NOT NULL REFERENCES training_plan_templates(id) ON DELETE CASCADE,
+  set_exercises_template_id UUID NOT NULL REFERENCES sets_exercises_templates(id) ON DELETE CASCADE,
+  company_id UUID DEFAULT '00000000-0000-0000-0000-000000000000',
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
-  created_by BIGINT REFERENCES users(id),
-  updated_by BIGINT REFERENCES users(id),
+  created_by UUID REFERENCES users(id),
+  updated_by UUID REFERENCES users(id),
   archived_at TIMESTAMPTZ,
-  archived_by BIGINT REFERENCES users(id),
-  
+  archived_by UUID REFERENCES users(id),
   UNIQUE(training_plan_template_id, set_exercises_template_id)
 );
 
--- Таблица рекомендаций по тренировкам
 CREATE TABLE training_recommendations (
-  id BIGSERIAL PRIMARY KEY,
-  body_type VARCHAR(50) NOT NULL,  -- тип фигуры
-  goal_training_id BIGINT REFERENCES goals_training(id),
-  level_trainig_id BIGINT REFERENCES levels_training(id),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  body_type VARCHAR(50) NOT NULL,
+  goal_training_id UUID REFERENCES goals_training(id),
+  level_training_id UUID REFERENCES levels_training(id),
   recommendation_text_trainer TEXT NOT NULL,
   recommendation_text_client TEXT NOT NULL,
-  
-  -- Системные поля
-  company_id BIGINT DEFAULT -1,
+  company_id UUID DEFAULT '00000000-0000-0000-0000-000000000000',
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
-  created_by BIGINT REFERENCES users(id),
-  updated_by BIGINT REFERENCES users(id),
+  created_by UUID REFERENCES users(id),
+  updated_by UUID REFERENCES users(id),
   archived_at TIMESTAMPTZ,
-  archived_by BIGINT REFERENCES users(id),
+  archived_by UUID REFERENCES users(id),
   note VARCHAR(100)
 );
 
--- Таблица формул расчета BMR
 CREATE TABLE bmr_formulas (
-  id BIGSERIAL PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name VARCHAR(100) NOT NULL,
   formula TEXT NOT NULL,
   for_men BOOLEAN DEFAULT true,
   for_women BOOLEAN DEFAULT true,
   is_active BOOLEAN DEFAULT true,
-  
-  -- Системные поля
-  company_id BIGINT DEFAULT -1,
+  company_id UUID DEFAULT '00000000-0000-0000-0000-000000000000',
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
-  created_by BIGINT REFERENCES users(id),
-  updated_by BIGINT REFERENCES users(id),
+  created_by UUID REFERENCES users(id),
+  updated_by UUID REFERENCES users(id),
   archived_at TIMESTAMPTZ,
-  archived_by BIGINT REFERENCES users(id),
+  archived_by UUID REFERENCES users(id),
   note VARCHAR(100)
 );
 
--- ============================================
 -- 2. ТАБЛИЦЫ ИНДИВИДУАЛЬНЫХ НАЗНАЧЕНИЙ (клиентские планы)
--- ============================================
 
--- Индивидуальные планы тренировок клиентов
 CREATE TABLE client_training_plans (
-  id BIGSERIAL PRIMARY KEY,
-  user_id BIGINT NOT NULL REFERENCES users(id),
-  training_plan_template_id BIGINT REFERENCES training_plan_templates(id),
-  assigned_by BIGINT REFERENCES users(id),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES users(id),
+  training_plan_template_id UUID REFERENCES training_plan_templates(id),
+  assigned_by UUID REFERENCES users(id),
   assigned_at TIMESTAMPTZ DEFAULT NOW(),
   is_active BOOLEAN DEFAULT true,
   goal VARCHAR(255),
   notes TEXT,
-  
-  -- Системные поля
-  company_id BIGINT DEFAULT -1,
+  company_id UUID DEFAULT '00000000-0000-0000-0000-000000000000',
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
-  created_by BIGINT REFERENCES users(id),
-  updated_by BIGINT REFERENCES users(id),
+  created_by UUID REFERENCES users(id),
+  updated_by UUID REFERENCES users(id),
   archived_at TIMESTAMPTZ,
-  archived_by BIGINT REFERENCES users(id),
+  archived_by UUID REFERENCES users(id),
   note VARCHAR(100)
 );
 
--- Индивидуальные наборы упражнений клиентов
 CREATE TABLE client_set_exercises (
-  id BIGSERIAL PRIMARY KEY,
-  client_training_plan_id BIGINT NOT NULL REFERENCES client_training_plans(id) ON DELETE CASCADE,
-  set_exercise_template_id BIGINT REFERENCES sets_exercises_templates(id),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  client_training_plan_id UUID NOT NULL REFERENCES client_training_plans(id) ON DELETE CASCADE,
+  set_exercise_template_id UUID REFERENCES sets_exercises_templates(id),
   order_num INT NOT NULL DEFAULT 0,
   is_active BOOLEAN DEFAULT true,
   repeats INT,
   rest_after_set REAL,
-  
-  -- Системные поля
-  company_id BIGINT DEFAULT -1,
+  company_id UUID DEFAULT '00000000-0000-0000-0000-000000000000',
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
-  created_by BIGINT REFERENCES users(id),
-  updated_by BIGINT REFERENCES users(id),
+  created_by UUID REFERENCES users(id),
+  updated_by UUID REFERENCES users(id),
   archived_at TIMESTAMPTZ,
-  archived_by BIGINT REFERENCES users(id),
+  archived_by UUID REFERENCES users(id),
   note VARCHAR(100)
 );
 
--- Индивидуальные упражнения клиентов
 CREATE TABLE client_exercises (
-  id BIGSERIAL PRIMARY KEY,
-  client_set_exercise_id BIGINT NOT NULL REFERENCES client_set_exercises(id) ON DELETE CASCADE,
-  exercise_template_id BIGINT REFERENCES exercises_templates(id),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  client_set_exercise_id UUID NOT NULL REFERENCES client_set_exercises(id) ON DELETE CASCADE,
+  exercise_template_id UUID REFERENCES exercises_templates(id),
   order_num INT NOT NULL DEFAULT 0,
   custom_repeat_qty INT,
   custom_duration_exec REAL,
   custom_duration_rest REAL,
   custom_notes TEXT,
-  
-  -- Системные поля
-  company_id BIGINT DEFAULT -1,
+  company_id UUID DEFAULT '00000000-0000-0000-0000-000000000000',
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
-  created_by BIGINT REFERENCES users(id),
-  updated_by BIGINT REFERENCES users(id),
+  created_by UUID REFERENCES users(id),
+  updated_by UUID REFERENCES users(id),
   archived_at TIMESTAMPTZ,
-  archived_by BIGINT REFERENCES users(id),
+  archived_by UUID REFERENCES users(id),
   note VARCHAR(100)
 );
 
--- ============================================
 -- 3. ТАБЛИЦЫ ПОМЕЩЕНИЙ И ПЕРСОНАЛА
--- ============================================
 
--- Основная таблица вспомогательного персонала
 CREATE TABLE support_staff (
-  id BIGSERIAL PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   first_name VARCHAR(100) NOT NULL,
   last_name VARCHAR(100) NOT NULL,
   middle_name VARCHAR(100),
@@ -391,174 +289,60 @@ CREATE TABLE support_staff (
   contract_number VARCHAR(100),
   contract_expiry_date DATE,
   notes TEXT,
-  company_id BIGINT DEFAULT -1,
+  company_id UUID DEFAULT '00000000-0000-0000-0000-000000000000',
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
-  created_by BIGINT REFERENCES users(id),
-  updated_by BIGINT REFERENCES users(id),
+  created_by UUID REFERENCES users(id),
+  updated_by UUID REFERENCES users(id),
   archived_at TIMESTAMPTZ,
-  archived_by BIGINT REFERENCES users(id),
+  archived_by UUID REFERENCES users(id),
   archived_reason TEXT
 );
 
--- Здания
 CREATE TABLE buildings (
-  id BIGSERIAL PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name VARCHAR(255) NOT NULL,
   address TEXT,
-  
-  -- Системные поля
-  company_id BIGINT DEFAULT -1,
+  company_id UUID DEFAULT '00000000-0000-0000-0000-000000000000',
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
-  created_by BIGINT REFERENCES users(id),
-  updated_by BIGINT REFERENCES users(id),
+  created_by UUID REFERENCES users(id),
+  updated_by UUID REFERENCES users(id),
   archived_at TIMESTAMPTZ,
-  archived_by BIGINT REFERENCES users(id),
+  archived_by UUID REFERENCES users(id),
   archived_reason TEXT,
   note VARCHAR(100)
 );
 
--- Помещения (залы)
 CREATE TABLE rooms (
-  id BIGSERIAL PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name VARCHAR(255) NOT NULL,
   description TEXT,
-  room_number VARCHAR(50), -- New field for room/cabinet number
-  type SMALLINT NOT NULL,  -- RoomType enum (0:groupHall, 1:cardioZone, 2:strengthZone, 3:mixedZone, 4:studio, 5:boxingRing, 6:pool, 7:lockerRoom, 8:reception, 9:office, 10:other)
-  
-  -- Локация
+  room_number VARCHAR(50),
+  type SMALLINT NOT NULL,
   floor INT,
-  building_id BIGINT REFERENCES buildings(id),
-  
-  -- Характеристики
+  building_id UUID REFERENCES buildings(id),
   max_capacity INT NOT NULL DEFAULT 30,
   area DECIMAL(5,2),
-  
-  -- Расписание доступности
   open_time TIME,
   close_time TIME,
-  working_days JSONB,  -- Массив дней недели [1,2,3,4,5,6,7]
-  
-  -- Статус
+  working_days JSONB,
   is_active BOOLEAN DEFAULT true,
   deactivate_reason TEXT,
   deactivate_at TIMESTAMPTZ,
-  deactivate_by BIGINT REFERENCES users(id),
-  
-  -- Файлы
+  deactivate_by UUID REFERENCES users(id),
   photo_urls JSONB,
   floor_plan_url TEXT,
-  
-  -- Системные поля
-  company_id BIGINT DEFAULT -1,
+  company_id UUID DEFAULT '00000000-0000-0000-0000-000000000000',
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
-  created_by BIGINT REFERENCES users(id),
-  updated_by BIGINT REFERENCES users(id),
+  created_by UUID REFERENCES users(id),
+  updated_by UUID REFERENCES users(id),
   archived_at TIMESTAMPTZ,
-  archived_by BIGINT REFERENCES users(id),
+  archived_by UUID REFERENCES users(id),
   archived_reason TEXT,
   note VARCHAR(100)
 );
-
--- ============================================
--- 4. СОЗДАНИЕ ИНДЕКСОВ ДЛЯ ПРОИЗВОДИТЕЛЬНОСТИ
--- ============================================
-
--- Индексы для kinds_activity_client, levels_training, и т.д.
-CREATE INDEX idx_kinds_activity_client_name ON kinds_activity_client(name);
-CREATE INDEX idx_levels_training_name ON levels_training(name);
-CREATE INDEX idx_goals_training_name ON goals_training(name);
-
--- Индексы для equipment_types
-CREATE INDEX idx_equipment_types_category ON equipment_types(category);
-CREATE INDEX idx_equipment_types_active ON equipment_types(company_id) WHERE archived_at IS NULL;
-
--- ... и так далее для всех таблиц, кроме оборудования
-
--- Индексы для rooms, buildings
-CREATE INDEX idx_rooms_type ON rooms(type) WHERE is_active = true;
-CREATE INDEX idx_buildings_name ON buildings(name);
-
-
--- ============================================
--- 5. ИНИЦИАЛИЗАЦИЯ НАЧАЛЬНЫМИ ДАННЫМИ
--- ============================================
-
--- Включаем проверку внешних ключей
-SET session_replication_role = 'origin';
-
--- 5.1. Заполняем здания
-INSERT INTO buildings (id, name, address, note) VALUES
-(1, 'Главный корпус', 'ул. Спортивная, д. 1', 'Основное здание с тренажерными залами и студиями'),
-(2, 'Водный комплекс', 'ул. Спортивная, д. 1, стр. 2', 'Здание с бассейном и сауной')
-ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, address = EXCLUDED.address, note = EXCLUDED.note;
-DO $$ BEGIN
-    PERFORM setval('buildings_id_seq', (SELECT MAX(id) FROM buildings), true);
-END $$;
-
--- 5.2. Заполняем помещения
-INSERT INTO rooms (id, name, building_id, type, floor, max_capacity, area, is_active, note) VALUES
-(1, 'Ресепшен', 1, 9, 1, 20, 50.0, true, 'Зона входа и регистрации'),
-(2, 'Кардио-зона', 1, 1, 2, 25, 150.0, true, 'Зона с кардио-тренажерами'),
-(3, 'Силовая зона', 1, 2, 2, 30, 200.0, true, 'Зона со свободными весами и силовыми тренажерами'),
-(4, 'Зал групповых программ', 1, 0, 3, 20, 100.0, true, 'Для занятий аэробикой и танцами'),
-(5, 'Студия йоги', 1, 4, 3, 15, 80.0, true, 'Для занятий йогой и пилатесом'),
-(6, 'Бассейн 25м', 2, 6, 1, 40, 300.0, true, 'Плавание, аквааэробика'),
-(7, 'Сауна', 2, 7, 1, 10, 20.0, true, 'Финская сауна')
-ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, building_id = EXCLUDED.building_id, type = EXCLUDED.type, floor = EXCLUDED.floor;
-DO $$ BEGIN
-    PERFORM setval('rooms_id_seq', (SELECT MAX(id) FROM rooms), true);
-END $$;
-
--- 5.3. Заполняем вспомогательный персонал
-INSERT INTO support_staff (id, first_name, last_name, phone, email, employment_type, category, can_maintain_equipment, company_name, notes, created_by, updated_by) VALUES
-(1, 'Петр', 'Сергеев', '+79991112233', 'p.sergeev@techservice.com', 2, 0, true, 'ООО "ТехСервис"', 'Внешний подрядчик по ремонту кардио-оборудования', 1, 1)
-ON CONFLICT (id) DO UPDATE SET first_name = EXCLUDED.first_name, last_name = EXCLUDED.last_name, company_name = EXCLUDED.company_name, updated_at = NOW(), updated_by = 1;
-DO $$ BEGIN PERFORM setval('support_staff_id_seq', (SELECT MAX(id) FROM support_staff), true); END $$;
-
--- 5.4. Заполняем компетенции
-DO $$
-DECLARE
-    trainer_user_id BIGINT;
-    admin_user_id BIGINT;
-    support_staff_id BIGINT;
-BEGIN
-    SELECT id INTO trainer_user_id FROM users WHERE login = 'trainer@fitman.ru';
-    SELECT id INTO admin_user_id FROM users WHERE login = 'admin@fitman.ru';
-    SELECT id INTO support_staff_id FROM support_staff WHERE first_name = 'Петр' AND last_name = 'Сергеев';
-
-    -- Назначаем компетенцию внешнему технику
-    INSERT INTO competencies (competent_id, executor_type, name, level, certificate_url, verified_at, verified_by, created_by, updated_by) VALUES
-    (support_staff_id, 1, 'Обслуживание кардио-тренажеров Matrix', 3, 'http://certs.com/cert12345', '2023-01-01', admin_user_id, admin_user_id, admin_user_id)
-    ON CONFLICT (competent_id, executor_type, name) DO UPDATE SET level = EXCLUDED.level, updated_at = NOW(), updated_by = admin_user_id;
-
-    -- Назначаем компетенцию штатному тренеру
-    INSERT INTO competencies (competent_id, executor_type, name, level, verified_at, verified_by, created_by, updated_by) VALUES
-    (trainer_user_id, 0, 'Базовое обслуживание силовых тренажеров', 2, '2023-02-01', admin_user_id, admin_user_id, admin_user_id)
-    ON CONFLICT (competent_id, executor_type, name) DO UPDATE SET level = EXCLUDED.level, updated_at = NOW(), updated_by = admin_user_id;
-END $$;
-
--- (INSERT'ы для kinds_activity_client, levels_training, etc.)
-
--- 5.6. Заполняем типы оборудования
-INSERT INTO equipment_types (name, description, category, weight_range, dimensions, is_mobile, schematic_icon, note) VALUES
-('Беговая дорожка', 'Кардио тренажер для бега и ходьбы', 0, NULL, '180x80x140 см', false, 'treadmill', 'Электрическая, с наклоном'),
-('Эллиптический тренажер', 'Кардио тренажер для низкоударной тренировки', 0, NULL, '160x70x170 см', true, 'elliptical', 'Орбитрек'),
-('Велотренажер', 'Кардио тренажер для тренировки ног', 0, NULL, '120x60x140 см', true, 'bike', 'С вертикальной посадкой'),
-('Гантели', 'Свободные веса для силовых упражнений', 2, '1-30 кг', NULL, true, 'dumbbell', 'Резиновое покрытие'),
-('Штанга', 'Свободный вес для базовых упражнений', 2, '20 кг (гриф)', '220 см', false, 'barbell', 'Олимпийский гриф'),
-('Скамья для жима', 'Силовой тренажер для жима лежа', 1, NULL, '120x30x45 см', true, 'bench', 'Регулируемый наклон'),
-('Тренажер для жима ногами', 'Силовой тренажер для ног', 1, NULL, '200x120x150 см', false, 'leg_press', 'Под углом 45°'),
-('Фитбол', 'Мяч для функциональных упражнений', 3, NULL, 'Диаметр 65 см', true, 'fitball', 'Антиразрывный'),
-('Коврик для йоги', 'Аксессуар для растяжки и йоги', 4, NULL, '180x60x0.5 см', true, 'yoga_mat', 'ПВХ, 5 мм'),
-('Весы напольные', 'Измерительное оборудование', 5, NULL, '30x30x3 см', true, 'scales', 'Электронные, до 200 кг');
-
-
--- ============================================
--- 8. СООБЩЕНИЕ ОБ УСПЕШНОМ ВЫПОЛНЕНИИ
--- ============================================
 
 DO $$
 BEGIN

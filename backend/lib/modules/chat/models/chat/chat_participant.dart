@@ -4,9 +4,9 @@ enum ParticipantRole {
 }
 
 class ChatParticipant {
-  final int id;
-  final int chatId;
-  final int userId;
+  final String id;
+  final String chatId;
+  final String userId;
   final ParticipantRole? role;
   final DateTime joinedAt;
 
@@ -20,11 +20,11 @@ class ChatParticipant {
 
   factory ChatParticipant.fromJson(Map<String, dynamic> json) {
     return ChatParticipant(
-      id: json['id'],
-      chatId: json['chat_id'],
-      userId: json['user_id'],
-      role: json['role'] != null ? ParticipantRole.values[json['role']] : null,
-      joinedAt: DateTime.parse(json['joined_at']),
+      id: json['id'].toString(),
+      chatId: json['chat_id'].toString(),
+      userId: json['user_id'].toString(),
+      role: json['role'] != null ? ParticipantRole.values[json['role'] as int] : null,
+      joinedAt: DateTime.parse(json['joined_at'] as String),
     );
   }
 

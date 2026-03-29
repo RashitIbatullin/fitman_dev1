@@ -21,7 +21,7 @@ ManagerProfile _$ManagerProfileFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$ManagerProfile {
-  int get userId => throw _privateConstructorUsedError;
+  String get userId => throw _privateConstructorUsedError;
   bool get isDuty => throw _privateConstructorUsedError;
 
   /// Serializes this ManagerProfile to a JSON map.
@@ -41,7 +41,7 @@ abstract class $ManagerProfileCopyWith<$Res> {
     $Res Function(ManagerProfile) then,
   ) = _$ManagerProfileCopyWithImpl<$Res, ManagerProfile>;
   @useResult
-  $Res call({int userId, bool isDuty});
+  $Res call({String userId, bool isDuty});
 }
 
 /// @nodoc
@@ -64,7 +64,7 @@ class _$ManagerProfileCopyWithImpl<$Res, $Val extends ManagerProfile>
             userId: null == userId
                 ? _value.userId
                 : userId // ignore: cast_nullable_to_non_nullable
-                      as int,
+                      as String,
             isDuty: null == isDuty
                 ? _value.isDuty
                 : isDuty // ignore: cast_nullable_to_non_nullable
@@ -84,7 +84,7 @@ abstract class _$$ManagerProfileImplCopyWith<$Res>
   ) = __$$ManagerProfileImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({int userId, bool isDuty});
+  $Res call({String userId, bool isDuty});
 }
 
 /// @nodoc
@@ -106,7 +106,7 @@ class __$$ManagerProfileImplCopyWithImpl<$Res>
         userId: null == userId
             ? _value.userId
             : userId // ignore: cast_nullable_to_non_nullable
-                  as int,
+                  as String,
         isDuty: null == isDuty
             ? _value.isDuty
             : isDuty // ignore: cast_nullable_to_non_nullable
@@ -125,7 +125,7 @@ class _$ManagerProfileImpl implements _ManagerProfile {
       _$$ManagerProfileImplFromJson(json);
 
   @override
-  final int userId;
+  final String userId;
   @override
   @JsonKey()
   final bool isDuty;
@@ -167,7 +167,7 @@ class _$ManagerProfileImpl implements _ManagerProfile {
 
 abstract class _ManagerProfile implements ManagerProfile {
   const factory _ManagerProfile({
-    required final int userId,
+    required final String userId,
     final bool isDuty,
   }) = _$ManagerProfileImpl;
 
@@ -175,7 +175,7 @@ abstract class _ManagerProfile implements ManagerProfile {
       _$ManagerProfileImpl.fromJson;
 
   @override
-  int get userId;
+  String get userId;
   @override
   bool get isDuty;
 

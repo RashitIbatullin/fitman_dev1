@@ -12,27 +12,27 @@ class GroupsApiService extends BaseApiService {
 
   Future<List<TrainingGroup>> getAllTrainingGroups({
     String? searchQuery,
-    int? groupTypeId,
+    String? groupTypeId,
     bool? isActive,
     bool? isArchived,
-    int? trainerId,
-    int? instructorId,
-    int? managerId,
+    String? trainerId,
+    String? instructorId,
+    String? managerId,
   }) async {
     final queryParams = <String, String>{};
     if (searchQuery != null && searchQuery.isNotEmpty) queryParams['q'] = searchQuery;
-    if (groupTypeId != null) queryParams['groupTypeId'] = groupTypeId.toString();
+    if (groupTypeId != null) queryParams['groupTypeId'] = groupTypeId;
     if (isActive != null) queryParams['isActive'] = isActive.toString();
     if (isArchived != null) queryParams['isArchived'] = isArchived.toString();
-    if (trainerId != null) queryParams['trainerId'] = trainerId.toString();
-    if (instructorId != null) queryParams['instructorId'] = instructorId.toString();
-    if (managerId != null) queryParams['managerId'] = managerId.toString();
+    if (trainerId != null) queryParams['trainerId'] = trainerId;
+    if (instructorId != null) queryParams['instructorId'] = instructorId;
+    if (managerId != null) queryParams['managerId'] = managerId;
     
     final data = await get('/api/training_groups', queryParams: queryParams.isNotEmpty ? queryParams : null);
     return (data as List).map((json) => TrainingGroup.fromJson(json)).toList();
   }
 
-  Future<TrainingGroup> getTrainingGroupById(int id) async {
+  Future<TrainingGroup> getTrainingGroupById(String id) async {
     final data = await get('/api/training_groups/$id');
     return TrainingGroup.fromJson(data);
   }
@@ -47,7 +47,7 @@ class GroupsApiService extends BaseApiService {
     return TrainingGroup.fromJson(data);
   }
 
-  Future<void> deleteTrainingGroup(int id) async {
+  Future<void> deleteTrainingGroup(String id) async {
     await delete('/api/training_groups/$id');
   }
 
@@ -62,7 +62,7 @@ class GroupsApiService extends BaseApiService {
     return (data as List).map((json) => AnalyticGroup.fromJson(json)).toList();
   }
 
-  Future<AnalyticGroup> getAnalyticGroupById(int id) async {
+  Future<AnalyticGroup> getAnalyticGroupById(String id) async {
     final data = await get('/api/analytic_groups/$id');
     return AnalyticGroup.fromJson(data);
   }
@@ -77,18 +77,18 @@ class GroupsApiService extends BaseApiService {
     return AnalyticGroup.fromJson(data);
   }
 
-  Future<void> deleteAnalyticGroup(int id) async {
+  Future<void> deleteAnalyticGroup(String id) async {
     await delete('/api/analytic_groups/$id');
   }
 
   // --- Group Schedule Methods ---
 
-  Future<List<GroupSchedule>> getGroupSchedules(int groupId) async {
+  Future<List<GroupSchedule>> getGroupSchedules(String groupId) async {
     final data = await get('/api/group_schedules/$groupId');
     return (data as List).map((json) => GroupSchedule.fromJson(json)).toList();
   }
 
-  Future<GroupSchedule> createGroupSchedule(int groupId, GroupSchedule slot) async {
+  Future<GroupSchedule> createGroupSchedule(String groupId, GroupSchedule slot) async {
     final data = await post('/api/group_schedules/$groupId', body: slot.toJson());
     return GroupSchedule.fromJson(data);
   }
@@ -98,22 +98,22 @@ class GroupsApiService extends BaseApiService {
     return GroupSchedule.fromJson(data);
   }
 
-  Future<void> deleteGroupSchedule(int id) async {
+  Future<void> deleteGroupSchedule(String id) async {
     await delete('/api/group_schedules/$id');
   }
 
   // --- Training Group Member Methods ---
 
-  Future<List<int>> getTrainingGroupMembers(int groupId) async {
+  Future<List<String>> getTrainingGroupMembers(String groupId) async {
     final data = await get('/api/training_groups/$groupId/members');
-    return (data as List).cast<int>().toList();
+    return (data as List).cast<String>().toList();
   }
 
-  Future<void> addTrainingGroupMember(int groupId, int userId) async {
+  Future<void> addTrainingGroupMember(String groupId, String userId) async {
     await post('/api/training_groups/$groupId/members', body: {'userId': userId});
   }
 
-  Future<void> removeTrainingGroupMember(int groupId, int userId) async {
+  Future<void> removeTrainingGroupMember(String groupId, String userId) async {
     await delete('/api/training_groups/$groupId/members/$userId');
   }
   

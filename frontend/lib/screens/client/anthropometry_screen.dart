@@ -14,7 +14,7 @@ import 'package:fitman_app/utils/body_shape_calculator.dart';
 import 'package:fitman_app/utils/body_shape_helper.dart';
 
 final anthropometryProvider =
-FutureProvider.family<AnthropometryData, int?>((ref, clientId) {
+FutureProvider.family<AnthropometryData, String?>((ref, clientId) {
   final authState = ref.watch(authProvider);
 
   return authState.when(
@@ -38,7 +38,7 @@ FutureProvider.family<AnthropometryData, int?>((ref, clientId) {
 
 // A single provider to get both WHtR profiles at once
 final whtrProfilesProvider =
-FutureProvider.family<WhtrProfiles, int?>((ref, clientId) {
+FutureProvider.family<WhtrProfiles, String?>((ref, clientId) {
   final authState = ref.watch(authProvider);
 
   return authState.when(
@@ -59,7 +59,7 @@ FutureProvider.family<WhtrProfiles, int?>((ref, clientId) {
 });
 
 class AnthropometryScreen extends ConsumerStatefulWidget {
-  final int? clientId;
+  final String? clientId;
   const AnthropometryScreen({super.key, this.clientId});
 
   @override
@@ -825,7 +825,7 @@ class _MeasurementsCard extends ConsumerWidget {
   final VoidCallback onSave;
   final VoidCallback onCancel;
   final void Function(String?) onShowBodyShapeHelp;
-  final int? clientId;
+  final String? clientId;
   final TextEditingController startWeightController;
   final TextEditingController startShouldersCircController;
   final TextEditingController startBreastCircController;
@@ -1011,7 +1011,7 @@ class _MeasurementsCard extends ConsumerWidget {
 }
 
 class _RecommendationCard extends ConsumerWidget {
-  final int? clientId;
+  final String? clientId;
 
   const _RecommendationCard({this.clientId});
 

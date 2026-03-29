@@ -1,5 +1,5 @@
 class WorkSchedule {
-  final int id;
+  final String id;
   final int dayOfWeek;
   final String startTime;
   final String endTime;

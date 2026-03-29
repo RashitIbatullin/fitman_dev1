@@ -72,7 +72,7 @@ class ClientDashboard extends ConsumerWidget {
       const MyTrainerScreen(),
       const MyInstructorScreen(),
       const MyManagerScreen(),
-      AnthropometryScreen(clientId: user.id),
+      AnthropometryScreen(clientId: user.id.toString()),
       const SessionsScreen(),
       const CalorieTrackingScreen(),
       const ProgressScreen(),

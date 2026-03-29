@@ -22,7 +22,7 @@ class CompetencyRepositoryImpl implements CompetencyRepository {
       Sql.named(
           'SELECT * FROM competencies WHERE competent_id = @competentId AND executor_type = @executorType'),
       parameters: {
-        'competentId': int.parse(competentId),
+        'competentId': competentId,
         'executorType': executorType.index,
       },
     );
@@ -51,7 +51,7 @@ class CompetencyRepositoryImpl implements CompetencyRepository {
         ) RETURNING id;
       '''),
       parameters: {
-        'competentId': int.parse(competency.competentId),
+        'competentId': competency.competentId,
         'executorType': competency.executorType.index,
         'name': competency.name,
         'level': competency.level.index,
@@ -60,8 +60,8 @@ class CompetencyRepositoryImpl implements CompetencyRepository {
         'verifiedBy': competency.verifiedBy,
       },
     );
-    final newId = result.first.first as int;
-    return competency.copyWith(id: newId.toString());
+    final newId = result.first.first as String;
+    return competency.copyWith(id: newId);
   }
 
   @override
@@ -69,7 +69,7 @@ class CompetencyRepositoryImpl implements CompetencyRepository {
     final conn = await _db.connection;
     await conn.execute(
       Sql.named('DELETE FROM competencies WHERE id = @id'),
-      parameters: {'id': int.parse(competencyId)},
+      parameters: {'id': competencyId},
     );
   }
 }

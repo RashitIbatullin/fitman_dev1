@@ -3,7 +3,7 @@ import '../models/user.dart';
 import '../../../services/api_service.dart';
 
 // --- Provider to fetch a single user by their ID ---
-final userByIdProvider = FutureProvider.family<User, int>((ref, userId) async {
+final userByIdProvider = FutureProvider.family<User, String>((ref, userId) async {
   return ApiService.getUserById(userId);
 });
 

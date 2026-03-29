@@ -16,7 +16,7 @@ class AnalyticGroupEditScreen extends ConsumerStatefulWidget {
 
 class _AnalyticGroupEditScreenState extends ConsumerState<AnalyticGroupEditScreen> {
   final _formKey = GlobalKey<FormState>();
-  late final int? _groupId;
+  late final String? _groupId;
   late TextEditingController _nameController;
   late TextEditingController _descriptionController;
   AnalyticGroupType? _selectedType;
@@ -29,7 +29,7 @@ class _AnalyticGroupEditScreenState extends ConsumerState<AnalyticGroupEditScree
   @override
   void initState() {
     super.initState();
-    _groupId = widget.groupId != null ? int.tryParse(widget.groupId!) : null;
+    _groupId = widget.groupId;
     _nameController = TextEditingController();
     _descriptionController = TextEditingController();
 

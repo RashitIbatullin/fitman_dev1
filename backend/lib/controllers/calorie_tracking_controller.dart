@@ -10,7 +10,7 @@ class CalorieTrackingController {
         return Response.unauthorized(jsonEncode({'error': 'Not authenticated'}));
       }
 
-      final clientId = user['userId'] as int;
+      final clientId = user['userId'] as String;
       final data = await Database().getCalorieTrackingData(clientId);
 
       return Response.ok(jsonEncode(data));

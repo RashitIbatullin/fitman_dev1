@@ -14,7 +14,7 @@ class GroupSyncService {
       for (final group in autoGroups.where((g) => g.isAutoUpdate)) {
         print('Processing auto-update group: ${group.name} (ID: ${group.id})');
         
-        final List<int> matchingClientIds = await _findMatchingClients(group.conditions);
+        final List<String> matchingClientIds = await _findMatchingClients(group.conditions);
         
         // Update the group with new client_ids_cache and last_updated_at
         final updatedGroup = group.copyWith(
@@ -22,7 +22,7 @@ class GroupSyncService {
           lastUpdatedAt: DateTime.now(),
         );
         
-        await _db.groups.updateAnalyticGroup(updatedGroup, 0); // Assuming system user (ID 0) for updates
+        await _db.groups.updateAnalyticGroup(updatedGroup, '00000000-0000-0000-0000-000000000000'); // Assuming system user (ID 0) for updates
         print('Group ${group.name} updated with ${matchingClientIds.length} members.');
       }
       print('Analytic group synchronization completed.');
@@ -31,7 +31,7 @@ class GroupSyncService {
     }
   }
 
-  Future<List<int>> _findMatchingClients(List<GroupCondition> conditions) async {
+  Future<List<String>> _findMatchingClients(List<GroupCondition> conditions) async {
     if (conditions.isEmpty) {
       return [];
     }
@@ -42,47 +42,54 @@ class GroupSyncService {
 
     for (final condition in conditions) {
       final paramName = 'val${paramIndex++}';
-      String operator;
+      String operatorSql; // Renamed to avoid conflict with `operator` in condition
       
-      // Basic type inference and operator mapping
+      // Determine the operator
       if (int.tryParse(condition.value) != null || double.tryParse(condition.value) != null) {
         // Numeric comparison
         switch (condition.operator) {
-          case 'equals': operator = '='; break;
-          case 'greater_than': operator = '>'; break;
-          case 'less_than': operator = '<'; break;
+          case 'equals': operatorSql = '='; break;
+          case 'greater_than': operatorSql = '>'; break;
+          case 'less_than': operatorSql = '<'; break;
           default: throw Exception('Unsupported numeric operator: ${condition.operator}');
         }
       } else {
         // String comparison
         switch (condition.operator) {
-          case 'equals': operator = '='; break;
-          case 'contains': operator = 'ILIKE'; // Case-insensitive LIKE
-            parameters[paramName] = '%${condition.value}%';
+          case 'equals': operatorSql = '='; break;
+          case 'contains': operatorSql = 'ILIKE'; // Case-insensitive LIKE
+            parameters[paramName] = '%${condition.value}%'; // Parameter is set here for 'contains'
             break;
           default: throw Exception('Unsupported string operator: ${condition.operator}');
         }
       }
 
-      if (condition.operator != 'contains') {
-        parameters[paramName] = condition.value;
-      }
-      
-      // Map GroupCondition fields to actual database columns.
-      // This is a simplified example and needs to be expanded based on actual user model/profile fields.
-      // For now, let's assume conditions are on 'users' table fields or related profile tables.
-      // In a real app, this mapping would be more robust, potentially involving a schema mapping.
       String dbField;
+      dynamic paramValue = condition.value; // Default to string value
+
       switch (condition.field) {
         case 'age': dbField = 'EXTRACT(YEAR FROM AGE(NOW(), date_of_birth))'; break;
-        case 'gender': dbField = 'gender'; break; // Assuming gender is int (0 for male, 1 for female)
+        case 'gender': 
+          dbField = 'gender';
+          // Assuming gender is int (0 for male, 1 for female) in the database
+          // and condition.value is a string representation ('0' or '1')
+          paramValue = int.tryParse(condition.value);
+          if (paramValue == null) {
+            throw Exception('Invalid gender value: ${condition.value}. Expected 0 or 1.');
+          }
+          break;
         case 'subscription_type': dbField = 'client_profiles.subscription_type'; break; // Example: needs join
         case 'last_visit_date': dbField = 'client_profiles.last_visit_date'; break; // Example: needs join
         // Add more mappings as needed
         default: dbField = condition.field; // Fallback, but dangerous for direct use if not validated
       }
+
+      // Only add parameter if not 'contains' (already added there)
+      if (condition.operator != 'contains') {
+        parameters[paramName] = paramValue;
+      }
       
-      queryParts.add('$dbField $operator @$paramName');
+      queryParts.add('$dbField $operatorSql @$paramName');
     }
 
     if (queryParts.isEmpty) {
@@ -103,6 +110,6 @@ class GroupSyncService {
     final conn = await _db.connection;
     final results = await conn.execute(Sql.named(sql), parameters: parameters);
 
-    return results.map((row) => row[0] as int).toList();
+    return results.map((row) => row[0] as String).toList();
   }
 }

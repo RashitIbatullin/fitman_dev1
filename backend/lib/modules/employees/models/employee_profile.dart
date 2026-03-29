@@ -4,7 +4,7 @@ part 'employee_profile.g.dart';
 
 @JsonSerializable()
 class EmployeeProfile {
-  final int userId;
+  final String userId;
   final String? specialization;
   final int? workExperience;
   final bool canMaintainEquipment;

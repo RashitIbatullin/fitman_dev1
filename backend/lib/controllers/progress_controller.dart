@@ -10,7 +10,7 @@ class ProgressController {
         return Response.unauthorized(jsonEncode({'error': 'Not authenticated'}));
       }
 
-      final clientId = user['userId'] as int;
+      final clientId = user['userId'] as String;
       final data = await Database().getProgressData(clientId);
 
       return Response.ok(jsonEncode(data));
