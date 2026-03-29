@@ -8,7 +8,7 @@ part of 'group_schedule.model.dart';
 
 GroupSchedule _$GroupScheduleFromJson(Map<String, dynamic> json) =>
     GroupSchedule(
-      id: (json['id'] as num).toInt(),
+      id: (json['id']),
       groupId: (json['groupId'] as num).toInt(),
       dayOfWeek: (json['dayOfWeek'] as num).toInt(),
       startTime: _timeOfDayFromJson(json['startTime'] as String),

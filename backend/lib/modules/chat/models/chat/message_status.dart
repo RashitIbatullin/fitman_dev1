@@ -5,7 +5,7 @@ enum MessageStatusValue {
 }
 
 class MessageStatus {
-  final int id;
+  final String id;
   final int messageId;
   final int userId;
   final MessageStatusValue status;

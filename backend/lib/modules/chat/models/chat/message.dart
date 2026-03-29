@@ -1,5 +1,5 @@
 class Message {
-  final int id;
+  final String id;
   final int chatId;
   final int senderId;
   final String? content;
