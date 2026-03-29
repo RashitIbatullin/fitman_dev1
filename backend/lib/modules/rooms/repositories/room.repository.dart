@@ -35,8 +35,8 @@ class RoomRepositoryImpl implements RoomRepository {
         'description': room.description,
         'room_number': room.roomNumber,
         'type': room.type.value,
-        'floor': room.floor, // Now int?
-        'building_id': room.buildingId != null ? int.parse(room.buildingId!) : null,
+        'floor': room.floor,
+        'building_id': room.buildingId,
         'max_capacity': room.maxCapacity,
         'area': room.area,
         'open_time': room.openTime,
@@ -45,9 +45,9 @@ class RoomRepositoryImpl implements RoomRepository {
         'is_active': room.isActive,
         'deactivate_reason': room.deactivateReason,
         'deactivate_at': room.deactivateAt,
-        'deactivate_by': room.deactivateBy != null ? int.parse(room.deactivateBy!) : null,
+        'deactivate_by': room.deactivateBy,
         'archived_at': room.archivedAt,
-        'archived_by': room.archivedBy != null ? int.parse(room.archivedBy!) : null,
+        'archived_by': room.archivedBy,
         'archived_reason': room.archivedReason,
       },
     );
@@ -60,7 +60,7 @@ class RoomRepositoryImpl implements RoomRepository {
     await conn.execute(
       Sql.named(
           'UPDATE rooms SET archived_at = NOW(), archived_by = @userId, is_active = FALSE WHERE id = @id'),
-      parameters: {'id': int.parse(id), 'userId': int.parse(userId)},
+      parameters: {'id': id, 'userId': userId},
     );
   }
 
@@ -130,7 +130,7 @@ class RoomRepositoryImpl implements RoomRepository {
               LEFT JOIN users archiver ON r.archived_by = archiver.id
               WHERE r.id = @id
             '''),
-        parameters: {'id': int.parse(id)},
+        parameters: {'id': id},
       );
 
       if (result.isEmpty) {
@@ -181,13 +181,13 @@ class RoomRepositoryImpl implements RoomRepository {
         LEFT JOIN buildings b ON u.building_id = b.id
       '''),
       parameters: {
-        'id': int.parse(id),
+        'id': id,
         'name': room.name,
         'description': room.description,
         'room_number': room.roomNumber,
         'type': room.type.value,
-        'floor': room.floor, // Now int?
-        'building_id': room.buildingId != null ? int.parse(room.buildingId!) : null,
+        'floor': room.floor,
+        'building_id': room.buildingId,
         'max_capacity': room.maxCapacity,
         'area': room.area,
         'open_time': room.openTime,
@@ -197,15 +197,13 @@ class RoomRepositoryImpl implements RoomRepository {
         'is_active': room.isActive,
         'deactivate_reason': room.deactivateReason,
         'deactivate_at': room.deactivateAt,
-        'deactivate_by': room.deactivateBy != null ? int.parse(room.deactivateBy!) : null,
+        'deactivate_by': room.deactivateBy,
         'archived_at': room.archivedAt,
-        'archived_by': room.archivedBy != null ? int.parse(room.archivedBy!) : null,
+        'archived_by': room.archivedBy,
         'archived_reason': room.archivedReason,
-        'updated_by': room.updatedBy != null ? int.parse(room.updatedBy!) : null,
+        'updated_by': room.updatedBy,
       },
     );
     return Room.fromMap(result.first.toColumnMap());
   }
-
-
 }

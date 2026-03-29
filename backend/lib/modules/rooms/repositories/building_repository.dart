@@ -36,7 +36,7 @@ class BuildingRepository {
         LEFT JOIN users archiver ON b.archived_by = archiver.id
         WHERE b.id = @id
       '''),
-      parameters: {'id': int.parse(id)},
+      parameters: {'id': id},
     );
     return result.isEmpty ? null : Building.fromMap(result.first.toColumnMap());
   }
@@ -60,11 +60,13 @@ class BuildingRepository {
   Future<Building> insert(Building building) async {
     final conn = await _db.connection;
     final result = await conn.execute(
-      Sql.named('INSERT INTO buildings (name, address, note) VALUES (@name, @address, @note) RETURNING *'),
+      Sql.named('INSERT INTO buildings (name, address, note, created_by, updated_by) VALUES (@name, @address, @note, @createdBy, @updatedBy) RETURNING *'),
       parameters: {
         'name': building.name,
         'address': building.address,
         'note': building.note,
+        'createdBy': building.createdBy,
+        'updatedBy': building.updatedBy,
       },
     );
     return Building.fromMap(result.first.toColumnMap());
@@ -75,24 +77,24 @@ class BuildingRepository {
     final result = await conn.execute(
       Sql.named('UPDATE buildings SET name = @name, address = @address, note = @note, updated_at = NOW(), updated_by = @updated_by, archived_at = @archived_at, archived_by = @archived_by, archived_reason = @archived_reason WHERE id = @id RETURNING *'),
       parameters: {
-        'id': int.parse(id),
+        'id': id,
         'name': building.name,
         'address': building.address,
         'note': building.note,
         'archived_at': building.archivedAt,
-        'updated_by': building.updatedBy != null ? int.parse(building.updatedBy!) : int.parse(userId), // Use userId if not provided in building object
-        'archived_by': building.archivedBy != null ? int.parse(building.archivedBy!) : int.parse(userId), // Use userId if not provided in building object
+        'updated_by': userId,
+        'archived_by': building.archivedBy ?? userId,
         'archived_reason': building.archivedReason,
       },
     );
     return Building.fromMap(result.first.toColumnMap());
   }
 
-  Future<void> archive(String id, int userId) async {
+  Future<void> archive(String id, String userId) async {
     final conn = await _db.connection;
     await conn.execute(
       Sql.named('UPDATE buildings SET archived_at = NOW(), archived_by = @userId WHERE id = @id'),
-      parameters: {'id': int.parse(id), 'userId': userId},
+      parameters: {'id': id, 'userId': userId},
     );
   }
 }

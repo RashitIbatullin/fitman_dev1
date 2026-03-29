@@ -41,12 +41,11 @@ class SupportStaffRepositoryImpl implements SupportStaffRepository {
         INSERT INTO support_staff (
           first_name, last_name, middle_name, phone, email, employment_type, category,
           can_maintain_equipment, accessible_equipment_types, company_name, contract_number,
-          contract_expiry_date, notes, company_id, created_at, updated_at,
-          created_by, updated_by
+          contract_expiry_date, notes, created_by, updated_by
         ) VALUES (
           @firstName, @lastName, @middleName, @phone, @email, @employmentType, @category,
           @canMaintainEquipment, @accessibleEquipmentTypes, @companyName, @contractNumber,
-          @contractExpiryDate, @notes, -1, NOW(), NOW(), @createdBy, @updatedBy
+          @contractExpiryDate, @notes, @createdBy, @updatedBy
         ) RETURNING id;
       '''),
       parameters: {
@@ -68,8 +67,8 @@ class SupportStaffRepositoryImpl implements SupportStaffRepository {
       },
     );
 
-    final newId = result.first.first as int;
-    return await getById(newId.toString());
+    final newId = result.first.first as String;
+    return await getById(newId);
   }
 
   @override
@@ -97,7 +96,7 @@ class SupportStaffRepositoryImpl implements SupportStaffRepository {
     final conn = await _db.connection;
     final result = await conn.execute(
       Sql.named('SELECT * FROM support_staff WHERE id = @id'),
-      parameters: {'id': int.parse(id)},
+      parameters: {'id': id},
     );
 
     if (result.isEmpty) {

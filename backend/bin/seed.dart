@@ -3,8 +3,7 @@ import 'dart:io';
 import 'package:args/args.dart';
 import 'package:faker/faker.dart';
 import 'package:postgres/postgres.dart';
-
-import '../lib/config/app_config.dart';
+import 'package:fitman_backend/config/app_config.dart';
 
 // ignore_for_file: no_leading_underscores_for_local_identifiers
 
@@ -234,7 +233,7 @@ class DatabaseSeeder {
   }
 
   // Existing methods
-  Future<String> _createUser({required String login, String password = 'password123', required String firstName, required String lastName, int gender = 0}) async {
+  Future<String> _createUser({required String login, required String firstName, required String lastName, int gender = 0}) async {
     final passwordHash = r'$2a$10$RATHndPnw7mQZOOfAb3RHeaGhV8Aul2U4BXx2C94pDr4EqV58uEUW';
     final result = await _connection.execute(Sql.named('''
       INSERT INTO users (login, password_hash, email, first_name, last_name, gender, date_of_birth)
@@ -256,7 +255,7 @@ class DatabaseSeeder {
   }
 
   Future<void> _assign(String managerId, String tableName, String roleIdColumn, String subordinateId) async {
-    final managerIdColumn = tableName.split('_').first + '_id';
+    final managerIdColumn = '${tableName.split('_').first}_id';
     await _connection.execute(Sql.named('INSERT INTO $tableName ($managerIdColumn, $roleIdColumn) VALUES (@manager_id, @subordinate_id)'), parameters: {'manager_id': managerId, 'subordinate_id': subordinateId});
   }
 

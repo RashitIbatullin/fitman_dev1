@@ -131,7 +131,7 @@ class BuildingController {
       if (userPayload == null) {
         return Response(401, body: jsonEncode({'error': 'Not authenticated: User payload missing.'}));
       }
-      final userId = userPayload['userId'] as int?;
+      final userId = userPayload['userId'] as String?;
       if (userId == null) {
         return Response(401, body: jsonEncode({'error': 'Not authenticated: User ID missing in token.'}));
       }

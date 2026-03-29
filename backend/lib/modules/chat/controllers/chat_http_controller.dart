@@ -1,14 +1,14 @@
 import 'dart:convert';
 import 'package:shelf/shelf.dart';
 import 'package:postgres/postgres.dart';
-import '../../../config/database.dart'; // Adjusted relative path
+import '../../../config/database.dart'; 
 
-class ChatHttpController { // Renamed class
+class ChatHttpController {
   // Получить все чаты для текущего пользователя
   static Future<Response> getChats(Request request) async {
     try {
       final user = request.context['user'] as Map<String, dynamic>?;
-      final userId = user?['userId'] as int?;
+      final userId = user?['userId'] as String?;
 
       if (userId == null) {
         return Response.badRequest(body: jsonEncode({'error': 'User ID not found in token.'}));
@@ -40,18 +40,11 @@ class ChatHttpController { // Renamed class
   static Future<Response> getMessages(Request request, String chatId) async {
     try {
       final user = request.context['user'] as Map<String, dynamic>?;
-      final userId = user?['userId'] as int?;
+      final userId = user?['userId'] as String?;
       if (userId == null) {
         return Response.forbidden('Authentication required.');
       }
-
-      final int parsedChatId;
-      try {
-        parsedChatId = int.parse(chatId);
-      } catch (e) {
-        return Response.badRequest(body: jsonEncode({'error': 'Invalid chat ID.'}));
-      }
-
+      
       final limit = int.tryParse(request.url.queryParameters['limit'] ?? '50') ?? 50;
       final offset = int.tryParse(request.url.queryParameters['offset'] ?? '0') ?? 0;
 
@@ -61,7 +54,7 @@ class ChatHttpController { // Renamed class
       // Проверка, является ли пользователь участником чата
       final participantCheck = await connection.execute(
         Sql.named('SELECT 1 FROM chat_participants WHERE chat_id = @chatId AND user_id = @userId'),
-        parameters: {'chatId': parsedChatId, 'userId': userId},
+        parameters: {'chatId': chatId, 'userId': userId},
       );
 
       if (participantCheck.isEmpty) {
@@ -77,12 +70,11 @@ class ChatHttpController { // Renamed class
           ORDER BY m.created_at DESC
           LIMIT @limit OFFSET @offset
         '''),
-        parameters: {'chatId': parsedChatId, 'limit': limit, 'offset': offset},
+        parameters: {'chatId': chatId, 'limit': limit, 'offset': offset},
       );
 
       final messages = result.map((row) {
         final map = row.toColumnMap();
-        // Преобразование дат в строку ISO 8601 для JSON
         map['created_at'] = (map['created_at'] as DateTime).toIso8601String();
         return map;
       }).toList();
@@ -98,14 +90,14 @@ class ChatHttpController { // Renamed class
   static Future<Response> createOrGetPrivateChat(Request request) async {
     try {
       final user = request.context['user'] as Map<String, dynamic>?;
-      final userId1 = user?['userId'] as int?;
+      final userId1 = user?['userId'] as String?;
       if (userId1 == null) {
         return Response.forbidden('Authentication required.');
       }
 
       final body = await request.readAsString();
       final data = jsonDecode(body);
-      final userId2 = data['peerId'] as int?;
+      final userId2 = data['peerId'] as String?;
 
       if (userId2 == null) {
         return Response.badRequest(body: jsonEncode({'error': 'peerId is required.'}));
@@ -136,7 +128,7 @@ class ChatHttpController { // Renamed class
       }
 
       // Если чат не найден, создаем новый
-      final newChatId = await connection.runTx<int>((ctx) async {
+      final newChatId = await connection.runTx<String>((ctx) async {
         final chatResult = await ctx.execute(
           Sql.named('''
             INSERT INTO chats (type, created_by, created_at, updated_at)
@@ -144,7 +136,7 @@ class ChatHttpController { // Renamed class
           '''),
           parameters: {'userId': userId1},
         );
-        final chatId = chatResult.first.toColumnMap()['id'];
+        final chatId = chatResult.first.toColumnMap()['id'] as String;
 
         await ctx.execute(
           Sql.named('''
@@ -167,14 +159,14 @@ class ChatHttpController { // Renamed class
   static Future<Response> createGroupChat(Request request) async {
     try {
       final user = request.context['user'] as Map<String, dynamic>?;
-      final creatorId = user?['userId'] as int?;
+      final creatorId = user?['userId'] as String?;
       if (creatorId == null) {
         return Response.forbidden('Authentication required.');
       }
 
       final body = await request.readAsString();
       final data = jsonDecode(body);
-      final userIds = List<int>.from(data['userIds'] as List<dynamic>);
+      final userIds = List<String>.from(data['userIds'] as List<dynamic>);
       final name = data['name'] as String?;
 
       if (userIds.length < 2) {
@@ -189,7 +181,7 @@ class ChatHttpController { // Renamed class
       final db = Database();
       final connection = await db.connection;
 
-      final newChatId = await connection.runTx<int>((ctx) async {
+      final newChatId = await connection.runTx<String>((ctx) async {
         final chatResult = await ctx.execute(
           Sql.named('''
             INSERT INTO chats (name, type, created_by, created_at, updated_at)
@@ -197,7 +189,7 @@ class ChatHttpController { // Renamed class
           '''),
           parameters: {'name': name, 'creatorId': creatorId},
         );
-        final chatId = chatResult.first.toColumnMap()['id'];
+        final chatId = chatResult.first.toColumnMap()['id'] as String;
 
         for (final participantId in uniqueUserIds) {
           await ctx.execute(
