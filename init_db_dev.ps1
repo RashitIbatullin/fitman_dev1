@@ -39,7 +39,9 @@ $DB_USER = if ($env:DB_USER) { $env:DB_USER } else { "postgres" }
 $DB_PASSWORD = if ($env:DB_PASSWORD) { $env:DB_PASSWORD } else { "postgres" }
 
 # Пути к файлам SQL (учитывая структуру проекта)
-$SETUP_FILE = "database\setup.sql"
+$USERS_FILE = "database\users.sql"
+$INFRA_FILE = "database\infrastructure.sql"
+$EQUIPMENT_FILE = "database\equipment.sql"
 $GROUPS_FILE = "database\groups.sql"
 $LESSONS_FILE = "database\lessons.sql"
 $CHAT_FILE = "database\chat.sql"
@@ -83,7 +85,9 @@ function Test-SqlFile($file) {
     return $true
 }
 
-if (-not (Test-SqlFile $SETUP_FILE)) { exit 1 }
+if (-not (Test-SqlFile $USERS_FILE)) { exit 1 }
+if (-not (Test-SqlFile $INFRA_FILE)) { exit 1 }
+if (-not (Test-SqlFile $EQUIPMENT_FILE)) { exit 1 }
 if (-not (Test-SqlFile $GROUPS_FILE)) { exit 1 }
 if (-not (Test-SqlFile $LESSONS_FILE)) { exit 1 }
 if (-not (Test-SqlFile $CHAT_FILE)) { exit 1 }
@@ -101,7 +105,7 @@ function Execute-SqlFile {
     Write-Host "Файл: $File" -ForegroundColor Gray
     
     $env:PGPASSWORD = $DB_PASSWORD
-    $result = & psql -h $DB_HOST -p $DB_PORT -U $DB_USER -d $DB_NAME -f $File 2>&1
+    $result = & psql -v ON_ERROR_STOP=1 -h $DB_HOST -p $DB_PORT -U $DB_USER -d $DB_NAME -f $File 2>&1
     $env:PGPASSWORD = $null
     
     if ($LASTEXITCODE -eq 0) {
@@ -148,7 +152,7 @@ $dbExists = & psql -h $DB_HOST -p $DB_PORT -U $DB_USER -lqt 2>&1 | ForEach-Objec
 $env:PGPASSWORD = $null
 
 if ($dbExists) {
-    Write-Host "✓ База данных '$DB_NAME' уже существует" -ForegroundColor Green
+    Write-Host "✓ База данных '$DB_NAME' уже существует. Пересоздание не требуется, только накатываются схемы." -ForegroundColor Green
 }
 else {
     Write-Host "Создание базы данных '$DB_NAME'..." -ForegroundColor Yellow
@@ -165,54 +169,31 @@ else {
     }
 }
 
-# 2. Выполнение основного setup.sql
-if (-not (Execute-SqlFile -File $SETUP_FILE -Description "Основная структура базы данных")) {
-    exit 1
-}
+# 2. Выполнение основных файлов схемы
+if (-not (Execute-SqlFile -File $USERS_FILE -Description "Базовая структура (Пользователи, Роли)")) { exit 1 }
+if (-not (Execute-SqlFile -File $INFRA_FILE -Description "Структура инфраструктуры (Здания, Помещения)")) { exit 1 }
+if (-not (Execute-SqlFile -File $EQUIPMENT_FILE -Description "Структура оборудования")) { exit 1 }
+if (-not (Execute-SqlFile -File $GROUPS_FILE -Description "Структура таблиц для Групп")) { exit 1 }
+if (-not (Execute-SqlFile -File $LESSONS_FILE -Description "Структура таблиц для Занятий и Планов")) { exit 1 }
+if (-not (Execute-SqlFile -File $CHAT_FILE -Description "Структура таблиц для Чата")) { exit 1 }
+if (-not (Execute-SqlFile -File $RECOMMENDATIONS_FILE -Description "Структура и данные для Рекомендаций")) { exit 1 }
 
-# 3. Выполнение скриптов для модулей
-if (-not (Execute-SqlFile -File $GROUPS_FILE -Description "Структура таблиц для Групп")) {
+# 5. Выполнение Dart-сидера для наполнения данными
+Write-Host ""
+Write-Host "========================================" -ForegroundColor Cyan
+Write-Host "Наполнение базы демонстрационными данными..." -ForegroundColor Green
+Push-Location "backend"
+& dart run bin/seed.dart --demo 2>&1 | ForEach-Object { Write-Host "  " $_ }
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "✗ Ошибка при выполнении seed.dart" -ForegroundColor Red
+    Pop-Location
     exit 1
 }
-if (-not (Execute-SqlFile -File $LESSONS_FILE -Description "Структура таблиц для Занятий и Планов")) {
-    exit 1
-}
-if (-not (Execute-SqlFile -File $CHAT_FILE -Description "Структура таблиц для Чата")) {
-    exit 1
-}
-
-# 4. Выполнение recommendations.sql
-if (-not (Execute-SqlFile -File $RECOMMENDATIONS_FILE -Description "Структура и данные для Рекомендаций")) {
-    exit 1
-}
+Pop-Location
 
 Write-Host ""
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "Инициализация завершена успешно!" -ForegroundColor Green
-Write-Host "========================================" -ForegroundColor Cyan
-Write-Host ""
-Write-Host "Созданы таблицы:" -ForegroundColor Yellow
-Write-Host "  • users, roles, user_roles" -ForegroundColor Gray
-Write-Host "  • client_profiles, trainer_profiles" -ForegroundColor Gray
-Write-Host "  • instructor_profiles, manager_profiles" -ForegroundColor Gray
-Write-Host "  • goals_training, levels_training" -ForegroundColor Gray
-Write-Host "  • work_schedules, client_schedule_preferences" -ForegroundColor Gray
-Write-Host "  • anthropometry_fix, anthropometry_start, anthropometry_finish" -ForegroundColor Gray
-Write-Host "  • types_body_build, training_recommendations" -ForegroundColor Gray
-Write-Host ""
-Write-Host "Созданы тестовые пользователи:" -ForegroundColor Yellow
-Write-Host "  • Администратор: admin@fitman.ru / admin123" -ForegroundColor Gray
-Write-Host "  • Менеджер: manager@fitman.ru / manager123" -ForegroundColor Gray
-Write-Host "  • Тренер: trainer@fitman.ru / trainer123" -ForegroundColor Gray
-Write-Host "  • Инструктор: instructor@fitman.ru / instructor123" -ForegroundColor Gray
-Write-Host "  • Клиент: client@fitman.ru / client123" -ForegroundColor Gray
-Write-Host ""
-Write-Host "Для подключения используйте:" -ForegroundColor Yellow
-Write-Host "  Хост: $DB_HOST" -ForegroundColor Gray
-Write-Host "  Порт: $DB_PORT" -ForegroundColor Gray
-Write-Host "  База: $DB_NAME" -ForegroundColor Gray
-Write-Host "  Пользователь: $DB_USER" -ForegroundColor Gray
-Write-Host "  Пароль: $DB_PASSWORD" -ForegroundColor Gray
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
 
@@ -220,12 +201,11 @@ Write-Host ""
 Write-Host "Проверка итоговых данных..." -ForegroundColor Yellow
 $env:PGPASSWORD = $DB_PASSWORD
 $summary = @"
-SELECT 
-    'roles' as table_name, COUNT(*) as records FROM roles
+SELECT 'buildings' as table_name, COUNT(*) as records FROM buildings
+UNION ALL
+SELECT 'roles', COUNT(*) FROM roles
 UNION ALL
 SELECT 'users', COUNT(*) FROM users
-UNION ALL
-SELECT 'types_body_build', COUNT(*) FROM types_body_build
 ORDER BY table_name;
 "@
 
@@ -235,4 +215,3 @@ ORDER BY table_name;
     }
 }
 $env:PGPASSWORD = $null
-

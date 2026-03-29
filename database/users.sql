@@ -36,13 +36,6 @@ DROP TABLE IF EXISTS
 "ai_recommendation_cache"
 CASCADE;
 
--- Общие требования к таблицам:
--- - id (UUID PRIMARY KEY DEFAULT gen_random_uuid())
--- - company_id (UUID DEFAULT '00000000-0000-0000-0000-000000000000')
--- - created_at, updated_at (TIMESTAMPTZ)
--- - created_by, updated_by (UUID FK -> users(id))
--- - archived_at, archived_by (TIMESTAMPTZ, UUID FK -> users(id))
-
 -- 1. Таблица ролей
 CREATE TABLE roles (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -57,14 +50,6 @@ CREATE TABLE roles (
     archived_at TIMESTAMPTZ,
     archived_by UUID
 );
-
--- Начальные значения для ролей (id будет сгенерирован автоматически)
-INSERT INTO roles (name, title) VALUES
-    ('client', 'Клиент'),
-    ('instructor', 'Инструктор'),
-    ('trainer', 'Тренер'),
-    ('manager', 'Менеджер'),
-    ('admin', 'Администратор');
 
 -- 2. Основная таблица пользователей
 CREATE TABLE users (
@@ -86,11 +71,10 @@ CREATE TABLE users (
     updated_by UUID,
     archived_at TIMESTAMPTZ,
     archived_by UUID,
-    archived_reason VARCHAR(255) -- Reverted
+    archived_reason VARCHAR(255)
 );
 
 -- Добавление FK для created_by и updated_by после создания таблицы users
--- Это позволяет избежать циклической зависимости при создании
 ALTER TABLE roles ADD CONSTRAINT fk_roles_created_by FOREIGN KEY (created_by) REFERENCES users(id);
 ALTER TABLE roles ADD CONSTRAINT fk_roles_updated_by FOREIGN KEY (updated_by) REFERENCES users(id);
 ALTER TABLE roles ADD CONSTRAINT fk_roles_archived_by FOREIGN KEY (archived_by) REFERENCES users(id);
@@ -98,7 +82,6 @@ ALTER TABLE roles ADD CONSTRAINT fk_roles_archived_by FOREIGN KEY (archived_by) 
 ALTER TABLE users ADD CONSTRAINT fk_users_created_by FOREIGN KEY (created_by) REFERENCES users(id);
 ALTER TABLE users ADD CONSTRAINT fk_users_updated_by FOREIGN KEY (updated_by) REFERENCES users(id);
 ALTER TABLE users ADD CONSTRAINT fk_users_archived_by FOREIGN KEY (archived_by) REFERENCES users(id);
-
 
 -- 3. Связующая таблица пользователи-роли
 CREATE TABLE user_roles (
@@ -144,12 +127,10 @@ CREATE TABLE goals_training (
     archived_by UUID REFERENCES users(id)
 );
 
-
-
 CREATE TABLE levels_training (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(255) UNIQUE NOT NULL,
-    description text,
+    description TEXT,
     company_id UUID DEFAULT '00000000-0000-0000-0000-000000000000',
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
@@ -158,11 +139,6 @@ CREATE TABLE levels_training (
     archived_at TIMESTAMPTZ,
     archived_by UUID REFERENCES users(id)
 );
-INSERT INTO levels_training (name, description) VALUES 
-('Новичок', 'Человек, который никогда не занимался или имел длительный перерыв.'),
-('Опытный', 'Человек, который занимается регулярно от 6 месяцев до 2 лет.'),
-('Продвинутый', 'Человек, который занимается более 2 лет и имеет хорошие силовые показатели.');
-
 
 -- 6. Таблицы профилей для ролей
 CREATE TABLE client_profiles (
@@ -242,11 +218,10 @@ CREATE TABLE admin_profiles (
     archived_by UUID REFERENCES users(id)
 );
 
--- Таблица компетенций для сотрудников и вспом.персонала(полиморфная)
 CREATE TABLE competencies (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   competent_id UUID NOT NULL,
-  executor_type  SMALLINT NOT NULL, -- 'user' или 'support_staff'
+  executor_type  SMALLINT NOT NULL,
   name VARCHAR(100) NOT NULL,
   level SMALLINT NOT NULL,
   certificate_url TEXT,
@@ -316,99 +291,6 @@ CREATE TABLE manager_instructors (
     archived_by UUID REFERENCES users(id)
 );
 
--- 7. Создание начальных пользователей для каждой роли
--- Logins/emails и пароли взяты из frontend/lib/screens/login_screen.dart
--- Хеши сгенерированы с помощью bcrypt для соответствующих паролей.
-/*
--- ЭТОТ БЛОК БОЛЬШЕ НЕ РАБОТАЕТ ИЗ-ЗА ПЕРЕХОДА НА UUID. 
--- ИНИЦИАЛИЗАЦИЮ ДАННЫХ НУЖНО БУДЕТ ВЫПОЛНЯТЬ ОТДЕЛЬНЫМ СКРИПТОМ/МЕХАНИЗМОМ.
-DO $$
-DECLARE
-    admin_id UUID;
-    manager_id UUID;
-    trainer_id UUID;
-    instructor_id UUID;
-    client_id UUID;
-    admin_role_id UUID;
-    manager_role_id UUID;
-    trainer_role_id UUID;
-    instructor_role_id UUID;
-    client_role_id UUID;
-BEGIN
-    -- Получаем ID ролей
-    SELECT id INTO admin_role_id FROM roles WHERE name = 'admin';
-    SELECT id INTO manager_role_id FROM roles WHERE name = 'manager';
-    SELECT id INTO trainer_role_id FROM roles WHERE name = 'trainer';
-    SELECT id INTO instructor_role_id FROM roles WHERE name = 'instructor';
-    SELECT id INTO client_role_id FROM roles WHERE name = 'client';
-
-    -- Создание Администратора (пароль: admin123)
-    INSERT INTO users (login, password_hash, phone, email, last_name, first_name, gender, date_of_birth, created_by, updated_by)
-    VALUES ('admin@fitman.ru', '$2a$10$RATHndPnw7mQZOOfAb3RHeaGhV8Aul2U4BXx2C94pDr4EqV58uEUW', '+79603949645', 'admin@fitman.ru', 'Администратор', 'Админ', 0, '1994-02-15', admin_id, admin_id)
-    RETURNING id INTO admin_id;
-    INSERT INTO user_roles (user_id, role_id, created_by, updated_by) VALUES (admin_id, admin_role_id, admin_id, admin_id);
-
-    -- Устанавливаем created_by/updated_by для самого первого пользователя и справочников
-    UPDATE users SET created_by = admin_id, updated_by = admin_id WHERE id = admin_id;
-    UPDATE roles SET created_by = admin_id, updated_by = admin_id;
-    UPDATE goals_training SET created_by = admin_id, updated_by = admin_id;
-    UPDATE levels_training SET created_by = admin_id, updated_by = admin_id;
-
-    --Обновление каталога "Цели тренировок" (goals_training)
-    INSERT INTO goals_training (id, name, created_by, updated_by) VALUES
-    (1, 'Снижение веса и оздоровление', admin_id, admin_id),
-    (2, 'Набор мышечной массы и силы', admin_id, admin_id),
-    (3, 'Поддержание формы и улучшение рельефа', admin_id, admin_id),
-    (4, 'Развитие общей выносливости', admin_id, admin_id),
-    (5, 'Увеличение гибкости и мобильности', admin_id, admin_id)
-    ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, updated_at = NOW(), updated_by = admin_id;
-            -- Сбрасываем последовательность, чтобы новые записи из UI не конфликтовали с нашими ID
-            PERFORM setval('goals_training_id_seq', (SELECT MAX(id) FROM goals_training), true);
-    -- Создание Менеджера (пароль: manager123)
-    INSERT INTO users (login, password_hash, phone, email, last_name, first_name, gender, date_of_birth, created_by, updated_by)
-    VALUES ('manager@fitman.ru', '$2a$10$gH1uvOKi0oiI4nwhiapDgeKZjHx2Oo0OiojVABKYL5DWBaxOAKDWa', '+79603949646', 'manager@fitman.ru', 'Менеджеров', 'Менеджер', 0, '1997-01-15', admin_id, admin_id)
-    RETURNING id INTO manager_id;
-    INSERT INTO user_roles (user_id, role_id, created_by, updated_by) VALUES (manager_id, manager_role_id, admin_id, admin_id);
-    INSERT INTO employee_profiles (user_id, specialization, work_experience, created_by, updated_by) VALUES (manager_id, 'Управление', 3, admin_id, admin_id);
-    INSERT INTO manager_profiles (user_id, created_by, updated_by) VALUES (manager_id, admin_id, admin_id);
-
-    -- Создание Тренера (пароль: trainer123)
-    INSERT INTO users (login, password_hash, phone, email, last_name, first_name, gender, date_of_birth, created_by, updated_by)
-    VALUES ('trainer@fitman.ru', '$2a$10$eMnEUxZ5YndkG8KJjfrDrugj0UbvaoRkBeopAVnzWgo18kmQIs6PG', '+79603949647', 'trainer@fitman.ru', 'Тренеров', 'Тренер', 0, '1999-03-20', admin_id, admin_id)
-    RETURNING id INTO trainer_id;
-    INSERT INTO user_roles (user_id, role_id, created_by, updated_by) VALUES (trainer_id, trainer_role_id, admin_id, admin_id);
-    INSERT INTO employee_profiles (user_id, specialization, work_experience, created_by, updated_by) VALUES (trainer_id, 'Силовой тренинг', 5, admin_id, admin_id);
-    INSERT INTO trainer_profiles (user_id, created_by, updated_by) VALUES (trainer_id, admin_id, admin_id);
-
-    -- Создание Инструктора (пароль: instructor123)
-    INSERT INTO users (login, password_hash, phone, email, last_name, first_name, gender, date_of_birth, created_by, updated_by)
-    VALUES ('instructor@fitman.ru', '$2a$10$zo5j5Qm0OJAZkiwVWfIHyeSSs831kV95YsNIK0/8/rlm3WvXxY6Mi', '+79603949648', 'instructor@fitman.ru', 'Инструкторов', 'Инструктор', 1, '2002-07-01', admin_id, admin_id)
-    RETURNING id INTO instructor_id;
-    INSERT INTO user_roles (user_id, role_id, created_by, updated_by) VALUES (instructor_id, instructor_role_id, admin_id, admin_id);
-    INSERT INTO employee_profiles (user_id, specialization, work_experience, created_by, updated_by) VALUES (instructor_id, 'Групповые занятия', 2, admin_id, admin_id);
-    INSERT INTO instructor_profiles (user_id, created_by, updated_by) VALUES (instructor_id, admin_id, admin_id);
-
-    -- Создание Клиента (пароль: client123)
-    INSERT INTO users (login, password_hash, phone, email, last_name, first_name, gender, date_of_birth, created_by, updated_by)
-    VALUES ('client@fitman.ru', '$2a$10$Ho/wfV6sIt9DetDJ3.NQY.u7lMnKUGpfzZO0Qc5rzs/2UskxxDLoW', '+79603949649', 'client@fitman.ru', 'Клиентов', 'Клиент', 1, '1996-09-10', admin_id, admin_id)
-    RETURNING id INTO client_id;
-    INSERT INTO user_roles (user_id, role_id, created_by, updated_by) VALUES (client_id, client_role_id, admin_id, admin_id);
-    INSERT INTO client_profiles (user_id, goal_training_id, level_training_id, created_by, updated_by) VALUES (client_id, 1, 1, admin_id, admin_id);
-    INSERT INTO user_settings (user_id, created_by, updated_by) VALUES (client_id, admin_id, admin_id);
-
-    -- 8. Создание связей между пользователями
-    -- Назначаем инструктора и тренера менеджеру
-    INSERT INTO manager_instructors (manager_id, instructor_id) VALUES (manager_id, instructor_id);
-    INSERT INTO manager_trainers (manager_id, trainer_id) VALUES (manager_id, trainer_id);
-
-    -- Назначаем клиента менеджеру
-    INSERT INTO manager_clients (manager_id, client_id) VALUES (manager_id, client_id);
-
-    -- Назначаем клиента инструктору
-    INSERT INTO instructor_clients (instructor_id, client_id) VALUES (instructor_id, client_id);
-END $$;
-*/
--- Создание таблицы work_schedules
 CREATE TABLE work_schedules (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     day_of_week INT NOT NULL UNIQUE,
@@ -424,19 +306,6 @@ CREATE TABLE work_schedules (
     company_id UUID DEFAULT '00000000-0000-0000-0000-000000000000'
 );
 
-COMMENT ON TABLE work_schedules IS 'Расписание работы центра';
-
--- Вставка начальных данных в work_schedules
-INSERT INTO work_schedules (day_of_week, start_time, end_time, is_day_off) VALUES
-(1, '09:00', '21:00', false),
-(2, '09:00', '21:00', false),
-(3, '09:00', '21:00', false),
-(4, '09:00', '21:00', false),
-(5, '09:00', '21:00', false),
-(6, '09:00', '21:00', false),
-(7, '09:00', '21:00', false);
-
--- Создание таблицы client_schedule_preferences
 CREATE TABLE client_schedule_preferences (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     client_id UUID NOT NULL REFERENCES users(id),
@@ -450,7 +319,5 @@ CREATE TABLE client_schedule_preferences (
     archived_at TIMESTAMP WITH TIME ZONE,
     archived_by UUID,
     company_id UUID DEFAULT '00000000-0000-0000-0000-000000000000',
-    UNIQUE (client_id, day_of_week) -- A client can only have one preference per day
+    UNIQUE (client_id, day_of_week)
 );
-
-COMMENT ON TABLE client_schedule_preferences IS 'Предпочтения клиента по расписанию';
