@@ -85,8 +85,8 @@ class DatabaseSeeder {
 
     print('🔩 Seeding equipment...');
     final equipmentTypes = await _seedEquipmentTypes();
-    await _createEquipmentItem(typeId: equipmentTypes['treadmill']!, inventoryNumber: 'ТРЕД-001', roomId: rooms['cardio']!);
-    await _createEquipmentItem(typeId: equipmentTypes['treadmill']!, inventoryNumber: 'ТРЕД-002', roomId: rooms['cardio']!);
+    final item1Id = await _createEquipmentItem(typeId: equipmentTypes['treadmill']!, inventoryNumber: 'ТРЕД-001', roomId: rooms['cardio']!);
+    final item2Id = await _createEquipmentItem(typeId: equipmentTypes['treadmill']!, inventoryNumber: 'ТРЕД-002', roomId: rooms['cardio']!);
     await _createEquipmentItem(typeId: equipmentTypes['elliptical']!, inventoryNumber: 'ЭЛЛ-001', roomId: rooms['cardio']!);
     await _createEquipmentItem(typeId: equipmentTypes['dumbbell']!, inventoryNumber: 'ГАН-001', roomId: rooms['strength']!);
     await _createEquipmentItem(typeId: equipmentTypes['barbell']!, inventoryNumber: 'ШТАН-001', roomId: rooms['strength']!);
@@ -133,6 +133,46 @@ class DatabaseSeeder {
     await _assign(managerId, 'manager_clients', 'client_id', clientId);
     await _assign(instructorId, 'instructor_clients', 'client_id', clientId);
     print('🔗 Created relationships between users');
+
+    print('📖 Seeding bookings...');
+    await _createBooking(equipmentItemId: item1Id, bookedById: clientId, startOffset: const Duration(hours: 2), endOffset: const Duration(hours: 3), createdBy: adminId);
+    await _createBooking(equipmentItemId: item2Id, bookedById: trainerId, startOffset: const Duration(hours: 4), endOffset: const Duration(hours: 5), createdBy: adminId);
+    print('   📖 Created bookings.');
+
+    print('🛠️ Seeding support staff and competencies...');
+    final supportStaffId = await _createSupportStaff(
+      firstName: 'Петр',
+      lastName: 'Сергеев',
+      phone: '+79991112233',
+      email: 'p.sergeev@techservice.com',
+      employmentType: 2, // outsourced
+      category: 0, // technician
+      canMaintainEquipment: true,
+      companyName: 'ООО "ТехСервис"',
+      createdBy: adminId,
+    );
+    await _createCompetency(
+      competentId: supportStaffId,
+      executorType: 1, // supportStaff
+      name: 'Обслуживание кардио-тренажеров Matrix',
+      level: 3, // master
+      verifiedBy: adminId,
+      createdBy: adminId,
+    );
+     await _createCompetency(
+      competentId: trainerId,
+      executorType: 0, // user
+      name: 'Базовое обслуживание силовых тренажеров',
+      level: 2, // advanced
+      verifiedBy: adminId,
+      createdBy: adminId,
+    );
+    print('   🛠️ Created support staff and competencies.');
+    
+    print('📖 Seeding recommendation data...');
+    await _seedBodyShapeRecommendations(goals, levels);
+    await _seedWhtrRefinements(goals);
+    print('   📖 Created recommendation data.');
   }
 
   Future<void> runLoadTest({int userCount = 100}) async {
@@ -159,7 +199,11 @@ class DatabaseSeeder {
         ('manager', 'Менеджер'), ('admin', 'Администратор')
       ON CONFLICT (name) DO NOTHING;
     ''');
-    final levels = [{'name': 'Новичок', 'description': 'Человек, который никогда не занимался или имел длительный перерыв.'}, {'name': 'Опытный', 'description': 'Человек, который занимается регулярно от 6 месяцев до 2 лет.'}, {'name': 'Продвинутый', 'description': 'Человек, который занимается более 2 лет и имеет хорошие силовые показатели.'},];
+    final levels = [
+      {'name': 'Новичок', 'description': 'Человек, который никогда не занимался или имел длительный перерыв.'},
+      {'name': 'Опытный', 'description': 'Человек, который занимается регулярно от 6 месяцев до 2 лет.'},
+      {'name': 'Продвинутый', 'description': 'Человек, который занимается более 2 лет и имеет хорошие силовые показатели.'},
+    ];
     for (final level in levels) {
       await _connection.execute(Sql.named('''
           INSERT INTO levels_training (name, description) 
@@ -182,13 +226,48 @@ class DatabaseSeeder {
         ('group', 'Группа', 4, 50)
       ON CONFLICT (name) DO NOTHING;
     ''');
+
+    await _connection.execute('''
+      INSERT INTO work_schedules (day_of_week, start_time, end_time, is_day_off) VALUES
+      (1, '09:00', '21:00', false),
+      (2, '09:00', '21:00', false),
+      (3, '09:00', '21:00', false),
+      (4, '09:00', '21:00', false),
+      (5, '09:00', '21:00', false),
+      (6, '10:00', '20:00', false),
+      (7, '10:00', '20:00', true)
+      ON CONFLICT (day_of_week) DO NOTHING;
+    ''');
+
+    final bodyTypes = [
+      {'name': 'Эктоморф', 'gender': 'M', 'wrist_max': 17, 'ankle_max': 21},
+      {'name': 'Мезоморф', 'gender': 'M', 'wrist_min': 17, 'wrist_max': 20, 'ankle_min': 21, 'ankle_max': 25},
+      {'name': 'Эндоморф', 'gender': 'M', 'wrist_min': 20, 'ankle_min': 25},
+      {'name': 'Эктоморф', 'gender': 'Ж', 'wrist_max': 15, 'ankle_max': 21},
+      {'name': 'Мезоморф', 'gender': 'Ж', 'wrist_min': 15, 'wrist_max': 17, 'ankle_min': 21, 'ankle_max': 25},
+      {'name': 'Эндоморф', 'gender': 'Ж', 'wrist_min': 17, 'ankle_min': 25},
+    ];
+    for (final type in bodyTypes) {
+       await _connection.execute(Sql.named('''
+        INSERT INTO types_body_build (name, gender, wrist_min, wrist_max, ankle_min, ankle_max)
+        VALUES (@name, @gender, @wrist_min, @wrist_max, @ankle_min, @ankle_max)
+        ON CONFLICT (name, gender) DO NOTHING;
+      '''), parameters: {
+        'name': type['name'],
+        'gender': type['gender'],
+        'wrist_min': type['wrist_min'],
+        'wrist_max': type['wrist_max'],
+        'ankle_min': type['ankle_min'],
+        'ankle_max': type['ankle_max'],
+      });
+    }
   }
 
   Future<void> _clearDynamicData() async {
     print('🧹 Clearing all data from cascading tables...');
     // Truncating users will cascade to most related tables.
     // We also truncate the new top-level tables.
-    await _connection.execute('TRUNCATE buildings, equipment_items, users CASCADE');
+    await _connection.execute('TRUNCATE buildings, equipment_items, support_staff, equipment_bookings, body_shape_recommendations, whtr_refinements, users CASCADE');
   }
   
   // New creator methods for infrastructure
@@ -232,6 +311,72 @@ class DatabaseSeeder {
     return result.first[0].toString();
   }
 
+  Future<void> _createBooking({required String equipmentItemId, required String bookedById, required Duration startOffset, required Duration endOffset, required String createdBy}) async {
+    final now = DateTime.now();
+    await _connection.execute(Sql.named('''
+      INSERT INTO equipment_bookings (equipment_item_id, booked_by, start_time, end_time, purpose, created_by, updated_by)
+      VALUES (@item_id, @user_id, @start, @end, 'Демо-бронирование', @created_by, @created_by)
+    '''), parameters: {
+      'item_id': equipmentItemId,
+      'user_id': bookedById,
+      'start': now.add(startOffset),
+      'end': now.add(endOffset),
+      'created_by': createdBy,
+    });
+  }
+
+  Future<String> _createSupportStaff({
+    required String firstName,
+    required String lastName,
+    String? phone,
+    String? email,
+    required int employmentType,
+    required int category,
+    required bool canMaintainEquipment,
+    String? companyName,
+    required String createdBy,
+  }) async {
+    final result = await _connection.execute(Sql.named('''
+      INSERT INTO support_staff (first_name, last_name, phone, email, employment_type, category, can_maintain_equipment, company_name, created_by, updated_by)
+      VALUES (@first_name, @last_name, @phone, @email, @employment_type, @category, @can_maintain, @company_name, @created_by, @created_by)
+      RETURNING id;
+    '''), parameters: {
+      'first_name': firstName,
+      'last_name': lastName,
+      'phone': phone,
+      'email': email,
+      'employment_type': employmentType,
+      'category': category,
+      'can_maintain': canMaintainEquipment,
+      'company_name': companyName,
+      'created_by': createdBy,
+    });
+    return result.first[0].toString();
+  }
+
+  Future<void> _createCompetency({
+    required String competentId,
+    required int executorType,
+    required String name,
+    required int level,
+    required String createdBy,
+    String? verifiedBy,
+  }) async {
+    await _connection.execute(Sql.named('''
+      INSERT INTO competencies (competent_id, executor_type, name, level, verified_at, verified_by, created_by, updated_by)
+      VALUES (@competent_id, @executor_type, @name, @level, @verified_at, @verified_by, @created_by, @created_by)
+      ON CONFLICT (competent_id, executor_type, name) DO NOTHING;
+    '''), parameters: {
+      'competent_id': competentId,
+      'executor_type': executorType,
+      'name': name,
+      'level': level,
+      'verified_at': DateTime.now(),
+      'verified_by': verifiedBy ?? createdBy,
+      'created_by': createdBy,
+    });
+  }
+
   // Existing methods
   Future<String> _createUser({required String login, required String firstName, required String lastName, int gender = 0}) async {
     final passwordHash = r'$2a$10$RATHndPnw7mQZOOfAb3RHeaGhV8Aul2U4BXx2C94pDr4EqV58uEUW';
@@ -262,5 +407,49 @@ class DatabaseSeeder {
   Future<Map<String, String>> _getIdsForTable(String tableName, {String idColumn = 'id', required String keyColumn}) async {
     final results = await _connection.execute('SELECT $idColumn, $keyColumn FROM $tableName');
     return {for (var row in results) row[1] as String: row[0].toString()};
+  }
+  
+  Future<void> _seedBodyShapeRecommendations(Map<String, String> goals, Map<String, String> levels) async {
+    print('   -> Seeding body shape recommendations...');
+    final recommendations = [
+      {'body_type': 'Яблоко', 'goal': 'Снижение веса и оздоровление', 'level': 'Новичок', 'trainer': 'Акцент на снижение висцерального жира. Кардио 3-4 р/нед, 30-40 мин (ЧСС 60-70%). Силовые 2-3 р/нед, Full-body. Избегать скручиваний с весом.', 'client': 'Ваша цель - похудение. Сосредоточьтесь на кардио (ходьба, эллипс) и силовых на все тело. Ешьте меньше сладкого и жирного.'},
+      {'body_type': 'Яблоко', 'goal': 'Снижение веса и оздоровление', 'level': 'Опытный', 'trainer': 'Увеличение интенсивности. Добавить 1-2 HIIT сессии в неделю. Силовые 3 р/нед (сплит верх/низ) с акцентом на ноги и спину для улучшения пропорций.', 'client': 'Добавляем интенсивности! Пробуйте интервальные тренировки и разделите силовые на "верх" и "низ".'},
+      {'body_type': 'Груша', 'goal': 'Набор мышечной массы и силы', 'level': 'Продвинутый', 'trainer': 'Построение атлетичного верха. Приоритет на тяжелые веса для верха. Ноги - плиометрика, интервальные сеты. Комбинация HIIT и LISS кардио.', 'client': 'Стройте сильный верх. На ноги используйте прыжковые и интервальные упражнения. Строгий контроль диеты.'},
+    ];
+
+     for (final rec in recommendations) {
+      await _connection.execute(Sql.named(r'''
+        INSERT INTO body_shape_recommendations (body_type, goal_training_id, level_training_id, recommendation_text_trainer, recommendation_text_client)
+        VALUES (@body_type, @goal_id, @level_id, @trainer_text, @client_text)
+        ON CONFLICT (body_type, goal_training_id, level_training_id) DO NOTHING;
+      '''), parameters: {
+        'body_type': rec['body_type'],
+        'goal_id': goals[rec['goal']],
+        'level_id': levels[rec['level']],
+        'trainer_text': rec['trainer'],
+        'client_text': rec['client'],
+      });
+    }
+  }
+
+  Future<void> _seedWhtrRefinements(Map<String, String> goals) async {
+    print('   -> Seeding WHtR refinements...');
+    final refinements = [
+      {'gradation': 'Высокий риск ожирения', 'goal': 'Снижение веса и оздоровление', 'client': 'Уточнение по здоровью: Ваш приоритет — здоровье. Начните с ходьбы и простых упражнений, чтобы сердце и суставы привыкли к нагрузке. Каждый шаг важен!', 'trainer': 'Уточнение по WHtR (Высокий риск): Задача - безопасно ввести клиента в процесс. Строгий контроль ЧСС (не выше 60-70% от макс.). Избегать ударных и осевых нагрузок.'},
+      {'gradation': 'Норма', 'goal': 'Поддержание формы и улучшение рельефа', 'client': 'Уточнение по здоровью: Отличная форма! Ваша цель — отточить детали. Можете работать над "проблемными" зонами или просто поддерживать результат.', 'trainer': 'Уточнение по WHtR (Норма): Клиент готов к любым видам нагрузок. Можно применять продвинутые методики: суперсеты, дроп-сеты, круговые.'},
+    ];
+
+    for (final ref in refinements) {
+       await _connection.execute(Sql.named(r'''
+        INSERT INTO whtr_refinements (whtr_gradation, goal_training_id, refinement_text_client, refinement_text_trainer)
+        VALUES (@gradation, @goal_id, @client_text, @trainer_text)
+        ON CONFLICT (whtr_gradation, goal_training_id) DO NOTHING;
+      '''), parameters: {
+        'gradation': ref['gradation'],
+        'goal_id': goals[ref['goal']],
+        'client_text': ref['client'],
+        'trainer_text': ref['trainer'],
+      });
+    }
   }
 }

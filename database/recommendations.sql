@@ -91,7 +91,8 @@ CREATE TABLE types_body_build (
     created_by UUID REFERENCES users(id),
     updated_by UUID REFERENCES users(id),
     archived_at TIMESTAMPTZ,
-    archived_by UUID REFERENCES users(id)
+    archived_by UUID REFERENCES users(id),
+    UNIQUE(name, gender)
 );
 
 -- 3. Таблица БАЗОВЫХ рекомендаций по ТИПУ ФИГУРЫ
@@ -108,7 +109,8 @@ CREATE TABLE body_shape_recommendations (
     created_by UUID REFERENCES users(id),
     updated_by UUID REFERENCES users(id),
     archived_at TIMESTAMPTZ,
-    archived_by UUID REFERENCES users(id)
+    archived_by UUID REFERENCES users(id),
+    UNIQUE(body_type, goal_training_id, level_training_id)
 );
 
 -- 4. Новая таблица для УТОЧНЕНИЙ по WHtR
@@ -124,7 +126,8 @@ CREATE TABLE whtr_refinements (
     created_by UUID REFERENCES users(id),
     updated_by UUID REFERENCES users(id),
     archived_at TIMESTAMPTZ,
-    archived_by UUID REFERENCES users(id)
+    archived_by UUID REFERENCES users(id),
+    UNIQUE(whtr_gradation, goal_training_id)
 );
 
 -- 5. Таблица для хранения сгенерированных AI рекомендаций
