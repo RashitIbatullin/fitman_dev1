@@ -1,7 +1,7 @@
 import 'package:http/http.dart' as http;
 
 import '../../models/whtr_profiles.dart';
-import '../../modules/users/models/user.dart';
+import 'package:fitman_common/fitman_common.dart';
 import 'base_api.dart';
 
 /// Service class for client-specific APIs.

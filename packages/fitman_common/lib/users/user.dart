@@ -1,8 +1,8 @@
-import '../../roles/models/role.dart';
-import '../../employees/models/employee_profile.dart';
-import '../../employees/models/instructor_profile.dart';
-import '../../employees/models/manager_profile.dart';
-import '../../employees/models/trainer_profile.dart';
+import '../employees/employee_profile.dart';
+import '../employees/instructor_profile.dart';
+import '../employees/manager_profile.dart';
+import '../employees/trainer_profile.dart';
+import '../roles/role.dart';
 import 'client_profile.dart';
 
 // --- Main User Model ---
@@ -54,6 +54,8 @@ class User {
     this.archivedAt,
     this.archivedReason,
   });
+
+  factory User.fromMap(Map<String, dynamic> map) => User.fromJson(map);
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
@@ -194,144 +196,5 @@ class User {
       'archivedAt': archivedAt?.toIso8601String(),
       'archivedReason': archivedReason,
     };
-  }
-}
-
-// --- API Helper classes ---
-
-class AuthResponse {
-  final String token;
-  final User user;
-
-  AuthResponse({required this.token, required this.user});
-
-  factory AuthResponse.fromJson(Map<String, dynamic> json) {
-    return AuthResponse(
-      token: json['token'] as String,
-      user: User.fromJson(json['user'] as Map<String, dynamic>),
-    );
-  }
-}
-
-class CreateUserRequest {
-  final String email;
-  final String password;
-  final String firstName;
-  final String lastName;
-  final List<String> roles;
-  final String? middleName;
-  final String? phone;
-  final String? gender;
-  final DateTime? dateOfBirth;
-  final bool sendNotification;
-  final int hourNotification;
-  final Map<String, dynamic>? clientProfile;
-  final Map<String, dynamic>? employeeProfile;
-  final Map<String, dynamic>? instructorProfile;
-  final Map<String, dynamic>? managerProfile;
-  final Map<String, dynamic>? trainerProfile;
-
-  CreateUserRequest({
-    required this.email,
-    required this.password,
-    required this.firstName,
-    required this.lastName,
-    required this.roles,
-    this.middleName,
-    this.phone,
-    this.gender,
-    this.dateOfBirth,
-    this.sendNotification = true,
-    this.hourNotification = 1,
-    this.clientProfile,
-    this.employeeProfile,
-    this.instructorProfile,
-    this.managerProfile,
-    this.trainerProfile,
-  });
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = {
-      'email': email,
-      'password': password,
-      'firstName': firstName,
-      'lastName': lastName,
-      'roles': roles,
-      'sendNotification': sendNotification,
-      'hourNotification': hourNotification,
-    };
-    if (middleName != null) data['middleName'] = middleName;
-    if (phone != null) data['phone'] = phone;
-    if (gender != null) data['gender'] = gender;
-    if (dateOfBirth != null) data['dateOfBirth'] = dateOfBirth!.toIso8601String();
-    if (clientProfile != null) data['client_profile'] = clientProfile;
-    if (employeeProfile != null) data['employee_profile'] = employeeProfile;
-    if (instructorProfile != null) data['instructor_profile'] = instructorProfile;
-    if (managerProfile != null) data['manager_profile'] = managerProfile;
-    if (trainerProfile != null) data['trainer_profile'] = trainerProfile;
-    
-    return data;
-  }
-}
-
-class UpdateUserRequest {
-  final String id;
-  final String? email;
-  final String? firstName;
-  final String? lastName;
-  final String? middleName;
-  final String? phone;
-  final String? gender;
-  final DateTime? dateOfBirth;
-  final Map<String, dynamic>? clientProfile;
-  final Map<String, dynamic>? employeeProfile;
-  final Map<String, dynamic>? instructorProfile;
-  final Map<String, dynamic>? managerProfile;
-  final Map<String, dynamic>? trainerProfile;
-  final DateTime? archivedAt;
-  final String? archivedReason;
-
-  UpdateUserRequest({
-    required this.id,
-    this.email,
-    this.firstName,
-    this.lastName,
-    this.middleName,
-    this.phone,
-    this.gender,
-    this.dateOfBirth,
-    this.clientProfile,
-    this.employeeProfile,
-    this.instructorProfile,
-    this.managerProfile,
-    this.trainerProfile,
-    this.archivedAt,
-    this.archivedReason,
-  });
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = {
-      'id': id,
-    };
-    if (email != null) data['email'] = email;
-    if (firstName != null) data['firstName'] = firstName;
-    if (lastName != null) data['lastName'] = lastName;
-    if (middleName != null) data['middleName'] = middleName;
-    if (phone != null) data['phone'] = phone;
-    if (gender != null) data['gender'] = gender;
-    if (dateOfBirth != null) data['dateOfBirth'] = dateOfBirth!.toIso8601String();
-    if (clientProfile != null) data['client_profile'] = clientProfile;
-    if (employeeProfile != null) data['employee_profile'] = employeeProfile;
-    if (instructorProfile != null) data['instructor_profile'] = instructorProfile;
-    if (managerProfile != null) data['manager_profile'] = managerProfile;
-    if (trainerProfile != null) data['trainer_profile'] = trainerProfile;
-    if (archivedAt != null) {
-      data['archivedAt'] = archivedAt!.toIso8601String();
-    }
-    if (archivedReason != null) {
-      data['archivedReason'] = archivedReason;
-    }
-    
-    return data;
   }
 }

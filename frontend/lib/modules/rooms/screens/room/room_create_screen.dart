@@ -3,9 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fitman_app/modules/rooms/providers/room/building_provider.dart';
 import 'package:fitman_app/modules/rooms/providers/room/room_provider.dart';
-import '../../models/room/room.model.dart';
-import '../../models/room/room_type.enum.dart';
-import '../../utils/room_utils.dart';
+import 'package:fitman_common/fitman_common.dart';
 
 class RoomCreateScreen extends ConsumerStatefulWidget {
   const RoomCreateScreen({super.key});

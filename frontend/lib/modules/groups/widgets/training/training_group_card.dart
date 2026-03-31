@@ -1,5 +1,5 @@
 import '../../models/training_group_type.model.dart';
-import '../../../../modules/users/models/user.dart';
+import 'package:fitman_common/fitman_common.dart';
 import '../../providers/group_providers.dart';
 import '../../../../modules/users/providers/users_provider.dart';
 import 'package:flutter/material.dart';

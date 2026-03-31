@@ -12,8 +12,7 @@ part of 'employee_profile.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
-);
+    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
 EmployeeProfile _$EmployeeProfileFromJson(Map<String, dynamic> json) {
   return _EmployeeProfile.fromJson(json);
@@ -39,16 +38,14 @@ mixin _$EmployeeProfile {
 /// @nodoc
 abstract class $EmployeeProfileCopyWith<$Res> {
   factory $EmployeeProfileCopyWith(
-    EmployeeProfile value,
-    $Res Function(EmployeeProfile) then,
-  ) = _$EmployeeProfileCopyWithImpl<$Res, EmployeeProfile>;
+          EmployeeProfile value, $Res Function(EmployeeProfile) then) =
+      _$EmployeeProfileCopyWithImpl<$Res, EmployeeProfile>;
   @useResult
-  $Res call({
-    String userId,
-    String? specialization,
-    int? workExperience,
-    bool canMaintainEquipment,
-  });
+  $Res call(
+      {String userId,
+      String? specialization,
+      int? workExperience,
+      bool canMaintainEquipment});
 }
 
 /// @nodoc
@@ -71,45 +68,40 @@ class _$EmployeeProfileCopyWithImpl<$Res, $Val extends EmployeeProfile>
     Object? workExperience = freezed,
     Object? canMaintainEquipment = null,
   }) {
-    return _then(
-      _value.copyWith(
-            userId: null == userId
-                ? _value.userId
-                : userId // ignore: cast_nullable_to_non_nullable
-                      as String,
-            specialization: freezed == specialization
-                ? _value.specialization
-                : specialization // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            workExperience: freezed == workExperience
-                ? _value.workExperience
-                : workExperience // ignore: cast_nullable_to_non_nullable
-                      as int?,
-            canMaintainEquipment: null == canMaintainEquipment
-                ? _value.canMaintainEquipment
-                : canMaintainEquipment // ignore: cast_nullable_to_non_nullable
-                      as bool,
-          )
-          as $Val,
-    );
+    return _then(_value.copyWith(
+      userId: null == userId
+          ? _value.userId
+          : userId // ignore: cast_nullable_to_non_nullable
+              as String,
+      specialization: freezed == specialization
+          ? _value.specialization
+          : specialization // ignore: cast_nullable_to_non_nullable
+              as String?,
+      workExperience: freezed == workExperience
+          ? _value.workExperience
+          : workExperience // ignore: cast_nullable_to_non_nullable
+              as int?,
+      canMaintainEquipment: null == canMaintainEquipment
+          ? _value.canMaintainEquipment
+          : canMaintainEquipment // ignore: cast_nullable_to_non_nullable
+              as bool,
+    ) as $Val);
   }
 }
 
 /// @nodoc
 abstract class _$$EmployeeProfileImplCopyWith<$Res>
     implements $EmployeeProfileCopyWith<$Res> {
-  factory _$$EmployeeProfileImplCopyWith(
-    _$EmployeeProfileImpl value,
-    $Res Function(_$EmployeeProfileImpl) then,
-  ) = __$$EmployeeProfileImplCopyWithImpl<$Res>;
+  factory _$$EmployeeProfileImplCopyWith(_$EmployeeProfileImpl value,
+          $Res Function(_$EmployeeProfileImpl) then) =
+      __$$EmployeeProfileImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({
-    String userId,
-    String? specialization,
-    int? workExperience,
-    bool canMaintainEquipment,
-  });
+  $Res call(
+      {String userId,
+      String? specialization,
+      int? workExperience,
+      bool canMaintainEquipment});
 }
 
 /// @nodoc
@@ -117,9 +109,8 @@ class __$$EmployeeProfileImplCopyWithImpl<$Res>
     extends _$EmployeeProfileCopyWithImpl<$Res, _$EmployeeProfileImpl>
     implements _$$EmployeeProfileImplCopyWith<$Res> {
   __$$EmployeeProfileImplCopyWithImpl(
-    _$EmployeeProfileImpl _value,
-    $Res Function(_$EmployeeProfileImpl) _then,
-  ) : super(_value, _then);
+      _$EmployeeProfileImpl _value, $Res Function(_$EmployeeProfileImpl) _then)
+      : super(_value, _then);
 
   /// Create a copy of EmployeeProfile
   /// with the given fields replaced by the non-null parameter values.
@@ -131,38 +122,35 @@ class __$$EmployeeProfileImplCopyWithImpl<$Res>
     Object? workExperience = freezed,
     Object? canMaintainEquipment = null,
   }) {
-    return _then(
-      _$EmployeeProfileImpl(
-        userId: null == userId
-            ? _value.userId
-            : userId // ignore: cast_nullable_to_non_nullable
-                  as String,
-        specialization: freezed == specialization
-            ? _value.specialization
-            : specialization // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        workExperience: freezed == workExperience
-            ? _value.workExperience
-            : workExperience // ignore: cast_nullable_to_non_nullable
-                  as int?,
-        canMaintainEquipment: null == canMaintainEquipment
-            ? _value.canMaintainEquipment
-            : canMaintainEquipment // ignore: cast_nullable_to_non_nullable
-                  as bool,
-      ),
-    );
+    return _then(_$EmployeeProfileImpl(
+      userId: null == userId
+          ? _value.userId
+          : userId // ignore: cast_nullable_to_non_nullable
+              as String,
+      specialization: freezed == specialization
+          ? _value.specialization
+          : specialization // ignore: cast_nullable_to_non_nullable
+              as String?,
+      workExperience: freezed == workExperience
+          ? _value.workExperience
+          : workExperience // ignore: cast_nullable_to_non_nullable
+              as int?,
+      canMaintainEquipment: null == canMaintainEquipment
+          ? _value.canMaintainEquipment
+          : canMaintainEquipment // ignore: cast_nullable_to_non_nullable
+              as bool,
+    ));
   }
 }
 
 /// @nodoc
 @JsonSerializable()
 class _$EmployeeProfileImpl implements _EmployeeProfile {
-  const _$EmployeeProfileImpl({
-    required this.userId,
-    this.specialization,
-    this.workExperience,
-    this.canMaintainEquipment = false,
-  });
+  const _$EmployeeProfileImpl(
+      {required this.userId,
+      this.specialization,
+      this.workExperience,
+      this.canMaintainEquipment = false});
 
   factory _$EmployeeProfileImpl.fromJson(Map<String, dynamic> json) =>
       _$$EmployeeProfileImplFromJson(json);
@@ -198,13 +186,8 @@ class _$EmployeeProfileImpl implements _EmployeeProfile {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-    runtimeType,
-    userId,
-    specialization,
-    workExperience,
-    canMaintainEquipment,
-  );
+  int get hashCode => Object.hash(runtimeType, userId, specialization,
+      workExperience, canMaintainEquipment);
 
   /// Create a copy of EmployeeProfile
   /// with the given fields replaced by the non-null parameter values.
@@ -213,23 +196,22 @@ class _$EmployeeProfileImpl implements _EmployeeProfile {
   @pragma('vm:prefer-inline')
   _$$EmployeeProfileImplCopyWith<_$EmployeeProfileImpl> get copyWith =>
       __$$EmployeeProfileImplCopyWithImpl<_$EmployeeProfileImpl>(
-        this,
-        _$identity,
-      );
+          this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$EmployeeProfileImplToJson(this);
+    return _$$EmployeeProfileImplToJson(
+      this,
+    );
   }
 }
 
 abstract class _EmployeeProfile implements EmployeeProfile {
-  const factory _EmployeeProfile({
-    required final String userId,
-    final String? specialization,
-    final int? workExperience,
-    final bool canMaintainEquipment,
-  }) = _$EmployeeProfileImpl;
+  const factory _EmployeeProfile(
+      {required final String userId,
+      final String? specialization,
+      final int? workExperience,
+      final bool canMaintainEquipment}) = _$EmployeeProfileImpl;
 
   factory _EmployeeProfile.fromJson(Map<String, dynamic> json) =
       _$EmployeeProfileImpl.fromJson;

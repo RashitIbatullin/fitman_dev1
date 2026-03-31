@@ -1,4 +1,4 @@
-import 'package:fitman_app/modules/rooms/models/building/building.model.dart';
+import 'package:fitman_common/fitman_common.dart';
 import 'package:fitman_app/modules/rooms/providers/room/building_provider.dart';
 import 'package:fitman_app/services/api_service.dart';
 import 'package:fitman_app/widgets/filter_popup_menu.dart';

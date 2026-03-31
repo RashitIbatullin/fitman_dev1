@@ -13,5 +13,8 @@ _$ManagerProfileImpl _$$ManagerProfileImplFromJson(Map<String, dynamic> json) =>
     );
 
 Map<String, dynamic> _$$ManagerProfileImplToJson(
-  _$ManagerProfileImpl instance,
-) => <String, dynamic>{'user_id': instance.userId, 'is_duty': instance.isDuty};
+        _$ManagerProfileImpl instance) =>
+    <String, dynamic>{
+      'user_id': instance.userId,
+      'is_duty': instance.isDuty,
+    };

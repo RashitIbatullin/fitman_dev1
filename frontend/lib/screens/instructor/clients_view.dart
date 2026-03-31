@@ -1,4 +1,4 @@
-import 'package:fitman_app/modules/users/models/user.dart';
+import 'package:fitman_common/fitman_common.dart';
 import 'package:fitman_app/screens/client_dashboard.dart';
 import 'package:fitman_app/services/api_service.dart';
 import 'package:flutter/material.dart';

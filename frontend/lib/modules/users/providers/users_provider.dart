@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../models/user.dart';
+import 'package:fitman_common/fitman_common.dart';
 import '../../../services/api_service.dart';
 
 // --- Provider to fetch a single user by their ID ---

@@ -12,8 +12,7 @@ part of 'manager_profile.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
-);
+    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
 ManagerProfile _$ManagerProfileFromJson(Map<String, dynamic> json) {
   return _ManagerProfile.fromJson(json);
@@ -37,9 +36,8 @@ mixin _$ManagerProfile {
 /// @nodoc
 abstract class $ManagerProfileCopyWith<$Res> {
   factory $ManagerProfileCopyWith(
-    ManagerProfile value,
-    $Res Function(ManagerProfile) then,
-  ) = _$ManagerProfileCopyWithImpl<$Res, ManagerProfile>;
+          ManagerProfile value, $Res Function(ManagerProfile) then) =
+      _$ManagerProfileCopyWithImpl<$Res, ManagerProfile>;
   @useResult
   $Res call({String userId, bool isDuty});
 }
@@ -58,30 +56,29 @@ class _$ManagerProfileCopyWithImpl<$Res, $Val extends ManagerProfile>
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({Object? userId = null, Object? isDuty = null}) {
-    return _then(
-      _value.copyWith(
-            userId: null == userId
-                ? _value.userId
-                : userId // ignore: cast_nullable_to_non_nullable
-                      as String,
-            isDuty: null == isDuty
-                ? _value.isDuty
-                : isDuty // ignore: cast_nullable_to_non_nullable
-                      as bool,
-          )
-          as $Val,
-    );
+  $Res call({
+    Object? userId = null,
+    Object? isDuty = null,
+  }) {
+    return _then(_value.copyWith(
+      userId: null == userId
+          ? _value.userId
+          : userId // ignore: cast_nullable_to_non_nullable
+              as String,
+      isDuty: null == isDuty
+          ? _value.isDuty
+          : isDuty // ignore: cast_nullable_to_non_nullable
+              as bool,
+    ) as $Val);
   }
 }
 
 /// @nodoc
 abstract class _$$ManagerProfileImplCopyWith<$Res>
     implements $ManagerProfileCopyWith<$Res> {
-  factory _$$ManagerProfileImplCopyWith(
-    _$ManagerProfileImpl value,
-    $Res Function(_$ManagerProfileImpl) then,
-  ) = __$$ManagerProfileImplCopyWithImpl<$Res>;
+  factory _$$ManagerProfileImplCopyWith(_$ManagerProfileImpl value,
+          $Res Function(_$ManagerProfileImpl) then) =
+      __$$ManagerProfileImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call({String userId, bool isDuty});
@@ -92,27 +89,27 @@ class __$$ManagerProfileImplCopyWithImpl<$Res>
     extends _$ManagerProfileCopyWithImpl<$Res, _$ManagerProfileImpl>
     implements _$$ManagerProfileImplCopyWith<$Res> {
   __$$ManagerProfileImplCopyWithImpl(
-    _$ManagerProfileImpl _value,
-    $Res Function(_$ManagerProfileImpl) _then,
-  ) : super(_value, _then);
+      _$ManagerProfileImpl _value, $Res Function(_$ManagerProfileImpl) _then)
+      : super(_value, _then);
 
   /// Create a copy of ManagerProfile
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({Object? userId = null, Object? isDuty = null}) {
-    return _then(
-      _$ManagerProfileImpl(
-        userId: null == userId
-            ? _value.userId
-            : userId // ignore: cast_nullable_to_non_nullable
-                  as String,
-        isDuty: null == isDuty
-            ? _value.isDuty
-            : isDuty // ignore: cast_nullable_to_non_nullable
-                  as bool,
-      ),
-    );
+  $Res call({
+    Object? userId = null,
+    Object? isDuty = null,
+  }) {
+    return _then(_$ManagerProfileImpl(
+      userId: null == userId
+          ? _value.userId
+          : userId // ignore: cast_nullable_to_non_nullable
+              as String,
+      isDuty: null == isDuty
+          ? _value.isDuty
+          : isDuty // ignore: cast_nullable_to_non_nullable
+              as bool,
+    ));
   }
 }
 
@@ -155,21 +152,19 @@ class _$ManagerProfileImpl implements _ManagerProfile {
   @pragma('vm:prefer-inline')
   _$$ManagerProfileImplCopyWith<_$ManagerProfileImpl> get copyWith =>
       __$$ManagerProfileImplCopyWithImpl<_$ManagerProfileImpl>(
-        this,
-        _$identity,
-      );
+          this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$ManagerProfileImplToJson(this);
+    return _$$ManagerProfileImplToJson(
+      this,
+    );
   }
 }
 
 abstract class _ManagerProfile implements ManagerProfile {
-  const factory _ManagerProfile({
-    required final String userId,
-    final bool isDuty,
-  }) = _$ManagerProfileImpl;
+  const factory _ManagerProfile(
+      {required final String userId, final bool isDuty}) = _$ManagerProfileImpl;
 
   factory _ManagerProfile.fromJson(Map<String, dynamic> json) =
       _$ManagerProfileImpl.fromJson;

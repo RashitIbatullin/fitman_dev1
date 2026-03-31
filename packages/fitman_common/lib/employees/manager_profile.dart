@@ -12,4 +12,7 @@ class ManagerProfile with _$ManagerProfile {
 
   factory ManagerProfile.fromJson(Map<String, dynamic> json) =>
       _$ManagerProfileFromJson(json);
+
+  factory ManagerProfile.fromMap(Map<String, dynamic> map) =>
+      ManagerProfile.fromJson(map);
 }

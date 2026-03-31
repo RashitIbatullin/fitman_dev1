@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../users/models/user.dart';
+
 import '../../../providers/auth_provider.dart';
 import 'role_selection_dialog.dart';
-import '../models/role.dart';
+import 'package:fitman_common/fitman_common.dart';
 
 class RoleDialogManager extends ConsumerStatefulWidget {
   final User user;

@@ -11,6 +11,9 @@ class ClientProfile {
     required this.coeffActivity,
   });
 
+  factory ClientProfile.fromMap(Map<String, dynamic> map) =>
+      ClientProfile.fromJson(map);
+
   factory ClientProfile.fromJson(Map<String, dynamic> json) {
     return ClientProfile(
       goalTrainingId: json['goal_training_id']?.toString(),

@@ -128,6 +128,13 @@ packages:
       relative: true
     source: path
     version: "1.0.0+1"
+  fitman_common:
+    dependency: transitive
+    description:
+      path: "packages/fitman_common"
+      relative: true
+    source: path
+    version: "0.0.1"
   fl_chart:
     dependency: "direct main"
     description:

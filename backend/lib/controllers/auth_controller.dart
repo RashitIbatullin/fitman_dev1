@@ -4,7 +4,7 @@ import 'package:bcrypt/bcrypt.dart';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import '../config/database.dart';
 import '../config/app_config.dart';
-import '../modules/users/models/user.dart';
+import 'package:fitman_common/fitman_common.dart';
 
 class AuthController {
   static Future<Response> login(Request request) async {
@@ -57,7 +57,7 @@ class AuthController {
       final token = _generateJwtToken(user);
       final response = {
         'token': token,
-        'user': user.toSafeJson()
+        'user': user.toJson()
       };
 
       print('✅ Login successful for: $email');
@@ -120,7 +120,7 @@ class AuthController {
 
       final response = {
         'token': token,
-        'user': createdUser.toSafeJson()
+        'user': createdUser.toJson()
       };
 
       return Response(201, body: jsonEncode(response));

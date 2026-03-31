@@ -2,8 +2,7 @@ import '../../modules/equipment/models/equipment/equipment_item.model.dart';
 import '../../modules/equipment/models/equipment/equipment_type.model.dart';
 import '../../modules/equipment/models/equipment/equipment_category.enum.dart';
 
-import '../../modules/rooms/models/building/building.model.dart';
-import '../../modules/rooms/models/room/room.model.dart';
+import 'package:fitman_common/fitman_common.dart';
 import 'base_api.dart';
 
 /// Service class for infrastructure-related APIs (Rooms, Buildings, Equipment).

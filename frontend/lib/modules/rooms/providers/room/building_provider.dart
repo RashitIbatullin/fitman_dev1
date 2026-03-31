@@ -1,6 +1,6 @@
 import 'package:fitman_app/services/api_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../models/building/building.model.dart';
+import 'package:fitman_common/fitman_common.dart';
 import '../../screens/building/buildings_list_screen.dart';
 
 class BuildingsNotifier extends AsyncNotifier<List<Building>> {

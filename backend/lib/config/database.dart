@@ -1,13 +1,8 @@
 import 'dart:async';
 import 'package:postgres/postgres.dart';
-import '../models/client_profile.dart';
+
+import 'package:fitman_common/fitman_common.dart';
 import 'app_config.dart';
-import '../modules/users/models/user.dart';
-import '../modules/roles/models/role.dart';
-import '../modules/employees/models/employee_profile.dart';
-import '../modules/employees/models/instructor_profile.dart';
-import '../modules/employees/models/manager_profile.dart';
-import '../modules/employees/models/trainer_profile.dart';
 
 import '../modules/groups/repositories/group_repository.dart'; // New import
 import '../modules/rooms/repositories/room.repository.dart';

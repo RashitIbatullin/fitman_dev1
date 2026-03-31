@@ -7,8 +7,7 @@ import 'package:fitman_app/modules/rooms/providers/room/room_provider.dart';
 import '../../models/equipment/equipment_item.model.dart';
 import '../../models/equipment/equipment_status.enum.dart';
 import '../../models/equipment/equipment_type.model.dart';
-import 'package:fitman_app/modules/rooms/models/room/room.model.dart';
-import 'package:fitman_app/modules/rooms/utils/room_utils.dart'; // Add this import
+import 'package:fitman_common/fitman_common.dart';
 import '../item/equipment_item_detail_screen.dart';
 import '../item/equipment_item_edit_screen.dart';
 import 'package:fitman_app/modules/equipment/screens/standards/repair_time_standards_screen.dart';

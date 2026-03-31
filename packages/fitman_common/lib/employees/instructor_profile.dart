@@ -14,4 +14,7 @@ class InstructorProfile with _$InstructorProfile {
 
   factory InstructorProfile.fromJson(Map<String, dynamic> json) =>
       _$InstructorProfileFromJson(json);
+
+  factory InstructorProfile.fromMap(Map<String, dynamic> map) =>
+      InstructorProfile.fromJson(map);
 }

@@ -1,7 +1,6 @@
 import 'package:http/http.dart' as http;
 
-import '../../modules/roles/models/role.dart';
-import '../../modules/users/models/user.dart';
+import 'package:fitman_common/fitman_common.dart';
 import 'base_api.dart';
 
 /// Service class for authentication and user management APIs.

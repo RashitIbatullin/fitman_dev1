@@ -7,7 +7,7 @@ import 'package:fitman_app/modules/roles/screens/unknown_role_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/auth_provider.dart';
-import '../modules/roles/models/role.dart';
+import 'package:fitman_common/fitman_common.dart';
 import '../modules/roles/widgets/role_dialog_manager.dart';
 
 /// This is an invisible widget whose only purpose is to listen to the

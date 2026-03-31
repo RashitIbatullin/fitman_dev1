@@ -12,8 +12,7 @@ part of 'instructor_profile.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
-);
+    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
 InstructorProfile _$InstructorProfileFromJson(Map<String, dynamic> json) {
   return _InstructorProfile.fromJson(json);
@@ -39,16 +38,11 @@ mixin _$InstructorProfile {
 /// @nodoc
 abstract class $InstructorProfileCopyWith<$Res> {
   factory $InstructorProfileCopyWith(
-    InstructorProfile value,
-    $Res Function(InstructorProfile) then,
-  ) = _$InstructorProfileCopyWithImpl<$Res, InstructorProfile>;
+          InstructorProfile value, $Res Function(InstructorProfile) then) =
+      _$InstructorProfileCopyWithImpl<$Res, InstructorProfile>;
   @useResult
-  $Res call({
-    String userId,
-    bool isDuty,
-    bool canReplaceTrainer,
-    bool canCreatePlan,
-  });
+  $Res call(
+      {String userId, bool isDuty, bool canReplaceTrainer, bool canCreatePlan});
 }
 
 /// @nodoc
@@ -71,55 +65,46 @@ class _$InstructorProfileCopyWithImpl<$Res, $Val extends InstructorProfile>
     Object? canReplaceTrainer = null,
     Object? canCreatePlan = null,
   }) {
-    return _then(
-      _value.copyWith(
-            userId: null == userId
-                ? _value.userId
-                : userId // ignore: cast_nullable_to_non_nullable
-                      as String,
-            isDuty: null == isDuty
-                ? _value.isDuty
-                : isDuty // ignore: cast_nullable_to_non_nullable
-                      as bool,
-            canReplaceTrainer: null == canReplaceTrainer
-                ? _value.canReplaceTrainer
-                : canReplaceTrainer // ignore: cast_nullable_to_non_nullable
-                      as bool,
-            canCreatePlan: null == canCreatePlan
-                ? _value.canCreatePlan
-                : canCreatePlan // ignore: cast_nullable_to_non_nullable
-                      as bool,
-          )
-          as $Val,
-    );
+    return _then(_value.copyWith(
+      userId: null == userId
+          ? _value.userId
+          : userId // ignore: cast_nullable_to_non_nullable
+              as String,
+      isDuty: null == isDuty
+          ? _value.isDuty
+          : isDuty // ignore: cast_nullable_to_non_nullable
+              as bool,
+      canReplaceTrainer: null == canReplaceTrainer
+          ? _value.canReplaceTrainer
+          : canReplaceTrainer // ignore: cast_nullable_to_non_nullable
+              as bool,
+      canCreatePlan: null == canCreatePlan
+          ? _value.canCreatePlan
+          : canCreatePlan // ignore: cast_nullable_to_non_nullable
+              as bool,
+    ) as $Val);
   }
 }
 
 /// @nodoc
 abstract class _$$InstructorProfileImplCopyWith<$Res>
     implements $InstructorProfileCopyWith<$Res> {
-  factory _$$InstructorProfileImplCopyWith(
-    _$InstructorProfileImpl value,
-    $Res Function(_$InstructorProfileImpl) then,
-  ) = __$$InstructorProfileImplCopyWithImpl<$Res>;
+  factory _$$InstructorProfileImplCopyWith(_$InstructorProfileImpl value,
+          $Res Function(_$InstructorProfileImpl) then) =
+      __$$InstructorProfileImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({
-    String userId,
-    bool isDuty,
-    bool canReplaceTrainer,
-    bool canCreatePlan,
-  });
+  $Res call(
+      {String userId, bool isDuty, bool canReplaceTrainer, bool canCreatePlan});
 }
 
 /// @nodoc
 class __$$InstructorProfileImplCopyWithImpl<$Res>
     extends _$InstructorProfileCopyWithImpl<$Res, _$InstructorProfileImpl>
     implements _$$InstructorProfileImplCopyWith<$Res> {
-  __$$InstructorProfileImplCopyWithImpl(
-    _$InstructorProfileImpl _value,
-    $Res Function(_$InstructorProfileImpl) _then,
-  ) : super(_value, _then);
+  __$$InstructorProfileImplCopyWithImpl(_$InstructorProfileImpl _value,
+      $Res Function(_$InstructorProfileImpl) _then)
+      : super(_value, _then);
 
   /// Create a copy of InstructorProfile
   /// with the given fields replaced by the non-null parameter values.
@@ -131,38 +116,35 @@ class __$$InstructorProfileImplCopyWithImpl<$Res>
     Object? canReplaceTrainer = null,
     Object? canCreatePlan = null,
   }) {
-    return _then(
-      _$InstructorProfileImpl(
-        userId: null == userId
-            ? _value.userId
-            : userId // ignore: cast_nullable_to_non_nullable
-                  as String,
-        isDuty: null == isDuty
-            ? _value.isDuty
-            : isDuty // ignore: cast_nullable_to_non_nullable
-                  as bool,
-        canReplaceTrainer: null == canReplaceTrainer
-            ? _value.canReplaceTrainer
-            : canReplaceTrainer // ignore: cast_nullable_to_non_nullable
-                  as bool,
-        canCreatePlan: null == canCreatePlan
-            ? _value.canCreatePlan
-            : canCreatePlan // ignore: cast_nullable_to_non_nullable
-                  as bool,
-      ),
-    );
+    return _then(_$InstructorProfileImpl(
+      userId: null == userId
+          ? _value.userId
+          : userId // ignore: cast_nullable_to_non_nullable
+              as String,
+      isDuty: null == isDuty
+          ? _value.isDuty
+          : isDuty // ignore: cast_nullable_to_non_nullable
+              as bool,
+      canReplaceTrainer: null == canReplaceTrainer
+          ? _value.canReplaceTrainer
+          : canReplaceTrainer // ignore: cast_nullable_to_non_nullable
+              as bool,
+      canCreatePlan: null == canCreatePlan
+          ? _value.canCreatePlan
+          : canCreatePlan // ignore: cast_nullable_to_non_nullable
+              as bool,
+    ));
   }
 }
 
 /// @nodoc
 @JsonSerializable()
 class _$InstructorProfileImpl implements _InstructorProfile {
-  const _$InstructorProfileImpl({
-    required this.userId,
-    this.isDuty = false,
-    this.canReplaceTrainer = false,
-    this.canCreatePlan = false,
-  });
+  const _$InstructorProfileImpl(
+      {required this.userId,
+      this.isDuty = false,
+      this.canReplaceTrainer = false,
+      this.canCreatePlan = false});
 
   factory _$InstructorProfileImpl.fromJson(Map<String, dynamic> json) =>
       _$$InstructorProfileImplFromJson(json);
@@ -200,12 +182,7 @@ class _$InstructorProfileImpl implements _InstructorProfile {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
-    runtimeType,
-    userId,
-    isDuty,
-    canReplaceTrainer,
-    canCreatePlan,
-  );
+      runtimeType, userId, isDuty, canReplaceTrainer, canCreatePlan);
 
   /// Create a copy of InstructorProfile
   /// with the given fields replaced by the non-null parameter values.
@@ -214,23 +191,22 @@ class _$InstructorProfileImpl implements _InstructorProfile {
   @pragma('vm:prefer-inline')
   _$$InstructorProfileImplCopyWith<_$InstructorProfileImpl> get copyWith =>
       __$$InstructorProfileImplCopyWithImpl<_$InstructorProfileImpl>(
-        this,
-        _$identity,
-      );
+          this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$InstructorProfileImplToJson(this);
+    return _$$InstructorProfileImplToJson(
+      this,
+    );
   }
 }
 
 abstract class _InstructorProfile implements InstructorProfile {
-  const factory _InstructorProfile({
-    required final String userId,
-    final bool isDuty,
-    final bool canReplaceTrainer,
-    final bool canCreatePlan,
-  }) = _$InstructorProfileImpl;
+  const factory _InstructorProfile(
+      {required final String userId,
+      final bool isDuty,
+      final bool canReplaceTrainer,
+      final bool canCreatePlan}) = _$InstructorProfileImpl;
 
   factory _InstructorProfile.fromJson(Map<String, dynamic> json) =
       _$InstructorProfileImpl.fromJson;

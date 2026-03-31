@@ -17,13 +17,13 @@ import '../models/available_executor.model.dart';
 import '../modules/equipment/models/equipment/equipment_item.model.dart';
 import '../modules/equipment/models/equipment/equipment_type.model.dart';
 import '../modules/equipment/models/repair_time_standard.model.dart';
-import '../modules/roles/models/role.dart';
+
 import '../models/schedule_item.dart';
-import '../modules/rooms/models/building/building.model.dart';
-import '../modules/rooms/models/room/room.model.dart';
+
+
 import '../modules/supportStaff/models/competency.model.dart';
 import '../modules/supportStaff/models/support_staff.model.dart';
-import '../modules/users/models/user.dart';
+import 'package:fitman_common/fitman_common.dart';
 import '../modules/chat/models/chat_models.dart';
 import '../models/whtr_profiles.dart';
 import '../models/goal_training.dart';

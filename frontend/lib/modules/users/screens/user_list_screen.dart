@@ -2,8 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../models/user.dart';
-import '../../roles/models/role.dart';
+import 'package:fitman_common/fitman_common.dart';
 import '../../../services/api_service.dart';
 import '../../employees/screens/create_employee_screen.dart';
 import '../../../screens/client_dashboard.dart';

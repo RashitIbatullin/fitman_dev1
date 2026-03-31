@@ -1,5 +1,5 @@
 import '../../config/database.dart';
-import '../../modules/users/models/user.dart';
+import 'package:fitman_common/fitman_common.dart';
 import 'somatotype_helper.dart';
 
 // Helper data classes for clarity

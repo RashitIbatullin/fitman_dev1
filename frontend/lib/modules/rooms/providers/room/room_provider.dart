@@ -1,9 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fitman_app/services/api_service.dart';
-import 'package:fitman_app/modules/rooms/models/room/room.model.dart';
-import 'package:fitman_app/modules/equipment/models/equipment/equipment_item.model.dart';
-
-import '../../models/room/room_type.enum.dart'; // Needed for equipmentByRoomProvider
+import 'package:fitman_common/fitman_common.dart';
+import 'package:fitman_app/modules/equipment/models/equipment/equipment_item.model.dart'; // Needed for equipmentByRoomProvider
 
 // --- Filters for Rooms ---
 final roomIsActiveFilterProvider = StateProvider<bool?>((ref) => null);

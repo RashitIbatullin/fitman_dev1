@@ -1,11 +1,14 @@
 name: fitman_backend
 description: Фитнес-менеджер Backend API
 version: 1.0.0
+publish_to: 'none'
 
 environment:
   sdk: ^3.8.0
 
 dependencies:
+  fitman_common:
+    path: ../packages/fitman_common
   postgres: ^3.5.8
   dart_jsonwebtoken: ^3.3.1
   bcrypt: ^1.1.3

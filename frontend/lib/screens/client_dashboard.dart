@@ -6,7 +6,7 @@ import 'package:fitman_app/providers/dashboard_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import '../modules/users/models/user.dart';
+import 'package:fitman_common/fitman_common.dart';
 import '../providers/auth_provider.dart';
 import 'client/my_trainer_screen.dart';
 import 'client/my_instructor_screen.dart';

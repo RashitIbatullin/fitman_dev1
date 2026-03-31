@@ -4,8 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
-import '../modules/users/models/user.dart';
-import '../modules/roles/models/role.dart';
+import 'package:fitman_common/fitman_common.dart';
 import '../services/api_service.dart';
 
 // 1. Единый класс состояния аутентификации

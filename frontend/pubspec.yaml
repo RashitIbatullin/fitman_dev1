@@ -12,6 +12,8 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.2
+  fitman_common:
+    path: ../packages/fitman_common
   http: ^1.5.0
   shared_preferences: ^2.0.15
   flutter_riverpod: ^2.6.1

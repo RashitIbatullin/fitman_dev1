@@ -14,4 +14,7 @@ class EmployeeProfile with _$EmployeeProfile {
 
   factory EmployeeProfile.fromJson(Map<String, dynamic> json) =>
       _$EmployeeProfileFromJson(json);
+
+  factory EmployeeProfile.fromMap(Map<String, dynamic> map) =>
+      EmployeeProfile.fromJson(map);
 }

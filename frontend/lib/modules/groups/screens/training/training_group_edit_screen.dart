@@ -4,7 +4,7 @@ import '../../providers/group_providers.dart';
 import '../../models/training_group.model.dart';
 import '../../widgets/common/group_member_list.dart'; // For later use
 import 'package:fitman_app/services/api_service.dart'; // For fetching users for dropdowns
-import 'package:fitman_app/modules/users/models/user.dart'; // For user dropdown
+import 'package:fitman_common/fitman_common.dart'; // For user dropdown
 import 'package:intl/intl.dart'; // New import
 
 class TrainingGroupEditScreen extends ConsumerStatefulWidget {

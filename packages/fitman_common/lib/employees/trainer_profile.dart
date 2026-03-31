@@ -11,4 +11,7 @@ class TrainerProfile with _$TrainerProfile {
 
   factory TrainerProfile.fromJson(Map<String, dynamic> json) =>
       _$TrainerProfileFromJson(json);
+
+  factory TrainerProfile.fromMap(Map<String, dynamic> map) =>
+      TrainerProfile.fromJson(map);
 }

@@ -4,7 +4,7 @@ import 'package:shelf/shelf.dart';
 import 'package:shelf_multipart/shelf_multipart.dart';
 import 'package:bcrypt/bcrypt.dart';
 import '../../../config/database.dart';
-import '../models/user.dart';
+import 'package:fitman_common/fitman_common.dart';
 
 class UsersController {
   static final Database _db = Database();
@@ -88,7 +88,7 @@ class UsersController {
 
       return Response(201, body: jsonEncode({
         'message': 'Пользователь успешно создан',
-        'user': createdUser.toSafeJson()
+        'user': createdUser.toJson()
       }));
     } catch (e) {
       print('Create user error: $e');
@@ -143,7 +143,7 @@ class UsersController {
 
       return Response.ok(jsonEncode({
         'message': 'Роли пользователя успешно обновлены',
-        'user': updatedUser?.toSafeJson()
+        'user': updatedUser?.toJson()
       }));
     } catch (e) {
       print('Update user roles error: $e');
@@ -161,7 +161,7 @@ class UsersController {
       final String? role = queryParams['role']; // Get role from query parameters
 
       final users = await _db.getAllUsers(isArchived: isArchived, role: role); // Pass role to getAllUsers
-      final usersJson = users.map((user) => user.toSafeJson()).toList();
+      final usersJson = users.map((user) => user.toJson()).toList();
       return Response.ok(jsonEncode({'users': usersJson}));
     } catch (e) {
       print('Get users error: $e');
@@ -176,7 +176,7 @@ class UsersController {
       if (user == null) {
         return Response(404, body: jsonEncode({'error': 'User not found'}));
       }
-      return Response.ok(jsonEncode({'user': user.toSafeJson()}));
+      return Response.ok(jsonEncode({'user': user.toJson()}));
     } catch (e) {
       print('Get user by ID error: $e');
       return Response(500, body: jsonEncode({'error': 'Internal server error'}));
@@ -278,7 +278,7 @@ class UsersController {
       if (updatedUser == null) {
         return Response(404, body: jsonEncode({'error': 'User not found after update'}));
       }
-      return Response.ok(jsonEncode({'user': updatedUser.toSafeJson()}));
+      return Response.ok(jsonEncode({'user': updatedUser.toJson()}));
     } catch (e) {
       print('Update user error: $e');
       return Response(500, body: jsonEncode({'error': 'Internal server error: $e'}));
@@ -310,7 +310,7 @@ class UsersController {
       if (userData == null) {
         return Response(404, body: jsonEncode({'error': 'User not found'}));
       }
-      return Response.ok(jsonEncode({'user': userData.toSafeJson()}));
+      return Response.ok(jsonEncode({'user': userData.toJson()}));
     } catch (e) {
       print('Get profile error: $e');
       return Response(500, body: jsonEncode({'error': 'Internal server error'}));
@@ -351,7 +351,7 @@ class UsersController {
         return Response(404, body: jsonEncode({'error': 'Trainer not found for this client'}));
       }
 
-      return Response.ok(jsonEncode({'trainer': trainer.toSafeJson()}));
+      return Response.ok(jsonEncode({'trainer': trainer.toJson()}));
     } catch (e) {
       print('Get trainer for client error: $e');
       return Response(500, body: jsonEncode({'error': 'Internal server error'}));
@@ -373,7 +373,7 @@ class UsersController {
         return Response(404, body: jsonEncode({'error': 'Instructor not found for this client'}));
       }
 
-      return Response.ok(jsonEncode({'instructor': instructor.toSafeJson()}));
+      return Response.ok(jsonEncode({'instructor': instructor.toJson()}));
     } catch (e) {
       print('Get instructor for client error: $e');
       return Response(500, body: jsonEncode({'error': 'Internal server error'}));
@@ -395,7 +395,7 @@ class UsersController {
         return Response(404, body: jsonEncode({'error': 'Manager not found for this client'}));
       }
 
-      return Response.ok(jsonEncode({'manager': manager.toSafeJson()}));
+      return Response.ok(jsonEncode({'manager': manager.toJson()}));
     } catch (e) {
       print('Get manager for client error: $e');
       return Response(500, body: jsonEncode({'error': 'Internal server error'}));
@@ -474,7 +474,7 @@ class UsersController {
 
       return Response.ok(jsonEncode({
         'message': 'Профиль клиента успешно обновлен',
-        'user': updatedUser.toSafeJson(),
+        'user': updatedUser.toJson(),
       }));
 
     } catch (e) {

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/role.dart';
+import 'package:fitman_common/fitman_common.dart';
 
 class RoleSelectionDialog extends StatelessWidget {
   final List<Role> roles;
