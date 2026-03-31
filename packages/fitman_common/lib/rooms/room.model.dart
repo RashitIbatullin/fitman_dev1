@@ -1,6 +1,7 @@
 // ignore_for_file: invalid_annotation_target
 
 import 'package:freezed_annotation/freezed_annotation.dart';
+import '../groups/group_schedule.model.dart';
 import 'room_type.enum.dart';
 import 'time_of_day_converter.dart';
 
