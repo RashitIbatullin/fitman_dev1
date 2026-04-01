@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:fitman_app/models/schedule_item.dart';
+import 'package:fitman_common/fitman_common.dart';
 import 'package:fitman_app/services/api_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/work_schedule_provider.dart';
-import '../../models/work_schedule.dart';
+import 'package:fitman_common/fitman_common.dart';
 
 class WorkScheduleScreen extends ConsumerWidget {
   const WorkScheduleScreen({super.key});

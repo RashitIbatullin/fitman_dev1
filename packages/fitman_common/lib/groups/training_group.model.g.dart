@@ -15,8 +15,7 @@ TrainingGroup _$TrainingGroupFromJson(Map<String, dynamic> json) =>
       primaryTrainerId: json['primary_trainer_id'] as String?,
       primaryInstructorId: json['primary_instructor_id'] as String?,
       responsibleManagerId: json['responsible_manager_id'] as String?,
-      clientIds:
-          (json['client_ids'] as List<dynamic>?)
+      clientIds: (json['client_ids'] as List<dynamic>?)
               ?.map((e) => e as String)
               .toList() ??
           [],

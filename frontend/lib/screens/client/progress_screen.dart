@@ -1,4 +1,4 @@
-import 'package:fitman_app/models/progress_data.dart';
+import 'package:fitman_common/fitman_common.dart';
 import 'package:fitman_app/services/api_service.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';

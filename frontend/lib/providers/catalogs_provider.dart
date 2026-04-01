@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../models/goal_training.dart';
-import '../models/level_training.dart';
+import 'package:fitman_common/fitman_common.dart';
 import '../services/api_service.dart';
 
 final goalsTrainingProvider = FutureProvider<List<GoalTraining>>((ref) async {

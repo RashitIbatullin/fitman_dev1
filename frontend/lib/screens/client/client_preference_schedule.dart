@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/work_schedule_provider.dart';
 import '../../services/api_service.dart'; // Import ApiService
-import '../../models/client_schedule_preference.dart'; // Import ClientSchedulePreference
+import 'package:fitman_common/fitman_common.dart'; // Import ClientSchedulePreference
 
 class ClientPreferenceSchedule extends ConsumerStatefulWidget {
   const ClientPreferenceSchedule({super.key});

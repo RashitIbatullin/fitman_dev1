@@ -2,8 +2,7 @@
 
 import 'dart:async';
 
-import 'package:fitman_app/models/anthropometry_data.dart';
-import 'package:fitman_app/models/whtr_profiles.dart';
+import 'package:fitman_common/fitman_common.dart';
 import 'package:fitman_app/providers/recommendation_provider.dart';
 import 'package:fitman_app/screens/client/photo_comparison_screen.dart';
 import 'package:fitman_app/services/api_service.dart';

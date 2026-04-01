@@ -561,8 +561,10 @@ class _$RoomImpl implements _Room {
             (identical(other.maxCapacity, maxCapacity) ||
                 other.maxCapacity == maxCapacity) &&
             (identical(other.area, area) || other.area == area) &&
-            const DeepCollectionEquality().equals(other.openTime, openTime) &&
-            const DeepCollectionEquality().equals(other.closeTime, closeTime) &&
+            (identical(other.openTime, openTime) ||
+                other.openTime == openTime) &&
+            (identical(other.closeTime, closeTime) ||
+                other.closeTime == closeTime) &&
             const DeepCollectionEquality()
                 .equals(other._workingDays, _workingDays) &&
             (identical(other.isActive, isActive) ||
@@ -602,8 +604,8 @@ class _$RoomImpl implements _Room {
         buildingName,
         maxCapacity,
         area,
-        const DeepCollectionEquality().hash(openTime),
-        const DeepCollectionEquality().hash(closeTime),
+        openTime,
+        closeTime,
         const DeepCollectionEquality().hash(_workingDays),
         isActive,
         deactivateReason,

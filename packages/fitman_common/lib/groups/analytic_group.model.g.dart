@@ -11,17 +11,14 @@ AnalyticGroup _$AnalyticGroupFromJson(Map<String, dynamic> json) =>
       id: json['id'] as String?,
       name: json['name'] as String,
       description: json['description'] as String?,
-      type: const AnalyticGroupTypeConverter().fromJson(
-        (json['type'] as num).toInt(),
-      ),
+      type: const AnalyticGroupTypeConverter()
+          .fromJson((json['type'] as num).toInt()),
       isAutoUpdate: json['is_auto_update'] as bool? ?? false,
-      conditions:
-          (json['conditions'] as List<dynamic>?)
+      conditions: (json['conditions'] as List<dynamic>?)
               ?.map((e) => GroupCondition.fromJson(e as Map<String, dynamic>))
               .toList() ??
           const [],
-      clientIds:
-          (json['client_ids_cache'] as List<dynamic>?)
+      clientIds: (json['client_ids_cache'] as List<dynamic>?)
               ?.map((e) => e as String)
               .toList() ??
           [],

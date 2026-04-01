@@ -1,3 +1,5 @@
+import 'package:fitman_common/fitman_common.dart';
+
 import 'api/admin_api.dart';
 import 'api/auth_api.dart';
 import 'api/base_api.dart';
@@ -13,21 +15,12 @@ import 'api/recommendation_api.dart';
 import 'api/schedule_api.dart';
 import 'api/support_staff_api.dart';
 import 'api/employee_api.dart';
-import '../models/available_executor.model.dart';
 import '../modules/equipment/models/equipment/equipment_item.model.dart';
 import '../modules/equipment/models/equipment/equipment_type.model.dart';
 import '../modules/equipment/models/repair_time_standard.model.dart';
-
-import '../models/schedule_item.dart';
-
-
 import '../modules/supportStaff/models/competency.model.dart';
 import '../modules/supportStaff/models/support_staff.model.dart';
-import 'package:fitman_common/fitman_common.dart';
 import '../modules/chat/models/chat_models.dart';
-import '../models/whtr_profiles.dart';
-import '../models/goal_training.dart';
-import '../models/level_training.dart';
 import '../modules/groups/models/training_group.model.dart';
 import '../modules/groups/models/analytic_group.model.dart';
 import '../modules/groups/models/group_schedule.model.dart';

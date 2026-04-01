@@ -1,4 +1,4 @@
-import '../../models/schedule_item.dart';
+import 'package:fitman_common/fitman_common.dart';
 import 'base_api.dart';
 
 /// Service class for schedule-related APIs.

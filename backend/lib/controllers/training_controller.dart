@@ -1,38 +1,48 @@
 import 'dart:convert';
 import 'package:shelf/shelf.dart';
+import 'package:fitman_common/fitman_common.dart';
 
 class TrainingController {
   static Future<Response> getTrainingPlans(Request request) async {
     try {
       // В MVP1 возвращаем моковые данные
       final mockPlans = [
-        {
-          'id': 1,
-          'name': 'Похудение для начинающих',
-          'goal': 'weight_loss',
-          'level': 'beginner',
-          'description': 'Базовые упражнения для снижения веса'
-        },
-        {
-          'id': 2,
-          'name': 'Набор мышечной массы',
-          'goal': 'muscle_gain',
-          'level': 'intermediate',
-          'description': 'Силовые тренировки для роста мышц'
-        },
-        {
-          'id': 3,
-          'name': 'Поддержание формы',
-          'goal': 'maintenance',
-          'level': 'beginner',
-          'description': 'Упражнения для поддержания текущей формы'
-        }
+        TrainingPlan(
+          id: '1',
+          name: 'Похудение для начинающих',
+          goal: 'weight_loss',
+          level: 'beginner',
+          description: 'Базовые упражнения для снижения веса',
+          createdAt: DateTime.now().subtract(const Duration(days: 10)),
+          updatedAt: DateTime.now().subtract(const Duration(days: 1)),
+        ),
+        TrainingPlan(
+          id: '2',
+          name: 'Набор мышечной массы',
+          goal: 'muscle_gain',
+          level: 'intermediate',
+          description: 'Силовые тренировки для роста мышц',
+          createdAt: DateTime.now().subtract(const Duration(days: 20)),
+          updatedAt: DateTime.now().subtract(const Duration(days: 5)),
+        ),
+        TrainingPlan(
+          id: '3',
+          name: 'Поддержание формы',
+          goal: 'maintenance',
+          level: 'beginner',
+          description: 'Упражнения для поддержания текущей формы',
+          createdAt: DateTime.now().subtract(const Duration(days: 5)),
+          updatedAt: DateTime.now().subtract(const Duration(days: 2)),
+        ),
       ];
 
-      return Response.ok(jsonEncode({'plans': mockPlans}));
+      final plansJson = mockPlans.map((plan) => plan.toJson()).toList();
+
+      return Response.ok(jsonEncode({'plans': plansJson}));
     } catch (e) {
       print('Get training plans error: $e');
-      return Response(500, body: jsonEncode({'error': 'Internal server error'}));
+      return Response.internalServerError(
+          body: jsonEncode({'error': 'Internal server error'}));
     }
   }
 

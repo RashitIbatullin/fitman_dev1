@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../models/work_schedule.dart';
+import 'package:fitman_common/fitman_common.dart';
 import '../../services/api_service.dart';
 
 final workScheduleProvider =

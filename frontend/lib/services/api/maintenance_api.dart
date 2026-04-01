@@ -1,5 +1,5 @@
 import 'package:http/http.dart' as http;
-import '../../models/available_executor.model.dart';
+import 'package:fitman_common/fitman_common.dart';
 import '../../modules/equipment/models/equipment_maintenance_history.model.dart';
 import '../../modules/equipment/models/repair_time_standard.model.dart';
 import 'base_api.dart';

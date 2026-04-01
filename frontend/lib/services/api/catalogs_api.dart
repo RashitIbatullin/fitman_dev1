@@ -1,5 +1,4 @@
-import '../../models/goal_training.dart';
-import '../../models/level_training.dart';
+import 'package:fitman_common/fitman_common.dart';
 import 'base_api.dart';
 
 /// Service class for catalog-related APIs.

@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../models/dashboard_data.dart';
+import 'package:fitman_common/fitman_common.dart';
 import '../services/api_service.dart';
 
 final dashboardDataProvider = FutureProvider<DashboardData>((ref) async {

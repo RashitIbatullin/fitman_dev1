@@ -1,6 +1,5 @@
 import 'package:http/http.dart' as http;
 
-import '../../models/whtr_profiles.dart';
 import 'package:fitman_common/fitman_common.dart';
 import 'base_api.dart';
 
