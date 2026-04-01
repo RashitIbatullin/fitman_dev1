@@ -1,5 +1,3 @@
-library fitman_common;
-
 export 'roles/role.dart';
 export 'users/user.dart';
 export 'users/client_profile.dart';
@@ -13,4 +11,3 @@ export 'rooms/room.model.dart';
 export 'rooms/room_type.enum.dart';
 export 'rooms/time_of_day_converter.dart';
 export 'rooms/nullable_date_time_converter.dart';
-export 'rooms/room_type_extensions.dart';

@@ -1,3 +1,4 @@
+import 'package:fitman_app/modules/rooms/room_type_extensions.dart';
 import 'package:fitman_app/modules/users/providers/users_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

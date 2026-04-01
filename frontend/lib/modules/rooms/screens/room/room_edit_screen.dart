@@ -1,3 +1,4 @@
+import 'package:fitman_app/modules/rooms/room_type_extensions.dart';
 import 'package:fitman_app/providers/auth_provider.dart';
 import 'package:fitman_app/services/api_service.dart';
 import 'package:flutter/material.dart';
