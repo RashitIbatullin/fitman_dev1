@@ -1,5 +1,5 @@
+import 'package:fitman_common/supportStaff/competency.model.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:fitman_app/modules/supportStaff/models/competency.model.dart';
 import 'package:fitman_app/services/api_service.dart';
 
 part 'competency_provider.g.dart';

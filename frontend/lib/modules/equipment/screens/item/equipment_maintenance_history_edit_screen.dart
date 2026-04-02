@@ -1,5 +1,6 @@
 import 'package:fitman_app/modules/equipment/screens/maintenance_status_history_screen.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:fitman_common/enums/ExecutorType.dart';
 import 'package:fitman_common/fitman_common.dart';
 import 'package:fitman_app/modules/equipment/models/equipment/equipment_status.enum.dart';
 import 'package:fitman_app/modules/equipment/models/equipment_maintenance_history.model.dart';

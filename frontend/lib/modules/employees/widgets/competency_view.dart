@@ -1,6 +1,6 @@
+import 'package:fitman_common/supportStaff/competency_level.enum.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fitman_app/modules/supportStaff/models/competency_level.enum.dart';
 import '../providers/competency_provider.dart';
 
 class CompetencyView extends ConsumerWidget {

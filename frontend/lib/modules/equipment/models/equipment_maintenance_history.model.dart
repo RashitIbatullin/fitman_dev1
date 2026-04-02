@@ -1,3 +1,4 @@
+import 'package:fitman_common/enums/ExecutorType.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter/material.dart';
 
@@ -87,15 +88,6 @@ class MaintenancePhoto with _$MaintenancePhoto {
 
   factory MaintenancePhoto.fromJson(Map<String, dynamic> json) =>
       _$MaintenancePhotoFromJson(json);
-}
-
-/// Тип исполнителя
-enum ExecutorType {
-  /// Внутренний сотрудник (из таблицы users)
-  user,
-
-  /// Внешний специалист (из таблицы support_staff)
-  staff,
 }
 
 extension ExecutorTypeX on ExecutorType {

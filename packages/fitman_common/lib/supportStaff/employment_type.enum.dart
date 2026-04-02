@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart'; // Moved to top
 
 enum EmploymentType {
   fullTime,    // Штатный сотрудник
@@ -18,19 +17,6 @@ extension EmploymentTypeExtension on EmploymentType {
         return 'Внешний подрядчик';
       case EmploymentType.freelance:
         return 'Разовые работы';
-    }
-  }
-
-  IconData get iconData {
-    switch (this) {
-      case EmploymentType.fullTime:
-        return Icons.schedule;
-      case EmploymentType.partTime:
-        return Icons.event_note;
-      case EmploymentType.contractor:
-        return Icons.handshake;
-      case EmploymentType.freelance:
-        return Icons.person_outline;
     }
   }
 }

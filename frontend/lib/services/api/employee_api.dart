@@ -1,5 +1,5 @@
 import 'base_api.dart';
-import '../../../modules/supportStaff/models/competency.model.dart';
+import 'package:fitman_common/supportStaff/competency.model.dart';
 
 class EmployeeApiService extends BaseApiService {
   Future<List<Competency>> getCompetencies(String userId) async {

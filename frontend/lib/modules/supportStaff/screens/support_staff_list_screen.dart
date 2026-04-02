@@ -1,9 +1,9 @@
-import 'package:fitman_app/modules/supportStaff/models/staff_category.enum.dart';
-import 'package:fitman_app/modules/supportStaff/models/support_staff.model.dart';
 import 'package:fitman_app/modules/supportStaff/providers/support_staff_provider.dart';
 import 'package:fitman_app/modules/supportStaff/screens/support_staff_detail_screen.dart';
 import 'package:fitman_app/modules/supportStaff/screens/support_staff_edit_screen.dart';
 import 'package:fitman_app/modules/users/providers/users_provider.dart';
+import 'package:fitman_common/supportStaff/staff_category.enum.dart';
+import 'package:fitman_common/supportStaff/support_staff.model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

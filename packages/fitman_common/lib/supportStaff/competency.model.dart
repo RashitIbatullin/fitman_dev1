@@ -1,6 +1,7 @@
-import 'package:fitman_app/modules/equipment/models/equipment_maintenance_history.model.dart';
-import 'package:fitman_app/modules/supportStaff/models/competency_level.enum.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+
+import '../enums/ExecutorType.dart';
+import 'competency_level.enum.dart';
 
 part 'competency.model.freezed.dart';
 part 'competency.model.g.dart';
