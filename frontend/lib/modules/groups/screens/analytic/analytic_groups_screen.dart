@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/group_providers.dart';
 import './analytic_group_edit_screen.dart';
 import '../../widgets/analytic/analytic_group_card.dart';
-import '../../models/analytic_group.model.dart'; // Import for AnalyticGroup
+import 'package:fitman_common/groups/analytic_group.model.dart'; // Import for AnalyticGroup
 
 class AnalyticGroupsScreen extends ConsumerStatefulWidget {
   const AnalyticGroupsScreen({super.key});

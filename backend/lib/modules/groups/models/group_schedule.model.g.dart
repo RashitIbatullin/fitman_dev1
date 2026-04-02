@@ -8,20 +8,20 @@ part of 'group_schedule.model.dart';
 
 GroupSchedule _$GroupScheduleFromJson(Map<String, dynamic> json) =>
     GroupSchedule(
-      id: (json['id']),
-      groupId: (json['groupId'] as num).toInt(),
-      dayOfWeek: (json['dayOfWeek'] as num).toInt(),
-      startTime: _timeOfDayFromJson(json['startTime'] as String),
-      endTime: _timeOfDayFromJson(json['endTime'] as String),
-      isActive: json['isActive'] as bool? ?? true,
+      id: json['id'] as String,
+      groupId: (json['group_id'] as num).toInt(),
+      dayOfWeek: (json['day_of_week'] as num).toInt(),
+      startTime: _timeOfDayFromJson(json['start_time'] as String),
+      endTime: _timeOfDayFromJson(json['end_time'] as String),
+      isActive: json['is_active'] as bool? ?? true,
     );
 
 Map<String, dynamic> _$GroupScheduleToJson(GroupSchedule instance) =>
     <String, dynamic>{
       'id': instance.id,
-      'groupId': instance.groupId,
-      'dayOfWeek': instance.dayOfWeek,
-      'startTime': _timeOfDayToJson(instance.startTime),
-      'endTime': _timeOfDayToJson(instance.endTime),
-      'isActive': instance.isActive,
+      'group_id': instance.groupId,
+      'day_of_week': instance.dayOfWeek,
+      'start_time': _timeOfDayToJson(instance.startTime),
+      'end_time': _timeOfDayToJson(instance.endTime),
+      'is_active': instance.isActive,
     };

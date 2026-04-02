@@ -21,11 +21,11 @@ import '../modules/equipment/models/repair_time_standard.model.dart';
 import '../modules/supportStaff/models/competency.model.dart';
 import '../modules/supportStaff/models/support_staff.model.dart';
 import '../modules/chat/models/chat_models.dart';
-import '../modules/groups/models/training_group.model.dart';
-import '../modules/groups/models/analytic_group.model.dart';
-import '../modules/groups/models/group_schedule.model.dart';
+import 'package:fitman_common/groups/training_group.model.dart';
+import 'package:fitman_common/groups/analytic_group.model.dart';
+import 'package:fitman_common/groups/group_schedule.model.dart';
 import 'package:fitman_app/modules/equipment/models/equipment/equipment_category.enum.dart';
-import '../modules/groups/models/training_group_type.model.dart';
+import 'package:fitman_common/groups/training_group_type.model.dart';
 import '../modules/equipment/models/equipment_maintenance_history.model.dart';
 
 
