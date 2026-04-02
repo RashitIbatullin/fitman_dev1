@@ -21,4 +21,13 @@ export '/modules/employees/manager_profile.dart';
 export '/modules/employees/trainer_profile.dart';
 export '/modules/employees/instructor_profile.dart';
 export '/modules/employees/employee_profile.dart';
+export '/modules/equipment/repair_time_standard.model.dart';
+export '/modules/equipment/equipment_maintenance_history.model.dart';
+export '/modules/equipment/equipment/equipment_type.model.dart';
+export '/modules/equipment/equipment/equipment_item.model.dart';
+export '/modules/equipment/equipment/equipment_stats.model.dart';
+export '/modules/equipment/equipment/equipment_status.enum.dart';
+export '/modules/equipment/equipment/equipment_category.enum.dart';
+export '/modules/equipment/booking/equipment_booking.model.dart';
+export '/modules/equipment/booking/booking_status.enum.dart';
 

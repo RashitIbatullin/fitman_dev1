@@ -1,5 +1,5 @@
-import 'package:fitman_app/modules/equipment/models/equipment/equipment_status.enum.dart';
 import 'package:fitman_app/modules/equipment/providers/equipment/equipment_provider.dart';
+import 'package:fitman_common/modules/equipment/equipment/equipment_status.enum.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

@@ -1,5 +1,5 @@
-import 'package:fitman_app/modules/equipment/models/equipment_maintenance_history.model.dart';
 import 'package:fitman_app/modules/equipment/screens/item/maintenance_details_screen.dart';
+import 'package:fitman_common/modules/equipment/equipment_maintenance_history.model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';

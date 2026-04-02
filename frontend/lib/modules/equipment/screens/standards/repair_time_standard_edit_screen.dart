@@ -1,6 +1,6 @@
-import 'package:fitman_app/modules/equipment/models/repair_time_standard.model.dart';
 import 'package:fitman_app/modules/equipment/providers/equipment/equipment_provider.dart';
 import 'package:fitman_app/modules/equipment/providers/repair_time_standard_provider.dart';
+import 'package:fitman_common/modules/equipment/repair_time_standard.model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

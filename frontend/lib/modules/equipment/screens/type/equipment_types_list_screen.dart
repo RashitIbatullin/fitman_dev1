@@ -1,9 +1,9 @@
 import 'package:fitman_app/modules/users/providers/users_provider.dart';
+import 'package:fitman_common/modules/equipment/equipment/equipment_category.enum.dart';
+import 'package:fitman_common/modules/equipment/equipment/equipment_type.model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fitman_app/modules/equipment/providers/equipment/equipment_provider.dart';
-import 'package:fitman_app/modules/equipment/models/equipment/equipment_type.model.dart';
-import 'package:fitman_app/modules/equipment/models/equipment/equipment_category.enum.dart';
 import 'equipment_type_detail_screen.dart';
 import 'equipment_type_edit_screen.dart';
 

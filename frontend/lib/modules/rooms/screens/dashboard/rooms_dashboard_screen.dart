@@ -5,8 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fitman_app/modules/rooms/providers/room/room_provider.dart';
 import 'package:fitman_app/modules/equipment/providers/equipment/equipment_provider.dart';
 import 'package:fitman_app/modules/rooms/screens/building/buildings_list_screen.dart';
-import 'package:fitman_app/modules/equipment/models/equipment/equipment_item.model.dart';
-import 'package:fitman_app/modules/equipment/models/equipment/equipment_status.enum.dart';
 import 'package:fitman_common/fitman_common.dart';
 
 import '../room/rooms_list_screen.dart';

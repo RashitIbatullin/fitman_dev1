@@ -1,10 +1,10 @@
-import 'package:fitman_app/modules/equipment/models/equipment/equipment_stats.model.dart';
+import 'package:fitman_common/modules/equipment/equipment/equipment_category.enum.dart';
+import 'package:fitman_common/modules/equipment/equipment/equipment_item.model.dart';
+import 'package:fitman_common/modules/equipment/equipment/equipment_stats.model.dart';
+import 'package:fitman_common/modules/equipment/equipment/equipment_status.enum.dart';
+import 'package:fitman_common/modules/equipment/equipment/equipment_type.model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fitman_app/services/api_service.dart';
-import 'package:fitman_app/modules/equipment/models/equipment/equipment_item.model.dart';
-import 'package:fitman_app/modules/equipment/models/equipment/equipment_type.model.dart';
-import 'package:fitman_app/modules/equipment/models/equipment/equipment_status.enum.dart';
-import 'package:fitman_app/modules/equipment/models/equipment/equipment_category.enum.dart';
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 

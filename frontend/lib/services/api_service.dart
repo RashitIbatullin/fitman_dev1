@@ -16,17 +16,12 @@ import 'api/recommendation_api.dart';
 import 'api/schedule_api.dart';
 import 'api/support_staff_api.dart';
 import 'api/employee_api.dart';
-import '../modules/equipment/models/equipment/equipment_item.model.dart';
-import '../modules/equipment/models/equipment/equipment_type.model.dart';
-import '../modules/equipment/models/repair_time_standard.model.dart';
 import 'package:fitman_common/modules/support_staff/competency.model.dart';
 import 'package:fitman_common/modules/support_staff/support_staff.model.dart';
 import 'package:fitman_common/modules/groups/training_group.model.dart';
 import 'package:fitman_common/modules/groups/analytic_group.model.dart';
 import 'package:fitman_common/modules/groups/group_schedule.model.dart';
-import 'package:fitman_app/modules/equipment/models/equipment/equipment_category.enum.dart';
 import 'package:fitman_common/modules/groups/training_group_type.model.dart';
-import '../modules/equipment/models/equipment_maintenance_history.model.dart';
 
 
 class ApiService {

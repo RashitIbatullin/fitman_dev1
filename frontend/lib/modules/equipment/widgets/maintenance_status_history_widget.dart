@@ -1,7 +1,7 @@
+import 'package:fitman_common/modules/equipment/equipment_maintenance_history.model.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import '../models/equipment_maintenance_history.model.dart';
 
 class MaintenanceStatusHistoryWidget extends StatelessWidget {
   const MaintenanceStatusHistoryWidget({

@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 
 enum EquipmentCategory {
   cardio(displayName: 'Кардио-оборудование', icon: Icons.favorite_border),

@@ -1,6 +1,5 @@
 import 'package:fitman_common/enums/executor_type.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:flutter/material.dart';
 
 part 'equipment_maintenance_history.model.freezed.dart';
 part 'equipment_maintenance_history.model.g.dart';

@@ -1,4 +1,4 @@
-import 'package:fitman_app/modules/equipment/models/repair_time_standard.model.dart';
+import 'package:fitman_common/modules/equipment/repair_time_standard.model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fitman_app/services/api/maintenance_api.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';

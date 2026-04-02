@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:fitman_app/modules/equipment/models/booking/equipment_booking.model.dart';
+import 'package:fitman_common/modules/equipment/booking/equipment_booking.model.dart';
 import 'package:http/http.dart' as http;
 
 class BookingService {
