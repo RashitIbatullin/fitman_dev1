@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/group_providers.dart';
 import './training_group_edit_screen.dart';
 import '../../widgets/training/training_group_card.dart';
-import 'package:fitman_common/groups/training_group.model.dart'; // Import for TrainingGroup
+import 'package:fitman_common/modules/groups/training_group.model.dart'; // Import for TrainingGroup
 import 'package:fitman_app/services/api_service.dart'; // Import ApiService
 import 'package:fitman_common/fitman_common.dart'; // Import User
 import 'package:fitman_app/widgets/filter_popup_menu.dart';

@@ -1,6 +1,6 @@
+import 'package:fitman_common/modules/chat/chat_models.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:fitman_common/chat/chat_models.dart';
 import '../../../services/api_service.dart'; // Adjusted relative path
 
 class MessageBubble extends StatelessWidget {

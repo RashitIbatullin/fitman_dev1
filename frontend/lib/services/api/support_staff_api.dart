@@ -1,5 +1,5 @@
-import 'package:fitman_common/supportStaff/competency.model.dart';
-import 'package:fitman_common/supportStaff/support_staff.model.dart';
+import 'package:fitman_common/modules/support_staff/competency.model.dart';
+import 'package:fitman_common/modules/support_staff/support_staff.model.dart';
 
 import 'base_api.dart';
 

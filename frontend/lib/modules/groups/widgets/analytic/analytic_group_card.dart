@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:fitman_common/groups/analytic_group.model.dart';
+import 'package:fitman_common/modules/groups/analytic_group.model.dart';
 import 'package:intl/intl.dart';
 
 class AnalyticGroupCard extends StatelessWidget {

@@ -1,10 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:fitman_app/services/api_service.dart';
-import 'package:fitman_common/groups/analytic_group.model.dart';
-import 'package:fitman_common/groups/training_group.model.dart';
-import 'package:fitman_common/groups/training_group_type.model.dart';
-import 'package:fitman_common/groups/group_schedule.model.dart';
+import 'package:fitman_common/modules/groups/analytic_group.model.dart';
+import 'package:fitman_common/modules/groups/training_group.model.dart';
+import 'package:fitman_common/modules/groups/training_group_type.model.dart';
+import 'package:fitman_common/modules/groups/group_schedule.model.dart';
 import 'package:equatable/equatable.dart';
 
 part 'group_providers.g.dart';

@@ -1,4 +1,4 @@
-import 'package:fitman_common/enums/ExecutorType.dart';
+import 'package:fitman_common/enums/executor_type.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter/material.dart';
 

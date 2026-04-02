@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:fitman_common/modules/chat/chat_models.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
-import 'package:fitman_common/chat/chat_models.dart';
 import '../../../services/api_service.dart'; // Adjusted relative path
 import '../../../providers/auth_provider.dart'; // Adjusted relative path
 

@@ -1,4 +1,4 @@
-import 'package:fitman_common/supportStaff/competency_level.enum.dart';
+import 'package:fitman_common/modules/support_staff/competency_level.enum.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/competency_provider.dart';

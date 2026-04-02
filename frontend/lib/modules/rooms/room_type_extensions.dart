@@ -1,4 +1,4 @@
-import 'package:fitman_common/rooms/room_type.enum.dart';
+import 'package:fitman_common/modules/rooms/room_type.enum.dart';
 import 'package:flutter/material.dart';
 
 extension RoomTypeLocalization on RoomType {

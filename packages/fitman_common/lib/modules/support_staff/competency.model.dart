@@ -1,6 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import '../enums/ExecutorType.dart';
+import '../enums/executor_type.dart';
 import 'competency_level.enum.dart';
 
 part 'competency.model.freezed.dart';

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/group_providers.dart';
-import 'package:fitman_common/groups/training_group.model.dart';
+import 'package:fitman_common/modules/groups/training_group.model.dart';
 import '../../widgets/common/group_member_list.dart'; // For later use
 import 'package:fitman_app/services/api_service.dart'; // For fetching users for dropdowns
 import 'package:fitman_common/fitman_common.dart'; // For user dropdown

@@ -1,7 +1,7 @@
-import 'package:fitman_common/groups/analytic_group.model.dart';
-import 'package:fitman_common/groups/group_schedule.model.dart';
-import 'package:fitman_common/groups/training_group.model.dart';
-import 'package:fitman_common/groups/training_group_type.model.dart';
+import 'package:fitman_common/modules/groups/analytic_group.model.dart';
+import 'package:fitman_common/modules/groups/group_schedule.model.dart';
+import 'package:fitman_common/modules/groups/training_group.model.dart';
+import 'package:fitman_common/modules/groups/training_group_type.model.dart';
 import 'base_api.dart';
 
 /// Service class for group-related APIs (Training, Analytic, Schedules, Members).

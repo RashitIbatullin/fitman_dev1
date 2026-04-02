@@ -1,6 +1,6 @@
+import 'package:fitman_common/modules/chat/chat_models.dart';
 import 'package:http/http.dart' as http;
 
-import 'package:fitman_common/chat/chat_models.dart';
 import 'base_api.dart';
 
 /// Service class for chat-related APIs.

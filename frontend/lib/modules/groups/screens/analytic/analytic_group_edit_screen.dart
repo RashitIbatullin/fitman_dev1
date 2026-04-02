@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/group_providers.dart';
-import 'package:fitman_common/groups/analytic_group.model.dart';
-import 'package:fitman_common/groups/group_condition.model.dart';
+import 'package:fitman_common/modules/groups/analytic_group.model.dart';
+import 'package:fitman_common/modules/groups/group_condition.model.dart';
 import 'package:intl/intl.dart';
 import 'package:fitman_app/services/api_service.dart'; // Add this import
 

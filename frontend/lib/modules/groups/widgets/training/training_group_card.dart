@@ -1,9 +1,9 @@
-import 'package:fitman_common/groups/training_group_type.model.dart';
+import 'package:fitman_common/modules/groups/training_group_type.model.dart';
 import 'package:fitman_common/fitman_common.dart';
 import '../../providers/group_providers.dart';
 import '../../../../modules/users/providers/users_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:fitman_common/groups/training_group.model.dart';
+import 'package:fitman_common/modules/groups/training_group.model.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

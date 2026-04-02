@@ -1,6 +1,6 @@
 import 'package:fitman_app/services/api/support_staff_api.dart';
-import 'package:fitman_common/supportStaff/competency.model.dart';
-import 'package:fitman_common/supportStaff/support_staff.model.dart';
+import 'package:fitman_common/modules/support_staff/competency.model.dart';
+import 'package:fitman_common/modules/support_staff/support_staff.model.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

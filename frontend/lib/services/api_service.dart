@@ -1,4 +1,5 @@
 import 'package:fitman_common/fitman_common.dart';
+import 'package:fitman_common/modules/chat/chat_models.dart';
 
 import 'api/admin_api.dart';
 import 'api/auth_api.dart';
@@ -18,14 +19,13 @@ import 'api/employee_api.dart';
 import '../modules/equipment/models/equipment/equipment_item.model.dart';
 import '../modules/equipment/models/equipment/equipment_type.model.dart';
 import '../modules/equipment/models/repair_time_standard.model.dart';
-import 'package:fitman_common/supportStaff/competency.model.dart';
-import 'package:fitman_common/supportStaff/support_staff.model.dart';
-import 'package:fitman_common/chat/chat_models.dart';
-import 'package:fitman_common/groups/training_group.model.dart';
-import 'package:fitman_common/groups/analytic_group.model.dart';
-import 'package:fitman_common/groups/group_schedule.model.dart';
+import 'package:fitman_common/modules/support_staff/competency.model.dart';
+import 'package:fitman_common/modules/support_staff/support_staff.model.dart';
+import 'package:fitman_common/modules/groups/training_group.model.dart';
+import 'package:fitman_common/modules/groups/analytic_group.model.dart';
+import 'package:fitman_common/modules/groups/group_schedule.model.dart';
 import 'package:fitman_app/modules/equipment/models/equipment/equipment_category.enum.dart';
-import 'package:fitman_common/groups/training_group_type.model.dart';
+import 'package:fitman_common/modules/groups/training_group_type.model.dart';
 import '../modules/equipment/models/equipment_maintenance_history.model.dart';
 
 

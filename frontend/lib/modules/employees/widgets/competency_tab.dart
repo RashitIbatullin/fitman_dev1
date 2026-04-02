@@ -1,6 +1,6 @@
-import 'package:fitman_common/enums/ExecutorType.dart';
-import 'package:fitman_common/supportStaff/competency.model.dart';
-import 'package:fitman_common/supportStaff/competency_level.enum.dart';
+import 'package:fitman_common/enums/executor_type.dart';
+import 'package:fitman_common/modules/support_staff/competency.model.dart';
+import 'package:fitman_common/modules/support_staff/competency_level.enum.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fitman_app/services/api_service.dart';
