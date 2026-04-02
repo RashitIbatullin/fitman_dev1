@@ -17,10 +17,12 @@ _$RoomImpl _$$RoomImplFromJson(Map<String, dynamic> json) => _$RoomImpl(
       buildingName: json['building_name'] as String?,
       maxCapacity: (json['max_capacity'] as num?)?.toInt() ?? 30,
       area: (json['area'] as num?)?.toDouble(),
-      openTime:
-          const TimeOfDayConverter().fromJson(json['open_time'] as String?),
-      closeTime:
-          const TimeOfDayConverter().fromJson(json['close_time'] as String?),
+      openTime: json['open_time'] == null
+          ? null
+          : TimeOfDayCustom.fromJson(json['open_time'] as String),
+      closeTime: json['close_time'] == null
+          ? null
+          : TimeOfDayCustom.fromJson(json['close_time'] as String),
       workingDays: (json['working_days'] as List<dynamic>?)
               ?.map((e) => (e as num).toInt())
               .toList() ??
@@ -57,8 +59,8 @@ Map<String, dynamic> _$$RoomImplToJson(_$RoomImpl instance) =>
       'building_name': instance.buildingName,
       'max_capacity': instance.maxCapacity,
       'area': instance.area,
-      'open_time': const TimeOfDayConverter().toJson(instance.openTime),
-      'close_time': const TimeOfDayConverter().toJson(instance.closeTime),
+      'open_time': instance.openTime,
+      'close_time': instance.closeTime,
       'working_days': instance.workingDays,
       'is_active': instance.isActive,
       'deactivate_reason': instance.deactivateReason,

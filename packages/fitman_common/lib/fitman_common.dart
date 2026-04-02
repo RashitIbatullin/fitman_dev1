@@ -9,7 +9,6 @@ export 'users/user_api_models.dart';
 export 'rooms/building.model.dart';
 export 'rooms/room.model.dart';
 export 'rooms/room_type.enum.dart';
-export 'rooms/time_of_day_converter.dart';
 export 'rooms/nullable_date_time_converter.dart';
 export 'training/training_plan.model.dart';
 export 'anthropometry/anthropometry_data.model.dart';

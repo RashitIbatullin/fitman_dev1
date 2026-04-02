@@ -36,12 +36,10 @@ mixin _$Room {
   @JsonKey(name: 'max_capacity')
   int get maxCapacity => throw _privateConstructorUsedError;
   double? get area => throw _privateConstructorUsedError;
-  @TimeOfDayConverter()
   @JsonKey(name: 'open_time')
-  TimeOfDay? get openTime => throw _privateConstructorUsedError;
-  @TimeOfDayConverter()
+  TimeOfDayCustom? get openTime => throw _privateConstructorUsedError;
   @JsonKey(name: 'close_time')
-  TimeOfDay? get closeTime => throw _privateConstructorUsedError;
+  TimeOfDayCustom? get closeTime => throw _privateConstructorUsedError;
   @JsonKey(name: 'working_days')
   List<int> get workingDays => throw _privateConstructorUsedError;
   @JsonKey(name: 'is_active')
@@ -91,8 +89,8 @@ abstract class $RoomCopyWith<$Res> {
       @JsonKey(name: 'building_name') String? buildingName,
       @JsonKey(name: 'max_capacity') int maxCapacity,
       double? area,
-      @TimeOfDayConverter() @JsonKey(name: 'open_time') TimeOfDay? openTime,
-      @TimeOfDayConverter() @JsonKey(name: 'close_time') TimeOfDay? closeTime,
+      @JsonKey(name: 'open_time') TimeOfDayCustom? openTime,
+      @JsonKey(name: 'close_time') TimeOfDayCustom? closeTime,
       @JsonKey(name: 'working_days') List<int> workingDays,
       @JsonKey(name: 'is_active') bool isActive,
       @JsonKey(name: 'deactivate_reason') String? deactivateReason,
@@ -191,11 +189,11 @@ class _$RoomCopyWithImpl<$Res, $Val extends Room>
       openTime: freezed == openTime
           ? _value.openTime
           : openTime // ignore: cast_nullable_to_non_nullable
-              as TimeOfDay?,
+              as TimeOfDayCustom?,
       closeTime: freezed == closeTime
           ? _value.closeTime
           : closeTime // ignore: cast_nullable_to_non_nullable
-              as TimeOfDay?,
+              as TimeOfDayCustom?,
       workingDays: null == workingDays
           ? _value.workingDays
           : workingDays // ignore: cast_nullable_to_non_nullable
@@ -266,8 +264,8 @@ abstract class _$$RoomImplCopyWith<$Res> implements $RoomCopyWith<$Res> {
       @JsonKey(name: 'building_name') String? buildingName,
       @JsonKey(name: 'max_capacity') int maxCapacity,
       double? area,
-      @TimeOfDayConverter() @JsonKey(name: 'open_time') TimeOfDay? openTime,
-      @TimeOfDayConverter() @JsonKey(name: 'close_time') TimeOfDay? closeTime,
+      @JsonKey(name: 'open_time') TimeOfDayCustom? openTime,
+      @JsonKey(name: 'close_time') TimeOfDayCustom? closeTime,
       @JsonKey(name: 'working_days') List<int> workingDays,
       @JsonKey(name: 'is_active') bool isActive,
       @JsonKey(name: 'deactivate_reason') String? deactivateReason,
@@ -363,11 +361,11 @@ class __$$RoomImplCopyWithImpl<$Res>
       openTime: freezed == openTime
           ? _value.openTime
           : openTime // ignore: cast_nullable_to_non_nullable
-              as TimeOfDay?,
+              as TimeOfDayCustom?,
       closeTime: freezed == closeTime
           ? _value.closeTime
           : closeTime // ignore: cast_nullable_to_non_nullable
-              as TimeOfDay?,
+              as TimeOfDayCustom?,
       workingDays: null == workingDays
           ? _value._workingDays
           : workingDays // ignore: cast_nullable_to_non_nullable
@@ -434,8 +432,8 @@ class _$RoomImpl implements _Room {
       @JsonKey(name: 'building_name') this.buildingName,
       @JsonKey(name: 'max_capacity') this.maxCapacity = 30,
       this.area,
-      @TimeOfDayConverter() @JsonKey(name: 'open_time') this.openTime,
-      @TimeOfDayConverter() @JsonKey(name: 'close_time') this.closeTime,
+      @JsonKey(name: 'open_time') this.openTime,
+      @JsonKey(name: 'close_time') this.closeTime,
       @JsonKey(name: 'working_days') final List<int> workingDays = const [],
       @JsonKey(name: 'is_active') this.isActive = true,
       @JsonKey(name: 'deactivate_reason') this.deactivateReason,
@@ -481,13 +479,11 @@ class _$RoomImpl implements _Room {
   @override
   final double? area;
   @override
-  @TimeOfDayConverter()
   @JsonKey(name: 'open_time')
-  final TimeOfDay? openTime;
+  final TimeOfDayCustom? openTime;
   @override
-  @TimeOfDayConverter()
   @JsonKey(name: 'close_time')
-  final TimeOfDay? closeTime;
+  final TimeOfDayCustom? closeTime;
   final List<int> _workingDays;
   @override
   @JsonKey(name: 'working_days')
@@ -648,12 +644,8 @@ abstract class _Room implements Room {
           @JsonKey(name: 'building_name') final String? buildingName,
           @JsonKey(name: 'max_capacity') final int maxCapacity,
           final double? area,
-          @TimeOfDayConverter()
-          @JsonKey(name: 'open_time')
-          final TimeOfDay? openTime,
-          @TimeOfDayConverter()
-          @JsonKey(name: 'close_time')
-          final TimeOfDay? closeTime,
+          @JsonKey(name: 'open_time') final TimeOfDayCustom? openTime,
+          @JsonKey(name: 'close_time') final TimeOfDayCustom? closeTime,
           @JsonKey(name: 'working_days') final List<int> workingDays,
           @JsonKey(name: 'is_active') final bool isActive,
           @JsonKey(name: 'deactivate_reason') final String? deactivateReason,
@@ -697,13 +689,11 @@ abstract class _Room implements Room {
   @override
   double? get area;
   @override
-  @TimeOfDayConverter()
   @JsonKey(name: 'open_time')
-  TimeOfDay? get openTime;
+  TimeOfDayCustom? get openTime;
   @override
-  @TimeOfDayConverter()
   @JsonKey(name: 'close_time')
-  TimeOfDay? get closeTime;
+  TimeOfDayCustom? get closeTime;
   @override
   @JsonKey(name: 'working_days')
   List<int> get workingDays;

@@ -1,9 +1,8 @@
 // ignore_for_file: invalid_annotation_target
 
 import 'package:freezed_annotation/freezed_annotation.dart';
-import '../groups/group_schedule.model.dart';
+import 'package:fitman_common/custom/time_of_day_custom.dart';
 import 'room_type.enum.dart';
-import 'time_of_day_converter.dart';
 
 part 'room.model.freezed.dart';
 part 'room.model.g.dart';
@@ -36,8 +35,8 @@ class Room with _$Room {
     @JsonKey(name: 'building_name') String? buildingName,
     @JsonKey(name: 'max_capacity') @Default(30) int maxCapacity,
     double? area,
-    @TimeOfDayConverter() @JsonKey(name: 'open_time') TimeOfDay? openTime,
-    @TimeOfDayConverter() @JsonKey(name: 'close_time') TimeOfDay? closeTime,
+    @JsonKey(name: 'open_time') TimeOfDayCustom? openTime,
+    @JsonKey(name: 'close_time') TimeOfDayCustom? closeTime,
     @JsonKey(name: 'working_days') @Default([]) List<int> workingDays,
     @JsonKey(name: 'is_active') @Default(true) bool isActive,
     @JsonKey(name: 'deactivate_reason') String? deactivateReason,

@@ -1,3 +1,4 @@
+import 'package:fitman_common/custom/time_of_day_custom.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/work_schedule_provider.dart';
@@ -109,9 +110,10 @@ class _ClientPreferenceScheduleState
     return null;
   }
 
-  TimeOfDay _parseTime(String time) {
+  TimeOfDayCustom _parseTime(String time) {
     final parts = time.split(':');
-    return TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
+    return TimeOfDayCustom(
+        hour: int.parse(parts[0]), minute: int.parse(parts[1]));
   }
 
   @override
