@@ -4,7 +4,6 @@ import 'package:file_picker/file_picker.dart';
 import '../providers/chat_provider.dart'; // Adjusted relative path
 import '../../../providers/auth_provider.dart'; // Adjusted relative path
 import '../widgets/message_bubble.dart'; // Corrected path within the module
-// Removed: import '../models/chat_models.dart'; // Import the Message model
 
 class ChatScreen extends ConsumerStatefulWidget {
   final String chatId;

@@ -20,7 +20,7 @@ import '../modules/equipment/models/equipment/equipment_type.model.dart';
 import '../modules/equipment/models/repair_time_standard.model.dart';
 import '../modules/supportStaff/models/competency.model.dart';
 import '../modules/supportStaff/models/support_staff.model.dart';
-import '../modules/chat/models/chat_models.dart';
+import 'package:fitman_common/chat/chat_models.dart';
 import 'package:fitman_common/groups/training_group.model.dart';
 import 'package:fitman_common/groups/analytic_group.model.dart';
 import 'package:fitman_common/groups/group_schedule.model.dart';

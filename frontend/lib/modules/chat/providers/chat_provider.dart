@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
-import '../models/chat_models.dart'; // Corrected path within the module
+import 'package:fitman_common/chat/chat_models.dart';
 import '../../../services/api_service.dart'; // Adjusted relative path
 import '../../../providers/auth_provider.dart'; // Adjusted relative path
 
