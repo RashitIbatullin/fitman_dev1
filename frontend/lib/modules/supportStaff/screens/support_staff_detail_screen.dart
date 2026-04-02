@@ -2,6 +2,7 @@ import 'package:fitman_app/modules/supportStaff/providers/support_staff_provider
 import 'package:fitman_app/modules/supportStaff/screens/support_staff_edit_screen.dart';
 import 'package:fitman_common/modules/support_staff/competency_level.enum.dart';
 import 'package:fitman_common/modules/support_staff/employment_type.enum.dart';
+import 'package:fitman_common/modules/support_staff/staff_category.enum.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

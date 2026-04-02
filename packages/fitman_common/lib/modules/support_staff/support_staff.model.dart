@@ -1,4 +1,4 @@
-import 'package:fitman_common/supportStaff/staff_category.enum.dart';
+import 'package:fitman_common/modules/support_staff/staff_category.enum.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'competency.model.dart';
