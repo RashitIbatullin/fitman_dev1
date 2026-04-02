@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/room/room_type.enum.dart';
+import 'package:fitman_common/rooms/room_type.enum.dart';
 
 extension RoomTypeLocalization on RoomType {
   String get displayName {
