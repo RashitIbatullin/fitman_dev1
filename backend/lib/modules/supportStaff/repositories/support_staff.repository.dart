@@ -1,7 +1,7 @@
 import 'package:fitman_backend/config/database.dart';
 import 'package:fitman_backend/modules/competencies/repositories/competency_repository.dart';
-import 'package:fitman_backend/modules/equipment/models/equipment_maintenance_history.model.dart';
-import 'package:fitman_backend/modules/supportStaff/models/support_staff.model.dart';
+import 'package:fitman_common/enums/executor_type.dart';
+import 'package:fitman_common/modules/support_staff/support_staff.model.dart';
 import 'package:postgres/postgres.dart';
 
 abstract class SupportStaffRepository {
@@ -80,7 +80,7 @@ class SupportStaffRepositoryImpl implements SupportStaffRepository {
 
     final staffList = <SupportStaff>[];
     for (final row in result) {
-      final staff = SupportStaff.fromMap(row.toColumnMap());
+      final staff = SupportStaff.fromJson(row.toColumnMap());
       final competencies = await _competencyRepository.getCompetencies(staff.id, ExecutorType.staff);
       staffList.add(
         staff.copyWith(
@@ -103,7 +103,7 @@ class SupportStaffRepositoryImpl implements SupportStaffRepository {
       throw Exception('SupportStaff with id $id not found');
     }
 
-    final staff = SupportStaff.fromMap(result.first.toColumnMap());
+    final staff = SupportStaff.fromJson(result.first.toColumnMap());
     final competencies = await _competencyRepository.getCompetencies(staff.id, ExecutorType.staff);
 
     return staff.copyWith(

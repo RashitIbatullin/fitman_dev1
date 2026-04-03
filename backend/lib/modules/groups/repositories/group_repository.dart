@@ -1,9 +1,9 @@
 import 'package:postgres/postgres.dart';
 import '../../../config/database.dart';
-import '../models/analytic_group.model.dart';
-import '../models/group_schedule.model.dart';
-import '../models/training_group.model.dart';
-import '../models/training_group_type.model.dart';
+import 'package:fitman_common/modules/groups/analytic_group.model.dart';
+import 'package:fitman_common/modules/groups/group_schedule.model.dart';
+import 'package:fitman_common/modules/groups/training_group.model.dart';
+import 'package:fitman_common/modules/groups/training_group_type.model.dart';
 
 class GroupRepository {
   final Database _db;

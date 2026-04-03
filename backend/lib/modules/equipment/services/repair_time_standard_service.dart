@@ -1,5 +1,5 @@
 
-import '../models/repair_time_standard.model.dart';
+import 'package:fitman_common/modules/equipment/repair_time_standard.model.dart';
 import '../repositories/repair_time_standard_repository.dart';
 
 class RepairTimeStandardService {

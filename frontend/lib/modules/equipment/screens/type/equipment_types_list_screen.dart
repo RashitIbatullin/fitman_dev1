@@ -3,6 +3,7 @@ import 'package:fitman_common/modules/equipment/equipment/equipment_category.enu
 import 'package:fitman_common/modules/equipment/equipment/equipment_type.model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fitman_app/extensions/equipment_ui_extensions.dart';
 import 'package:fitman_app/modules/equipment/providers/equipment/equipment_provider.dart';
 import 'equipment_type_detail_screen.dart';
 import 'equipment_type_edit_screen.dart';

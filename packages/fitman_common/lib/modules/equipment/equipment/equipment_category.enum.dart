@@ -1,15 +1,14 @@
 
 enum EquipmentCategory {
-  cardio(displayName: 'Кардио-оборудование', icon: Icons.favorite_border),
-  strength(displayName: 'Силовые тренажёры', icon: Icons.fitness_center),
-  freeWeights(displayName: 'Свободные веса', icon: Icons.accessibility_new),
-  functional(displayName: 'Функциональное оборудование', icon: Icons.self_improvement),
-  accessories(displayName: 'Аксессуары', icon: Icons.extension),
-  measurement(displayName: 'Измерительное оборудование', icon: Icons.straighten),
-  other(displayName: 'Прочее', icon: Icons.category);
+  cardio(displayName: 'Кардио-оборудование'),
+  strength(displayName: 'Силовые тренажёры'),
+  freeWeights(displayName: 'Свободные веса'),
+  functional(displayName: 'Функциональное оборудование'),
+  accessories(displayName: 'Аксессуары'),
+  measurement(displayName: 'Измерительное оборудование'),
+  other(displayName: 'Прочее');
 
   final String displayName;
-  final IconData icon;
 
-  const EquipmentCategory({required this.displayName, required this.icon});
+  const EquipmentCategory({required this.displayName});
 }

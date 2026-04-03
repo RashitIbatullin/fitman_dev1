@@ -1,5 +1,5 @@
 import 'package:fitman_backend/config/database.dart';
-import 'package:fitman_backend/modules/equipment/models/equipment_maintenance_history.model.dart';
+import 'package:fitman_common/modules/equipment/equipment_maintenance_history.model.dart';
 import 'package:postgres/postgres.dart';
 
 abstract class MaintenanceRepository {
@@ -35,47 +35,13 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
         '[]'::json
       ) as photos
     FROM equipment_maintenance_history emh
-    LEFT JOIN users u ON emh.executor_id = u.id AND emh.executor_type = 0
-    LEFT JOIN support_staff ss ON emh.executor_id = ss.id AND emh.executor_type = 1
+    LEFT JOIN users u ON emh.executor_id = u.id AND emh.executor_type = 'user'
+    LEFT JOIN support_staff ss ON emh.executor_id = ss.id AND emh.executor_type = 'staff'
     LEFT JOIN users u_ip ON emh.in_progress_by = u_ip.id
     LEFT JOIN users u_c ON emh.completed_by = u_c.id
     LEFT JOIN users u_can ON emh.cancelled_by = u_can.id
     LEFT JOIN users u_rb ON emh.reported_by = u_rb.id
   ''';
-
-  /// Prepares a row map from the database for consumption by a `fromJson` factory.
-  Map<String, dynamic> _prepareRowForFromJson(Map<String, dynamic> row) {
-    final newRow = {...row};
-
-    // Convert enums from int (from DB) to String name (for fromJson)
-    if (newRow['type'] != null && newRow['type'] is int) {
-      newRow['type'] = MaintenanceType.values[newRow['type']].name;
-    }
-    if (newRow['status'] != null && newRow['status'] is int) {
-      newRow['status'] = MaintenanceStatus.values[newRow['status']].name;
-    }
-    if (newRow['executor_type'] != null && newRow['executor_type'] is int) {
-      newRow['executor_type'] = ExecutorType.values[newRow['executor_type']].name;
-    }
-
-    // Convert all potential ID columns from int to String
-    final idKeys = ['id', 'number', 'equipment_item_id', 'reported_by', 'reported_by_name', 'executor_id', 'related_booking_id', 'archived_by', 'created_by', 'updated_by', 'in_progress_by', 'completed_by', 'cancelled_by'];
-    for (final key in idKeys) {
-      if (newRow[key] != null && newRow[key] is! String) {
-        newRow[key] = newRow[key].toString();
-      }
-    }
-    
-    // Convert all potential DateTime columns to ISO 8601 strings
-    final dateKeys = ['created_at', 'started_at', 'completed_at', 'equipment_available_from', 'updated_at', 'archived_at', 'cancelled_at'];
-    for (final key in dateKeys) {
-        if (newRow[key] != null && newRow[key] is DateTime) {
-            newRow[key] = (newRow[key] as DateTime).toIso8601String();
-        }
-    }
-
-    return newRow;
-  }
 
   @override
   Future<EquipmentMaintenanceHistory> create(EquipmentMaintenanceHistory history, String userId) async {
@@ -95,10 +61,10 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
         ) RETURNING id;
       '''),
       parameters: {
-        'equipment_item_id': int.tryParse(history.equipmentItemId),
+        'equipment_item_id': history.equipmentItemId,
         'equipment_name': history.equipmentName,
-        'type': history.type.index,
-        'status': history.status.index,
+        'type': history.type.name,
+        'status': history.status.name,
         'created_at': history.createdAt ?? DateTime.now(),
         'started_at': history.startedAt,
         'completed_at': history.completedAt,
@@ -106,17 +72,17 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
         'reported_problem': history.reportedProblem,
         'work_description': history.workDescription,
         'notes': history.notes,
-        'reported_by': int.tryParse(history.reportedBy),
-        'executor_id': history.executorId != null ? int.tryParse(history.executorId!) : null,
-        'executor_type': history.executorType?.index,
-        'related_booking_id': history.relatedBookingId != null ? int.tryParse(history.relatedBookingId!) : null,
+        'reported_by': history.reportedBy,
+        'executor_id': history.executorId,
+        'executor_type': history.executorType?.name,
+        'related_booking_id': history.relatedBookingId,
         'caused_downtime': history.causedDowntime,
-        'user_id': int.tryParse(userId),
+        'user_id': userId,
       },
     );
 
-    final newId = result.first[0] as int;
-    return await getById(newId.toString());
+    final newId = result.first[0] as String;
+    return await getById(newId);
   }
 
   @override
@@ -142,7 +108,7 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
 
     final result = await conn.execute(
       Sql.named(query),
-      parameters: {'id': int.tryParse(id) ?? 0},
+      parameters: {'id': id},
     );
 
     if (result.isEmpty) {
@@ -170,7 +136,7 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
 
     final result = await conn.execute(
       Sql.named(query),
-      parameters: {'equipment_item_id': int.tryParse(equipmentItemId) ?? 0},
+      parameters: {'equipment_item_id': equipmentItemId},
     );
 
     return _mapResultsToHistoryList(result);
@@ -212,31 +178,31 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
         WHERE id = @id;
       '''),
       parameters: {
-        'id': int.tryParse(id) ?? 0,
+        'id': id,
         'equipment_name': history.equipmentName,
-        'type': history.type.index,
-        'status': history.status.index,
+        'type': history.type.name,
+        'status': history.status.name,
         'started_at': history.startedAt,
         'completed_at': history.completedAt,
         'equipment_available_from': history.equipmentAvailableFrom,
         'reported_problem': history.reportedProblem,
         'work_description': history.workDescription,
         'notes': history.notes,
-        'executor_id': history.executorId != null ? int.tryParse(history.executorId!) : null,
-        'executor_type': history.executorType?.index,
-        'related_booking_id': history.relatedBookingId != null ? int.tryParse(history.relatedBookingId!) : null,
+        'executor_id': history.executorId,
+        'executor_type': history.executorType?.name,
+        'related_booking_id': history.relatedBookingId,
         'caused_downtime': history.causedDowntime,
-        'user_id': int.tryParse(userId),
+        'user_id': userId,
         'archived_at': history.archivedAt,
-        'archived_by': history.archivedBy != null ? int.tryParse(history.archivedBy!) : null,
+        'archived_by': history.archivedBy,
         'archived_reason': history.archivedReason,
         // Новые параметры
-        'repair_time_standard_id': history.repairTimeStandardId != null ? int.tryParse(history.repairTimeStandardId!) : null,
+        'repair_time_standard_id': history.repairTimeStandardId,
         'diagnosis_notes': history.diagnosisNotes,
         'actual_duration_hours': history.actualDurationHours,
-        'in_progress_by': history.inProgressBy != null ? int.tryParse(history.inProgressBy!) : null,
-        'completed_by': history.completedBy != null ? int.tryParse(history.completedBy!) : null,
-        'cancelled_by': history.cancelledBy != null ? int.tryParse(history.cancelledBy!) : null,
+        'in_progress_by': history.inProgressBy,
+        'completed_by': history.completedBy,
+        'cancelled_by': history.cancelledBy,
         'cancelled_at': history.cancelledAt,
         'cancellation_reason': history.cancellationReason,
       },
@@ -251,9 +217,9 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
       Sql.named(
           'UPDATE equipment_maintenance_history SET archived_at = NOW(), archived_by = @user_id, archived_reason = @reason WHERE id = @id'),
       parameters: {
-        'id': int.tryParse(id) ?? 0,
+        'id': id,
         'reason': reason,
-        'user_id': int.tryParse(userId) ?? 0,
+        'user_id': userId,
       },
     );
   }
@@ -265,7 +231,7 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
       Sql.named(
           'UPDATE equipment_maintenance_history SET archived_at = NULL, archived_by = NULL, archived_reason = NULL WHERE id = @id'),
       parameters: {
-        'id': int.tryParse(id) ?? 0,
+        'id': id,
       },
     );
   }
@@ -281,7 +247,7 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
         u.last_name 
       FROM users u 
       JOIN employee_profiles ep ON u.id = ep.user_id
-      LEFT JOIN competencies c ON u.id = c.competent_id AND c.executor_type = 0
+      LEFT JOIN competencies c ON u.id = c.competent_id AND c.executor_type = 'user'
       WHERE u.archived_at IS NULL 
         AND ep.can_maintain_equipment = true
         AND c.competent_id IS NOT NULL
@@ -331,11 +297,11 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
     final conn = await _db.connection;
     
     final params = {
-      'maintenance_id': int.tryParse(maintenanceId) ?? 0,
+      'maintenance_id': maintenanceId,
       'url': photoUrl,
       'comment': comment,
-      'timing': PhotoTiming.values.byName(timing).index,
-      'taken_by': int.tryParse(takenBy) ?? 0,
+      'timing': PhotoTiming.values.byName(timing).name,
+      'taken_by': takenBy,
     };
 
     await conn.execute(
@@ -349,22 +315,7 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
 
   List<EquipmentMaintenanceHistory> _mapResultsToHistoryList(Result result) {
     return result.map((row) {
-      final rowMap = row.toColumnMap();
-      if (rowMap['photos'] != null && rowMap['photos'] is List) {
-        final photosList = rowMap['photos'] as List;
-        rowMap['photos'] = photosList.map((photo) {
-          final pMap = photo as Map<String, dynamic>;
-          if (pMap['timing'] != null && pMap['timing'] is int) {
-            pMap['timing'] = PhotoTiming.values[pMap['timing']].name;
-          }
-          for (final key in ['id', 'maintenance_id', 'taken_by']) {
-            if (pMap[key] != null) pMap[key] = pMap[key].toString();
-          }
-          return pMap;
-        }).toList();
-      }
-      final preparedRow = _prepareRowForFromJson(rowMap);
-      return EquipmentMaintenanceHistory.fromJson(preparedRow);
+      return EquipmentMaintenanceHistory.fromJson(row.toColumnMap());
     }).toList();
   }
 }

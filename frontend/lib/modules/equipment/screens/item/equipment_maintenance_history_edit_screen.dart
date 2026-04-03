@@ -135,6 +135,7 @@ class _EquipmentMaintenanceHistoryEditScreenState
       MaintenanceStatus maintenanceStatus) {
     switch (maintenanceStatus) {
       case MaintenanceStatus.reported:
+      case MaintenanceStatus.diagnosing:
         return EquipmentStatus.outOfOrder;
       case MaintenanceStatus.inProgress:
         return EquipmentStatus.maintenance;
@@ -286,6 +287,7 @@ class _EquipmentMaintenanceHistoryEditScreenState
     // For existing records, logic depends on the current status.
     switch (widget.historyRecord!.status) {
       case MaintenanceStatus.reported:
+      case MaintenanceStatus.diagnosing:
         return [
           MaintenanceStatus.reported,
           MaintenanceStatus.inProgress,

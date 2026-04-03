@@ -14,21 +14,20 @@ AnalyticGroup _$AnalyticGroupFromJson(Map<String, dynamic> json) =>
       type: const AnalyticGroupTypeConverter()
           .fromJson((json['type'] as num).toInt()),
       isAutoUpdate: json['is_auto_update'] as bool? ?? false,
-      conditions: (json['conditions'] as List<dynamic>?)
-              ?.map((e) => GroupCondition.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          const [],
-      clientIds: (json['client_ids_cache'] as List<dynamic>?)
-              ?.map((e) => e as String)
-              .toList() ??
-          [],
-      lastUpdatedAt: json['last_updated_at'] == null
-          ? null
-          : DateTime.parse(json['last_updated_at'] as String),
+      conditions: json['conditions'] == null
+          ? const []
+          : _conditionsFromJson(json['conditions']),
+      clientIds: json['client_ids_cache'] == null
+          ? const []
+          : _clientIdsFromJson(json['client_ids_cache']),
+      lastUpdatedAt: _nullableDateTimeFromJson(json['last_updated_at']),
       metadata: json['metadata'] as Map<String, dynamic>?,
-      archivedAt: json['archived_at'] == null
-          ? null
-          : DateTime.parse(json['archived_at'] as String),
+      companyId: json['company_id'] as String?,
+      createdAt: _nullableDateTimeFromJson(json['created_at']),
+      updatedAt: _nullableDateTimeFromJson(json['updated_at']),
+      createdBy: json['created_by'] as String?,
+      updatedBy: json['updated_by'] as String?,
+      archivedAt: _nullableDateTimeFromJson(json['archived_at']),
       archivedBy: json['archived_by'] as String?,
     );
 
@@ -43,6 +42,11 @@ Map<String, dynamic> _$AnalyticGroupToJson(AnalyticGroup instance) =>
       'client_ids_cache': instance.clientIds,
       'last_updated_at': instance.lastUpdatedAt?.toIso8601String(),
       'metadata': instance.metadata,
+      'company_id': instance.companyId,
+      'created_at': instance.createdAt?.toIso8601String(),
+      'updated_at': instance.updatedAt?.toIso8601String(),
+      'created_by': instance.createdBy,
+      'updated_by': instance.updatedBy,
       'archived_at': instance.archivedAt?.toIso8601String(),
       'archived_by': instance.archivedBy,
     };

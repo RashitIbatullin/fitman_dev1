@@ -1,4 +1,4 @@
-import 'package:fitman_backend/modules/equipment/models/equipment_maintenance_history.model.dart';
+import 'package:fitman_common/modules/equipment/equipment_maintenance_history.model.dart';
 import 'package:fitman_backend/modules/equipment/repositories/maintenance_repository.dart';
 
 class MaintenanceService {

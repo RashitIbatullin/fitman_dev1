@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 import '../../../config/database.dart';
-import '../models/group_schedule.model.dart';
+import 'package:fitman_common/modules/groups/group_schedule.model.dart';
 
 class GroupScheduleController {
   final Database _db;

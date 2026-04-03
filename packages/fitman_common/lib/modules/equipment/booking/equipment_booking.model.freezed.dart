@@ -12,8 +12,7 @@ part of 'equipment_booking.model.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
-);
+    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
 EquipmentBooking _$EquipmentBookingFromJson(Map<String, dynamic> json) {
   return _EquipmentBooking.fromJson(json);
@@ -45,22 +44,20 @@ mixin _$EquipmentBooking {
 /// @nodoc
 abstract class $EquipmentBookingCopyWith<$Res> {
   factory $EquipmentBookingCopyWith(
-    EquipmentBooking value,
-    $Res Function(EquipmentBooking) then,
-  ) = _$EquipmentBookingCopyWithImpl<$Res, EquipmentBooking>;
+          EquipmentBooking value, $Res Function(EquipmentBooking) then) =
+      _$EquipmentBookingCopyWithImpl<$Res, EquipmentBooking>;
   @useResult
-  $Res call({
-    String id,
-    String equipmentItemId,
-    String bookedById,
-    DateTime startTime,
-    DateTime endTime,
-    String? lessonId,
-    String? trainingGroupId,
-    String purpose,
-    BookingStatus status,
-    String? notes,
-  });
+  $Res call(
+      {String id,
+      String equipmentItemId,
+      String bookedById,
+      DateTime startTime,
+      DateTime endTime,
+      String? lessonId,
+      String? trainingGroupId,
+      String purpose,
+      BookingStatus status,
+      String? notes});
 }
 
 /// @nodoc
@@ -89,85 +86,79 @@ class _$EquipmentBookingCopyWithImpl<$Res, $Val extends EquipmentBooking>
     Object? status = null,
     Object? notes = freezed,
   }) {
-    return _then(
-      _value.copyWith(
-            id: null == id
-                ? _value.id
-                : id // ignore: cast_nullable_to_non_nullable
-                      as String,
-            equipmentItemId: null == equipmentItemId
-                ? _value.equipmentItemId
-                : equipmentItemId // ignore: cast_nullable_to_non_nullable
-                      as String,
-            bookedById: null == bookedById
-                ? _value.bookedById
-                : bookedById // ignore: cast_nullable_to_non_nullable
-                      as String,
-            startTime: null == startTime
-                ? _value.startTime
-                : startTime // ignore: cast_nullable_to_non_nullable
-                      as DateTime,
-            endTime: null == endTime
-                ? _value.endTime
-                : endTime // ignore: cast_nullable_to_non_nullable
-                      as DateTime,
-            lessonId: freezed == lessonId
-                ? _value.lessonId
-                : lessonId // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            trainingGroupId: freezed == trainingGroupId
-                ? _value.trainingGroupId
-                : trainingGroupId // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            purpose: null == purpose
-                ? _value.purpose
-                : purpose // ignore: cast_nullable_to_non_nullable
-                      as String,
-            status: null == status
-                ? _value.status
-                : status // ignore: cast_nullable_to_non_nullable
-                      as BookingStatus,
-            notes: freezed == notes
-                ? _value.notes
-                : notes // ignore: cast_nullable_to_non_nullable
-                      as String?,
-          )
-          as $Val,
-    );
+    return _then(_value.copyWith(
+      id: null == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
+      equipmentItemId: null == equipmentItemId
+          ? _value.equipmentItemId
+          : equipmentItemId // ignore: cast_nullable_to_non_nullable
+              as String,
+      bookedById: null == bookedById
+          ? _value.bookedById
+          : bookedById // ignore: cast_nullable_to_non_nullable
+              as String,
+      startTime: null == startTime
+          ? _value.startTime
+          : startTime // ignore: cast_nullable_to_non_nullable
+              as DateTime,
+      endTime: null == endTime
+          ? _value.endTime
+          : endTime // ignore: cast_nullable_to_non_nullable
+              as DateTime,
+      lessonId: freezed == lessonId
+          ? _value.lessonId
+          : lessonId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      trainingGroupId: freezed == trainingGroupId
+          ? _value.trainingGroupId
+          : trainingGroupId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      purpose: null == purpose
+          ? _value.purpose
+          : purpose // ignore: cast_nullable_to_non_nullable
+              as String,
+      status: null == status
+          ? _value.status
+          : status // ignore: cast_nullable_to_non_nullable
+              as BookingStatus,
+      notes: freezed == notes
+          ? _value.notes
+          : notes // ignore: cast_nullable_to_non_nullable
+              as String?,
+    ) as $Val);
   }
 }
 
 /// @nodoc
 abstract class _$$EquipmentBookingImplCopyWith<$Res>
     implements $EquipmentBookingCopyWith<$Res> {
-  factory _$$EquipmentBookingImplCopyWith(
-    _$EquipmentBookingImpl value,
-    $Res Function(_$EquipmentBookingImpl) then,
-  ) = __$$EquipmentBookingImplCopyWithImpl<$Res>;
+  factory _$$EquipmentBookingImplCopyWith(_$EquipmentBookingImpl value,
+          $Res Function(_$EquipmentBookingImpl) then) =
+      __$$EquipmentBookingImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({
-    String id,
-    String equipmentItemId,
-    String bookedById,
-    DateTime startTime,
-    DateTime endTime,
-    String? lessonId,
-    String? trainingGroupId,
-    String purpose,
-    BookingStatus status,
-    String? notes,
-  });
+  $Res call(
+      {String id,
+      String equipmentItemId,
+      String bookedById,
+      DateTime startTime,
+      DateTime endTime,
+      String? lessonId,
+      String? trainingGroupId,
+      String purpose,
+      BookingStatus status,
+      String? notes});
 }
 
 /// @nodoc
 class __$$EquipmentBookingImplCopyWithImpl<$Res>
     extends _$EquipmentBookingCopyWithImpl<$Res, _$EquipmentBookingImpl>
     implements _$$EquipmentBookingImplCopyWith<$Res> {
-  __$$EquipmentBookingImplCopyWithImpl(
-    _$EquipmentBookingImpl _value,
-    $Res Function(_$EquipmentBookingImpl) _then,
-  ) : super(_value, _then);
+  __$$EquipmentBookingImplCopyWithImpl(_$EquipmentBookingImpl _value,
+      $Res Function(_$EquipmentBookingImpl) _then)
+      : super(_value, _then);
 
   /// Create a copy of EquipmentBooking
   /// with the given fields replaced by the non-null parameter values.
@@ -185,68 +176,65 @@ class __$$EquipmentBookingImplCopyWithImpl<$Res>
     Object? status = null,
     Object? notes = freezed,
   }) {
-    return _then(
-      _$EquipmentBookingImpl(
-        id: null == id
-            ? _value.id
-            : id // ignore: cast_nullable_to_non_nullable
-                  as String,
-        equipmentItemId: null == equipmentItemId
-            ? _value.equipmentItemId
-            : equipmentItemId // ignore: cast_nullable_to_non_nullable
-                  as String,
-        bookedById: null == bookedById
-            ? _value.bookedById
-            : bookedById // ignore: cast_nullable_to_non_nullable
-                  as String,
-        startTime: null == startTime
-            ? _value.startTime
-            : startTime // ignore: cast_nullable_to_non_nullable
-                  as DateTime,
-        endTime: null == endTime
-            ? _value.endTime
-            : endTime // ignore: cast_nullable_to_non_nullable
-                  as DateTime,
-        lessonId: freezed == lessonId
-            ? _value.lessonId
-            : lessonId // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        trainingGroupId: freezed == trainingGroupId
-            ? _value.trainingGroupId
-            : trainingGroupId // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        purpose: null == purpose
-            ? _value.purpose
-            : purpose // ignore: cast_nullable_to_non_nullable
-                  as String,
-        status: null == status
-            ? _value.status
-            : status // ignore: cast_nullable_to_non_nullable
-                  as BookingStatus,
-        notes: freezed == notes
-            ? _value.notes
-            : notes // ignore: cast_nullable_to_non_nullable
-                  as String?,
-      ),
-    );
+    return _then(_$EquipmentBookingImpl(
+      id: null == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
+      equipmentItemId: null == equipmentItemId
+          ? _value.equipmentItemId
+          : equipmentItemId // ignore: cast_nullable_to_non_nullable
+              as String,
+      bookedById: null == bookedById
+          ? _value.bookedById
+          : bookedById // ignore: cast_nullable_to_non_nullable
+              as String,
+      startTime: null == startTime
+          ? _value.startTime
+          : startTime // ignore: cast_nullable_to_non_nullable
+              as DateTime,
+      endTime: null == endTime
+          ? _value.endTime
+          : endTime // ignore: cast_nullable_to_non_nullable
+              as DateTime,
+      lessonId: freezed == lessonId
+          ? _value.lessonId
+          : lessonId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      trainingGroupId: freezed == trainingGroupId
+          ? _value.trainingGroupId
+          : trainingGroupId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      purpose: null == purpose
+          ? _value.purpose
+          : purpose // ignore: cast_nullable_to_non_nullable
+              as String,
+      status: null == status
+          ? _value.status
+          : status // ignore: cast_nullable_to_non_nullable
+              as BookingStatus,
+      notes: freezed == notes
+          ? _value.notes
+          : notes // ignore: cast_nullable_to_non_nullable
+              as String?,
+    ));
   }
 }
 
 /// @nodoc
 @JsonSerializable()
 class _$EquipmentBookingImpl implements _EquipmentBooking {
-  const _$EquipmentBookingImpl({
-    required this.id,
-    required this.equipmentItemId,
-    required this.bookedById,
-    required this.startTime,
-    required this.endTime,
-    this.lessonId,
-    this.trainingGroupId,
-    required this.purpose,
-    required this.status,
-    this.notes,
-  });
+  const _$EquipmentBookingImpl(
+      {required this.id,
+      required this.equipmentItemId,
+      required this.bookedById,
+      required this.startTime,
+      required this.endTime,
+      this.lessonId,
+      this.trainingGroupId,
+      required this.purpose,
+      required this.status,
+      this.notes});
 
   factory _$EquipmentBookingImpl.fromJson(Map<String, dynamic> json) =>
       _$$EquipmentBookingImplFromJson(json);
@@ -301,19 +289,8 @@ class _$EquipmentBookingImpl implements _EquipmentBooking {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-    runtimeType,
-    id,
-    equipmentItemId,
-    bookedById,
-    startTime,
-    endTime,
-    lessonId,
-    trainingGroupId,
-    purpose,
-    status,
-    notes,
-  );
+  int get hashCode => Object.hash(runtimeType, id, equipmentItemId, bookedById,
+      startTime, endTime, lessonId, trainingGroupId, purpose, status, notes);
 
   /// Create a copy of EquipmentBooking
   /// with the given fields replaced by the non-null parameter values.
@@ -322,29 +299,28 @@ class _$EquipmentBookingImpl implements _EquipmentBooking {
   @pragma('vm:prefer-inline')
   _$$EquipmentBookingImplCopyWith<_$EquipmentBookingImpl> get copyWith =>
       __$$EquipmentBookingImplCopyWithImpl<_$EquipmentBookingImpl>(
-        this,
-        _$identity,
-      );
+          this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$EquipmentBookingImplToJson(this);
+    return _$$EquipmentBookingImplToJson(
+      this,
+    );
   }
 }
 
 abstract class _EquipmentBooking implements EquipmentBooking {
-  const factory _EquipmentBooking({
-    required final String id,
-    required final String equipmentItemId,
-    required final String bookedById,
-    required final DateTime startTime,
-    required final DateTime endTime,
-    final String? lessonId,
-    final String? trainingGroupId,
-    required final String purpose,
-    required final BookingStatus status,
-    final String? notes,
-  }) = _$EquipmentBookingImpl;
+  const factory _EquipmentBooking(
+      {required final String id,
+      required final String equipmentItemId,
+      required final String bookedById,
+      required final DateTime startTime,
+      required final DateTime endTime,
+      final String? lessonId,
+      final String? trainingGroupId,
+      required final String purpose,
+      required final BookingStatus status,
+      final String? notes}) = _$EquipmentBookingImpl;
 
   factory _EquipmentBooking.fromJson(Map<String, dynamic> json) =
       _$EquipmentBookingImpl.fromJson;

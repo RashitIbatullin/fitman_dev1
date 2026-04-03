@@ -14,10 +14,8 @@ _$SupportStaffImpl _$$SupportStaffImplFromJson(Map<String, dynamic> json) =>
       middleName: json['middle_name'] as String?,
       phone: json['phone'] as String?,
       email: json['email'] as String?,
-      employmentType: $enumDecode(
-        _$EmploymentTypeEnumMap,
-        json['employment_type'],
-      ),
+      employmentType:
+          $enumDecode(_$EmploymentTypeEnumMap, json['employment_type']),
       category: $enumDecode(_$StaffCategoryEnumMap, json['category']),
       competencies: (json['competencies'] as List<dynamic>?)
           ?.map((e) => Competency.fromJson(e as Map<String, dynamic>))

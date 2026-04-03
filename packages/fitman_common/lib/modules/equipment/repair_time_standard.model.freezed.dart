@@ -12,8 +12,7 @@ part of 'repair_time_standard.model.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
-);
+    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
 RepairTimeStandard _$RepairTimeStandardFromJson(Map<String, dynamic> json) {
   return _RepairTimeStandard.fromJson(json);
@@ -49,25 +48,23 @@ mixin _$RepairTimeStandard {
 /// @nodoc
 abstract class $RepairTimeStandardCopyWith<$Res> {
   factory $RepairTimeStandardCopyWith(
-    RepairTimeStandard value,
-    $Res Function(RepairTimeStandard) then,
-  ) = _$RepairTimeStandardCopyWithImpl<$Res, RepairTimeStandard>;
+          RepairTimeStandard value, $Res Function(RepairTimeStandard) then) =
+      _$RepairTimeStandardCopyWithImpl<$Res, RepairTimeStandard>;
   @useResult
-  $Res call({
-    String? id,
-    String name,
-    String equipmentTypeId,
-    String? description,
-    double standardDurationHours,
-    RepairComplexity? complexity,
-    DateTime? createdAt,
-    DateTime? updatedAt,
-    String? createdBy,
-    String? updatedBy,
-    DateTime? archivedAt,
-    String? archivedBy,
-    String? archivedReason,
-  });
+  $Res call(
+      {String? id,
+      String name,
+      String equipmentTypeId,
+      String? description,
+      double standardDurationHours,
+      RepairComplexity? complexity,
+      DateTime? createdAt,
+      DateTime? updatedAt,
+      String? createdBy,
+      String? updatedBy,
+      DateTime? archivedAt,
+      String? archivedBy,
+      String? archivedReason});
 }
 
 /// @nodoc
@@ -99,100 +96,94 @@ class _$RepairTimeStandardCopyWithImpl<$Res, $Val extends RepairTimeStandard>
     Object? archivedBy = freezed,
     Object? archivedReason = freezed,
   }) {
-    return _then(
-      _value.copyWith(
-            id: freezed == id
-                ? _value.id
-                : id // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            name: null == name
-                ? _value.name
-                : name // ignore: cast_nullable_to_non_nullable
-                      as String,
-            equipmentTypeId: null == equipmentTypeId
-                ? _value.equipmentTypeId
-                : equipmentTypeId // ignore: cast_nullable_to_non_nullable
-                      as String,
-            description: freezed == description
-                ? _value.description
-                : description // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            standardDurationHours: null == standardDurationHours
-                ? _value.standardDurationHours
-                : standardDurationHours // ignore: cast_nullable_to_non_nullable
-                      as double,
-            complexity: freezed == complexity
-                ? _value.complexity
-                : complexity // ignore: cast_nullable_to_non_nullable
-                      as RepairComplexity?,
-            createdAt: freezed == createdAt
-                ? _value.createdAt
-                : createdAt // ignore: cast_nullable_to_non_nullable
-                      as DateTime?,
-            updatedAt: freezed == updatedAt
-                ? _value.updatedAt
-                : updatedAt // ignore: cast_nullable_to_non_nullable
-                      as DateTime?,
-            createdBy: freezed == createdBy
-                ? _value.createdBy
-                : createdBy // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            updatedBy: freezed == updatedBy
-                ? _value.updatedBy
-                : updatedBy // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            archivedAt: freezed == archivedAt
-                ? _value.archivedAt
-                : archivedAt // ignore: cast_nullable_to_non_nullable
-                      as DateTime?,
-            archivedBy: freezed == archivedBy
-                ? _value.archivedBy
-                : archivedBy // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            archivedReason: freezed == archivedReason
-                ? _value.archivedReason
-                : archivedReason // ignore: cast_nullable_to_non_nullable
-                      as String?,
-          )
-          as $Val,
-    );
+    return _then(_value.copyWith(
+      id: freezed == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String?,
+      name: null == name
+          ? _value.name
+          : name // ignore: cast_nullable_to_non_nullable
+              as String,
+      equipmentTypeId: null == equipmentTypeId
+          ? _value.equipmentTypeId
+          : equipmentTypeId // ignore: cast_nullable_to_non_nullable
+              as String,
+      description: freezed == description
+          ? _value.description
+          : description // ignore: cast_nullable_to_non_nullable
+              as String?,
+      standardDurationHours: null == standardDurationHours
+          ? _value.standardDurationHours
+          : standardDurationHours // ignore: cast_nullable_to_non_nullable
+              as double,
+      complexity: freezed == complexity
+          ? _value.complexity
+          : complexity // ignore: cast_nullable_to_non_nullable
+              as RepairComplexity?,
+      createdAt: freezed == createdAt
+          ? _value.createdAt
+          : createdAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      updatedAt: freezed == updatedAt
+          ? _value.updatedAt
+          : updatedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      createdBy: freezed == createdBy
+          ? _value.createdBy
+          : createdBy // ignore: cast_nullable_to_non_nullable
+              as String?,
+      updatedBy: freezed == updatedBy
+          ? _value.updatedBy
+          : updatedBy // ignore: cast_nullable_to_non_nullable
+              as String?,
+      archivedAt: freezed == archivedAt
+          ? _value.archivedAt
+          : archivedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      archivedBy: freezed == archivedBy
+          ? _value.archivedBy
+          : archivedBy // ignore: cast_nullable_to_non_nullable
+              as String?,
+      archivedReason: freezed == archivedReason
+          ? _value.archivedReason
+          : archivedReason // ignore: cast_nullable_to_non_nullable
+              as String?,
+    ) as $Val);
   }
 }
 
 /// @nodoc
 abstract class _$$RepairTimeStandardImplCopyWith<$Res>
     implements $RepairTimeStandardCopyWith<$Res> {
-  factory _$$RepairTimeStandardImplCopyWith(
-    _$RepairTimeStandardImpl value,
-    $Res Function(_$RepairTimeStandardImpl) then,
-  ) = __$$RepairTimeStandardImplCopyWithImpl<$Res>;
+  factory _$$RepairTimeStandardImplCopyWith(_$RepairTimeStandardImpl value,
+          $Res Function(_$RepairTimeStandardImpl) then) =
+      __$$RepairTimeStandardImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({
-    String? id,
-    String name,
-    String equipmentTypeId,
-    String? description,
-    double standardDurationHours,
-    RepairComplexity? complexity,
-    DateTime? createdAt,
-    DateTime? updatedAt,
-    String? createdBy,
-    String? updatedBy,
-    DateTime? archivedAt,
-    String? archivedBy,
-    String? archivedReason,
-  });
+  $Res call(
+      {String? id,
+      String name,
+      String equipmentTypeId,
+      String? description,
+      double standardDurationHours,
+      RepairComplexity? complexity,
+      DateTime? createdAt,
+      DateTime? updatedAt,
+      String? createdBy,
+      String? updatedBy,
+      DateTime? archivedAt,
+      String? archivedBy,
+      String? archivedReason});
 }
 
 /// @nodoc
 class __$$RepairTimeStandardImplCopyWithImpl<$Res>
     extends _$RepairTimeStandardCopyWithImpl<$Res, _$RepairTimeStandardImpl>
     implements _$$RepairTimeStandardImplCopyWith<$Res> {
-  __$$RepairTimeStandardImplCopyWithImpl(
-    _$RepairTimeStandardImpl _value,
-    $Res Function(_$RepairTimeStandardImpl) _then,
-  ) : super(_value, _then);
+  __$$RepairTimeStandardImplCopyWithImpl(_$RepairTimeStandardImpl _value,
+      $Res Function(_$RepairTimeStandardImpl) _then)
+      : super(_value, _then);
 
   /// Create a copy of RepairTimeStandard
   /// with the given fields replaced by the non-null parameter values.
@@ -213,83 +204,80 @@ class __$$RepairTimeStandardImplCopyWithImpl<$Res>
     Object? archivedBy = freezed,
     Object? archivedReason = freezed,
   }) {
-    return _then(
-      _$RepairTimeStandardImpl(
-        id: freezed == id
-            ? _value.id
-            : id // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        name: null == name
-            ? _value.name
-            : name // ignore: cast_nullable_to_non_nullable
-                  as String,
-        equipmentTypeId: null == equipmentTypeId
-            ? _value.equipmentTypeId
-            : equipmentTypeId // ignore: cast_nullable_to_non_nullable
-                  as String,
-        description: freezed == description
-            ? _value.description
-            : description // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        standardDurationHours: null == standardDurationHours
-            ? _value.standardDurationHours
-            : standardDurationHours // ignore: cast_nullable_to_non_nullable
-                  as double,
-        complexity: freezed == complexity
-            ? _value.complexity
-            : complexity // ignore: cast_nullable_to_non_nullable
-                  as RepairComplexity?,
-        createdAt: freezed == createdAt
-            ? _value.createdAt
-            : createdAt // ignore: cast_nullable_to_non_nullable
-                  as DateTime?,
-        updatedAt: freezed == updatedAt
-            ? _value.updatedAt
-            : updatedAt // ignore: cast_nullable_to_non_nullable
-                  as DateTime?,
-        createdBy: freezed == createdBy
-            ? _value.createdBy
-            : createdBy // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        updatedBy: freezed == updatedBy
-            ? _value.updatedBy
-            : updatedBy // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        archivedAt: freezed == archivedAt
-            ? _value.archivedAt
-            : archivedAt // ignore: cast_nullable_to_non_nullable
-                  as DateTime?,
-        archivedBy: freezed == archivedBy
-            ? _value.archivedBy
-            : archivedBy // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        archivedReason: freezed == archivedReason
-            ? _value.archivedReason
-            : archivedReason // ignore: cast_nullable_to_non_nullable
-                  as String?,
-      ),
-    );
+    return _then(_$RepairTimeStandardImpl(
+      id: freezed == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String?,
+      name: null == name
+          ? _value.name
+          : name // ignore: cast_nullable_to_non_nullable
+              as String,
+      equipmentTypeId: null == equipmentTypeId
+          ? _value.equipmentTypeId
+          : equipmentTypeId // ignore: cast_nullable_to_non_nullable
+              as String,
+      description: freezed == description
+          ? _value.description
+          : description // ignore: cast_nullable_to_non_nullable
+              as String?,
+      standardDurationHours: null == standardDurationHours
+          ? _value.standardDurationHours
+          : standardDurationHours // ignore: cast_nullable_to_non_nullable
+              as double,
+      complexity: freezed == complexity
+          ? _value.complexity
+          : complexity // ignore: cast_nullable_to_non_nullable
+              as RepairComplexity?,
+      createdAt: freezed == createdAt
+          ? _value.createdAt
+          : createdAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      updatedAt: freezed == updatedAt
+          ? _value.updatedAt
+          : updatedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      createdBy: freezed == createdBy
+          ? _value.createdBy
+          : createdBy // ignore: cast_nullable_to_non_nullable
+              as String?,
+      updatedBy: freezed == updatedBy
+          ? _value.updatedBy
+          : updatedBy // ignore: cast_nullable_to_non_nullable
+              as String?,
+      archivedAt: freezed == archivedAt
+          ? _value.archivedAt
+          : archivedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      archivedBy: freezed == archivedBy
+          ? _value.archivedBy
+          : archivedBy // ignore: cast_nullable_to_non_nullable
+              as String?,
+      archivedReason: freezed == archivedReason
+          ? _value.archivedReason
+          : archivedReason // ignore: cast_nullable_to_non_nullable
+              as String?,
+    ));
   }
 }
 
 /// @nodoc
 @JsonSerializable()
 class _$RepairTimeStandardImpl implements _RepairTimeStandard {
-  const _$RepairTimeStandardImpl({
-    this.id,
-    required this.name,
-    required this.equipmentTypeId,
-    this.description,
-    required this.standardDurationHours,
-    this.complexity,
-    this.createdAt,
-    this.updatedAt,
-    this.createdBy,
-    this.updatedBy,
-    this.archivedAt,
-    this.archivedBy,
-    this.archivedReason,
-  });
+  const _$RepairTimeStandardImpl(
+      {this.id,
+      required this.name,
+      required this.equipmentTypeId,
+      this.description,
+      required this.standardDurationHours,
+      this.complexity,
+      this.createdAt,
+      this.updatedAt,
+      this.createdBy,
+      this.updatedBy,
+      this.archivedAt,
+      this.archivedBy,
+      this.archivedReason});
 
   factory _$RepairTimeStandardImpl.fromJson(Map<String, dynamic> json) =>
       _$$RepairTimeStandardImplFromJson(json);
@@ -306,7 +294,7 @@ class _$RepairTimeStandardImpl implements _RepairTimeStandard {
   final double standardDurationHours;
   @override
   final RepairComplexity? complexity;
-  // Системные поля
+// Системные поля
   @override
   final DateTime? createdAt;
   @override
@@ -361,21 +349,20 @@ class _$RepairTimeStandardImpl implements _RepairTimeStandard {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
-    runtimeType,
-    id,
-    name,
-    equipmentTypeId,
-    description,
-    standardDurationHours,
-    complexity,
-    createdAt,
-    updatedAt,
-    createdBy,
-    updatedBy,
-    archivedAt,
-    archivedBy,
-    archivedReason,
-  );
+      runtimeType,
+      id,
+      name,
+      equipmentTypeId,
+      description,
+      standardDurationHours,
+      complexity,
+      createdAt,
+      updatedAt,
+      createdBy,
+      updatedBy,
+      archivedAt,
+      archivedBy,
+      archivedReason);
 
   /// Create a copy of RepairTimeStandard
   /// with the given fields replaced by the non-null parameter values.
@@ -384,32 +371,31 @@ class _$RepairTimeStandardImpl implements _RepairTimeStandard {
   @pragma('vm:prefer-inline')
   _$$RepairTimeStandardImplCopyWith<_$RepairTimeStandardImpl> get copyWith =>
       __$$RepairTimeStandardImplCopyWithImpl<_$RepairTimeStandardImpl>(
-        this,
-        _$identity,
-      );
+          this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$RepairTimeStandardImplToJson(this);
+    return _$$RepairTimeStandardImplToJson(
+      this,
+    );
   }
 }
 
 abstract class _RepairTimeStandard implements RepairTimeStandard {
-  const factory _RepairTimeStandard({
-    final String? id,
-    required final String name,
-    required final String equipmentTypeId,
-    final String? description,
-    required final double standardDurationHours,
-    final RepairComplexity? complexity,
-    final DateTime? createdAt,
-    final DateTime? updatedAt,
-    final String? createdBy,
-    final String? updatedBy,
-    final DateTime? archivedAt,
-    final String? archivedBy,
-    final String? archivedReason,
-  }) = _$RepairTimeStandardImpl;
+  const factory _RepairTimeStandard(
+      {final String? id,
+      required final String name,
+      required final String equipmentTypeId,
+      final String? description,
+      required final double standardDurationHours,
+      final RepairComplexity? complexity,
+      final DateTime? createdAt,
+      final DateTime? updatedAt,
+      final String? createdBy,
+      final String? updatedBy,
+      final DateTime? archivedAt,
+      final String? archivedBy,
+      final String? archivedReason}) = _$RepairTimeStandardImpl;
 
   factory _RepairTimeStandard.fromJson(Map<String, dynamic> json) =
       _$RepairTimeStandardImpl.fromJson;

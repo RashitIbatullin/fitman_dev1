@@ -12,8 +12,7 @@ part of 'equipment_stats.model.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
-);
+    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
 /// @nodoc
 mixin _$EquipmentStats {
@@ -33,17 +32,11 @@ mixin _$EquipmentStats {
 /// @nodoc
 abstract class $EquipmentStatsCopyWith<$Res> {
   factory $EquipmentStatsCopyWith(
-    EquipmentStats value,
-    $Res Function(EquipmentStats) then,
-  ) = _$EquipmentStatsCopyWithImpl<$Res, EquipmentStats>;
+          EquipmentStats value, $Res Function(EquipmentStats) then) =
+      _$EquipmentStatsCopyWithImpl<$Res, EquipmentStats>;
   @useResult
-  $Res call({
-    int total,
-    int available,
-    int inUse,
-    int inMaintenance,
-    int outOfOrder,
-  });
+  $Res call(
+      {int total, int available, int inUse, int inMaintenance, int outOfOrder});
 }
 
 /// @nodoc
@@ -67,50 +60,41 @@ class _$EquipmentStatsCopyWithImpl<$Res, $Val extends EquipmentStats>
     Object? inMaintenance = null,
     Object? outOfOrder = null,
   }) {
-    return _then(
-      _value.copyWith(
-            total: null == total
-                ? _value.total
-                : total // ignore: cast_nullable_to_non_nullable
-                      as int,
-            available: null == available
-                ? _value.available
-                : available // ignore: cast_nullable_to_non_nullable
-                      as int,
-            inUse: null == inUse
-                ? _value.inUse
-                : inUse // ignore: cast_nullable_to_non_nullable
-                      as int,
-            inMaintenance: null == inMaintenance
-                ? _value.inMaintenance
-                : inMaintenance // ignore: cast_nullable_to_non_nullable
-                      as int,
-            outOfOrder: null == outOfOrder
-                ? _value.outOfOrder
-                : outOfOrder // ignore: cast_nullable_to_non_nullable
-                      as int,
-          )
-          as $Val,
-    );
+    return _then(_value.copyWith(
+      total: null == total
+          ? _value.total
+          : total // ignore: cast_nullable_to_non_nullable
+              as int,
+      available: null == available
+          ? _value.available
+          : available // ignore: cast_nullable_to_non_nullable
+              as int,
+      inUse: null == inUse
+          ? _value.inUse
+          : inUse // ignore: cast_nullable_to_non_nullable
+              as int,
+      inMaintenance: null == inMaintenance
+          ? _value.inMaintenance
+          : inMaintenance // ignore: cast_nullable_to_non_nullable
+              as int,
+      outOfOrder: null == outOfOrder
+          ? _value.outOfOrder
+          : outOfOrder // ignore: cast_nullable_to_non_nullable
+              as int,
+    ) as $Val);
   }
 }
 
 /// @nodoc
 abstract class _$$EquipmentStatsImplCopyWith<$Res>
     implements $EquipmentStatsCopyWith<$Res> {
-  factory _$$EquipmentStatsImplCopyWith(
-    _$EquipmentStatsImpl value,
-    $Res Function(_$EquipmentStatsImpl) then,
-  ) = __$$EquipmentStatsImplCopyWithImpl<$Res>;
+  factory _$$EquipmentStatsImplCopyWith(_$EquipmentStatsImpl value,
+          $Res Function(_$EquipmentStatsImpl) then) =
+      __$$EquipmentStatsImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({
-    int total,
-    int available,
-    int inUse,
-    int inMaintenance,
-    int outOfOrder,
-  });
+  $Res call(
+      {int total, int available, int inUse, int inMaintenance, int outOfOrder});
 }
 
 /// @nodoc
@@ -118,9 +102,8 @@ class __$$EquipmentStatsImplCopyWithImpl<$Res>
     extends _$EquipmentStatsCopyWithImpl<$Res, _$EquipmentStatsImpl>
     implements _$$EquipmentStatsImplCopyWith<$Res> {
   __$$EquipmentStatsImplCopyWithImpl(
-    _$EquipmentStatsImpl _value,
-    $Res Function(_$EquipmentStatsImpl) _then,
-  ) : super(_value, _then);
+      _$EquipmentStatsImpl _value, $Res Function(_$EquipmentStatsImpl) _then)
+      : super(_value, _then);
 
   /// Create a copy of EquipmentStats
   /// with the given fields replaced by the non-null parameter values.
@@ -133,43 +116,40 @@ class __$$EquipmentStatsImplCopyWithImpl<$Res>
     Object? inMaintenance = null,
     Object? outOfOrder = null,
   }) {
-    return _then(
-      _$EquipmentStatsImpl(
-        total: null == total
-            ? _value.total
-            : total // ignore: cast_nullable_to_non_nullable
-                  as int,
-        available: null == available
-            ? _value.available
-            : available // ignore: cast_nullable_to_non_nullable
-                  as int,
-        inUse: null == inUse
-            ? _value.inUse
-            : inUse // ignore: cast_nullable_to_non_nullable
-                  as int,
-        inMaintenance: null == inMaintenance
-            ? _value.inMaintenance
-            : inMaintenance // ignore: cast_nullable_to_non_nullable
-                  as int,
-        outOfOrder: null == outOfOrder
-            ? _value.outOfOrder
-            : outOfOrder // ignore: cast_nullable_to_non_nullable
-                  as int,
-      ),
-    );
+    return _then(_$EquipmentStatsImpl(
+      total: null == total
+          ? _value.total
+          : total // ignore: cast_nullable_to_non_nullable
+              as int,
+      available: null == available
+          ? _value.available
+          : available // ignore: cast_nullable_to_non_nullable
+              as int,
+      inUse: null == inUse
+          ? _value.inUse
+          : inUse // ignore: cast_nullable_to_non_nullable
+              as int,
+      inMaintenance: null == inMaintenance
+          ? _value.inMaintenance
+          : inMaintenance // ignore: cast_nullable_to_non_nullable
+              as int,
+      outOfOrder: null == outOfOrder
+          ? _value.outOfOrder
+          : outOfOrder // ignore: cast_nullable_to_non_nullable
+              as int,
+    ));
   }
 }
 
 /// @nodoc
 
 class _$EquipmentStatsImpl implements _EquipmentStats {
-  const _$EquipmentStatsImpl({
-    required this.total,
-    required this.available,
-    required this.inUse,
-    required this.inMaintenance,
-    required this.outOfOrder,
-  });
+  const _$EquipmentStatsImpl(
+      {required this.total,
+      required this.available,
+      required this.inUse,
+      required this.inMaintenance,
+      required this.outOfOrder});
 
   @override
   final int total;
@@ -204,13 +184,7 @@ class _$EquipmentStatsImpl implements _EquipmentStats {
 
   @override
   int get hashCode => Object.hash(
-    runtimeType,
-    total,
-    available,
-    inUse,
-    inMaintenance,
-    outOfOrder,
-  );
+      runtimeType, total, available, inUse, inMaintenance, outOfOrder);
 
   /// Create a copy of EquipmentStats
   /// with the given fields replaced by the non-null parameter values.
@@ -219,19 +193,16 @@ class _$EquipmentStatsImpl implements _EquipmentStats {
   @pragma('vm:prefer-inline')
   _$$EquipmentStatsImplCopyWith<_$EquipmentStatsImpl> get copyWith =>
       __$$EquipmentStatsImplCopyWithImpl<_$EquipmentStatsImpl>(
-        this,
-        _$identity,
-      );
+          this, _$identity);
 }
 
 abstract class _EquipmentStats implements EquipmentStats {
-  const factory _EquipmentStats({
-    required final int total,
-    required final int available,
-    required final int inUse,
-    required final int inMaintenance,
-    required final int outOfOrder,
-  }) = _$EquipmentStatsImpl;
+  const factory _EquipmentStats(
+      {required final int total,
+      required final int available,
+      required final int inUse,
+      required final int inMaintenance,
+      required final int outOfOrder}) = _$EquipmentStatsImpl;
 
   @override
   int get total;

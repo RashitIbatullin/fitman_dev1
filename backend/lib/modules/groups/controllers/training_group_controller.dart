@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 import '../../../config/database.dart';
-import '../models/training_group.model.dart';
+import 'package:fitman_common/modules/groups/training_group.model.dart';
 
 class TrainingGroupsController {
   final Database _db;

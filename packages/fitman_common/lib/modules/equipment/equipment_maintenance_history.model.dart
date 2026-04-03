@@ -29,6 +29,9 @@ enum MaintenanceStatus {
   /// Проблема зафиксирована
   reported,
 
+  /// На диагностике
+  diagnosing,
+  
   /// В работе
   inProgress,
 
@@ -44,24 +47,14 @@ extension MaintenanceStatusX on MaintenanceStatus {
     switch (this) {
       case MaintenanceStatus.reported:
         return 'Заявка';
+      case MaintenanceStatus.diagnosing:
+        return 'Диагностика';
       case MaintenanceStatus.inProgress:
         return 'В работе';
       case MaintenanceStatus.completed:
         return 'Завершено';
       case MaintenanceStatus.cancelled:
         return 'Отменено';
-    }
-  }
-  Color get color {
-    switch (this) {
-      case MaintenanceStatus.reported:
-        return Colors.orange; // Problem exists, awaiting action
-      case MaintenanceStatus.inProgress:
-        return Colors.purple; // Something is happening
-      case MaintenanceStatus.completed:
-        return Colors.green; // Success
-      case MaintenanceStatus.cancelled:
-        return Colors.grey; // Neutral
     }
   }
 }
@@ -109,6 +102,12 @@ class EquipmentMaintenanceHistory with _$EquipmentMaintenanceHistory {
     String? equipmentName,
     required MaintenanceType type,
     required MaintenanceStatus status,
+
+    // Новые поля
+    String? repairTimeStandardId,
+    String? diagnosisNotes,
+    double? actualDurationHours,
+
     DateTime? createdAt,
     DateTime? startedAt,
     DateTime? completedAt,

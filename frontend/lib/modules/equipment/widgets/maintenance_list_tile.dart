@@ -3,6 +3,7 @@ import 'package:fitman_common/modules/equipment/equipment_maintenance_history.mo
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:fitman_app/extensions/equipment_ui_extensions.dart';
 
 class MaintenanceListTile extends ConsumerWidget {
   const MaintenanceListTile({

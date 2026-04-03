@@ -16,9 +16,8 @@ _$EquipmentItemImpl _$$EquipmentItemImplFromJson(Map<String, dynamic> json) =>
       manufacturer: json['manufacturer'] as String?,
       roomId: json['room_id'] as String?,
       placementNote: json['placement_note'] as String?,
-      status: const EquipmentStatusConverter().fromJson(
-        (json['status'] as num).toInt(),
-      ),
+      status: const EquipmentStatusConverter()
+          .fromJson((json['status'] as num).toInt()),
       conditionRating: (json['condition_rating'] as num).toInt(),
       conditionNotes: json['condition_notes'] as String?,
       lastMaintenanceDate: json['last_maintenance_date'] == null
@@ -38,8 +37,7 @@ _$EquipmentItemImpl _$$EquipmentItemImplFromJson(Map<String, dynamic> json) =>
       lastUsedDate: json['last_used_date'] == null
           ? null
           : DateTime.parse(json['last_used_date'] as String),
-      photoUrls:
-          (json['photo_urls'] as List<dynamic>?)
+      photoUrls: (json['photo_urls'] as List<dynamic>?)
               ?.map((e) => e as String)
               .toList() ??
           const [],

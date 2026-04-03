@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:shelf/shelf.dart';
 import 'package:fitman_backend/modules/employees/services/employee_competency_service.dart';
-import 'package:fitman_backend/modules/supportStaff/models/competency.model.dart';
+import 'package:fitman_common/modules/support_staff/competency.model.dart';
 
 class EmployeeCompetencyController {
   EmployeeCompetencyController(this._service);
@@ -19,7 +19,7 @@ class EmployeeCompetencyController {
   Future<Response> addCompetency(Request request, String userId) async {
     final body = await request.readAsString();
     final data = jsonDecode(body) as Map<String, dynamic>;
-    final competency = Competency.fromMap(data..['competent_id'] = userId);
+    final competency = Competency.fromJson(data..['competent_id'] = userId);
     final newCompetency = await _service.addCompetency(competency);
     return Response(HttpStatus.created,
         body: jsonEncode(newCompetency.toJson()),

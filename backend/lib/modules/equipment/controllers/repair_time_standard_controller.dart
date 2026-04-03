@@ -5,7 +5,7 @@ import 'dart:io';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 
-import '../models/repair_time_standard.model.dart';
+import 'package:fitman_common/modules/equipment/repair_time_standard.model.dart';
 import '../services/repair_time_standard_service.dart';
 
 class RepairTimeStandardController {

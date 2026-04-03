@@ -7,7 +7,7 @@ import 'package:shelf_multipart/shelf_multipart.dart';
 import 'package:shelf_router/shelf_router.dart';
 import 'package:uuid/uuid.dart';
 
-import 'package:fitman_backend/modules/equipment/models/equipment_maintenance_history.model.dart';
+import 'package:fitman_common/modules/equipment/equipment_maintenance_history.model.dart';
 import 'package:fitman_backend/modules/equipment/services/maintenance_service.dart';
 
 class MaintenanceController {

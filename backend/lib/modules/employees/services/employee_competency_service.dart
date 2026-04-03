@@ -1,6 +1,6 @@
 import 'package:fitman_backend/modules/competencies/repositories/competency_repository.dart';
-import 'package:fitman_backend/modules/equipment/models/equipment_maintenance_history.model.dart';
-import 'package:fitman_backend/modules/supportStaff/models/competency.model.dart';
+import 'package:fitman_common/enums/executor_type.dart';
+import 'package:fitman_common/modules/support_staff/competency.model.dart';
 
 class EmployeeCompetencyService {
   EmployeeCompetencyService(this._competencyRepository);

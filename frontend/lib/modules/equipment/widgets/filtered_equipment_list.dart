@@ -3,6 +3,7 @@ import 'package:fitman_app/modules/equipment/screens/item/equipment_item_detail_
 import 'package:fitman_common/fitman_common.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fitman_app/extensions/equipment_ui_extensions.dart';
 
 class FilteredEquipmentList extends ConsumerWidget {
   const FilteredEquipmentList({super.key});

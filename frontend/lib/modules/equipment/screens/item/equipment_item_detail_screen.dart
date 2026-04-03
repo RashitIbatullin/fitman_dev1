@@ -5,10 +5,11 @@ import 'equipment_item_edit_screen.dart';
 import 'package:fitman_app/modules/equipment/screens/item/equipment_maintenance_history_edit_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fitman_app/extensions/equipment_ui_extensions.dart';
 import 'package:fitman_app/modules/equipment/providers/equipment/equipment_provider.dart';
 import 'package:fitman_app/modules/equipment/providers/maintenance_provider.dart';
 import 'package:fitman_app/modules/rooms/providers/room/room_provider.dart';
-import 'package:fitman_app/modules/users/providers/users_provider.dart'; 
+import 'package:fitman_app/modules/users/providers/users_provider.dart';  
 
 // import 'package:fitman_app/modules/equipment/screens/item/maintenance_details_screen.dart'; // No longer used
 

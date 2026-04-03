@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'dart:io'; // Import for HttpStatus
 
 import 'package:shelf/shelf.dart'; // Changed import
-import 'package:fitman_backend/modules/supportStaff/models/competency.model.dart';
-import 'package:fitman_backend/modules/supportStaff/models/support_staff.model.dart';
+import 'package:fitman_common/modules/support_staff/competency.model.dart';
+import 'package:fitman_common/modules/support_staff/support_staff.model.dart';
 import 'package:fitman_backend/modules/supportStaff/services/support_staff.service.dart';
 
 class SupportStaffController {
@@ -29,7 +29,7 @@ class SupportStaffController {
   Future<Response> create(Request request) async { // Changed Request and Response
     final body = await request.readAsString(); // Changed request.body() to request.readAsString()
     final data = jsonDecode(body) as Map<String, dynamic>;
-    final supportStaff = SupportStaff.fromMap(data);
+    final supportStaff = SupportStaff.fromJson(data);
     final userId = request.headers['X-User-Id'] ?? '1'; // Placeholder for user id
     final newStaff = await _supportStaffService.create(supportStaff, userId);
     return Response(HttpStatus.created, body: jsonEncode(newStaff.toJson()), headers: {'Content-Type': 'application/json'}); // Corrected for created status
@@ -38,7 +38,7 @@ class SupportStaffController {
   Future<Response> update(Request request, String id) async { // Changed Request and Response
     final body = await request.readAsString(); // Changed request.body() to request.readAsString()
     final data = jsonDecode(body) as Map<String, dynamic>;
-    final supportStaff = SupportStaff.fromMap(data);
+    final supportStaff = SupportStaff.fromJson(data);
     final userId = request.headers['X-User-Id'] ?? '1'; // Placeholder for user id
     final updatedStaff =
         await _supportStaffService.update(id, supportStaff, userId);
@@ -67,7 +67,7 @@ class SupportStaffController {
   Future<Response> addCompetency(Request request, String staffId) async { // Changed Request and Response
     final body = await request.readAsString(); // Changed request.body() to request.readAsString()
     final data = jsonDecode(body) as Map<String, dynamic>;
-    final competency = Competency.fromMap(data..['staff_id'] = staffId);
+    final competency = Competency.fromJson(data..['staff_id'] = staffId);
     final newCompetency = await _supportStaffService.addCompetency(competency);
     return Response(HttpStatus.created, body: jsonEncode(newCompetency.toJson()), headers: {'Content-Type': 'application/json'}); // Corrected for created status
   }

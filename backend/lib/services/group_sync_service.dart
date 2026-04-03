@@ -1,6 +1,6 @@
 import 'package:postgres/postgres.dart';
 import '../config/database.dart';
-import '../modules/groups/models/group_condition.model.dart';
+import 'package:fitman_common/modules/groups/group_condition.model.dart';
 
 class GroupSyncService {
   final Database _db;

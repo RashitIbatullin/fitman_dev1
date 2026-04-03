@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fitman_app/modules/rooms/providers/room/room_provider.dart';
 import 'package:intl/intl.dart'; // Added for DateFormat
 import 'package:fitman_common/fitman_common.dart';
+import 'package:fitman_app/extensions/equipment_ui_extensions.dart';
 import 'room_edit_screen.dart'; // Import the edit screen
 
 class RoomDetailScreen extends ConsumerWidget {

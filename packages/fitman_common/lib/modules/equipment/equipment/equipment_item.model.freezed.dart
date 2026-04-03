@@ -12,8 +12,7 @@ part of 'equipment_item.model.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
-);
+    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
 EquipmentItem _$EquipmentItemFromJson(Map<String, dynamic> json) {
   return _EquipmentItem.fromJson(json);
@@ -60,36 +59,34 @@ mixin _$EquipmentItem {
 /// @nodoc
 abstract class $EquipmentItemCopyWith<$Res> {
   factory $EquipmentItemCopyWith(
-    EquipmentItem value,
-    $Res Function(EquipmentItem) then,
-  ) = _$EquipmentItemCopyWithImpl<$Res, EquipmentItem>;
+          EquipmentItem value, $Res Function(EquipmentItem) then) =
+      _$EquipmentItemCopyWithImpl<$Res, EquipmentItem>;
   @useResult
-  $Res call({
-    String id,
-    String typeId,
-    String inventoryNumber,
-    String? serialNumber,
-    String? model,
-    String? manufacturer,
-    String? roomId,
-    String? placementNote,
-    @EquipmentStatusConverter() EquipmentStatus status,
-    int conditionRating,
-    String? conditionNotes,
-    DateTime? lastMaintenanceDate,
-    DateTime? nextMaintenanceDate,
-    String? maintenanceNotes,
-    DateTime? purchaseDate,
-    double? purchasePrice,
-    String? supplier,
-    int? warrantyMonths,
-    int usageHours,
-    DateTime? lastUsedDate,
-    List<String> photoUrls,
-    DateTime? archivedAt,
-    String? archivedBy,
-    String? archivedReason,
-  });
+  $Res call(
+      {String id,
+      String typeId,
+      String inventoryNumber,
+      String? serialNumber,
+      String? model,
+      String? manufacturer,
+      String? roomId,
+      String? placementNote,
+      @EquipmentStatusConverter() EquipmentStatus status,
+      int conditionRating,
+      String? conditionNotes,
+      DateTime? lastMaintenanceDate,
+      DateTime? nextMaintenanceDate,
+      String? maintenanceNotes,
+      DateTime? purchaseDate,
+      double? purchasePrice,
+      String? supplier,
+      int? warrantyMonths,
+      int usageHours,
+      DateTime? lastUsedDate,
+      List<String> photoUrls,
+      DateTime? archivedAt,
+      String? archivedBy,
+      String? archivedReason});
 }
 
 /// @nodoc
@@ -132,107 +129,104 @@ class _$EquipmentItemCopyWithImpl<$Res, $Val extends EquipmentItem>
     Object? archivedBy = freezed,
     Object? archivedReason = freezed,
   }) {
-    return _then(
-      _value.copyWith(
-            id: null == id
-                ? _value.id
-                : id // ignore: cast_nullable_to_non_nullable
-                      as String,
-            typeId: null == typeId
-                ? _value.typeId
-                : typeId // ignore: cast_nullable_to_non_nullable
-                      as String,
-            inventoryNumber: null == inventoryNumber
-                ? _value.inventoryNumber
-                : inventoryNumber // ignore: cast_nullable_to_non_nullable
-                      as String,
-            serialNumber: freezed == serialNumber
-                ? _value.serialNumber
-                : serialNumber // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            model: freezed == model
-                ? _value.model
-                : model // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            manufacturer: freezed == manufacturer
-                ? _value.manufacturer
-                : manufacturer // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            roomId: freezed == roomId
-                ? _value.roomId
-                : roomId // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            placementNote: freezed == placementNote
-                ? _value.placementNote
-                : placementNote // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            status: null == status
-                ? _value.status
-                : status // ignore: cast_nullable_to_non_nullable
-                      as EquipmentStatus,
-            conditionRating: null == conditionRating
-                ? _value.conditionRating
-                : conditionRating // ignore: cast_nullable_to_non_nullable
-                      as int,
-            conditionNotes: freezed == conditionNotes
-                ? _value.conditionNotes
-                : conditionNotes // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            lastMaintenanceDate: freezed == lastMaintenanceDate
-                ? _value.lastMaintenanceDate
-                : lastMaintenanceDate // ignore: cast_nullable_to_non_nullable
-                      as DateTime?,
-            nextMaintenanceDate: freezed == nextMaintenanceDate
-                ? _value.nextMaintenanceDate
-                : nextMaintenanceDate // ignore: cast_nullable_to_non_nullable
-                      as DateTime?,
-            maintenanceNotes: freezed == maintenanceNotes
-                ? _value.maintenanceNotes
-                : maintenanceNotes // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            purchaseDate: freezed == purchaseDate
-                ? _value.purchaseDate
-                : purchaseDate // ignore: cast_nullable_to_non_nullable
-                      as DateTime?,
-            purchasePrice: freezed == purchasePrice
-                ? _value.purchasePrice
-                : purchasePrice // ignore: cast_nullable_to_non_nullable
-                      as double?,
-            supplier: freezed == supplier
-                ? _value.supplier
-                : supplier // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            warrantyMonths: freezed == warrantyMonths
-                ? _value.warrantyMonths
-                : warrantyMonths // ignore: cast_nullable_to_non_nullable
-                      as int?,
-            usageHours: null == usageHours
-                ? _value.usageHours
-                : usageHours // ignore: cast_nullable_to_non_nullable
-                      as int,
-            lastUsedDate: freezed == lastUsedDate
-                ? _value.lastUsedDate
-                : lastUsedDate // ignore: cast_nullable_to_non_nullable
-                      as DateTime?,
-            photoUrls: null == photoUrls
-                ? _value.photoUrls
-                : photoUrls // ignore: cast_nullable_to_non_nullable
-                      as List<String>,
-            archivedAt: freezed == archivedAt
-                ? _value.archivedAt
-                : archivedAt // ignore: cast_nullable_to_non_nullable
-                      as DateTime?,
-            archivedBy: freezed == archivedBy
-                ? _value.archivedBy
-                : archivedBy // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            archivedReason: freezed == archivedReason
-                ? _value.archivedReason
-                : archivedReason // ignore: cast_nullable_to_non_nullable
-                      as String?,
-          )
-          as $Val,
-    );
+    return _then(_value.copyWith(
+      id: null == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
+      typeId: null == typeId
+          ? _value.typeId
+          : typeId // ignore: cast_nullable_to_non_nullable
+              as String,
+      inventoryNumber: null == inventoryNumber
+          ? _value.inventoryNumber
+          : inventoryNumber // ignore: cast_nullable_to_non_nullable
+              as String,
+      serialNumber: freezed == serialNumber
+          ? _value.serialNumber
+          : serialNumber // ignore: cast_nullable_to_non_nullable
+              as String?,
+      model: freezed == model
+          ? _value.model
+          : model // ignore: cast_nullable_to_non_nullable
+              as String?,
+      manufacturer: freezed == manufacturer
+          ? _value.manufacturer
+          : manufacturer // ignore: cast_nullable_to_non_nullable
+              as String?,
+      roomId: freezed == roomId
+          ? _value.roomId
+          : roomId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      placementNote: freezed == placementNote
+          ? _value.placementNote
+          : placementNote // ignore: cast_nullable_to_non_nullable
+              as String?,
+      status: null == status
+          ? _value.status
+          : status // ignore: cast_nullable_to_non_nullable
+              as EquipmentStatus,
+      conditionRating: null == conditionRating
+          ? _value.conditionRating
+          : conditionRating // ignore: cast_nullable_to_non_nullable
+              as int,
+      conditionNotes: freezed == conditionNotes
+          ? _value.conditionNotes
+          : conditionNotes // ignore: cast_nullable_to_non_nullable
+              as String?,
+      lastMaintenanceDate: freezed == lastMaintenanceDate
+          ? _value.lastMaintenanceDate
+          : lastMaintenanceDate // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      nextMaintenanceDate: freezed == nextMaintenanceDate
+          ? _value.nextMaintenanceDate
+          : nextMaintenanceDate // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      maintenanceNotes: freezed == maintenanceNotes
+          ? _value.maintenanceNotes
+          : maintenanceNotes // ignore: cast_nullable_to_non_nullable
+              as String?,
+      purchaseDate: freezed == purchaseDate
+          ? _value.purchaseDate
+          : purchaseDate // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      purchasePrice: freezed == purchasePrice
+          ? _value.purchasePrice
+          : purchasePrice // ignore: cast_nullable_to_non_nullable
+              as double?,
+      supplier: freezed == supplier
+          ? _value.supplier
+          : supplier // ignore: cast_nullable_to_non_nullable
+              as String?,
+      warrantyMonths: freezed == warrantyMonths
+          ? _value.warrantyMonths
+          : warrantyMonths // ignore: cast_nullable_to_non_nullable
+              as int?,
+      usageHours: null == usageHours
+          ? _value.usageHours
+          : usageHours // ignore: cast_nullable_to_non_nullable
+              as int,
+      lastUsedDate: freezed == lastUsedDate
+          ? _value.lastUsedDate
+          : lastUsedDate // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      photoUrls: null == photoUrls
+          ? _value.photoUrls
+          : photoUrls // ignore: cast_nullable_to_non_nullable
+              as List<String>,
+      archivedAt: freezed == archivedAt
+          ? _value.archivedAt
+          : archivedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      archivedBy: freezed == archivedBy
+          ? _value.archivedBy
+          : archivedBy // ignore: cast_nullable_to_non_nullable
+              as String?,
+      archivedReason: freezed == archivedReason
+          ? _value.archivedReason
+          : archivedReason // ignore: cast_nullable_to_non_nullable
+              as String?,
+    ) as $Val);
   }
 }
 
@@ -240,37 +234,35 @@ class _$EquipmentItemCopyWithImpl<$Res, $Val extends EquipmentItem>
 abstract class _$$EquipmentItemImplCopyWith<$Res>
     implements $EquipmentItemCopyWith<$Res> {
   factory _$$EquipmentItemImplCopyWith(
-    _$EquipmentItemImpl value,
-    $Res Function(_$EquipmentItemImpl) then,
-  ) = __$$EquipmentItemImplCopyWithImpl<$Res>;
+          _$EquipmentItemImpl value, $Res Function(_$EquipmentItemImpl) then) =
+      __$$EquipmentItemImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({
-    String id,
-    String typeId,
-    String inventoryNumber,
-    String? serialNumber,
-    String? model,
-    String? manufacturer,
-    String? roomId,
-    String? placementNote,
-    @EquipmentStatusConverter() EquipmentStatus status,
-    int conditionRating,
-    String? conditionNotes,
-    DateTime? lastMaintenanceDate,
-    DateTime? nextMaintenanceDate,
-    String? maintenanceNotes,
-    DateTime? purchaseDate,
-    double? purchasePrice,
-    String? supplier,
-    int? warrantyMonths,
-    int usageHours,
-    DateTime? lastUsedDate,
-    List<String> photoUrls,
-    DateTime? archivedAt,
-    String? archivedBy,
-    String? archivedReason,
-  });
+  $Res call(
+      {String id,
+      String typeId,
+      String inventoryNumber,
+      String? serialNumber,
+      String? model,
+      String? manufacturer,
+      String? roomId,
+      String? placementNote,
+      @EquipmentStatusConverter() EquipmentStatus status,
+      int conditionRating,
+      String? conditionNotes,
+      DateTime? lastMaintenanceDate,
+      DateTime? nextMaintenanceDate,
+      String? maintenanceNotes,
+      DateTime? purchaseDate,
+      double? purchasePrice,
+      String? supplier,
+      int? warrantyMonths,
+      int usageHours,
+      DateTime? lastUsedDate,
+      List<String> photoUrls,
+      DateTime? archivedAt,
+      String? archivedBy,
+      String? archivedReason});
 }
 
 /// @nodoc
@@ -278,9 +270,8 @@ class __$$EquipmentItemImplCopyWithImpl<$Res>
     extends _$EquipmentItemCopyWithImpl<$Res, _$EquipmentItemImpl>
     implements _$$EquipmentItemImplCopyWith<$Res> {
   __$$EquipmentItemImplCopyWithImpl(
-    _$EquipmentItemImpl _value,
-    $Res Function(_$EquipmentItemImpl) _then,
-  ) : super(_value, _then);
+      _$EquipmentItemImpl _value, $Res Function(_$EquipmentItemImpl) _then)
+      : super(_value, _then);
 
   /// Create a copy of EquipmentItem
   /// with the given fields replaced by the non-null parameter values.
@@ -312,138 +303,136 @@ class __$$EquipmentItemImplCopyWithImpl<$Res>
     Object? archivedBy = freezed,
     Object? archivedReason = freezed,
   }) {
-    return _then(
-      _$EquipmentItemImpl(
-        id: null == id
-            ? _value.id
-            : id // ignore: cast_nullable_to_non_nullable
-                  as String,
-        typeId: null == typeId
-            ? _value.typeId
-            : typeId // ignore: cast_nullable_to_non_nullable
-                  as String,
-        inventoryNumber: null == inventoryNumber
-            ? _value.inventoryNumber
-            : inventoryNumber // ignore: cast_nullable_to_non_nullable
-                  as String,
-        serialNumber: freezed == serialNumber
-            ? _value.serialNumber
-            : serialNumber // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        model: freezed == model
-            ? _value.model
-            : model // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        manufacturer: freezed == manufacturer
-            ? _value.manufacturer
-            : manufacturer // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        roomId: freezed == roomId
-            ? _value.roomId
-            : roomId // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        placementNote: freezed == placementNote
-            ? _value.placementNote
-            : placementNote // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        status: null == status
-            ? _value.status
-            : status // ignore: cast_nullable_to_non_nullable
-                  as EquipmentStatus,
-        conditionRating: null == conditionRating
-            ? _value.conditionRating
-            : conditionRating // ignore: cast_nullable_to_non_nullable
-                  as int,
-        conditionNotes: freezed == conditionNotes
-            ? _value.conditionNotes
-            : conditionNotes // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        lastMaintenanceDate: freezed == lastMaintenanceDate
-            ? _value.lastMaintenanceDate
-            : lastMaintenanceDate // ignore: cast_nullable_to_non_nullable
-                  as DateTime?,
-        nextMaintenanceDate: freezed == nextMaintenanceDate
-            ? _value.nextMaintenanceDate
-            : nextMaintenanceDate // ignore: cast_nullable_to_non_nullable
-                  as DateTime?,
-        maintenanceNotes: freezed == maintenanceNotes
-            ? _value.maintenanceNotes
-            : maintenanceNotes // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        purchaseDate: freezed == purchaseDate
-            ? _value.purchaseDate
-            : purchaseDate // ignore: cast_nullable_to_non_nullable
-                  as DateTime?,
-        purchasePrice: freezed == purchasePrice
-            ? _value.purchasePrice
-            : purchasePrice // ignore: cast_nullable_to_non_nullable
-                  as double?,
-        supplier: freezed == supplier
-            ? _value.supplier
-            : supplier // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        warrantyMonths: freezed == warrantyMonths
-            ? _value.warrantyMonths
-            : warrantyMonths // ignore: cast_nullable_to_non_nullable
-                  as int?,
-        usageHours: null == usageHours
-            ? _value.usageHours
-            : usageHours // ignore: cast_nullable_to_non_nullable
-                  as int,
-        lastUsedDate: freezed == lastUsedDate
-            ? _value.lastUsedDate
-            : lastUsedDate // ignore: cast_nullable_to_non_nullable
-                  as DateTime?,
-        photoUrls: null == photoUrls
-            ? _value._photoUrls
-            : photoUrls // ignore: cast_nullable_to_non_nullable
-                  as List<String>,
-        archivedAt: freezed == archivedAt
-            ? _value.archivedAt
-            : archivedAt // ignore: cast_nullable_to_non_nullable
-                  as DateTime?,
-        archivedBy: freezed == archivedBy
-            ? _value.archivedBy
-            : archivedBy // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        archivedReason: freezed == archivedReason
-            ? _value.archivedReason
-            : archivedReason // ignore: cast_nullable_to_non_nullable
-                  as String?,
-      ),
-    );
+    return _then(_$EquipmentItemImpl(
+      id: null == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
+      typeId: null == typeId
+          ? _value.typeId
+          : typeId // ignore: cast_nullable_to_non_nullable
+              as String,
+      inventoryNumber: null == inventoryNumber
+          ? _value.inventoryNumber
+          : inventoryNumber // ignore: cast_nullable_to_non_nullable
+              as String,
+      serialNumber: freezed == serialNumber
+          ? _value.serialNumber
+          : serialNumber // ignore: cast_nullable_to_non_nullable
+              as String?,
+      model: freezed == model
+          ? _value.model
+          : model // ignore: cast_nullable_to_non_nullable
+              as String?,
+      manufacturer: freezed == manufacturer
+          ? _value.manufacturer
+          : manufacturer // ignore: cast_nullable_to_non_nullable
+              as String?,
+      roomId: freezed == roomId
+          ? _value.roomId
+          : roomId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      placementNote: freezed == placementNote
+          ? _value.placementNote
+          : placementNote // ignore: cast_nullable_to_non_nullable
+              as String?,
+      status: null == status
+          ? _value.status
+          : status // ignore: cast_nullable_to_non_nullable
+              as EquipmentStatus,
+      conditionRating: null == conditionRating
+          ? _value.conditionRating
+          : conditionRating // ignore: cast_nullable_to_non_nullable
+              as int,
+      conditionNotes: freezed == conditionNotes
+          ? _value.conditionNotes
+          : conditionNotes // ignore: cast_nullable_to_non_nullable
+              as String?,
+      lastMaintenanceDate: freezed == lastMaintenanceDate
+          ? _value.lastMaintenanceDate
+          : lastMaintenanceDate // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      nextMaintenanceDate: freezed == nextMaintenanceDate
+          ? _value.nextMaintenanceDate
+          : nextMaintenanceDate // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      maintenanceNotes: freezed == maintenanceNotes
+          ? _value.maintenanceNotes
+          : maintenanceNotes // ignore: cast_nullable_to_non_nullable
+              as String?,
+      purchaseDate: freezed == purchaseDate
+          ? _value.purchaseDate
+          : purchaseDate // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      purchasePrice: freezed == purchasePrice
+          ? _value.purchasePrice
+          : purchasePrice // ignore: cast_nullable_to_non_nullable
+              as double?,
+      supplier: freezed == supplier
+          ? _value.supplier
+          : supplier // ignore: cast_nullable_to_non_nullable
+              as String?,
+      warrantyMonths: freezed == warrantyMonths
+          ? _value.warrantyMonths
+          : warrantyMonths // ignore: cast_nullable_to_non_nullable
+              as int?,
+      usageHours: null == usageHours
+          ? _value.usageHours
+          : usageHours // ignore: cast_nullable_to_non_nullable
+              as int,
+      lastUsedDate: freezed == lastUsedDate
+          ? _value.lastUsedDate
+          : lastUsedDate // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      photoUrls: null == photoUrls
+          ? _value._photoUrls
+          : photoUrls // ignore: cast_nullable_to_non_nullable
+              as List<String>,
+      archivedAt: freezed == archivedAt
+          ? _value.archivedAt
+          : archivedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      archivedBy: freezed == archivedBy
+          ? _value.archivedBy
+          : archivedBy // ignore: cast_nullable_to_non_nullable
+              as String?,
+      archivedReason: freezed == archivedReason
+          ? _value.archivedReason
+          : archivedReason // ignore: cast_nullable_to_non_nullable
+              as String?,
+    ));
   }
 }
 
 /// @nodoc
 @JsonSerializable()
 class _$EquipmentItemImpl implements _EquipmentItem {
-  const _$EquipmentItemImpl({
-    required this.id,
-    required this.typeId,
-    required this.inventoryNumber,
-    this.serialNumber,
-    this.model,
-    this.manufacturer,
-    this.roomId,
-    this.placementNote,
-    @EquipmentStatusConverter() required this.status,
-    required this.conditionRating,
-    this.conditionNotes,
-    this.lastMaintenanceDate,
-    this.nextMaintenanceDate,
-    this.maintenanceNotes,
-    this.purchaseDate,
-    this.purchasePrice,
-    this.supplier,
-    this.warrantyMonths,
-    this.usageHours = 0,
-    this.lastUsedDate,
-    final List<String> photoUrls = const [],
-    this.archivedAt,
-    this.archivedBy,
-    this.archivedReason,
-  }) : _photoUrls = photoUrls;
+  const _$EquipmentItemImpl(
+      {required this.id,
+      required this.typeId,
+      required this.inventoryNumber,
+      this.serialNumber,
+      this.model,
+      this.manufacturer,
+      this.roomId,
+      this.placementNote,
+      @EquipmentStatusConverter() required this.status,
+      required this.conditionRating,
+      this.conditionNotes,
+      this.lastMaintenanceDate,
+      this.nextMaintenanceDate,
+      this.maintenanceNotes,
+      this.purchaseDate,
+      this.purchasePrice,
+      this.supplier,
+      this.warrantyMonths,
+      this.usageHours = 0,
+      this.lastUsedDate,
+      final List<String> photoUrls = const [],
+      this.archivedAt,
+      this.archivedBy,
+      this.archivedReason})
+      : _photoUrls = photoUrls;
 
   factory _$EquipmentItemImpl.fromJson(Map<String, dynamic> json) =>
       _$$EquipmentItemImplFromJson(json);
@@ -551,10 +540,8 @@ class _$EquipmentItemImpl implements _EquipmentItem {
                 other.usageHours == usageHours) &&
             (identical(other.lastUsedDate, lastUsedDate) ||
                 other.lastUsedDate == lastUsedDate) &&
-            const DeepCollectionEquality().equals(
-              other._photoUrls,
-              _photoUrls,
-            ) &&
+            const DeepCollectionEquality()
+                .equals(other._photoUrls, _photoUrls) &&
             (identical(other.archivedAt, archivedAt) ||
                 other.archivedAt == archivedAt) &&
             (identical(other.archivedBy, archivedBy) ||
@@ -566,32 +553,32 @@ class _$EquipmentItemImpl implements _EquipmentItem {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hashAll([
-    runtimeType,
-    id,
-    typeId,
-    inventoryNumber,
-    serialNumber,
-    model,
-    manufacturer,
-    roomId,
-    placementNote,
-    status,
-    conditionRating,
-    conditionNotes,
-    lastMaintenanceDate,
-    nextMaintenanceDate,
-    maintenanceNotes,
-    purchaseDate,
-    purchasePrice,
-    supplier,
-    warrantyMonths,
-    usageHours,
-    lastUsedDate,
-    const DeepCollectionEquality().hash(_photoUrls),
-    archivedAt,
-    archivedBy,
-    archivedReason,
-  ]);
+        runtimeType,
+        id,
+        typeId,
+        inventoryNumber,
+        serialNumber,
+        model,
+        manufacturer,
+        roomId,
+        placementNote,
+        status,
+        conditionRating,
+        conditionNotes,
+        lastMaintenanceDate,
+        nextMaintenanceDate,
+        maintenanceNotes,
+        purchaseDate,
+        purchasePrice,
+        supplier,
+        warrantyMonths,
+        usageHours,
+        lastUsedDate,
+        const DeepCollectionEquality().hash(_photoUrls),
+        archivedAt,
+        archivedBy,
+        archivedReason
+      ]);
 
   /// Create a copy of EquipmentItem
   /// with the given fields replaced by the non-null parameter values.
@@ -603,37 +590,38 @@ class _$EquipmentItemImpl implements _EquipmentItem {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$EquipmentItemImplToJson(this);
+    return _$$EquipmentItemImplToJson(
+      this,
+    );
   }
 }
 
 abstract class _EquipmentItem implements EquipmentItem {
-  const factory _EquipmentItem({
-    required final String id,
-    required final String typeId,
-    required final String inventoryNumber,
-    final String? serialNumber,
-    final String? model,
-    final String? manufacturer,
-    final String? roomId,
-    final String? placementNote,
-    @EquipmentStatusConverter() required final EquipmentStatus status,
-    required final int conditionRating,
-    final String? conditionNotes,
-    final DateTime? lastMaintenanceDate,
-    final DateTime? nextMaintenanceDate,
-    final String? maintenanceNotes,
-    final DateTime? purchaseDate,
-    final double? purchasePrice,
-    final String? supplier,
-    final int? warrantyMonths,
-    final int usageHours,
-    final DateTime? lastUsedDate,
-    final List<String> photoUrls,
-    final DateTime? archivedAt,
-    final String? archivedBy,
-    final String? archivedReason,
-  }) = _$EquipmentItemImpl;
+  const factory _EquipmentItem(
+      {required final String id,
+      required final String typeId,
+      required final String inventoryNumber,
+      final String? serialNumber,
+      final String? model,
+      final String? manufacturer,
+      final String? roomId,
+      final String? placementNote,
+      @EquipmentStatusConverter() required final EquipmentStatus status,
+      required final int conditionRating,
+      final String? conditionNotes,
+      final DateTime? lastMaintenanceDate,
+      final DateTime? nextMaintenanceDate,
+      final String? maintenanceNotes,
+      final DateTime? purchaseDate,
+      final double? purchasePrice,
+      final String? supplier,
+      final int? warrantyMonths,
+      final int usageHours,
+      final DateTime? lastUsedDate,
+      final List<String> photoUrls,
+      final DateTime? archivedAt,
+      final String? archivedBy,
+      final String? archivedReason}) = _$EquipmentItemImpl;
 
   factory _EquipmentItem.fromJson(Map<String, dynamic> json) =
       _$EquipmentItemImpl.fromJson;

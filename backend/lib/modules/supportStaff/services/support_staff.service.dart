@@ -1,7 +1,7 @@
 import 'package:fitman_backend/modules/competencies/repositories/competency_repository.dart';
-import 'package:fitman_backend/modules/equipment/models/equipment_maintenance_history.model.dart';
-import 'package:fitman_backend/modules/supportStaff/models/competency.model.dart';
-import 'package:fitman_backend/modules/supportStaff/models/support_staff.model.dart';
+import 'package:fitman_common/enums/executor_type.dart';
+import 'package:fitman_common/modules/support_staff/competency.model.dart';
+import 'package:fitman_common/modules/support_staff/support_staff.model.dart';
 import 'package:fitman_backend/modules/supportStaff/repositories/support_staff.repository.dart';
 
 class SupportStaffService {

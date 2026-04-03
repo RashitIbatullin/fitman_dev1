@@ -1,7 +1,7 @@
 import 'package:fitman_backend/config/database.dart';
-import 'package:fitman_backend/modules/equipment/models/equipment_maintenance_history.model.dart';
-import 'package:fitman_backend/modules/supportStaff/models/competency.model.dart';
-import 'package:fitman_backend/modules/supportStaff/models/competency_level.enum.dart';
+import 'package:fitman_common/enums/executor_type.dart';
+import 'package:fitman_common/modules/support_staff/competency.model.dart';
+import 'package:fitman_common/modules/support_staff/competency_level.enum.dart';
 import 'package:postgres/postgres.dart';
 
 abstract class CompetencyRepository {
@@ -35,7 +35,7 @@ class CompetencyRepositoryImpl implements CompetencyRepository {
       final levelInt = map['level'] as int;
       map['level'] = CompetencyLevel.values[levelInt].name;
 
-      return Competency.fromMap(map);
+      return Competency.fromJson(map);
     }).toList();
   }
 

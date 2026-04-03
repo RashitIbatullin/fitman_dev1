@@ -11,9 +11,8 @@ _$EquipmentTypeImpl _$$EquipmentTypeImplFromJson(Map<String, dynamic> json) =>
       id: json['id'] as String,
       name: json['name'] as String,
       description: json['description'] as String?,
-      category: const EquipmentCategoryConverter().fromJson(
-        (json['category'] as num).toInt(),
-      ),
+      category: const EquipmentCategoryConverter()
+          .fromJson((json['category'] as num).toInt()),
       weightRange: json['weight_range'] as String?,
       dimensions: json['dimensions'] as String?,
       isMobile: json['is_mobile'] as bool? ?? true,
