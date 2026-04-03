@@ -1,5 +1,5 @@
-import 'package:fitman_backend/modules/equipment/models/booking/equipment_booking.model.dart';
-import 'package:fitman_backend/modules/rooms/models/room/room.model.dart';
+import 'package:fitman_common/modules/equipment/booking/equipment_booking.model.dart';
+import 'package:fitman_common/modules/rooms/room.model.dart';
 
 abstract class AvailabilityService {
   Future<bool> isRoomAvailable(String roomId, DateTime start, DateTime end);

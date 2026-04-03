@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:fitman_backend/config/database.dart';
-import 'package:fitman_backend/modules/rooms/models/room/room.model.dart';
+import 'package:fitman_common/modules/rooms/room.model.dart';
 import 'package:postgres/postgres.dart';
 
 abstract class RoomRepository {
@@ -199,9 +199,9 @@ class RoomRepositoryImpl implements RoomRepository {
         'deactivate_at': room.deactivateAt,
         'deactivate_by': room.deactivateBy,
         'archived_at': room.archivedAt,
+        'updated_by': room.updatedBy,
         'archived_by': room.archivedBy,
         'archived_reason': room.archivedReason,
-        'updated_by': room.updatedBy,
       },
     );
     return Room.fromMap(result.first.toColumnMap());

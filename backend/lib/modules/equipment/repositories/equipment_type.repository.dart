@@ -1,5 +1,5 @@
 import 'package:fitman_backend/config/database.dart';
-import 'package:fitman_backend/modules/equipment/models/equipment/equipment_type.model.dart';
+import 'package:fitman_common/modules/equipment/equipment/equipment_type.model.dart';
 import 'package:postgres/postgres.dart';
 
 abstract class EquipmentTypeRepository {
@@ -59,7 +59,7 @@ class EquipmentTypeRepositoryImpl implements EquipmentTypeRepository {
       parameters: {
         'name': equipmentType.name,
         'description': equipmentType.description,
-        'category': equipmentType.category.index,
+        'category': equipmentType.category.name,
         'weightRange': equipmentType.weightRange,
         'dimensions': equipmentType.dimensions,
         'isMobile': equipmentType.isMobile,
@@ -89,7 +89,7 @@ class EquipmentTypeRepositoryImpl implements EquipmentTypeRepository {
 
       return result
           .map(
-            (row) => EquipmentType.fromMap(row.toColumnMap()),
+            (row) => EquipmentType.fromJson(row.toColumnMap()),
           )
           .toList();
     } catch (e) {
@@ -110,7 +110,7 @@ class EquipmentTypeRepositoryImpl implements EquipmentTypeRepository {
       throw Exception('EquipmentType with id $id not found');
     }
 
-    return EquipmentType.fromMap(result.first.toColumnMap());
+    return EquipmentType.fromJson(result.first.toColumnMap());
   }
 
   @override
@@ -137,7 +137,7 @@ class EquipmentTypeRepositoryImpl implements EquipmentTypeRepository {
         'id': id,
         'name': equipmentType.name,
         'description': equipmentType.description,
-        'category': equipmentType.category.index,
+        'category': equipmentType.category.name,
         'weightRange': equipmentType.weightRange,
         'dimensions': equipmentType.dimensions,
         'isMobile': equipmentType.isMobile,

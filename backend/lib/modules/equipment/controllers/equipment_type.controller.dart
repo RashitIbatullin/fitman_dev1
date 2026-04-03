@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:fitman_backend/config/database.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
-import 'package:fitman_backend/modules/equipment/models/equipment/equipment_type.model.dart';
+import 'package:fitman_common/modules/equipment/equipment/equipment_type.model.dart';
 import 'package:fitman_backend/modules/equipment/services/equipment.service.dart';
 
 class EquipmentTypeController {

@@ -1,5 +1,5 @@
 
-import 'package:fitman_backend/modules/equipment/models/booking/equipment_booking.model.dart';
+import 'package:fitman_common/modules/equipment/booking/equipment_booking.model.dart';
 import '../repositories/equipment_booking.repository.dart';
 
 abstract class BookingService {

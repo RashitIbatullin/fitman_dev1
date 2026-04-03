@@ -1,5 +1,5 @@
 
-import 'package:fitman_backend/modules/equipment/models/equipment/equipment_item.model.dart';
+import 'package:fitman_common/modules/equipment/equipment/equipment_item.model.dart';
 
 abstract class MaintenanceService {
   Future<void> scheduleMaintenance(String equipmentId, DateTime date);

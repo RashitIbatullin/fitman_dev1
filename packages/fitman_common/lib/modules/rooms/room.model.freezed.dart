@@ -60,6 +60,8 @@ mixin _$Room {
   @JsonKey(name: 'archived_reason')
   String? get archivedReason => throw _privateConstructorUsedError;
   @JsonKey(name: 'archived_by')
+  String? get updatedBy => throw _privateConstructorUsedError;
+  @JsonKey(name: 'updated_by')
   String? get archivedBy => throw _privateConstructorUsedError;
   @JsonKey(name: 'archived_by_name')
   String? get archivedByName => throw _privateConstructorUsedError;

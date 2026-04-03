@@ -47,6 +47,7 @@ class Room with _$Room {
     String? note,
     @JsonKey(name: 'archived_at') DateTime? archivedAt,
     @JsonKey(name: 'archived_reason') String? archivedReason,
+    @JsonKey(name: 'updated_by') String? updatedBy,
     @JsonKey(name: 'archived_by') String? archivedBy,
     @JsonKey(name: 'archived_by_name') String? archivedByName,
   }) = _Room;

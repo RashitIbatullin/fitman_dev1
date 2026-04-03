@@ -1,4 +1,4 @@
-import 'package:fitman_backend/modules/equipment/models/booking/equipment_booking.model.dart';
+import 'package:fitman_common/modules/equipment/booking/equipment_booking.model.dart';
 
 abstract class EquipmentBookingRepository {
   Future<EquipmentBooking> getById(String id);

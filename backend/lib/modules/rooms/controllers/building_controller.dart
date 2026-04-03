@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:fitman_backend/modules/rooms/models/building/building.model.dart';
 import 'package:fitman_backend/modules/rooms/services/building_service.dart';
 import 'package:fitman_backend/modules/rooms/repositories/building_repository.dart';
 import 'package:fitman_backend/config/database.dart';
+import 'package:fitman_common/modules/rooms/building.model.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 

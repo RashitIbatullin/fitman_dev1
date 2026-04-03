@@ -1,5 +1,5 @@
 import 'package:fitman_backend/config/database.dart';
-import 'package:fitman_backend/modules/rooms/models/building/building.model.dart';
+import 'package:fitman_common/modules/rooms/building.model.dart';
 import 'package:postgres/postgres.dart';
 
 class BuildingRepository {

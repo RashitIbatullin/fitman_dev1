@@ -1,7 +1,6 @@
 import 'package:fitman_backend/config/database.dart';
-import 'package:fitman_backend/modules/equipment/models/equipment/equipment_item.model.dart';
+import 'package:fitman_common/modules/equipment/equipment/equipment_item.model.dart';
 import 'package:postgres/postgres.dart';
-import 'dart:convert';
 
 abstract class EquipmentItemRepository {
   Future<EquipmentItem> getById(String id);
@@ -71,7 +70,7 @@ class EquipmentItemRepositoryImpl implements EquipmentItemRepository {
         'manufacturer': equipmentItem.manufacturer,
         'roomId': equipmentItem.roomId,
         'placementNote': equipmentItem.placementNote,
-        'status': equipmentItem.status.index, // Enum to int
+        'status': equipmentItem.status.name,
         'conditionRating': equipmentItem.conditionRating,
         'conditionNotes': equipmentItem.conditionNotes,
         'lastMaintenanceDate': equipmentItem.lastMaintenanceDate,
@@ -83,14 +82,14 @@ class EquipmentItemRepositoryImpl implements EquipmentItemRepository {
         'warrantyMonths': equipmentItem.warrantyMonths,
         'usageHours': equipmentItem.usageHours,
         'lastUsedDate': equipmentItem.lastUsedDate,
-        'photoUrls': jsonEncode(equipmentItem.photoUrls), // List to JSON string
+        'photoUrls': equipmentItem.photoUrls,
         'createdBy': userId,
         'updatedBy': userId,
       },
     );
 
-    final newId = result.first.first as int;
-    return await getById(newId.toString());
+    final newId = result.first.first as String;
+    return await getById(newId);
   }
 
   @override
@@ -113,7 +112,7 @@ class EquipmentItemRepositoryImpl implements EquipmentItemRepository {
 
       return result
           .map(
-            (row) => EquipmentItem.fromMap(row.toColumnMap()),
+            (row) => EquipmentItem.fromJson(row.toColumnMap()),
           )
           .toList();
     } catch (e) {
@@ -143,7 +142,7 @@ class EquipmentItemRepositoryImpl implements EquipmentItemRepository {
 
       return result
           .map(
-            (row) => EquipmentItem.fromMap(row.toColumnMap()),
+            (row) => EquipmentItem.fromJson(row.toColumnMap()),
           )
           .toList();
     } catch (e) {
@@ -164,7 +163,7 @@ class EquipmentItemRepositoryImpl implements EquipmentItemRepository {
       throw Exception('EquipmentItem with id $id not found');
     }
 
-    return EquipmentItem.fromMap(result.first.toColumnMap());
+    return EquipmentItem.fromJson(result.first.toColumnMap());
   }
 
   @override
@@ -209,7 +208,7 @@ class EquipmentItemRepositoryImpl implements EquipmentItemRepository {
         'manufacturer': equipmentItem.manufacturer,
         'roomId': equipmentItem.roomId,
         'placementNote': equipmentItem.placementNote,
-        'status': equipmentItem.status.index, // Enum to int
+        'status': equipmentItem.status.name,
         'conditionRating': equipmentItem.conditionRating,
         'conditionNotes': equipmentItem.conditionNotes,
         'lastMaintenanceDate': equipmentItem.lastMaintenanceDate,
@@ -221,7 +220,7 @@ class EquipmentItemRepositoryImpl implements EquipmentItemRepository {
         'warrantyMonths': equipmentItem.warrantyMonths,
         'usageHours': equipmentItem.usageHours,
         'lastUsedDate': equipmentItem.lastUsedDate,
-        'photoUrls': jsonEncode(equipmentItem.photoUrls), // List to JSON string
+        'photoUrls': equipmentItem.photoUrls,
         'updatedBy': userId,
         'archivedAt': equipmentItem.archivedAt,
         'archivedBy': equipmentItem.archivedBy,
