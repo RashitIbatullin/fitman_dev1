@@ -17,9 +17,9 @@ AnalyticGroup _$AnalyticGroupFromJson(Map<String, dynamic> json) =>
       conditions: json['conditions'] == null
           ? const []
           : _conditionsFromJson(json['conditions']),
-      clientIds: json['client_ids_cache'] == null
+      clientIds: json['client_ids'] == null
           ? const []
-          : _clientIdsFromJson(json['client_ids_cache']),
+          : _clientIdsFromJson(json['client_ids']),
       lastUpdatedAt: _nullableDateTimeFromJson(json['last_updated_at']),
       metadata: json['metadata'] as Map<String, dynamic>?,
       companyId: json['company_id'] as String?,
@@ -39,7 +39,7 @@ Map<String, dynamic> _$AnalyticGroupToJson(AnalyticGroup instance) =>
       'type': const AnalyticGroupTypeConverter().toJson(instance.type),
       'is_auto_update': instance.isAutoUpdate,
       'conditions': instance.conditions,
-      'client_ids_cache': instance.clientIds,
+      'client_ids': instance.clientIds,
       'last_updated_at': instance.lastUpdatedAt?.toIso8601String(),
       'metadata': instance.metadata,
       'company_id': instance.companyId,

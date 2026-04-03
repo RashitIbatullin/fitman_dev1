@@ -53,33 +53,29 @@ class AnalyticGroup extends Equatable {
   final String? description;
   final AnalyticGroupType type;
 
-  @JsonKey(name: 'is_auto_update')
+  @JsonKey()
   final bool isAutoUpdate;
   @JsonKey(fromJson: _conditionsFromJson)
   final List<GroupCondition> conditions;
 
-  @JsonKey(name: 'client_ids_cache', fromJson: _clientIdsFromJson)
+  @JsonKey(fromJson: _clientIdsFromJson)
   final List<String> clientIds;
 
-  @JsonKey(name: 'last_updated_at', fromJson: _nullableDateTimeFromJson)
+  @JsonKey(fromJson: _nullableDateTimeFromJson)
   final DateTime? lastUpdatedAt;
 
   final Map<String, dynamic>? metadata;
 
   // System fields
-  @JsonKey(name: 'company_id')
   final String? companyId;
-  @JsonKey(name: 'created_at', fromJson: _nullableDateTimeFromJson)
+  @JsonKey(fromJson: _nullableDateTimeFromJson)
   final DateTime? createdAt;
-  @JsonKey(name: 'updated_at', fromJson: _nullableDateTimeFromJson)
+  @JsonKey(fromJson: _nullableDateTimeFromJson)
   final DateTime? updatedAt;
-  @JsonKey(name: 'created_by')
   final String? createdBy;
-  @JsonKey(name: 'updated_by')
   final String? updatedBy;
-  @JsonKey(name: 'archived_at', fromJson: _nullableDateTimeFromJson)
+  @JsonKey(fromJson: _nullableDateTimeFromJson)
   final DateTime? archivedAt;
-  @JsonKey(name: 'archived_by')
   final String? archivedBy;
 
   const AnalyticGroup({

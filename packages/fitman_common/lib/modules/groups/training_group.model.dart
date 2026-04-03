@@ -8,60 +8,40 @@ class TrainingGroup extends Equatable {
   final String? id;
   final String name;
   final String? description;
-  @JsonKey(name: 'training_group_type_id')
   final String trainingGroupTypeId;
 
   // ПЕРСОНАЛ (обязательные для тренировочного процесса)
-  @JsonKey(name: 'primary_trainer_id')
   final String? primaryTrainerId; // Основной тренер группы (обязательно)
-  @JsonKey(name: 'primary_instructor_id')
   final String? primaryInstructorId; // Основной инструктор группы
-  @JsonKey(name: 'responsible_manager_id')
   final String? responsibleManagerId; // Ответственный менеджер
 
   // СОСТАВ ГРУППЫ (фиксированный)
-  @JsonKey(name: 'client_ids', defaultValue: [])
+  @JsonKey(defaultValue: [])
   final List<String> clientIds; // Фиксированный состав участников
 
   // РАСПИСАНИЕ ЗАНЯТИЙ - This will be fetched separately or populated by a service
   // List<GroupScheduleSlot> scheduleSlots;
 
   // ПАРАМЕТРЫ ТРЕНИРОВКИ
-  @JsonKey(name: 'program_id')
   final String? programId; // Ссылка на программу тренировок
-  @JsonKey(name: 'goal_id')
   final String? goalId; // Цель тренировок (похудение, набор массы и т.д.)
-  @JsonKey(name: 'level_id')
   final String? levelId; // Уровень подготовки группы
 
   // ЛИМИТЫ И ОГРАНИЧЕНИЯ
-  @JsonKey(name: 'start_date')
   final DateTime startDate; // Дата начала работы группы
-  @JsonKey(name: 'end_date')
   final DateTime? endDate; // Дата окончания (если предусмотрена)
-  @JsonKey(name: 'max_participants')
   final int maxParticipants; // Максимальное количество участников
-  @JsonKey(name: 'current_participants')
   final int? currentParticipants; // Текущее количество участников
 
   // СТАТУС И СВЯЗИ
-  @JsonKey(name: 'is_active')
   final bool? isActive; // Активна ли группа
-  @JsonKey(name: 'chat_id')
   final String? chatId; // Ссылка на групповой чат (создается автоматически)
-  @JsonKey(name: 'company_id')
   final String? companyId;
-  @JsonKey(name: 'created_at')
   final DateTime? createdAt;
-  @JsonKey(name: 'updated_at')
   final DateTime? updatedAt;
-  @JsonKey(name: 'created_by')
   final String? createdBy;
-  @JsonKey(name: 'updated_by')
   final String? updatedBy;
-  @JsonKey(name: 'archived_at')
   final DateTime? archivedAt;
-  @JsonKey(name: 'archived_by')
   final String? archivedBy;
 
   const TrainingGroup({

@@ -8,9 +8,7 @@ class TrainingGroupType extends Equatable {
   final String id;
   final String name;
   final String title;
-  @JsonKey(name: 'min_participants')
   final int minParticipants;
-  @JsonKey(name: 'max_participants')
   final int maxParticipants;
   final String? description;
   final String? icon;
