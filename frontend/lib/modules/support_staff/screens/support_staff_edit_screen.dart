@@ -4,7 +4,7 @@ import 'package:fitman_common/modules/support_staff/competency_level.enum.dart';
 import 'package:fitman_common/modules/support_staff/employment_type.enum.dart';
 import 'package:fitman_common/modules/support_staff/staff_category.enum.dart';
 import 'package:fitman_common/modules/support_staff/support_staff.model.dart';
-import 'package:fitman_app/modules/supportStaff/providers/support_staff_provider.dart';
+import 'package:fitman_app/modules/support_staff/providers/support_staff_provider.dart';
 import 'package:fitman_app/services/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

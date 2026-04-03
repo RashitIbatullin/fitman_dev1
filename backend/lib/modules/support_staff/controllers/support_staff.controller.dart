@@ -5,7 +5,7 @@ import 'dart:io'; // Import for HttpStatus
 import 'package:shelf/shelf.dart'; // Changed import
 import 'package:fitman_common/modules/support_staff/competency.model.dart';
 import 'package:fitman_common/modules/support_staff/support_staff.model.dart';
-import 'package:fitman_backend/modules/supportStaff/services/support_staff.service.dart';
+import 'package:fitman_backend/modules/support_staff/services/support_staff.service.dart';
 
 class SupportStaffController {
   SupportStaffController(this._supportStaffService);

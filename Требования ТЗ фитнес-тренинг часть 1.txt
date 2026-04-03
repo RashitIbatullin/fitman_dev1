@@ -829,8 +829,8 @@ DELETE /api/support-staff/:id/competencies/:compId  # Удалить компе�
 
 6.6 Архитектура и расположение кода
 
-• Бэкенд (`/backend/lib/modules/supportStaff/`)
-/supportStaff/
+• Бэкенд (`/backend/lib/modules/support_staff/`)
+/support_staff/
 ├── controllers/
 │   └── support_staff_controller.dart # API для вспомогательного персонала
 ├── models/
@@ -840,8 +840,8 @@ DELETE /api/support-staff/:id/competencies/:compId  # Удалить компе�
 └── services/
     └── support_staff_service.dart      # Бизнес-логика для персонала
 
-• Фронтенд (`/frontend/lib/modules/supportStaff/`)
-/supportStaff/
+• Фронтенд (`/frontend/lib/modules/support_staff/`)
+/support_staff/
 ├── models/
 │   └── support_staff.model.dart      # Модель персонала
 ├── providers/
@@ -2290,6 +2290,6 @@ frontend/lib/modules/booking/
 3. Загрузка исполнителей: Количество заявок в работе, среднее время выполнения
 
 
-15
+32
 
 

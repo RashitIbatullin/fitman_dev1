@@ -2,7 +2,7 @@ import 'package:fitman_backend/modules/competencies/repositories/competency_repo
 import 'package:fitman_common/enums/executor_type.dart';
 import 'package:fitman_common/modules/support_staff/competency.model.dart';
 import 'package:fitman_common/modules/support_staff/support_staff.model.dart';
-import 'package:fitman_backend/modules/supportStaff/repositories/support_staff.repository.dart';
+import 'package:fitman_backend/modules/support_staff/repositories/support_staff.repository.dart';
 
 class SupportStaffService {
   SupportStaffService(this._supportStaffRepository, this._competencyRepository);

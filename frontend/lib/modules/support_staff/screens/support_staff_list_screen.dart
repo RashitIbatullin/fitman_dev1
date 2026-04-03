@@ -1,6 +1,6 @@
-import 'package:fitman_app/modules/supportStaff/providers/support_staff_provider.dart';
-import 'package:fitman_app/modules/supportStaff/screens/support_staff_detail_screen.dart';
-import 'package:fitman_app/modules/supportStaff/screens/support_staff_edit_screen.dart';
+import 'package:fitman_app/modules/support_staff/providers/support_staff_provider.dart';
+import 'package:fitman_app/modules/support_staff/screens/support_staff_detail_screen.dart';
+import 'package:fitman_app/modules/support_staff/screens/support_staff_edit_screen.dart';
 import 'package:fitman_app/modules/users/providers/users_provider.dart';
 import 'package:fitman_common/modules/support_staff/staff_category.enum.dart';
 import 'package:fitman_common/modules/support_staff/support_staff.model.dart';

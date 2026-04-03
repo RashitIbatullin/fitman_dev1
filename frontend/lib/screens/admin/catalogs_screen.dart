@@ -2,7 +2,7 @@ import 'package:fitman_app/modules/equipment/screens/maintenance/maintenance_das
 import 'package:fitman_app/modules/rooms/screens/dashboard/rooms_dashboard_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:fitman_app/modules/equipment/screens/dashboard/equipment_dashboard_screen.dart';
-import 'package:fitman_app/modules/supportStaff/screens/support_staff_list_screen.dart'; // Import the SupportStaffListScreen
+import 'package:fitman_app/modules/support_staff/screens/support_staff_list_screen.dart'; // Import the SupportStaffListScreen
 import 'work_schedule_screen.dart'; // Import the WorkScheduleScreen
 import 'generic_catalog_screen.dart'; // Import the GenericCatalogScreen
 
