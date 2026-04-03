@@ -59,9 +59,9 @@ mixin _$Room {
   DateTime? get archivedAt => throw _privateConstructorUsedError;
   @JsonKey(name: 'archived_reason')
   String? get archivedReason => throw _privateConstructorUsedError;
-  @JsonKey(name: 'archived_by')
-  String? get updatedBy => throw _privateConstructorUsedError;
   @JsonKey(name: 'updated_by')
+  String? get updatedBy => throw _privateConstructorUsedError;
+  @JsonKey(name: 'archived_by')
   String? get archivedBy => throw _privateConstructorUsedError;
   @JsonKey(name: 'archived_by_name')
   String? get archivedByName => throw _privateConstructorUsedError;
@@ -103,6 +103,7 @@ abstract class $RoomCopyWith<$Res> {
       String? note,
       @JsonKey(name: 'archived_at') DateTime? archivedAt,
       @JsonKey(name: 'archived_reason') String? archivedReason,
+      @JsonKey(name: 'updated_by') String? updatedBy,
       @JsonKey(name: 'archived_by') String? archivedBy,
       @JsonKey(name: 'archived_by_name') String? archivedByName});
 }
@@ -144,6 +145,7 @@ class _$RoomCopyWithImpl<$Res, $Val extends Room>
     Object? note = freezed,
     Object? archivedAt = freezed,
     Object? archivedReason = freezed,
+    Object? updatedBy = freezed,
     Object? archivedBy = freezed,
     Object? archivedByName = freezed,
   }) {
@@ -236,6 +238,10 @@ class _$RoomCopyWithImpl<$Res, $Val extends Room>
           ? _value.archivedReason
           : archivedReason // ignore: cast_nullable_to_non_nullable
               as String?,
+      updatedBy: freezed == updatedBy
+          ? _value.updatedBy
+          : updatedBy // ignore: cast_nullable_to_non_nullable
+              as String?,
       archivedBy: freezed == archivedBy
           ? _value.archivedBy
           : archivedBy // ignore: cast_nullable_to_non_nullable
@@ -278,6 +284,7 @@ abstract class _$$RoomImplCopyWith<$Res> implements $RoomCopyWith<$Res> {
       String? note,
       @JsonKey(name: 'archived_at') DateTime? archivedAt,
       @JsonKey(name: 'archived_reason') String? archivedReason,
+      @JsonKey(name: 'updated_by') String? updatedBy,
       @JsonKey(name: 'archived_by') String? archivedBy,
       @JsonKey(name: 'archived_by_name') String? archivedByName});
 }
@@ -316,6 +323,7 @@ class __$$RoomImplCopyWithImpl<$Res>
     Object? note = freezed,
     Object? archivedAt = freezed,
     Object? archivedReason = freezed,
+    Object? updatedBy = freezed,
     Object? archivedBy = freezed,
     Object? archivedByName = freezed,
   }) {
@@ -408,6 +416,10 @@ class __$$RoomImplCopyWithImpl<$Res>
           ? _value.archivedReason
           : archivedReason // ignore: cast_nullable_to_non_nullable
               as String?,
+      updatedBy: freezed == updatedBy
+          ? _value.updatedBy
+          : updatedBy // ignore: cast_nullable_to_non_nullable
+              as String?,
       archivedBy: freezed == archivedBy
           ? _value.archivedBy
           : archivedBy // ignore: cast_nullable_to_non_nullable
@@ -446,6 +458,7 @@ class _$RoomImpl implements _Room {
       this.note,
       @JsonKey(name: 'archived_at') this.archivedAt,
       @JsonKey(name: 'archived_reason') this.archivedReason,
+      @JsonKey(name: 'updated_by') this.updatedBy,
       @JsonKey(name: 'archived_by') this.archivedBy,
       @JsonKey(name: 'archived_by_name') this.archivedByName})
       : _workingDays = workingDays,
@@ -528,6 +541,9 @@ class _$RoomImpl implements _Room {
   @JsonKey(name: 'archived_reason')
   final String? archivedReason;
   @override
+  @JsonKey(name: 'updated_by')
+  final String? updatedBy;
+  @override
   @JsonKey(name: 'archived_by')
   final String? archivedBy;
   @override
@@ -536,7 +552,7 @@ class _$RoomImpl implements _Room {
 
   @override
   String toString() {
-    return 'Room(id: $id, name: $name, description: $description, roomNumber: $roomNumber, type: $type, floor: $floor, buildingId: $buildingId, buildingName: $buildingName, maxCapacity: $maxCapacity, area: $area, openTime: $openTime, closeTime: $closeTime, workingDays: $workingDays, isActive: $isActive, deactivateReason: $deactivateReason, deactivateAt: $deactivateAt, deactivateBy: $deactivateBy, photoUrls: $photoUrls, floorPlanUrl: $floorPlanUrl, note: $note, archivedAt: $archivedAt, archivedReason: $archivedReason, archivedBy: $archivedBy, archivedByName: $archivedByName)';
+    return 'Room(id: $id, name: $name, description: $description, roomNumber: $roomNumber, type: $type, floor: $floor, buildingId: $buildingId, buildingName: $buildingName, maxCapacity: $maxCapacity, area: $area, openTime: $openTime, closeTime: $closeTime, workingDays: $workingDays, isActive: $isActive, deactivateReason: $deactivateReason, deactivateAt: $deactivateAt, deactivateBy: $deactivateBy, photoUrls: $photoUrls, floorPlanUrl: $floorPlanUrl, note: $note, archivedAt: $archivedAt, archivedReason: $archivedReason, updatedBy: $updatedBy, archivedBy: $archivedBy, archivedByName: $archivedByName)';
   }
 
   @override
@@ -582,6 +598,8 @@ class _$RoomImpl implements _Room {
                 other.archivedAt == archivedAt) &&
             (identical(other.archivedReason, archivedReason) ||
                 other.archivedReason == archivedReason) &&
+            (identical(other.updatedBy, updatedBy) ||
+                other.updatedBy == updatedBy) &&
             (identical(other.archivedBy, archivedBy) ||
                 other.archivedBy == archivedBy) &&
             (identical(other.archivedByName, archivedByName) ||
@@ -614,6 +632,7 @@ class _$RoomImpl implements _Room {
         note,
         archivedAt,
         archivedReason,
+        updatedBy,
         archivedBy,
         archivedByName
       ]);
@@ -658,6 +677,7 @@ abstract class _Room implements Room {
           final String? note,
           @JsonKey(name: 'archived_at') final DateTime? archivedAt,
           @JsonKey(name: 'archived_reason') final String? archivedReason,
+          @JsonKey(name: 'updated_by') final String? updatedBy,
           @JsonKey(name: 'archived_by') final String? archivedBy,
           @JsonKey(name: 'archived_by_name') final String? archivedByName}) =
       _$RoomImpl;
@@ -725,6 +745,9 @@ abstract class _Room implements Room {
   @override
   @JsonKey(name: 'archived_reason')
   String? get archivedReason;
+  @override
+  @JsonKey(name: 'updated_by')
+  String? get updatedBy;
   @override
   @JsonKey(name: 'archived_by')
   String? get archivedBy;
