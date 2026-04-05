@@ -50,8 +50,8 @@ class ApiService {
   static String get baseUrl => BaseApiService.baseUrl;
 
   // --- Auth & User Methods ---
-  static Future<AuthResponse> login(String email, String password) =>
-      _authApi.login(email, password);
+  static Future<AuthResponse> login(String phone, String password) =>
+      _authApi.login(phone, password);
 
   static Future<AuthResponse> register({
     required String email,

@@ -97,30 +97,30 @@ class DatabaseSeeder {
     final levels = await _getIdsForTable('levels_training', keyColumn: 'name');
     final goals = await _getIdsForTable('goals_training', keyColumn: 'name');
 
-    final adminId = await _createUser(login: 'admin@fitman.ru', firstName: 'Админ', lastName: 'Администраторов');
+    final adminId = await _createUser(login: 'admin@fitman.ru', firstName: 'Админ', lastName: 'Администраторов', phone: '+70000000000');
     await _assignRole(adminId, roles['admin']!);
     await _connection.execute(Sql.named('INSERT INTO admin_profiles (user_id) VALUES (@user_id)'), parameters: {'user_id': adminId});
     print('   👤 Created Admin');
 
-    final managerId = await _createUser(login: 'manager@fitman.ru', firstName: 'Менеджер', lastName: 'Менеджеров');
+    final managerId = await _createUser(login: 'manager@fitman.ru', firstName: 'Менеджер', lastName: 'Менеджеров', phone: '+70000000003');
     await _assignRole(managerId, roles['manager']!);
     await _createEmployeeProfile(managerId, specialization: 'Управление', workExperience: 3, createdBy: adminId);
     await _connection.execute(Sql.named('INSERT INTO manager_profiles (user_id, created_by) VALUES (@user_id, @created_by)'), parameters: {'user_id': managerId, 'created_by': adminId});
     print('   👤 Created Manager');
 
-    final trainerId = await _createUser(login: 'trainer@fitman.ru', firstName: 'Тренер', lastName: 'Тренеров');
+    final trainerId = await _createUser(login: 'trainer@fitman.ru', firstName: 'Тренер', lastName: 'Тренеров', phone: '+70000000002');
     await _assignRole(trainerId, roles['trainer']!);
     await _createEmployeeProfile(trainerId, specialization: 'Силовой тренинг', workExperience: 5, createdBy: adminId);
     await _connection.execute(Sql.named('INSERT INTO trainer_profiles (user_id, created_by) VALUES (@user_id, @created_by)'), parameters: {'user_id': trainerId, 'created_by': adminId});
     print('   👤 Created Trainer');
 
-    final instructorId = await _createUser(login: 'instructor@fitman.ru', firstName: 'Инструктор', lastName: 'Инструкторова', gender: 1);
+    final instructorId = await _createUser(login: 'instructor@fitman.ru', firstName: 'Инструктор', lastName: 'Инструкторова', phone: '+70000000001', gender: 1);
     await _assignRole(instructorId, roles['instructor']!);
     await _createEmployeeProfile(instructorId, specialization: 'Групповые занятия', workExperience: 2, createdBy: adminId);
     await _connection.execute(Sql.named('INSERT INTO instructor_profiles (user_id, created_by) VALUES (@user_id, @created_by)'), parameters: {'user_id': instructorId, 'created_by': adminId});
     print('   👤 Created Instructor');
 
-    final clientId = await _createUser(login: 'client@fitman.ru', firstName: 'Клиент', lastName: 'Клиентов', gender: 0);
+    final clientId = await _createUser(login: 'client@fitman.ru', firstName: 'Клиент', lastName: 'Клиентов', phone: '+70000000004', gender: 0);
     await _assignRole(clientId, roles['client']!);
     await _connection.execute(Sql.named('''
       INSERT INTO client_profiles (user_id, goal_training_id, level_training_id, created_by) 
@@ -378,13 +378,13 @@ class DatabaseSeeder {
   }
 
   // Existing methods
-  Future<String> _createUser({required String login, required String firstName, required String lastName, int gender = 0}) async {
+  Future<String> _createUser({required String login, required String firstName, required String lastName, String? phone, int gender = 0}) async {
     final passwordHash = r'$2a$10$RATHndPnw7mQZOOfAb3RHeaGhV8Aul2U4BXx2C94pDr4EqV58uEUW';
     final result = await _connection.execute(Sql.named('''
-      INSERT INTO users (login, password_hash, email, first_name, last_name, gender, date_of_birth)
-      VALUES (@login, @hash, @email, @first, @last, @gender, @dob)
+      INSERT INTO users (login, password_hash, email, first_name, last_name, gender, date_of_birth, phone)
+      VALUES (@login, @hash, @email, @first, @last, @gender, @dob, @phone)
       RETURNING id
-      '''), parameters: {'login': login, 'hash': passwordHash, 'email': login, 'first': firstName, 'last': lastName, 'gender': gender, 'dob': _faker.date.dateTime(minYear: 1970, maxYear: 2004)});
+      '''), parameters: {'login': login, 'hash': passwordHash, 'email': login, 'first': firstName, 'last': lastName, 'gender': gender, 'dob': _faker.date.dateTime(minYear: 1970, maxYear: 2004), 'phone': phone});
     return result.first[0].toString();
   }
 

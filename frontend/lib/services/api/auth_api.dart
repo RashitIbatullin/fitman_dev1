@@ -8,8 +8,8 @@ class AuthApiService extends BaseApiService {
   AuthApiService({super.client});
 
   /// Logs in a user.
-  Future<AuthResponse> login(String email, String password) async {
-    final data = await post('/api/auth/login', body: {'email': email, 'password': password});
+  Future<AuthResponse> login(String phone, String password) async {
+    final data = await post('/api/auth/login', body: {'phone': phone, 'password': password});
     final token = data['token']?.toString() ?? '';
     final userData = data['user'] ?? {};
 

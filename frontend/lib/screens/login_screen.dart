@@ -12,13 +12,13 @@ class LoginScreen extends ConsumerStatefulWidget {
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
+  final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _emailController.text = 'admin@fitman.ru'; // Тестовые данные
+    _phoneController.text = '+70000000000'; // Тестовые данные
     _passwordController.text = 'admin123';
   }
 
@@ -59,15 +59,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               ),
               const SizedBox(height: 32),
               TextFormField(
-                controller: _emailController,
+                controller: _phoneController,
+                keyboardType: TextInputType.phone,
                 decoration: const InputDecoration(
-                  labelText: 'Email',
+                  labelText: 'Телефон',
                   border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.email),
+                  prefixIcon: Icon(Icons.phone),
                 ),
                 validator: (value) {
-                  if (value == null || value.isEmpty) return 'Введите email';
-                  if (!value.contains('@')) return 'Введите корректный email';
+                  if (value == null || value.isEmpty) return 'Введите номер телефона';
                   return null;
                 },
               ),
@@ -133,23 +133,23 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 runSpacing: 4,
                 alignment: WrapAlignment.center,
                 children: [
-                  _buildTestUserChip('admin@fitman.ru', 'admin123', 'Админ'),
+                  _buildTestUserChip('+70000000000', 'admin123', 'Админ'),
                   _buildTestUserChip(
-                    'instructor@fitman.ru',
+                    '+70000000001',
                     'instructor123',
                     'Инструктор',
                   ),
                   _buildTestUserChip(
-                    'trainer@fitman.ru',
+                    '+70000000002',
                     'trainer123',
                     'Тренер',
                   ),
                   _buildTestUserChip(
-                    'manager@fitman.ru',
+                    '+70000000003',
                     'manager123',
                     'Менеджер',
                   ),
-                  _buildTestUserChip('client@fitman.ru', 'client123', 'Клиент'),
+                  _buildTestUserChip('+70000000004', 'client123', 'Клиент'),
                 ],
               ),
             ],
@@ -159,11 +159,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     );
   }
 
-  Widget _buildTestUserChip(String email, String password, String label) {
+  Widget _buildTestUserChip(String phone, String password, String label) {
     return ActionChip(
       label: Text(label),
       onPressed: () {
-        _emailController.text = email;
+        _phoneController.text = phone;
         _passwordController.text = password;
         _handleLogin();
       },
@@ -176,13 +176,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       print('[LoginScreen] Handling login...');
       ref
           .read(authProvider.notifier)
-          .login(_emailController.text.trim(), _passwordController.text);
+          .login(_phoneController.text.trim(), _passwordController.text);
     }
   }
 
   @override
   void dispose() {
-    _emailController.dispose();
+    _phoneController.dispose();
     _passwordController.dispose();
     super.dispose();
   }

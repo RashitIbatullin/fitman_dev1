@@ -71,11 +71,11 @@ class AuthNotifier extends StateNotifier<AsyncValue<AuthState>> {
     }
   }
 
-  Future<void> login(String email, String password) async {
-    print('[AuthNotifier] Login called for $email');
+  Future<void> login(String phone, String password) async {
+    print('[AuthNotifier] Login called for $phone');
     state = const AsyncValue.loading();
     try {
-      final authResponse = await ApiService.login(email, password);
+      final authResponse = await ApiService.login(phone, password);
       await _storeAuthData(authResponse);
 
       Role? selectedRole;

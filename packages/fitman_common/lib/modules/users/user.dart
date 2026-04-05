@@ -58,23 +58,39 @@ class User {
   factory User.fromMap(Map<String, dynamic> map) => User.fromJson(map);
 
   factory User.fromJson(Map<String, dynamic> json) {
+    // Helper to handle DateTime parsing from either DateTime or String
+    DateTime? _parseNullableDateTime(dynamic date) {
+      if (date == null) return null;
+      if (date is DateTime) return date;
+      if (date is String) return DateTime.tryParse(date);
+      return null;
+    }
+    
+    DateTime _parseDateTime(dynamic date, String fieldName) {
+      final parsed = _parseNullableDateTime(date);
+      if (parsed == null) {
+        throw ArgumentError('Invalid or missing date value for required field: $fieldName');
+      }
+      return parsed;
+    }
+
     return User(
       id: json['id'].toString(),
       email: json['email'] ?? json['login'],
-      passwordHash: json['passwordHash'] ?? '',
-      firstName: json['firstName'] ?? '',
-      lastName: json['lastName'] ?? '',
-      middleName: json['middleName'],
-      photoUrl: json['photoUrl'],
+      passwordHash: json['password_hash'] ?? '',
+      firstName: json['first_name'] ?? '',
+      lastName: json['last_name'] ?? '',
+      middleName: json['middle_name'],
+      photoUrl: json['photo_url'],
       roles: (json['roles'] as List<dynamic>?)
               ?.map((roleMap) => Role.fromJson(roleMap as Map<String, dynamic>))
               .toList() ??
           [],
       phone: json['phone'],
-      gender: json['gender'],
-      dateOfBirth: json['dateOfBirth'] != null ? DateTime.parse(json['dateOfBirth']) : null,
-      sendNotification: json['sendNotification'] ?? true,
-      hourNotification: (json['hourNotification'] as num?)?.toInt() ?? 1,
+      gender: json['gender'] is int ? (json['gender'] == 0 ? 'мужской' : 'женский') : json['gender'],
+      dateOfBirth: _parseNullableDateTime(json['date_of_birth']),
+      sendNotification: json['send_notification'] ?? true,
+      hourNotification: (json['hour_notification'] as num?)?.toInt() ?? 1,
       clientProfile: json['client_profile'] != null
           ? ClientProfile.fromJson(json['client_profile'])
           : null,
@@ -90,10 +106,10 @@ class User {
       managerProfile: json['manager_profile'] != null
           ? ManagerProfile.fromJson(json['manager_profile'])
           : null,
-      createdAt: DateTime.parse(json['createdAt']),
-      updatedAt: DateTime.parse(json['updatedAt']),
-      archivedAt: json['archivedAt'] != null ? DateTime.parse(json['archivedAt'] as String) : null,
-      archivedReason: json['archivedReason'] as String?,
+      createdAt: _parseDateTime(json['created_at'], 'created_at'),
+      updatedAt: _parseDateTime(json['updated_at'], 'updated_at'),
+      archivedAt: _parseNullableDateTime(json['archived_at']),
+      archivedReason: json['archived_reason'],
     );
   }
 
@@ -176,25 +192,25 @@ class User {
     return {
       'id': id,
       'email': email,
-      'firstName': firstName,
-      'lastName': lastName,
-      'middleName': middleName,
-      'photoUrl': photoUrl,
+      'first_name': firstName,
+      'last_name': lastName,
+      'middle_name': middleName,
+      'photo_url': photoUrl,
       'roles': roles.map((r) => r.toJson()).toList(),
       'phone': phone,
       'gender': gender,
-      'dateOfBirth': dateOfBirth?.toIso8601String(),
-      'sendNotification': sendNotification,
-      'hourNotification': hourNotification,
+      'date_of_birth': dateOfBirth?.toIso8601String(),
+      'send_notification': sendNotification,
+      'hour_notification': hourNotification,
       'client_profile': clientProfile?.toJson(),
       'employee_profile': employeeProfile?.toJson(),
       'instructor_profile': instructorProfile?.toJson(),
       'trainer_profile': trainerProfile?.toJson(),
       'manager_profile': managerProfile?.toJson(),
-      'createdAt': createdAt.toIso8601String(),
-      'updatedAt': updatedAt.toIso8601String(),
-      'archivedAt': archivedAt?.toIso8601String(),
-      'archivedReason': archivedReason,
+      'created_at': createdAt.toIso8601String(),
+      'updated_at': updatedAt.toIso8601String(),
+      'archived_at': archivedAt?.toIso8601String(),
+      'archived_reason': archivedReason,
     };
   }
 }

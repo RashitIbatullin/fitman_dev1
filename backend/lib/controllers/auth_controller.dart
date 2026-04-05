@@ -12,45 +12,32 @@ class AuthController {
       final body = await request.readAsString();
       final data = jsonDecode(body) as Map<String, dynamic>;
 
-      final email = data['email'] as String;
+      final phone = data['phone'] as String;
       final password = data['password'] as String;
 
-      print('🔐 Login attempt for: $email');
+      print('🔐 Login attempt for: $phone');
 
-      // Валидация email
-      if (!AppConfig.isValidEmail(email)) {
-        return Response(400, body: jsonEncode({'error': 'Invalid email format'}));
+      // TODO: Add more robust phone number validation
+      if (phone.isEmpty) {
+        return Response(400, body: jsonEncode({'error': 'Phone number cannot be empty'}));
       }
 
-      final user = await Database().getUserByEmail(email);
+      final user = await Database().getUserByPhone(phone);
 
       if (user == null) {
-        print('❌ User not found: $email');
+        print('❌ User not found: $phone');
         return Response(401, body: jsonEncode({'error': 'Invalid credentials'}));
       }
 
-      print('📊 User found: ${user.email}');
+      print('📊 User found: ${user.phone}');
       print('🔑 Stored hash: ${user.passwordHash}');
-      print('🔑 Hash length: ${user.passwordHash.length}');
-
-      // Отладочная информация
-      print('=== DEBUG INFO ===');
-      print('Input password: $password');
-      print('Stored hash: ${user.passwordHash}');
-      print('Hash starts with: ${user.passwordHash.substring(0, 7)}');
-      print('Hash length: ${user.passwordHash.length}');
 
       final isValidPassword = BCrypt.checkpw(password, user.passwordHash);
 
       print('Password valid: $isValidPassword');
 
       if (!isValidPassword) {
-        print('❌ Invalid password for user: $email');
-
-        // Дополнительная проверка - попробуем сгенерировать хеш и сравнить
-        final testHash = BCrypt.hashpw(password, BCrypt.gensalt());
-        print('Test hash for comparison: $testHash');
-
+        print('❌ Invalid password for user: $phone');
         return Response(401, body: jsonEncode({'error': 'Invalid credentials'}));
       }
 
@@ -60,7 +47,7 @@ class AuthController {
         'user': user.toJson()
       };
 
-      print('✅ Login successful for: $email');
+      print('✅ Login successful for: $phone');
       return Response.ok(jsonEncode(response));
     } catch (e) {
       print('💥 Login error: $e');
