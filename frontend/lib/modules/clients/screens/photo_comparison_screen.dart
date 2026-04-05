@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
-import 'package:fitman_app/screens/client/full_screen_photo_editor.dart';
+import 'package:fitman_app/modules/clients/screens/full_screen_photo_editor.dart';
 import 'package:fitman_app/widgets/dashed_crosshair_painter.dart';
 import 'package:fitman_app/widgets/image_comparison_slider.dart';
 import 'package:file_picker/file_picker.dart';

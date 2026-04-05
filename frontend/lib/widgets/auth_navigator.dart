@@ -1,5 +1,5 @@
 import 'package:fitman_app/screens/admin_dashboard.dart';
-import 'package:fitman_app/screens/client_dashboard.dart';
+import 'package:fitman_app/modules/clients/screens/client_dashboard.dart';
 import 'package:fitman_app/screens/instructor_dashboard.dart';
 import 'package:fitman_app/screens/manager_dashboard.dart';
 import 'package:fitman_app/screens/trainer_dashboard.dart';

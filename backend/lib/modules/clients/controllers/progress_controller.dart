@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:shelf/shelf.dart';
-import '../config/database.dart';
+import '../../../config/database.dart';
 
 class ProgressController {
   static Future<Response> getProgressDataForClient(Request request) async {

@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_multipart/shelf_multipart.dart';
-import '../config/database.dart';
-import '../services/recommendations/recommendation_service.dart';
+import '../../../config/database.dart';
+import '../../../services/recommendations/recommendation_service.dart';
 
 class AnthropometryController {
   static Future<Response> getSomatotype(Request request, [String? id]) async {
@@ -183,7 +183,7 @@ class AnthropometryController {
       final type = data['type'] as String; // 'start' or 'finish'
 
       if (type != 'start' && type != 'finish') {
-        return Response.badRequest(body: jsonEncode({'error': 'Invalid anthropometry type. Must be \'start\' or \'finish\''}));
+        return Response.badRequest(body: jsonEncode({'error': 'Invalid anthropometry type. Must be "start" or "finish"'}));
       }
 
       final creatorId = user['userId'] as String;

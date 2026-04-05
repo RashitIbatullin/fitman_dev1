@@ -1,5 +1,5 @@
 import 'package:fitman_common/fitman_common.dart';
-import 'package:fitman_app/screens/client_dashboard.dart';
+import 'package:fitman_app/modules/clients/screens/client_dashboard.dart';
 import 'package:fitman_app/services/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

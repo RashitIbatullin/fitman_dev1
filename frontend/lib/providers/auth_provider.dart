@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:fitman_app/screens/client_dashboard.dart';
+import 'package:fitman_app/modules/clients/screens/client_dashboard.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

@@ -1,19 +1,19 @@
-import 'package:fitman_app/screens/shared/profile_screen.dart';
+import '../../../screens/shared/profile_screen.dart';
 
-import 'package:fitman_app/providers/dashboard_provider.dart';
+import '../providers/dashboard_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:fitman_common/fitman_common.dart';
-import '../providers/auth_provider.dart';
-import 'client/my_trainer_screen.dart';
-import 'client/my_instructor_screen.dart';
-import 'client/my_manager_screen.dart';
-import 'client/anthropometry_screen.dart';
-import 'client/sessions_screen.dart';
-import 'client/calorie_tracking_screen.dart';
-import 'client/progress_screen.dart';
-import '../modules/chat/screens/chat_list_screen.dart'; // Corrected import path
+import '../../../providers/auth_provider.dart';
+import 'my_trainer_screen.dart';
+import 'my_instructor_screen.dart';
+import 'my_manager_screen.dart';
+import 'anthropometry_screen.dart';
+import 'sessions_screen.dart';
+import 'calorie_tracking_screen.dart';
+import 'progress_screen.dart';
+import '../../chat/screens/chat_list_screen.dart'; // Corrected import path
 
 final clientDashboardIndexProvider = StateProvider<int>((ref) => 0);
 

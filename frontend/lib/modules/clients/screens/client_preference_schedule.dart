@@ -1,8 +1,8 @@
 import 'package:fitman_common/custom/time_of_day_custom.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../providers/work_schedule_provider.dart';
-import '../../services/api_service.dart'; // Import ApiService
+import '../../../providers/work_schedule_provider.dart';
+import '../../../services/api_service.dart'; // Import ApiService
 import 'package:fitman_common/fitman_common.dart'; // Import ClientSchedulePreference
 
 class ClientPreferenceSchedule extends ConsumerStatefulWidget {

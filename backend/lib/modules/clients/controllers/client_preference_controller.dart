@@ -2,7 +2,7 @@
 import 'dart:convert';
 import 'package:shelf/shelf.dart';
 import 'package:postgres/postgres.dart';
-import '../config/database.dart';
+import '../../../config/database.dart';
 
 class ClientPreferenceController {
   static Future<Response> saveClientPreferences(Request request) async {

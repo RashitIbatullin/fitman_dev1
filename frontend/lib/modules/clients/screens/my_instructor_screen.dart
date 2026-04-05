@@ -2,24 +2,24 @@ import 'package:fitman_common/fitman_common.dart';
 import 'package:fitman_app/services/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:file_picker/file_picker.dart';
+import 'package:file_picker/file_picker.dart'; // Import file_picker
 import '../../../modules/chat/providers/chat_provider.dart'; // Adjusted relative path
 import '../../../providers/auth_provider.dart';
 import '../../../modules/chat/widgets/message_bubble.dart'; // Adjusted relative path
 // Removed: import '../../../modules/chat/screens/chat_screen.dart'; // Import ChatScreen
 
-final trainerProvider = FutureProvider<User>((ref) async {
-  return ApiService.getTrainerForClient();
+final instructorProvider = FutureProvider<User>((ref) async {
+  return ApiService.getInstructorForClient();
 });
 
-class MyTrainerScreen extends ConsumerStatefulWidget {
-  const MyTrainerScreen({super.key});
+class MyInstructorScreen extends ConsumerStatefulWidget {
+  const MyInstructorScreen({super.key});
 
   @override
-  ConsumerState<MyTrainerScreen> createState() => _MyTrainerScreenState();
+  ConsumerState<MyInstructorScreen> createState() => _MyInstructorScreenState();
 }
 
-class _MyTrainerScreenState extends ConsumerState<MyTrainerScreen> {
+class _MyInstructorScreenState extends ConsumerState<MyInstructorScreen> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController(); // Add ScrollController
   
@@ -31,11 +31,12 @@ class _MyTrainerScreenState extends ConsumerState<MyTrainerScreen> {
   }
 
   Future<void> _connectAndLoadChat() async {
-    final trainer = await ref.read(trainerProvider.future);
+    final instructor = await ref.read(instructorProvider.future);
     final chatNotifier = ref.read(chatProvider.notifier);
     
     await chatNotifier.connect(); 
-    await chatNotifier.openPrivateChat(trainer.id);
+
+    await chatNotifier.openPrivateChat(instructor.id);
 
     // Initial read status update after chat is active
     _sendReadStatusUpdates();
@@ -49,7 +50,7 @@ class _MyTrainerScreenState extends ConsumerState<MyTrainerScreen> {
     ref.read(chatProvider.notifier).disconnect(); // Disconnect WebSocket
     super.dispose();
   }
-
+  
   void _sendReadStatusUpdates() {
     final chatState = ref.read(chatProvider);
     final currentUser = ref.read(authProvider).value?.user;
@@ -138,12 +139,12 @@ class _MyTrainerScreenState extends ConsumerState<MyTrainerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final trainerData = ref.watch(trainerProvider);
+    final instructorData = ref.watch(instructorProvider);
     final chatState = ref.watch(chatProvider);
     final currentUser = ref.watch(authProvider).value?.user; // Get current user
 
-    return trainerData.when(
-      data: (trainer) {
+    return instructorData.when(
+      data: (instructor) {
         final currentChatMessages = chatState.activeChatId != null
             ? chatState.messages[chatState.activeChatId!] ?? []
             : [];
@@ -157,19 +158,19 @@ class _MyTrainerScreenState extends ConsumerState<MyTrainerScreen> {
                 children: [
                   CircleAvatar(
                     radius: 40,
-                    // backgroundImage: NetworkImage(trainer.photoUrl), // TODO: Add photo URL
+                    // backgroundImage: NetworkImage(instructor.photoUrl), // TODO: Add photo URL
                   ),
                   const SizedBox(width: 16),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        trainer.fullName,
+                        instructor.fullName,
                         style: Theme.of(context).textTheme.headlineSmall,
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        trainer.phone ?? '',
+                        instructor.phone ?? '',
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
                     ],
@@ -185,7 +186,7 @@ class _MyTrainerScreenState extends ConsumerState<MyTrainerScreen> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         Text(
-                          'Чат с тренером',
+                          'Чат с инструктором',
                           style: Theme.of(context).textTheme.titleLarge,
                         ),
                         if (chatState.isLoading || chatState.isFetchingMore)

@@ -1,6 +1,6 @@
 import 'package:fitman_common/fitman_common.dart';
 import 'package:fitman_app/services/api_service.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart'; // Import for ScrollDirection
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart'; // Import file_picker
 import '../../../modules/chat/providers/chat_provider.dart'; // Adjusted relative path
@@ -8,21 +8,21 @@ import '../../../providers/auth_provider.dart';
 import '../../../modules/chat/widgets/message_bubble.dart'; // Adjusted relative path
 // Removed: import '../../../modules/chat/screens/chat_screen.dart'; // Import ChatScreen
 
-final instructorProvider = FutureProvider<User>((ref) async {
-  return ApiService.getInstructorForClient();
+final managerProvider = FutureProvider<User>((ref) async {
+  return ApiService.getManagerForClient();
 });
 
-class MyInstructorScreen extends ConsumerStatefulWidget {
-  const MyInstructorScreen({super.key});
+class MyManagerScreen extends ConsumerStatefulWidget {
+  const MyManagerScreen({super.key});
 
   @override
-  ConsumerState<MyInstructorScreen> createState() => _MyInstructorScreenState();
+  ConsumerState<MyManagerScreen> createState() => _MyManagerScreenState();
 }
 
-class _MyInstructorScreenState extends ConsumerState<MyInstructorScreen> {
+class _MyManagerScreenState extends ConsumerState<MyManagerScreen> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController(); // Add ScrollController
-  
+
   @override
   void initState() {
     super.initState();
@@ -31,12 +31,12 @@ class _MyInstructorScreenState extends ConsumerState<MyInstructorScreen> {
   }
 
   Future<void> _connectAndLoadChat() async {
-    final instructor = await ref.read(instructorProvider.future);
+    final manager = await ref.read(managerProvider.future);
     final chatNotifier = ref.read(chatProvider.notifier);
     
     await chatNotifier.connect(); 
 
-    await chatNotifier.openPrivateChat(instructor.id);
+    await chatNotifier.openPrivateChat(manager.id);
 
     // Initial read status update after chat is active
     _sendReadStatusUpdates();
@@ -50,7 +50,13 @@ class _MyInstructorScreenState extends ConsumerState<MyInstructorScreen> {
     ref.read(chatProvider.notifier).disconnect(); // Disconnect WebSocket
     super.dispose();
   }
-  
+
+  void _onScroll() {
+    if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
+      ref.read(chatProvider.notifier).fetchMoreMessages();
+    }
+  }
+
   void _sendReadStatusUpdates() {
     final chatState = ref.read(chatProvider);
     final currentUser = ref.read(authProvider).value?.user;
@@ -63,13 +69,7 @@ class _MyInstructorScreenState extends ConsumerState<MyInstructorScreen> {
       }
     }
   }
-
-  void _onScroll() {
-    if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
-      ref.read(chatProvider.notifier).fetchMoreMessages().then((_) => _sendReadStatusUpdates());
-    }
-  }
-
+  
   void _sendMessage({
     List<int>? fileBytes,
     String? fileName,
@@ -136,15 +136,14 @@ class _MyInstructorScreenState extends ConsumerState<MyInstructorScreen> {
       );
     }
   }
-
   @override
   Widget build(BuildContext context) {
-    final instructorData = ref.watch(instructorProvider);
+    final managerAsyncValue = ref.watch(managerProvider);
     final chatState = ref.watch(chatProvider);
-    final currentUser = ref.watch(authProvider).value?.user; // Get current user
+    final currentUser = ref.watch(authProvider).value?.user;
 
-    return instructorData.when(
-      data: (instructor) {
+    return managerAsyncValue.when(
+      data: (manager) {
         final currentChatMessages = chatState.activeChatId != null
             ? chatState.messages[chatState.activeChatId!] ?? []
             : [];
@@ -158,21 +157,20 @@ class _MyInstructorScreenState extends ConsumerState<MyInstructorScreen> {
                 children: [
                   CircleAvatar(
                     radius: 40,
-                    // backgroundImage: NetworkImage(instructor.photoUrl), // TODO: Add photo URL
+                    backgroundImage: manager.photoUrl != null
+                        ? NetworkImage(manager.photoUrl!)
+                        : null,
+                    child: manager.photoUrl == null
+                        ? const Icon(Icons.person)
+                        : null,
                   ),
                   const SizedBox(width: 16),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        instructor.fullName,
-                        style: Theme.of(context).textTheme.headlineSmall,
-                      ),
+                      Text(manager.fullName, style: Theme.of(context).textTheme.headlineSmall),
                       const SizedBox(height: 4),
-                      Text(
-                        instructor.phone ?? '',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
+                      Text(manager.phone ?? '', style: Theme.of(context).textTheme.titleMedium),
                     ],
                   ),
                 ],
@@ -180,15 +178,15 @@ class _MyInstructorScreenState extends ConsumerState<MyInstructorScreen> {
               const SizedBox(height: 24),
               Expanded(
                 child: Card(
+                  elevation: 2,
+                  margin: EdgeInsets.zero,
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        Text(
-                          'Чат с инструктором',
-                          style: Theme.of(context).textTheme.titleLarge,
-                        ),
+                        Text('Чат с менеджером', style: Theme.of(context).textTheme.titleLarge),
+                        const SizedBox(height: 8),
                         if (chatState.isLoading || chatState.isFetchingMore)
                           const LinearProgressIndicator(),
                         Expanded(
@@ -203,7 +201,7 @@ class _MyInstructorScreenState extends ConsumerState<MyInstructorScreen> {
                                       return const Center(child: CircularProgressIndicator());
                                     }
                                     final message = currentChatMessages[index];
-                                    final isMe = message.senderId == currentUser?.id; 
+                                    final isMe = message.senderId == currentUser?.id;
                                     final userName = isMe 
                                         ? 'You' 
                                         : '${message.firstName ?? ''} ${message.lastName ?? ''}'.trim();

@@ -1,28 +1,28 @@
 import 'package:fitman_common/fitman_common.dart';
 import 'package:fitman_app/services/api_service.dart';
-import 'package:flutter/material.dart'; // Import for ScrollDirection
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:file_picker/file_picker.dart'; // Import file_picker
+import 'package:file_picker/file_picker.dart';
 import '../../../modules/chat/providers/chat_provider.dart'; // Adjusted relative path
 import '../../../providers/auth_provider.dart';
 import '../../../modules/chat/widgets/message_bubble.dart'; // Adjusted relative path
 // Removed: import '../../../modules/chat/screens/chat_screen.dart'; // Import ChatScreen
 
-final managerProvider = FutureProvider<User>((ref) async {
-  return ApiService.getManagerForClient();
+final trainerProvider = FutureProvider<User>((ref) async {
+  return ApiService.getTrainerForClient();
 });
 
-class MyManagerScreen extends ConsumerStatefulWidget {
-  const MyManagerScreen({super.key});
+class MyTrainerScreen extends ConsumerStatefulWidget {
+  const MyTrainerScreen({super.key});
 
   @override
-  ConsumerState<MyManagerScreen> createState() => _MyManagerScreenState();
+  ConsumerState<MyTrainerScreen> createState() => _MyTrainerScreenState();
 }
 
-class _MyManagerScreenState extends ConsumerState<MyManagerScreen> {
+class _MyTrainerScreenState extends ConsumerState<MyTrainerScreen> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController(); // Add ScrollController
-
+  
   @override
   void initState() {
     super.initState();
@@ -31,12 +31,11 @@ class _MyManagerScreenState extends ConsumerState<MyManagerScreen> {
   }
 
   Future<void> _connectAndLoadChat() async {
-    final manager = await ref.read(managerProvider.future);
+    final trainer = await ref.read(trainerProvider.future);
     final chatNotifier = ref.read(chatProvider.notifier);
     
     await chatNotifier.connect(); 
-
-    await chatNotifier.openPrivateChat(manager.id);
+    await chatNotifier.openPrivateChat(trainer.id);
 
     // Initial read status update after chat is active
     _sendReadStatusUpdates();
@@ -51,12 +50,6 @@ class _MyManagerScreenState extends ConsumerState<MyManagerScreen> {
     super.dispose();
   }
 
-  void _onScroll() {
-    if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
-      ref.read(chatProvider.notifier).fetchMoreMessages();
-    }
-  }
-
   void _sendReadStatusUpdates() {
     final chatState = ref.read(chatProvider);
     final currentUser = ref.read(authProvider).value?.user;
@@ -69,7 +62,13 @@ class _MyManagerScreenState extends ConsumerState<MyManagerScreen> {
       }
     }
   }
-  
+
+  void _onScroll() {
+    if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
+      ref.read(chatProvider.notifier).fetchMoreMessages().then((_) => _sendReadStatusUpdates());
+    }
+  }
+
   void _sendMessage({
     List<int>? fileBytes,
     String? fileName,
@@ -136,14 +135,15 @@ class _MyManagerScreenState extends ConsumerState<MyManagerScreen> {
       );
     }
   }
+
   @override
   Widget build(BuildContext context) {
-    final managerAsyncValue = ref.watch(managerProvider);
+    final trainerData = ref.watch(trainerProvider);
     final chatState = ref.watch(chatProvider);
-    final currentUser = ref.watch(authProvider).value?.user;
+    final currentUser = ref.watch(authProvider).value?.user; // Get current user
 
-    return managerAsyncValue.when(
-      data: (manager) {
+    return trainerData.when(
+      data: (trainer) {
         final currentChatMessages = chatState.activeChatId != null
             ? chatState.messages[chatState.activeChatId!] ?? []
             : [];
@@ -157,20 +157,21 @@ class _MyManagerScreenState extends ConsumerState<MyManagerScreen> {
                 children: [
                   CircleAvatar(
                     radius: 40,
-                    backgroundImage: manager.photoUrl != null
-                        ? NetworkImage(manager.photoUrl!)
-                        : null,
-                    child: manager.photoUrl == null
-                        ? const Icon(Icons.person)
-                        : null,
+                    // backgroundImage: NetworkImage(trainer.photoUrl), // TODO: Add photo URL
                   ),
                   const SizedBox(width: 16),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(manager.fullName, style: Theme.of(context).textTheme.headlineSmall),
+                      Text(
+                        trainer.fullName,
+                        style: Theme.of(context).textTheme.headlineSmall,
+                      ),
                       const SizedBox(height: 4),
-                      Text(manager.phone ?? '', style: Theme.of(context).textTheme.titleMedium),
+                      Text(
+                        trainer.phone ?? '',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
                     ],
                   ),
                 ],
@@ -178,15 +179,15 @@ class _MyManagerScreenState extends ConsumerState<MyManagerScreen> {
               const SizedBox(height: 24),
               Expanded(
                 child: Card(
-                  elevation: 2,
-                  margin: EdgeInsets.zero,
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        Text('Чат с менеджером', style: Theme.of(context).textTheme.titleLarge),
-                        const SizedBox(height: 8),
+                        Text(
+                          'Чат с тренером',
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
                         if (chatState.isLoading || chatState.isFetchingMore)
                           const LinearProgressIndicator(),
                         Expanded(
@@ -201,7 +202,7 @@ class _MyManagerScreenState extends ConsumerState<MyManagerScreen> {
                                       return const Center(child: CircularProgressIndicator());
                                     }
                                     final message = currentChatMessages[index];
-                                    final isMe = message.senderId == currentUser?.id;
+                                    final isMe = message.senderId == currentUser?.id; 
                                     final userName = isMe 
                                         ? 'You' 
                                         : '${message.firstName ?? ''} ${message.lastName ?? ''}'.trim();

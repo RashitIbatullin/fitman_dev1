@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fitman_common/fitman_common.dart';
 import '../../../services/api_service.dart';
 import '../../employees/screens/create_employee_screen.dart';
-import '../../../screens/client_dashboard.dart';
+import '../../clients/screens/client_dashboard.dart';
 import '../../../screens/instructor_dashboard.dart';
 import '../../../screens/manager_dashboard.dart';
 import '../../../screens/trainer_dashboard.dart';
