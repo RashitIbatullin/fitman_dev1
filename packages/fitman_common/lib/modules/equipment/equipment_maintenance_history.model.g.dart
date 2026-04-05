@@ -77,8 +77,8 @@ _$EquipmentMaintenanceHistoryImpl _$$EquipmentMaintenanceHistoryImplFromJson(
           : DateTime.parse(json['cancelled_at'] as String),
       cancellationReason: json['cancellation_reason'] as String?,
       executorId: json['executor_id'] as String?,
-      executorType:
-          $enumDecodeNullable(_$ExecutorTypeEnumMap, json['executor_type']),
+      executorType: const ExecutorTypeConverter()
+          .fromJson((json['executor_type'] as num?)?.toInt()),
       executorName: json['executor_name'] as String?,
       relatedBookingId: json['related_booking_id'] as String?,
       causedDowntime: json['caused_downtime'] as bool? ?? false,
@@ -126,7 +126,8 @@ Map<String, dynamic> _$$EquipmentMaintenanceHistoryImplToJson(
       'cancelled_at': instance.cancelledAt?.toIso8601String(),
       'cancellation_reason': instance.cancellationReason,
       'executor_id': instance.executorId,
-      'executor_type': _$ExecutorTypeEnumMap[instance.executorType],
+      'executor_type':
+          const ExecutorTypeConverter().toJson(instance.executorType),
       'executor_name': instance.executorName,
       'related_booking_id': instance.relatedBookingId,
       'caused_downtime': instance.causedDowntime,
@@ -148,9 +149,4 @@ const _$MaintenanceStatusEnumMap = {
   MaintenanceStatus.inProgress: 'inProgress',
   MaintenanceStatus.completed: 'completed',
   MaintenanceStatus.cancelled: 'cancelled',
-};
-
-const _$ExecutorTypeEnumMap = {
-  ExecutorType.user: 'user',
-  ExecutorType.staff: 'staff',
 };

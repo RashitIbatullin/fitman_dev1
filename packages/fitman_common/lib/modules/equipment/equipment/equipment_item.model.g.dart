@@ -18,7 +18,7 @@ _$EquipmentItemImpl _$$EquipmentItemImplFromJson(Map<String, dynamic> json) =>
       placementNote: json['placement_note'] as String?,
       status: const EquipmentStatusConverter()
           .fromJson((json['status'] as num).toInt()),
-      conditionRating: (json['condition_rating'] as num).toInt(),
+      conditionRating: (json['condition_rating'] as num?)?.toInt() ?? 3,
       conditionNotes: json['condition_notes'] as String?,
       lastMaintenanceDate: json['last_maintenance_date'] == null
           ? null

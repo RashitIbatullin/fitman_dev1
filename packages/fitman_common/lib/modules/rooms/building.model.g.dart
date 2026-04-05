@@ -12,14 +12,12 @@ _$BuildingImpl _$$BuildingImplFromJson(Map<String, dynamic> json) =>
       name: json['name'] as String,
       address: json['address'] as String,
       note: json['note'] as String?,
-      createdAt: const NullableDateTimeConverter()
-          .fromJson(json['created_at'] as String?),
-      updatedAt: const NullableDateTimeConverter()
-          .fromJson(json['updated_at'] as String?),
+      createdAt: const NullableDateTimeConverter().fromJson(json['created_at']),
+      updatedAt: const NullableDateTimeConverter().fromJson(json['updated_at']),
       createdBy: json['created_by'] as String?,
       updatedBy: json['updated_by'] as String?,
-      archivedAt: const NullableDateTimeConverter()
-          .fromJson(json['archived_at'] as String?),
+      archivedAt:
+          const NullableDateTimeConverter().fromJson(json['archived_at']),
       archivedBy: json['archived_by'] as String?,
       archivedByName: json['archived_by_name'] as String?,
       archivedReason: json['archived_reason'] as String?,

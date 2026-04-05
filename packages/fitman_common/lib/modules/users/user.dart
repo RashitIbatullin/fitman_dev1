@@ -59,15 +59,15 @@ class User {
 
   factory User.fromJson(Map<String, dynamic> json) {
     // Helper to handle DateTime parsing from either DateTime or String
-    DateTime? _parseNullableDateTime(dynamic date) {
+    DateTime? parseNullableDateTime(dynamic date) {
       if (date == null) return null;
       if (date is DateTime) return date;
       if (date is String) return DateTime.tryParse(date);
       return null;
     }
     
-    DateTime _parseDateTime(dynamic date, String fieldName) {
-      final parsed = _parseNullableDateTime(date);
+    DateTime parseDateTime(dynamic date, String fieldName) {
+      final parsed = parseNullableDateTime(date);
       if (parsed == null) {
         throw ArgumentError('Invalid or missing date value for required field: $fieldName');
       }
@@ -88,7 +88,7 @@ class User {
           [],
       phone: json['phone'],
       gender: json['gender'] is int ? (json['gender'] == 0 ? 'мужской' : 'женский') : json['gender'],
-      dateOfBirth: _parseNullableDateTime(json['date_of_birth']),
+      dateOfBirth: parseNullableDateTime(json['date_of_birth']),
       sendNotification: json['send_notification'] ?? true,
       hourNotification: (json['hour_notification'] as num?)?.toInt() ?? 1,
       clientProfile: json['client_profile'] != null
@@ -106,9 +106,9 @@ class User {
       managerProfile: json['manager_profile'] != null
           ? ManagerProfile.fromJson(json['manager_profile'])
           : null,
-      createdAt: _parseDateTime(json['created_at'], 'created_at'),
-      updatedAt: _parseDateTime(json['updated_at'], 'updated_at'),
-      archivedAt: _parseNullableDateTime(json['archived_at']),
+      createdAt: parseDateTime(json['created_at'], 'created_at'),
+      updatedAt: parseDateTime(json['updated_at'], 'updated_at'),
+      archivedAt: parseNullableDateTime(json['archived_at']),
       archivedReason: json['archived_reason'],
     );
   }

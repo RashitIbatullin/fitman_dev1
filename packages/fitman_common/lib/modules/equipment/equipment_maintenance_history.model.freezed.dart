@@ -325,6 +325,7 @@ mixin _$EquipmentMaintenanceHistory {
   DateTime? get cancelledAt => throw _privateConstructorUsedError;
   String? get cancellationReason => throw _privateConstructorUsedError;
   String? get executorId => throw _privateConstructorUsedError;
+  @ExecutorTypeConverter()
   ExecutorType? get executorType => throw _privateConstructorUsedError;
   String? get executorName => throw _privateConstructorUsedError;
   String? get relatedBookingId => throw _privateConstructorUsedError;
@@ -381,7 +382,7 @@ abstract class $EquipmentMaintenanceHistoryCopyWith<$Res> {
       DateTime? cancelledAt,
       String? cancellationReason,
       String? executorId,
-      ExecutorType? executorType,
+      @ExecutorTypeConverter() ExecutorType? executorType,
       String? executorName,
       String? relatedBookingId,
       bool causedDowntime,
@@ -631,7 +632,7 @@ abstract class _$$EquipmentMaintenanceHistoryImplCopyWith<$Res>
       DateTime? cancelledAt,
       String? cancellationReason,
       String? executorId,
-      ExecutorType? executorType,
+      @ExecutorTypeConverter() ExecutorType? executorType,
       String? executorName,
       String? relatedBookingId,
       bool causedDowntime,
@@ -875,7 +876,7 @@ class _$EquipmentMaintenanceHistoryImpl
       this.cancelledAt,
       this.cancellationReason,
       this.executorId,
-      this.executorType,
+      @ExecutorTypeConverter() this.executorType,
       this.executorName,
       this.relatedBookingId,
       this.causedDowntime = false,
@@ -946,6 +947,7 @@ class _$EquipmentMaintenanceHistoryImpl
   @override
   final String? executorId;
   @override
+  @ExecutorTypeConverter()
   final ExecutorType? executorType;
   @override
   final String? executorName;
@@ -1139,7 +1141,7 @@ abstract class _EquipmentMaintenanceHistory
           final DateTime? cancelledAt,
           final String? cancellationReason,
           final String? executorId,
-          final ExecutorType? executorType,
+          @ExecutorTypeConverter() final ExecutorType? executorType,
           final String? executorName,
           final String? relatedBookingId,
           final bool causedDowntime,
@@ -1208,6 +1210,7 @@ abstract class _EquipmentMaintenanceHistory
   @override
   String? get executorId;
   @override
+  @ExecutorTypeConverter()
   ExecutorType? get executorType;
   @override
   String? get executorName;

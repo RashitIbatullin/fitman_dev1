@@ -29,7 +29,7 @@ class EquipmentItem with _$EquipmentItem {
     String? placementNote,
     @EquipmentStatusConverter()
     required EquipmentStatus status,
-    required int conditionRating,
+    @Default(3) int conditionRating,
     String? conditionNotes,
     DateTime? lastMaintenanceDate,
     DateTime? nextMaintenanceDate,

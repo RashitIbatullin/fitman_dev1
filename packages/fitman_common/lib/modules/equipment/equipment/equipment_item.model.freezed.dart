@@ -417,7 +417,7 @@ class _$EquipmentItemImpl implements _EquipmentItem {
       this.roomId,
       this.placementNote,
       @EquipmentStatusConverter() required this.status,
-      required this.conditionRating,
+      this.conditionRating = 3,
       this.conditionNotes,
       this.lastMaintenanceDate,
       this.nextMaintenanceDate,
@@ -457,6 +457,7 @@ class _$EquipmentItemImpl implements _EquipmentItem {
   @EquipmentStatusConverter()
   final EquipmentStatus status;
   @override
+  @JsonKey()
   final int conditionRating;
   @override
   final String? conditionNotes;
@@ -607,7 +608,7 @@ abstract class _EquipmentItem implements EquipmentItem {
       final String? roomId,
       final String? placementNote,
       @EquipmentStatusConverter() required final EquipmentStatus status,
-      required final int conditionRating,
+      final int conditionRating,
       final String? conditionNotes,
       final DateTime? lastMaintenanceDate,
       final DateTime? nextMaintenanceDate,
