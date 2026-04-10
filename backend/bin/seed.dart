@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:args/args.dart';
+import 'package:bcrypt/bcrypt.dart';
 import 'package:faker/faker.dart';
 import 'package:postgres/postgres.dart';
 import 'package:fitman_backend/config/app_config.dart';
@@ -97,33 +98,34 @@ class DatabaseSeeder {
     final levels = await _getIdsForTable('levels_training', keyColumn: 'name');
     final goals = await _getIdsForTable('goals_training', keyColumn: 'name');
 
-    final adminId = await _createUser(login: 'admin@fitman.ru', firstName: 'Админ', lastName: 'Администраторов', phone: '+70000000000');
+    // Create users with correct passwords from login_screen.dart
+    final adminId = await _createUser(login: 'admin@fitman.ru', firstName: 'Админ', lastName: 'Администраторов', phone: '+70000000000', password: 'admin123');
     await _assignRole(adminId, roles['admin']!);
     await _connection.execute(Sql.named('INSERT INTO admin_profiles (user_id) VALUES (@user_id)'), parameters: {'user_id': adminId});
     print('   👤 Created Admin');
 
-    final managerId = await _createUser(login: 'manager@fitman.ru', firstName: 'Менеджер', lastName: 'Менеджеров', phone: '+70000000003');
+    final managerId = await _createUser(login: 'manager@fitman.ru', firstName: 'Менеджер', lastName: 'Менеджеров', phone: '+70000000003', password: 'manager123');
     await _assignRole(managerId, roles['manager']!);
     await _createEmployeeProfile(managerId, specialization: 'Управление', workExperience: 3, createdBy: adminId);
     await _connection.execute(Sql.named('INSERT INTO manager_profiles (user_id, created_by) VALUES (@user_id, @created_by)'), parameters: {'user_id': managerId, 'created_by': adminId});
     print('   👤 Created Manager');
 
-    final trainerId = await _createUser(login: 'trainer@fitman.ru', firstName: 'Тренер', lastName: 'Тренеров', phone: '+70000000002');
+    final trainerId = await _createUser(login: 'trainer@fitman.ru', firstName: 'Тренер', lastName: 'Тренеров', phone: '+70000000002', password: 'trainer123');
     await _assignRole(trainerId, roles['trainer']!);
     await _createEmployeeProfile(trainerId, specialization: 'Силовой тренинг', workExperience: 5, createdBy: adminId);
     await _connection.execute(Sql.named('INSERT INTO trainer_profiles (user_id, created_by) VALUES (@user_id, @created_by)'), parameters: {'user_id': trainerId, 'created_by': adminId});
     print('   👤 Created Trainer');
 
-    final instructorId = await _createUser(login: 'instructor@fitman.ru', firstName: 'Инструктор', lastName: 'Инструкторова', phone: '+70000000001', gender: 1);
+    final instructorId = await _createUser(login: 'instructor@fitman.ru', firstName: 'Инструктор', lastName: 'Инструкторова', phone: '+70000000001', gender: 1, password: 'instructor123');
     await _assignRole(instructorId, roles['instructor']!);
     await _createEmployeeProfile(instructorId, specialization: 'Групповые занятия', workExperience: 2, createdBy: adminId);
     await _connection.execute(Sql.named('INSERT INTO instructor_profiles (user_id, created_by) VALUES (@user_id, @created_by)'), parameters: {'user_id': instructorId, 'created_by': adminId});
     print('   👤 Created Instructor');
 
-    final clientId = await _createUser(login: 'client@fitman.ru', firstName: 'Клиент', lastName: 'Клиентов', phone: '+70000000004', gender: 0);
+    final clientId = await _createUser(login: 'client@fitman.ru', firstName: 'Клиент', lastName: 'Клиентов', phone: '+70000000004', gender: 0, password: 'client123');
     await _assignRole(clientId, roles['client']!);
     await _connection.execute(Sql.named('''
-      INSERT INTO client_profiles (user_id, goal_training_id, level_training_id, created_by) 
+      INSERT INTO client_profiles (user_id, goal_training_id, level_training_id, created_by)
       VALUES (@user_id, @goal, @level, @created_by)
       '''), parameters: {'user_id': clientId, 'goal': goals['Набор мышечной массы и силы'], 'level': levels['Новичок'], 'created_by': adminId});
     print('   👤 Created Client');
@@ -185,6 +187,7 @@ class DatabaseSeeder {
         login: _faker.internet.email(),
         firstName: _faker.person.firstName(),
         lastName: _faker.person.lastName(),
+        password: 'password', // Default password for load test users
       );
       stdout.write('.');
     }
@@ -206,7 +209,7 @@ class DatabaseSeeder {
     ];
     for (final level in levels) {
       await _connection.execute(Sql.named('''
-          INSERT INTO levels_training (name, description) 
+          INSERT INTO levels_training (name, description)
           VALUES (@name, @description)
           ON CONFLICT (name) DO NOTHING;
         '''), parameters: level);
@@ -378,13 +381,18 @@ class DatabaseSeeder {
   }
 
   // Existing methods
-  Future<String> _createUser({required String login, required String firstName, required String lastName, String? phone, int gender = 0}) async {
-    final passwordHash = r'$2a$10$RATHndPnw7mQZOOfAb3RHeaGhV8Aul2U4BXx2C94pDr4EqV58uEUW';
+  Future<String> _createUser({required String login, required String firstName, required String lastName, String? phone, int gender = 0, required String password}) async {
+    final passwordHash = BCrypt.hashpw(password, BCrypt.gensalt());
+    if (phone == '+70000000000' || phone == '+70000000001' || phone == '+70000000002' || phone == '+70000000003' || phone == '+70000000004') {
+      print('--- DEBUG SEEDER ---');
+      print('Generated hash for $phone (password: "$password"): "$passwordHash"');
+      print('--------------------');
+    }
     final result = await _connection.execute(Sql.named('''
       INSERT INTO users (login, password_hash, email, first_name, last_name, gender, date_of_birth, phone)
       VALUES (@login, @hash, @email, @first, @last, @gender, @dob, @phone)
       RETURNING id
-      '''), parameters: {'login': login, 'hash': passwordHash, 'email': login, 'first': firstName, 'last': lastName, 'gender': gender, 'dob': _faker.date.dateTime(minYear: 1970, maxYear: 2004), 'phone': phone});
+      '''), parameters: {'login': phone ?? login, 'hash': passwordHash, 'email': login, 'first': firstName, 'last': lastName, 'gender': gender, 'dob': _faker.date.dateTime(minYear: 1970, maxYear: 2004), 'phone': phone});
     return result.first[0].toString();
   }
 
@@ -412,7 +420,7 @@ class DatabaseSeeder {
   Future<void> _seedBodyShapeRecommendations(Map<String, String> goals, Map<String, String> levels) async {
     print('   -> Seeding body shape recommendations...');
     final recommendations = [
-      {'body_type': 'Яблоко', 'goal': 'Снижение веса и оздоровление', 'level': 'Новичок', 'trainer': 'Акцент на снижение висцерального жира. Кардио 3-4 р/нед, 30-40 мин (ЧСС 60-70%). Силовые 2-3 р/нед, Full-body. Избегать скручиваний с весом.', 'client': 'Ваша цель - похудение. Сосредоточьтесь на кардио (ходьба, эллипс) и силовых на все тело. Ешьте меньше сладкого и жирного.'},
+      {'body_type': 'Яблоко', 'goal': 'Снижение веса и оздоровление', 'level': 'Новичок', 'trainer': 'Акцент на снижение висцетарного жира. Кардио 3-4 р/нед, 30-40 мин (ЧСС 60-70%). Силовые 2-3 р/нед, Full-body. Избегать скручиваний с весом.', 'client': 'Ваша цель - похудение. Сосредоточьтесь на кардио (ходьба, эллипс) и силовых на все тело. Ешьте меньше сладкого и жирного.'},
       {'body_type': 'Яблоко', 'goal': 'Снижение веса и оздоровление', 'level': 'Опытный', 'trainer': 'Увеличение интенсивности. Добавить 1-2 HIIT сессии в неделю. Силовые 3 р/нед (сплит верх/низ) с акцентом на ноги и спину для улучшения пропорций.', 'client': 'Добавляем интенсивности! Пробуйте интервальные тренировки и разделите силовые на "верх" и "низ".'},
       {'body_type': 'Груша', 'goal': 'Набор мышечной массы и силы', 'level': 'Продвинутый', 'trainer': 'Построение атлетичного верха. Приоритет на тяжелые веса для верха. Ноги - плиометрика, интервальные сеты. Комбинация HIIT и LISS кардио.', 'client': 'Стройте сильный верх. На ноги используйте прыжковые и интервальные упражнения. Строгий контроль диеты.'},
     ];
