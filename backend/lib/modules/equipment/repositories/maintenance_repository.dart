@@ -46,42 +46,56 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
   @override
   Future<EquipmentMaintenanceHistory> create(EquipmentMaintenanceHistory history, String userId) async {
     final conn = await _db.connection;
-    final result = await conn.execute(
-      Sql.named('''
-        INSERT INTO equipment_maintenance_history (
-          equipment_item_id, equipment_name, type, status, created_at, 
-          started_at, completed_at, equipment_available_from, reported_problem, 
-          work_description, notes, reported_by, executor_id, executor_type, 
-          related_booking_id, caused_downtime, updated_at, created_by, updated_by
-        ) VALUES (
-          @equipment_item_id, @equipment_name, @type, @status, @created_at,
-          @started_at, @completed_at, @equipment_available_from, @reported_problem,
-          @work_description, @notes, @reported_by, @executor_id, @executor_type,
-          @related_booking_id, @caused_downtime, NOW(), @user_id, @user_id
-        ) RETURNING id;
-      '''),
-      parameters: {
-        'equipment_item_id': history.equipmentItemId,
-        'equipment_name': history.equipmentName,
-        'type': history.type.index,
-        'status': history.status.index,
-        'created_at': history.createdAt ?? DateTime.now(),
-        'started_at': history.startedAt,
-        'completed_at': history.completedAt,
-        'equipment_available_from': history.equipmentAvailableFrom,
-        'reported_problem': history.reportedProblem,
-        'work_description': history.workDescription,
-        'notes': history.notes,
-        'reported_by': history.reportedBy,
-        'executor_id': history.executorId,
-        'executor_type': history.executorType?.index,
-        'related_booking_id': history.relatedBookingId,
-        'caused_downtime': history.causedDowntime,
-        'user_id': userId,
-      },
-    );
+    
+    late String newId;
 
-    final newId = result.first[0] as String;
+    await conn.runTx((tx) async {
+      final year = DateTime.now().year;
+      final countResult = await tx.execute(
+        Sql.named('SELECT COUNT(*) FROM equipment_maintenance_history WHERE EXTRACT(YEAR FROM created_at) = @year'),
+        parameters: {'year': year},
+      );
+      final count = countResult.first[0] as int;
+      final newNumber = '$year-${(count + 1).toString().padLeft(3, '0')}';
+
+      final result = await tx.execute(
+        Sql.named('''
+          INSERT INTO equipment_maintenance_history (
+            number, equipment_item_id, equipment_name, type, status, created_at, 
+            started_at, completed_at, equipment_available_from, reported_problem, 
+            work_description, notes, reported_by, executor_id, executor_type, 
+            related_booking_id, caused_downtime, updated_at, created_by, updated_by
+          ) VALUES (
+            @number, @equipment_item_id, @equipment_name, @type, @status, @created_at,
+            @started_at, @completed_at, @equipment_available_from, @reported_problem,
+            @work_description, @notes, @reported_by, @executor_id, @executor_type,
+            @related_booking_id, @caused_downtime, NOW(), @user_id, @user_id
+          ) RETURNING id;
+        '''),
+        parameters: {
+          'number': newNumber,
+          'equipment_item_id': history.equipmentItemId,
+          'equipment_name': history.equipmentName,
+          'type': history.type.index,
+          'status': history.status.index,
+          'created_at': history.createdAt ?? DateTime.now(),
+          'started_at': history.startedAt,
+          'completed_at': history.completedAt,
+          'equipment_available_from': history.equipmentAvailableFrom,
+          'reported_problem': history.reportedProblem,
+          'work_description': history.workDescription,
+          'notes': history.notes,
+          'reported_by': history.reportedBy,
+          'executor_id': history.executorId,
+          'executor_type': history.executorType?.index,
+          'related_booking_id': history.relatedBookingId,
+          'caused_downtime': history.causedDowntime,
+          'user_id': userId,
+        },
+      );
+      newId = result.first[0] as String;
+    });
+
     return await getById(newId);
   }
 

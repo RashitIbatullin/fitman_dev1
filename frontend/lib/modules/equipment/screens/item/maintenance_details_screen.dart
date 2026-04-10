@@ -38,12 +38,12 @@ class MaintenanceDetailsScreen extends ConsumerWidget { // Changed to ConsumerWi
                 ? equipmentDisplayName
                 : equipment.inventoryNumber;
             return Text(
-              'Заявка №${record.number}: $finalDisplayName',
+              'Заявка № ${record.number}: $finalDisplayName',
               overflow: TextOverflow.ellipsis,
             );
           },
-          loading: () => Text('Заявка №${record.number}...'), // Fallback while loading equipment
-          error: (e, s) => Text('Заявка №${record.number}'), // Fallback on error
+          loading: () => Text('Заявка № ${record.number}...'), // Fallback while loading equipment
+          error: (e, s) => Text('Заявка № ${record.number}'), // Fallback on error
         ),
         actions: [
           if (record.id != null)

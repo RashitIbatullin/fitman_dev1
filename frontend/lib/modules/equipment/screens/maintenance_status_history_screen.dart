@@ -30,12 +30,12 @@ class MaintenanceStatusHistoryScreen extends ConsumerWidget {
                     ? equipmentDisplayName.trim()
                     : equipment.inventoryNumber;
                 return Text(
-                  'Заявка №${history.number}: $finalDisplayName',
+                  'Заявка № ${history.number}: $finalDisplayName',
                   overflow: TextOverflow.ellipsis,
                 );
               },
-              loading: () => Text('Заявка №${history.number}...'),
-              error: (e, s) => Text('Заявка №${history.number}'),
+              loading: () => Text('Заявка № ${history.number}...'),
+              error: (e, s) => Text('Заявка № ${history.number}'),
             ),
           ),
           body: SingleChildScrollView(
