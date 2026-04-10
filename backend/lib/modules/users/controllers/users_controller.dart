@@ -37,7 +37,7 @@ class UsersController {
         return Response(400, body: jsonEncode({'error': 'Неверный формат email'}));
       }
 
-      final existingUserByEmail = await _db.getUserByEmail(email);
+      final existingUserByEmail = await _db.users.getUserByEmail(email);
       if (existingUserByEmail != null) {
         return Response(400, body: jsonEncode({'error': 'Пользователь с таким email уже существует'}));
       }
@@ -47,7 +47,7 @@ class UsersController {
         if (!phoneRegExp.hasMatch(phone)) {
           return Response(400, body: jsonEncode({'error': 'Неверный формат телефона'}));
         }
-        final existingUserByPhone = await _db.getUserByPhone(phone);
+        final existingUserByPhone = await _db.users.getUserByPhone(phone);
         if (existingUserByPhone != null) {
           return Response(400, body: jsonEncode({'error': 'Пользователь с таким телефоном уже существует'}));
         }
@@ -84,7 +84,7 @@ class UsersController {
         updatedAt: DateTime.now(),
       );
 
-      final createdUser = await _db.createUser(newUser, roles, creatorId);
+      final createdUser = await _db.users.createUser(newUser, roles, creatorId);
 
       return Response(201, body: jsonEncode({
         'message': 'Пользователь успешно создан',
@@ -105,7 +105,7 @@ class UsersController {
       final data = jsonDecode(body) as Map<String, dynamic>;
       final newRoleNames = List<String>.from(data['roles'] as List<dynamic>);
 
-      final user = await _db.getUserById(userId);
+      final user = await _db.users.getUserById(userId);
       if (user == null) {
         return Response(404, body: jsonEncode({'error': 'Пользователь не найден'}));
       }
@@ -132,14 +132,14 @@ class UsersController {
       // --- КОНЕЦ ВАЛИДАЦИИ РОЛЕЙ ---
 
       // Преобразуем имена ролей в ID
-      final allRoles = await _db.getAllRoles();
+      final allRoles = await _db.users.getAllRoles();
       final newRoleIds = newRoleNames.map((name) {
         return allRoles.firstWhere((role) => role.name == name).id;
       }).toList();
 
-      await _db.updateUserRoles(userId, newRoleIds);
+      await _db.users.updateUserRoles(userId, newRoleIds);
 
-      final updatedUser = await _db.getUserById(userId);
+      final updatedUser = await _db.users.getUserById(userId);
 
       return Response.ok(jsonEncode({
         'message': 'Роли пользователя успешно обновлены',
@@ -160,7 +160,7 @@ class UsersController {
       final bool? isArchived = queryParams['isArchived'] != null ? bool.parse(queryParams['isArchived']!) : null;
       final String? role = queryParams['role']; // Get role from query parameters
 
-      final users = await _db.getAllUsers(isArchived: isArchived, role: role); // Pass role to getAllUsers
+      final users = await _db.users.getAllUsers(isArchived: isArchived, role: role); // Pass role to getAllUsers
       final usersJson = users.map((user) => user.toJson()).toList();
       return Response.ok(jsonEncode({'users': usersJson}));
     } catch (e) {
@@ -172,7 +172,7 @@ class UsersController {
   static Future<Response> getUserById(Request request, String id) async {
     try {
       final userId = id;
-      final user = await _db.getUserById(userId);
+      final user = await _db.users.getUserById(userId);
       if (user == null) {
         return Response(404, body: jsonEncode({'error': 'User not found'}));
       }
@@ -195,7 +195,7 @@ class UsersController {
 
       final email = data['email'] as String?;
       if (email != null) {
-        final existingUser = await _db.getUserByEmail(email);
+        final existingUser = await _db.users.getUserByEmail(email);
         if (existingUser != null && existingUser.id != userId) {
           return Response(400, body: jsonEncode({'error': 'Пользователь с таким email уже существует'}));
         }
@@ -203,7 +203,7 @@ class UsersController {
 
       final phone = data['phone'] as String?;
       if (phone != null && phone.isNotEmpty) {
-        final existingUser = await _db.getUserByPhone(phone);
+        final existingUser = await _db.users.getUserByPhone(phone);
         if (existingUser != null && existingUser.id != userId) {
           return Response(400, body: jsonEncode({'error': 'Пользователь с таким телефоном уже существует'}));
         }
@@ -222,8 +222,8 @@ class UsersController {
       }
 
 
-      await _db.updateUser(
-        userId,
+      await _db.users.updateUser(
+        id: userId,
         email: email,
         firstName: data['firstName'] as String?,
         lastName: data['lastName'] as String?,
@@ -242,9 +242,9 @@ class UsersController {
         final clientProfileData = data['client_profile'] as Map<String, dynamic>;
         
         // Check if the user actually is a client
-        final userRoles = await _db.getRolesForUser(userId);
+        final userRoles = await _db.users.getRolesForUser(userId);
         if (userRoles.any((role) => role.name == 'client')) {
-            await _db.updateClientProfile(
+            await _db.users.updateClientProfile(
               userId: userId,
               goalTrainingId: clientProfileData['goal_training_id']?.toString(),
               levelTrainingId: clientProfileData['level_training_id']?.toString(),
@@ -260,9 +260,9 @@ class UsersController {
         final employeeProfileData = data['employee_profile'] as Map<String, dynamic>;
         
         // Check if the user actually is an employee (instructor, trainer, manager)
-        final userRoles = await _db.getRolesForUser(userId);
+        final userRoles = await _db.users.getRolesForUser(userId);
         if (userRoles.any((role) => ['instructor', 'trainer', 'manager'].contains(role.name))) {
-            await _db.updateEmployeeProfile(
+            await _db.users.updateEmployeeProfile(
               userId: userId,
               specialization: employeeProfileData['specialization'] as String?,
               workExperience: employeeProfileData['work_experience'] as int?,
@@ -273,7 +273,7 @@ class UsersController {
       }
       // --- END OF NEW LOGIC ---
 
-      final updatedUser = await _db.getUserById(userId);
+      final updatedUser = await _db.users.getUserById(userId);
 
       if (updatedUser == null) {
         return Response(404, body: jsonEncode({'error': 'User not found after update'}));
@@ -288,7 +288,7 @@ class UsersController {
   static Future<Response> deleteUser(Request request, String id) async {
     try {
       final userId = id;
-      final success = await _db.deleteUser(userId);
+      final success = await _db.users.deleteUser(userId);
       if (!success) {
         return Response(404, body: jsonEncode({'error': 'User not found'}));
       }
@@ -306,7 +306,7 @@ class UsersController {
         return Response(401, body: jsonEncode({'error': 'Not authenticated'}));
       }
       final userId = user['userId'] as String;
-      final userData = await _db.getUserById(userId);
+      final userData = await _db.users.getUserById(userId);
       if (userData == null) {
         return Response(404, body: jsonEncode({'error': 'User not found'}));
       }
@@ -324,7 +324,7 @@ class UsersController {
     try {
       final userId = id;
 
-      final user = await _db.getUserById(userId);
+      final user = await _db.users.getUserById(userId);
       if (user == null) {
         return Response(404, body: jsonEncode({'error': 'User not found'}));
       }
@@ -345,7 +345,7 @@ class UsersController {
       }
 
       final clientId = user['userId'] as String;
-      final trainer = await _db.getTrainerForClient(clientId);
+      final trainer = await _db.users.getTrainerForClient(clientId);
 
       if (trainer == null) {
         return Response(404, body: jsonEncode({'error': 'Trainer not found for this client'}));
@@ -367,7 +367,7 @@ class UsersController {
       }
 
       final clientId = user['userId'] as String;
-      final instructor = await _db.getInstructorForClient(clientId);
+      final instructor = await _db.users.getInstructorForClient(clientId);
 
       if (instructor == null) {
         return Response(404, body: jsonEncode({'error': 'Instructor not found for this client'}));
@@ -389,7 +389,7 @@ class UsersController {
       }
 
       final clientId = user['userId'] as String;
-      final manager = await _db.getManagerForClient(clientId);
+      final manager = await _db.users.getManagerForClient(clientId);
 
       if (manager == null) {
         return Response(404, body: jsonEncode({'error': 'Manager not found for this client'}));
@@ -404,7 +404,7 @@ class UsersController {
 
   static Future<Response> getRoles(Request request) async {
     try {
-      final roles = await _db.getAllRoles();
+      final roles = await _db.users.getAllRoles();
       final rolesJson = roles.map((role) => role.toJson()).toList();
       return Response.ok(jsonEncode({'roles': rolesJson}));
     } catch (e) {
@@ -425,14 +425,14 @@ class UsersController {
         return Response(400, body: jsonEncode({'error': 'Email and newPassword are required'}));
       }
 
-      final user = await _db.getUserByEmail(email);
+      final user = await _db.users.getUserByEmail(email);
       if (user == null) {
         return Response(404, body: jsonEncode({'error': 'User not found'}));
       }
 
       final passwordHash = BCrypt.hashpw(newPassword, BCrypt.gensalt());
 
-      await _db.updateUserPassword(user.id, passwordHash);
+      await _db.users.updateUserPassword(user.id, passwordHash);
 
       return Response.ok(jsonEncode({'message': 'Password reset successfully'}));
     } catch (e) {
@@ -460,14 +460,14 @@ class UsersController {
         return Response.badRequest(body: jsonEncode({'error': 'At least one field (goal_training_id or level_training_id) must be provided.'}));
       }
 
-      await _db.updateClientProfile(
+      await _db.users.updateClientProfile(
         userId: userId,
         goalTrainingId: goalTrainingId,
         levelTrainingId: levelTrainingId,
         updatedBy: userId,
       );
 
-      final updatedUser = await _db.getUserById(userId);
+      final updatedUser = await _db.users.getUserById(userId);
       if (updatedUser == null) {
         return Response.notFound(jsonEncode({'error': 'User not found after update.'}));
       }
@@ -529,7 +529,7 @@ class UsersController {
       // URL для доступа к файлу с клиента
       final photoUrl = '/uploads/avatars/$uniqueFileName';
 
-      await _db.updateUserPhotoUrl(userId, photoUrl, updaterId);
+      await _db.users.updateUserPhotoUrl(userId, photoUrl, updaterId);
 
       return Response.ok(jsonEncode({
         'message': 'Avatar uploaded successfully',

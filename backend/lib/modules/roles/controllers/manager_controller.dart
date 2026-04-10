@@ -17,7 +17,7 @@ class ManagerController {
       }
 
       final db = Database();
-      final clients = await db.getClientsForManager(managerId);
+      final clients = await db.users.getClientsForManager(managerId);
 
       final clientsJson = clients.map((client) => client.toJson()).toList();
 
@@ -48,7 +48,7 @@ class ManagerController {
 
       final db = Database();
       // TODO: Implement getInstructorsForManager in Database class
-      final instructors = await db.getInstructorsForManager(managerId);
+      final instructors = await db.users.getInstructorsForManager(managerId);
 
       final instructorsJson = instructors.map((instructor) => instructor.toJson()).toList();
 
@@ -79,7 +79,7 @@ class ManagerController {
 
       final db = Database();
       // TODO: Implement getTrainersForManager in Database class
-      final trainers = await db.getTrainersForManager(managerId);
+      final trainers = await db.users.getTrainersForManager(managerId);
 
       final trainersJson = trainers.map((trainer) => trainer.toJson()).toList();
 
@@ -109,7 +109,7 @@ class ManagerController {
       final clientIds = clientIdsRaw.cast<String>().toList();
 
       final db = Database();
-      await db.assignClientsToManager(managerId, clientIds);
+      await db.users.assignClientsToManager(managerId, clientIds);
 
       return Response.ok('{"message": "Clients assigned successfully"}');
 
@@ -122,7 +122,7 @@ class ManagerController {
   static Future<Response> getAssignedClientIds(Request request, String managerId) async {
     try {
       final db = Database();
-      final clientIds = await db.getAssignedClientIds(managerId);
+      final clientIds = await db.users.getAssignedClientIds(managerId);
 
       return Response.ok(jsonEncode(clientIds), headers: {'Content-Type': 'application/json'});
 
@@ -145,7 +145,7 @@ class ManagerController {
       final instructorIds = instructorIdsRaw.cast<String>().toList();
 
       final db = Database();
-      await db.assignInstructorsToManager(managerId, instructorIds);
+      await db.users.assignInstructorsToManager(managerId, instructorIds);
 
       return Response.ok('{"message": "Instructors assigned successfully"}');
 
@@ -158,7 +158,7 @@ class ManagerController {
   static Future<Response> getAssignedInstructorIds(Request request, String managerId) async {
     try {
       final db = Database();
-      final instructorIds = await db.getAssignedInstructorIds(managerId);
+      final instructorIds = await db.users.getAssignedInstructorIds(managerId);
 
       return Response.ok(jsonEncode(instructorIds), headers: {'Content-Type': 'application/json'});
 
@@ -181,7 +181,7 @@ class ManagerController {
       final trainerIds = trainerIdsRaw.cast<String>().toList();
 
       final db = Database();
-      await db.assignTrainersToManager(managerId, trainerIds);
+      await db.users.assignTrainersToManager(managerId, trainerIds);
 
       return Response.ok('{"message": "Trainers assigned successfully"}');
 
@@ -194,7 +194,7 @@ class ManagerController {
   static Future<Response> getAssignedTrainerIds(Request request, String managerId) async {
     try {
       final db = Database();
-      final trainerIds = await db.getAssignedTrainerIds(managerId);
+      final trainerIds = await db.users.getAssignedTrainerIds(managerId);
 
       return Response.ok(jsonEncode(trainerIds), headers: {'Content-Type': 'application/json'});
 
@@ -209,7 +209,7 @@ class ManagerController {
   static Future<Response> getAssignedClientsForManager(Request request, String managerId) async {
     try {
       final db = Database();
-      final clients = await db.getClientsForManager(managerId);
+      final clients = await db.users.getClientsForManager(managerId);
       final clientsJson = clients.map((client) => client.toJson()).toList();
 
       return Response.ok(
@@ -225,7 +225,7 @@ class ManagerController {
   static Future<Response> getAssignedInstructorsForManager(Request request, String managerId) async {
     try {
       final db = Database();
-      final instructors = await db.getInstructorsForManager(managerId);
+      final instructors = await db.users.getInstructorsForManager(managerId);
       final instructorsJson = instructors.map((instructor) => instructor.toJson()).toList();
 
       return Response.ok(
@@ -241,7 +241,7 @@ class ManagerController {
   static Future<Response> getAssignedTrainersForManager(Request request, String managerId) async {
     try {
       final db = Database();
-      final trainers = await db.getTrainersForManager(managerId);
+      final trainers = await db.users.getTrainersForManager(managerId);
       final trainersJson = trainers.map((trainer) => trainer.toJson()).toList();
 
       return Response.ok(

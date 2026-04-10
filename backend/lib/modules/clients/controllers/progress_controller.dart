@@ -11,7 +11,7 @@ class ProgressController {
       }
 
       final clientId = user['userId'] as String;
-      final data = await Database().getProgressData(clientId);
+      final data = await Database().clients.getProgressData(clientId);
 
       return Response.ok(jsonEncode(data));
     } catch (e) {

@@ -146,10 +146,10 @@ class RecommendationService {
   }
 
   Future<_ClientData?> _getClientData(String userId) async {
-    final user = await db.getUserById(userId);
+    final user = await db.users.getUserById(userId);
     if (user == null) return null;
 
-    final anthropometry = await db.getAnthropometryData(userId);
+    final anthropometry = await db.clients.getAnthropometryData(userId);
     final bioimpedance = await db.getBioimpedanceData(userId);
     
     if (anthropometry['start'] == null || (anthropometry['start'] as Map).isEmpty) {

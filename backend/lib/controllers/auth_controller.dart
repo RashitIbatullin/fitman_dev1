@@ -22,7 +22,7 @@ class AuthController {
         return Response(400, body: jsonEncode({'error': 'Phone number cannot be empty'}));
       }
 
-      final user = await Database().getUserByPhone(phone);
+      final user = await Database().users.getUserByPhone(phone);
 
       if (user == null) {
         print('❌ User not found: $phone');
@@ -30,7 +30,6 @@ class AuthController {
       }
 
       print('📊 User found: ${user.phone}');
-      print('🔑 Stored hash: ${user.passwordHash}');
 
       final isValidPassword = BCrypt.checkpw(password, user.passwordHash);
 
@@ -82,7 +81,7 @@ class AuthController {
         }
       }
 
-      final existingUser = await Database().getUserByEmail(email);
+      final existingUser = await Database().users.getUserByEmail(email);
       if (existingUser != null) {
         return Response(400, body: jsonEncode({'error': 'User already exists'}));
       }
@@ -102,7 +101,7 @@ class AuthController {
         updatedAt: DateTime.now(),
       );
 
-      final createdUser = await Database().createUser(newUser, roles); // Pass roles to createUser
+      final createdUser = await Database().users.createUser(newUser, roles); // Pass roles to createUser
       final token = _generateJwtToken(createdUser);
 
       final response = {

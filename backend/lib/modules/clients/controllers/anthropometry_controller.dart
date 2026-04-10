@@ -49,7 +49,7 @@ class AnthropometryController {
         clientId = user['userId'] as String;
       }
       print('[getAnthropometryDataForClient] Authenticated userId: ${user['userId']}, Using clientId: $clientId');
-      final data = await Database().getAnthropometryData(clientId);
+      final data = await Database().clients.getAnthropometryData(clientId);
 
       return Response.ok(jsonEncode(data));
     } catch (e) {
@@ -112,7 +112,7 @@ class AnthropometryController {
 
       final now = photoDateTimeFromRequest ?? DateTime.now();
       final creatorId = user['userId'] as String;
-      await Database().updateAnthropometryPhoto(clientId, photoUrl, type, now, creatorId);
+      await Database().clients.updateAnthropometryPhoto(clientId, photoUrl, type, now, creatorId);
 
       return Response.ok(jsonEncode({
         'url': photoUrl,
@@ -147,7 +147,7 @@ class AnthropometryController {
       final ankleCirc = data['ankleCirc'] as int?;
 
       final creatorId = user['userId'] as String;
-      await Database().updateAnthropometryFixed(clientId, height, wristCirc, ankleCirc, creatorId);
+      await Database().clients.updateAnthropometryFixed(clientId, height, wristCirc, ankleCirc, creatorId);
 
       return Response.ok(jsonEncode({'message': 'Fixed anthropometry updated successfully'}));
     } catch (e, s) {
@@ -187,7 +187,7 @@ class AnthropometryController {
       }
 
       final creatorId = user['userId'] as String;
-      await Database().updateAnthropometryMeasurements(
+      await Database().clients.updateAnthropometryMeasurements(
         clientId,
         type,
         weight,

@@ -16,7 +16,7 @@ class InstructorController {
       }
 
       final db = Database();
-      final clients = await db.getClientsForInstructor(instructorId);
+      final clients = await db.users.getClientsForInstructor(instructorId);
 
       final clientsJson = clients.map((client) => client.toJson()).toList();
       
@@ -46,7 +46,7 @@ class InstructorController {
       }
 
       final db = Database();
-      final trainers = await db.getTrainersForInstructor(instructorId);
+      final trainers = await db.users.getTrainersForInstructor(instructorId);
 
       final trainersJson = trainers.map((trainer) => trainer.toJson()).toList();
       
@@ -76,7 +76,7 @@ class InstructorController {
       }
 
       final db = Database();
-      final manager = await db.getManagerForInstructor(instructorId);
+      final manager = await db.users.getManagerForInstructor(instructorId);
 
       if (manager == null) {
         return Response.notFound('{"error": "Manager not found"}');
@@ -100,7 +100,7 @@ class InstructorController {
   static Future<Response> getAssignedClientsForInstructor(Request request, String instructorId) async {
     try {
       final db = Database();
-      final clients = await db.getClientsForInstructor(instructorId);
+      final clients = await db.users.getClientsForInstructor(instructorId);
       final clientsJson = clients.map((client) => client.toJson()).toList();
       
       return Response.ok(
@@ -116,7 +116,7 @@ class InstructorController {
   static Future<Response> getAssignedTrainersForInstructor(Request request, String instructorId) async {
     try {
       final db = Database();
-      final trainers = await db.getTrainersForInstructor(instructorId);
+      final trainers = await db.users.getTrainersForInstructor(instructorId);
       final trainersJson = trainers.map((trainer) => trainer.toJson()).toList();
       
       return Response.ok(
@@ -132,7 +132,7 @@ class InstructorController {
   static Future<Response> getAssignedManagerForInstructor(Request request, String instructorId) async {
     try {
       final db = Database();
-      final manager = await db.getManagerForInstructor(instructorId);
+      final manager = await db.users.getManagerForInstructor(instructorId);
 
       if (manager == null) {
         return Response.notFound('{"error": "Manager not found for instructor $instructorId"}');

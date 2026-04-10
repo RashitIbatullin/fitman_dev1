@@ -11,7 +11,7 @@ class CalorieTrackingController {
       }
 
       final clientId = user['userId'] as String;
-      final data = await Database().getCalorieTrackingData(clientId);
+      final data = await Database().clients.getCalorieTrackingData(clientId);
 
       return Response.ok(jsonEncode(data));
     } catch (e) {
