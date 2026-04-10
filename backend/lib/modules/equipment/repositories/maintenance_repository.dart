@@ -61,12 +61,12 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
       final result = await tx.execute(
         Sql.named('''
           INSERT INTO equipment_maintenance_history (
-            number, equipment_item_id, equipment_name, type, status, created_at, 
+            number, equipment_item_id, type, status, created_at, 
             started_at, completed_at, equipment_available_from, reported_problem, 
             work_description, notes, reported_by, executor_id, executor_type, 
             related_booking_id, caused_downtime, updated_at, created_by, updated_by
           ) VALUES (
-            @number, @equipment_item_id, @equipment_name, @type, @status, @created_at,
+            @number, @equipment_item_id, @type, @status, @created_at,
             @started_at, @completed_at, @equipment_available_from, @reported_problem,
             @work_description, @notes, @reported_by, @executor_id, @executor_type,
             @related_booking_id, @caused_downtime, NOW(), @user_id, @user_id
@@ -75,7 +75,6 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
         parameters: {
           'number': newNumber,
           'equipment_item_id': history.equipmentItemId,
-          'equipment_name': history.equipmentName,
           'type': history.type.index,
           'status': history.status.index,
           'created_at': history.createdAt ?? DateTime.now(),
@@ -162,7 +161,6 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
     await conn.execute(
       Sql.named('''
         UPDATE equipment_maintenance_history SET
-          equipment_name = @equipment_name,
           type = @type,
           status = @status,
           started_at = @started_at,
@@ -193,7 +191,6 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
       '''),
       parameters: {
         'id': id,
-        'equipment_name': history.equipmentName,
         'type': history.type.index,
         'status': history.status.index,
         'started_at': history.startedAt,

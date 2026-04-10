@@ -100,7 +100,6 @@ class EquipmentMaintenanceHistory with _$EquipmentMaintenanceHistory {
     String? id,
     String? number,
     required String equipmentItemId,
-    String? equipmentName,
     required MaintenanceType type,
     required MaintenanceStatus status,
 

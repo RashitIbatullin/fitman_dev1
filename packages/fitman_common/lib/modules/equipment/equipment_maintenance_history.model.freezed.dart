@@ -300,7 +300,6 @@ mixin _$EquipmentMaintenanceHistory {
   String? get id => throw _privateConstructorUsedError;
   String? get number => throw _privateConstructorUsedError;
   String get equipmentItemId => throw _privateConstructorUsedError;
-  String? get equipmentName => throw _privateConstructorUsedError;
   MaintenanceType get type => throw _privateConstructorUsedError;
   MaintenanceStatus get status =>
       throw _privateConstructorUsedError; // Новые поля
@@ -358,7 +357,6 @@ abstract class $EquipmentMaintenanceHistoryCopyWith<$Res> {
       {String? id,
       String? number,
       String equipmentItemId,
-      String? equipmentName,
       MaintenanceType type,
       MaintenanceStatus status,
       String? repairTimeStandardId,
@@ -412,7 +410,6 @@ class _$EquipmentMaintenanceHistoryCopyWithImpl<$Res,
     Object? id = freezed,
     Object? number = freezed,
     Object? equipmentItemId = null,
-    Object? equipmentName = freezed,
     Object? type = null,
     Object? status = null,
     Object? repairTimeStandardId = freezed,
@@ -459,10 +456,6 @@ class _$EquipmentMaintenanceHistoryCopyWithImpl<$Res,
           ? _value.equipmentItemId
           : equipmentItemId // ignore: cast_nullable_to_non_nullable
               as String,
-      equipmentName: freezed == equipmentName
-          ? _value.equipmentName
-          : equipmentName // ignore: cast_nullable_to_non_nullable
-              as String?,
       type: null == type
           ? _value.type
           : type // ignore: cast_nullable_to_non_nullable
@@ -608,7 +601,6 @@ abstract class _$$EquipmentMaintenanceHistoryImplCopyWith<$Res>
       {String? id,
       String? number,
       String equipmentItemId,
-      String? equipmentName,
       MaintenanceType type,
       MaintenanceStatus status,
       String? repairTimeStandardId,
@@ -661,7 +653,6 @@ class __$$EquipmentMaintenanceHistoryImplCopyWithImpl<$Res>
     Object? id = freezed,
     Object? number = freezed,
     Object? equipmentItemId = null,
-    Object? equipmentName = freezed,
     Object? type = null,
     Object? status = null,
     Object? repairTimeStandardId = freezed,
@@ -708,10 +699,6 @@ class __$$EquipmentMaintenanceHistoryImplCopyWithImpl<$Res>
           ? _value.equipmentItemId
           : equipmentItemId // ignore: cast_nullable_to_non_nullable
               as String,
-      equipmentName: freezed == equipmentName
-          ? _value.equipmentName
-          : equipmentName // ignore: cast_nullable_to_non_nullable
-              as String?,
       type: null == type
           ? _value.type
           : type // ignore: cast_nullable_to_non_nullable
@@ -852,7 +839,6 @@ class _$EquipmentMaintenanceHistoryImpl
       {this.id,
       this.number,
       required this.equipmentItemId,
-      this.equipmentName,
       required this.type,
       required this.status,
       this.repairTimeStandardId,
@@ -897,8 +883,6 @@ class _$EquipmentMaintenanceHistoryImpl
   final String? number;
   @override
   final String equipmentItemId;
-  @override
-  final String? equipmentName;
   @override
   final MaintenanceType type;
   @override
@@ -976,7 +960,7 @@ class _$EquipmentMaintenanceHistoryImpl
 
   @override
   String toString() {
-    return 'EquipmentMaintenanceHistory(id: $id, number: $number, equipmentItemId: $equipmentItemId, equipmentName: $equipmentName, type: $type, status: $status, repairTimeStandardId: $repairTimeStandardId, diagnosisNotes: $diagnosisNotes, actualDurationHours: $actualDurationHours, createdAt: $createdAt, startedAt: $startedAt, completedAt: $completedAt, equipmentAvailableFrom: $equipmentAvailableFrom, reportedProblem: $reportedProblem, workDescription: $workDescription, notes: $notes, reportedBy: $reportedBy, reportedByName: $reportedByName, inProgressBy: $inProgressBy, inProgressByName: $inProgressByName, completedBy: $completedBy, completedByName: $completedByName, cancelledBy: $cancelledBy, cancelledByName: $cancelledByName, cancelledAt: $cancelledAt, cancellationReason: $cancellationReason, executorId: $executorId, executorType: $executorType, executorName: $executorName, relatedBookingId: $relatedBookingId, causedDowntime: $causedDowntime, updatedAt: $updatedAt, archivedAt: $archivedAt, archivedBy: $archivedBy, archivedReason: $archivedReason, photos: $photos)';
+    return 'EquipmentMaintenanceHistory(id: $id, number: $number, equipmentItemId: $equipmentItemId, type: $type, status: $status, repairTimeStandardId: $repairTimeStandardId, diagnosisNotes: $diagnosisNotes, actualDurationHours: $actualDurationHours, createdAt: $createdAt, startedAt: $startedAt, completedAt: $completedAt, equipmentAvailableFrom: $equipmentAvailableFrom, reportedProblem: $reportedProblem, workDescription: $workDescription, notes: $notes, reportedBy: $reportedBy, reportedByName: $reportedByName, inProgressBy: $inProgressBy, inProgressByName: $inProgressByName, completedBy: $completedBy, completedByName: $completedByName, cancelledBy: $cancelledBy, cancelledByName: $cancelledByName, cancelledAt: $cancelledAt, cancellationReason: $cancellationReason, executorId: $executorId, executorType: $executorType, executorName: $executorName, relatedBookingId: $relatedBookingId, causedDowntime: $causedDowntime, updatedAt: $updatedAt, archivedAt: $archivedAt, archivedBy: $archivedBy, archivedReason: $archivedReason, photos: $photos)';
   }
 
   @override
@@ -988,8 +972,6 @@ class _$EquipmentMaintenanceHistoryImpl
             (identical(other.number, number) || other.number == number) &&
             (identical(other.equipmentItemId, equipmentItemId) ||
                 other.equipmentItemId == equipmentItemId) &&
-            (identical(other.equipmentName, equipmentName) ||
-                other.equipmentName == equipmentName) &&
             (identical(other.type, type) || other.type == type) &&
             (identical(other.status, status) || other.status == status) &&
             (identical(other.repairTimeStandardId, repairTimeStandardId) ||
@@ -1059,7 +1041,6 @@ class _$EquipmentMaintenanceHistoryImpl
         id,
         number,
         equipmentItemId,
-        equipmentName,
         type,
         status,
         repairTimeStandardId,
@@ -1117,7 +1098,6 @@ abstract class _EquipmentMaintenanceHistory
           {final String? id,
           final String? number,
           required final String equipmentItemId,
-          final String? equipmentName,
           required final MaintenanceType type,
           required final MaintenanceStatus status,
           final String? repairTimeStandardId,
@@ -1161,8 +1141,6 @@ abstract class _EquipmentMaintenanceHistory
   String? get number;
   @override
   String get equipmentItemId;
-  @override
-  String? get equipmentName;
   @override
   MaintenanceType get type;
   @override

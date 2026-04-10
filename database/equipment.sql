@@ -65,7 +65,6 @@ CREATE TABLE equipment_maintenance_history (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   number VARCHAR(100),
   equipment_item_id UUID NOT NULL REFERENCES equipment_items(id),
-  equipment_name VARCHAR(255),
   type SMALLINT NOT NULL,
   status SMALLINT DEFAULT 0,
   repair_time_standard_id UUID REFERENCES repair_time_standards(id),

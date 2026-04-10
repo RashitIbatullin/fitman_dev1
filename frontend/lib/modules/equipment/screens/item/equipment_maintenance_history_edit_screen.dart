@@ -171,13 +171,9 @@ class _EquipmentMaintenanceHistoryEditScreenState
       }
 
       if (isCreating) {
-        final currentEquipmentItem = await ref
-            .read(equipmentItemByIdProvider(widget.equipmentItemId).future);
-
         recordToSave = EquipmentMaintenanceHistory(
           id: null,
           equipmentItemId: widget.equipmentItemId,
-          equipmentName: currentEquipmentItem.model, // Pass equipmentName here
           reportedProblem: _reportedProblemController.text,
           workDescription: _workDescriptionController.text.isNotEmpty
               ? _workDescriptionController.text
