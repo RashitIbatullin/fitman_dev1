@@ -62,7 +62,6 @@ class _EquipmentMaintenanceHistoryEditScreenState
   final List<_PhotoHolder> _afterPhotos = [];
 
   bool _isLoading = false;
-  bool _isLocked = false;
 
   @override
   void initState() {
@@ -84,10 +83,6 @@ class _EquipmentMaintenanceHistoryEditScreenState
         TextEditingController(text: record?.executorName ?? '');
     _executorId = record?.executorId;
     _executorType = record?.executorType;
-
-    _isLocked = record != null &&
-        (record.status == MaintenanceStatus.completed ||
-            record.status == MaintenanceStatus.cancelled);
 
     if (record?.photos != null) {
       for (final photo in record!.photos!) {
@@ -361,10 +356,27 @@ class _EquipmentMaintenanceHistoryEditScreenState
 
   @override
   Widget build(BuildContext context) {
-    // Determine if the form should be locked based on the CURRENTLY SELECTED status
-    final isFormLocked = _isLocked ||
-        _selectedStatus == MaintenanceStatus.completed ||
-        _selectedStatus == MaintenanceStatus.cancelled;
+    // --- Centralized Locking Logic ---
+    // A record is permanently locked if it was loaded in a terminal state.
+    final isPermanentlyLocked = widget.historyRecord != null &&
+        (widget.historyRecord!.status == MaintenanceStatus.completed ||
+         widget.historyRecord!.status == MaintenanceStatus.cancelled);
+
+    // Form elements are dynamically locked based on the currently selected status in the UI.
+    final isLockedByStatus = _selectedStatus == MaintenanceStatus.completed ||
+                             _selectedStatus == MaintenanceStatus.cancelled;
+    
+    // Individual field lock states
+    final isTypeLocked = isPermanentlyLocked || (_selectedStatus != MaintenanceStatus.reported && widget.historyRecord != null);
+    final isExecutorLocked = isPermanentlyLocked || _selectedStatus != MaintenanceStatus.reported;
+    final isProblemLocked = isPermanentlyLocked || _selectedStatus != MaintenanceStatus.reported;
+    final isWorkDescriptionLocked = isPermanentlyLocked || _selectedStatus != MaintenanceStatus.inProgress;
+    final isNotesLocked = isPermanentlyLocked || isLockedByStatus;
+    final canAddPhotos = !isPermanentlyLocked && !isLockedByStatus;
+
+    final isSaveButtonDisabled = _isLoading || isPermanentlyLocked || isLockedByStatus;
+    
+    // --- End of Logic ---
 
     final equipmentItemAsync = ref.watch(equipmentItemByIdProvider(widget.equipmentItemId));
 
@@ -380,16 +392,16 @@ class _EquipmentMaintenanceHistoryEditScreenState
             return Text(
               widget.historyRecord == null
                   ? 'Новая заявка на ТО: $finalDisplayName'
-                  : 'Редактировать заявку №${widget.historyRecord!.number}: $finalDisplayName',
+                  : 'Редактировать заявку № ${widget.historyRecord!.number}: $finalDisplayName',
               overflow: TextOverflow.ellipsis,
             );
           },
           loading: () => Text(widget.historyRecord == null
               ? 'Новая заявка на ТО...'
-              : 'Редактировать заявку №${widget.historyRecord!.number}...'),
+              : 'Редактировать заявку № ${widget.historyRecord!.number}...'),
           error: (e, s) => Text(widget.historyRecord == null
               ? 'Новая заявка на ТО'
-              : 'Редактировать заявку №${widget.historyRecord!.number}'),
+              : 'Редактировать заявку № ${widget.historyRecord!.number}'),
         ),
         actions: [
           if (widget.historyRecord != null)
@@ -410,7 +422,7 @@ class _EquipmentMaintenanceHistoryEditScreenState
             ),
           IconButton(
             icon: const Icon(Icons.save),
-            onPressed: _isLoading || _isLocked ? null : _saveForm,
+            onPressed: isSaveButtonDisabled ? null : _saveForm,
           ),
         ],
       ),
@@ -443,7 +455,7 @@ class _EquipmentMaintenanceHistoryEditScreenState
                       child: DropdownButton<MaintenanceType>(
                         value: _selectedType,
                         isDense: true,
-                        onChanged: isFormLocked ? null : (newValue) {
+                        onChanged: isTypeLocked ? null : (newValue) {
                           if (newValue != null) {
                             setState(() {
                               _selectedType = newValue;
@@ -475,7 +487,7 @@ class _EquipmentMaintenanceHistoryEditScreenState
                       child: DropdownButton<MaintenanceStatus>(
                         value: _selectedStatus,
                         isDense: true,
-                        onChanged: isFormLocked ? null : _onStatusChanged,
+                        onChanged: isPermanentlyLocked ? null : _onStatusChanged,
                         items: _getAvailableStatuses().map((status) {
                           return DropdownMenuItem(
                             value: status,
@@ -496,15 +508,15 @@ class _EquipmentMaintenanceHistoryEditScreenState
                   border: const OutlineInputBorder(),
                   suffixIcon: IconButton(
                     icon: const Icon(Icons.person_search),
-                    onPressed: _selectedStatus == MaintenanceStatus.reported ? _showExecutorSelectionDialog : null,
+                    onPressed: isExecutorLocked ? null : _showExecutorSelectionDialog,
                   ),
                 ),
-                onTap: _selectedStatus == MaintenanceStatus.reported ? _showExecutorSelectionDialog : null,
+                onTap: isExecutorLocked ? null : _showExecutorSelectionDialog,
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _reportedProblemController,
-                readOnly: isFormLocked,
+                readOnly: isProblemLocked,
                 decoration: const InputDecoration(
                     labelText: 'Описание проблемы',
                     hintText: 'Минимум 5 символов',
@@ -520,7 +532,7 @@ class _EquipmentMaintenanceHistoryEditScreenState
               const SizedBox(height: 16),
               TextFormField(
                 controller: _workDescriptionController,
-                readOnly: _selectedStatus != MaintenanceStatus.inProgress,
+                readOnly: isWorkDescriptionLocked,
                 decoration: const InputDecoration(
                     labelText: 'Описание выполненных работ',
                     border: OutlineInputBorder()),
@@ -529,7 +541,7 @@ class _EquipmentMaintenanceHistoryEditScreenState
               const SizedBox(height: 16),
               TextFormField(
                 controller: _notesController,
-                readOnly: isFormLocked,
+                readOnly: isNotesLocked,
                 decoration: const InputDecoration(
                     labelText: 'Примечания',
                     border: OutlineInputBorder()),
@@ -548,9 +560,9 @@ class _EquipmentMaintenanceHistoryEditScreenState
                   ),
                 ),
               const SizedBox(height: 24),
-              _buildPhotoSection(context, 'Фото "До"', _beforePhotos, isFormLocked),
+              _buildPhotoSection(context, 'Фото "До"', _beforePhotos, canAddPhotos),
               const SizedBox(height: 16),
-              _buildPhotoSection(context, 'Фото "После"', _afterPhotos, isFormLocked),
+              _buildPhotoSection(context, 'Фото "После"', _afterPhotos, canAddPhotos),
             ],
           ),
         ),
@@ -574,7 +586,7 @@ class _EquipmentMaintenanceHistoryEditScreenState
   }
 
   Widget _buildPhotoSection(
-      BuildContext context, String title, List<_PhotoHolder> photos, bool isLocked) {
+      BuildContext context, String title, List<_PhotoHolder> photos, bool canAdd) {
     // ... photo section build logic is unchanged
     final baseUrl = dotenv.env['BASE_URL'] ?? 'http://localhost:8080';
 
@@ -629,7 +641,7 @@ class _EquipmentMaintenanceHistoryEditScreenState
                                         height: 100,
                                         color: Colors.grey[300],
                                         child: const Icon(Icons.image_not_supported)),
-                                  if (!isLocked)
+                                  if (canAdd)
                                     Positioned(
                                       top: 0,
                                       right: 0,
@@ -658,16 +670,16 @@ class _EquipmentMaintenanceHistoryEditScreenState
                                     labelText: 'Примечание',
                                     hintText:
                                         photoHolder.isNew ? 'Мин. 5 символов' : '',
-                                    border: photoHolder.isNew && !isLocked
+                                    border: photoHolder.isNew && canAdd
                                         ? const OutlineInputBorder()
                                         : InputBorder.none,
                                     contentPadding: const EdgeInsets.symmetric(
                                         horizontal: 8.0, vertical: 8.0),
                                   ),
                                   style: const TextStyle(fontSize: 12),
-                                  readOnly: !photoHolder.isNew || isLocked,
+                                  readOnly: !photoHolder.isNew || !canAdd,
                                   validator: (v) {
-                                    if (photoHolder.isNew && !isLocked &&
+                                    if (photoHolder.isNew && canAdd &&
                                         (v == null || v.trim().length < 5)) {
                                       return 'Мин. 5 симв.';
                                     }
@@ -683,7 +695,7 @@ class _EquipmentMaintenanceHistoryEditScreenState
                   ),
           ),
           const SizedBox(height: 8),
-          if(!isLocked)
+          if(canAdd)
             ElevatedButton.icon(
               icon: const Icon(Icons.add_a_photo),
               label: const Text('Добавить фото'),
