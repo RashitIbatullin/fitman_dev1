@@ -35,8 +35,8 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
         '[]'::json
       ) as photos
     FROM equipment_maintenance_history emh
-    LEFT JOIN users u ON emh.executor_id = u.id AND emh.executor_type = 'user'
-    LEFT JOIN support_staff ss ON emh.executor_id = ss.id AND emh.executor_type = 'staff'
+    LEFT JOIN users u ON emh.executor_id = u.id AND emh.executor_type = 0
+    LEFT JOIN support_staff ss ON emh.executor_id = ss.id AND emh.executor_type = 1
     LEFT JOIN users u_ip ON emh.in_progress_by = u_ip.id
     LEFT JOIN users u_c ON emh.completed_by = u_c.id
     LEFT JOIN users u_can ON emh.cancelled_by = u_can.id
@@ -63,8 +63,8 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
       parameters: {
         'equipment_item_id': history.equipmentItemId,
         'equipment_name': history.equipmentName,
-        'type': history.type.name,
-        'status': history.status.name,
+        'type': history.type.index,
+        'status': history.status.index,
         'created_at': history.createdAt ?? DateTime.now(),
         'started_at': history.startedAt,
         'completed_at': history.completedAt,
@@ -74,7 +74,7 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
         'notes': history.notes,
         'reported_by': history.reportedBy,
         'executor_id': history.executorId,
-        'executor_type': history.executorType?.name,
+        'executor_type': history.executorType?.index,
         'related_booking_id': history.relatedBookingId,
         'caused_downtime': history.causedDowntime,
         'user_id': userId,
@@ -180,8 +180,8 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
       parameters: {
         'id': id,
         'equipment_name': history.equipmentName,
-        'type': history.type.name,
-        'status': history.status.name,
+        'type': history.type.index,
+        'status': history.status.index,
         'started_at': history.startedAt,
         'completed_at': history.completedAt,
         'equipment_available_from': history.equipmentAvailableFrom,
@@ -189,7 +189,7 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
         'work_description': history.workDescription,
         'notes': history.notes,
         'executor_id': history.executorId,
-        'executor_type': history.executorType?.name,
+        'executor_type': history.executorType?.index,
         'related_booking_id': history.relatedBookingId,
         'caused_downtime': history.causedDowntime,
         'user_id': userId,
@@ -247,7 +247,7 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
         u.last_name 
       FROM users u 
       JOIN employee_profiles ep ON u.id = ep.user_id
-      LEFT JOIN competencies c ON u.id = c.competent_id AND c.executor_type = 'user'
+      LEFT JOIN competencies c ON u.id = c.competent_id AND c.executor_type = 0
       WHERE u.archived_at IS NULL 
         AND ep.can_maintain_equipment = true
         AND c.competent_id IS NOT NULL
@@ -314,8 +314,46 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
   }
 
   List<EquipmentMaintenanceHistory> _mapResultsToHistoryList(Result result) {
+    if (result.isEmpty) {
+      return [];
+    }
+
+    final dateFields = [
+      'created_at',
+      'started_at',
+      'completed_at',
+      'cancelled_at',
+      'updated_at',
+      'archived_at',
+      'equipment_available_from',
+    ];
+
     return result.map((row) {
-      return EquipmentMaintenanceHistory.fromJson(row.toColumnMap());
+      final map = row.toColumnMap();
+
+      final type = map['type'];
+      if (type is int && type >= 0 && type < MaintenanceType.values.length) {
+        map['type'] = MaintenanceType.values[type].name;
+      }
+
+      final status = map['status'];
+      if (status is int &&
+          status >= 0 &&
+          status < MaintenanceStatus.values.length) {
+        map['status'] = MaintenanceStatus.values[status].name;
+      }
+      
+      if (map['actual_duration_hours'] != null && map['actual_duration_hours'] is String) {
+        map['actual_duration_hours'] = double.tryParse(map['actual_duration_hours'] as String);
+      }
+
+      for (final field in dateFields) {
+        if (map[field] != null && map[field] is DateTime) {
+          map[field] = (map[field] as DateTime).toIso8601String();
+        }
+      }
+
+      return EquipmentMaintenanceHistory.fromJson(map);
     }).toList();
   }
 }

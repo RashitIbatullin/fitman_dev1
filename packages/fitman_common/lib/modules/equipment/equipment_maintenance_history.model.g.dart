@@ -78,7 +78,7 @@ _$EquipmentMaintenanceHistoryImpl _$$EquipmentMaintenanceHistoryImplFromJson(
       cancellationReason: json['cancellation_reason'] as String?,
       executorId: json['executor_id'] as String?,
       executorType: const ExecutorTypeConverter()
-          .fromJson((json['executor_type'] as num?)?.toInt()),
+          .fromJson((json['tckb '] as num?)?.toInt()),
       executorName: json['executor_name'] as String?,
       relatedBookingId: json['related_booking_id'] as String?,
       causedDowntime: json['caused_downtime'] as bool? ?? false,
