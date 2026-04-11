@@ -141,17 +141,17 @@ class ProgressScreen extends ConsumerWidget {
                 _buildKpiItem(
                   context,
                   'Средний вес',
-                  '${data.avgWeight.toStringAsFixed(1)} кг',
+                  '${(data.avgWeight ?? 0.0).toStringAsFixed(1)} кг',
                 ),
                 _buildKpiItem(
                   context,
                   'Изменение веса',
-                  '${data.weightChange.toStringAsFixed(1)} кг',
+                  '${(data.weightChange ?? 0.0).toStringAsFixed(1)} кг',
                 ),
                 _buildKpiItem(
                   context,
                   'Сред. калории',
-                  '${data.avgCalories} ккал',
+                  '${data.avgCalories ?? 0} ккал',
                 ),
               ],
             ),

@@ -45,9 +45,9 @@ Map<String, dynamic> _$$ChartDataPointImplToJson(
 
 _$KpiDataImpl _$$KpiDataImplFromJson(Map<String, dynamic> json) =>
     _$KpiDataImpl(
-      avgWeight: (json['avg_weight'] as num).toDouble(),
-      weightChange: (json['weight_change'] as num).toDouble(),
-      avgCalories: (json['avg_calories'] as num).toInt(),
+      avgWeight: (json['avg_weight'] as num?)?.toDouble(),
+      weightChange: (json['weight_change'] as num?)?.toDouble(),
+      avgCalories: (json['avg_calories'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$$KpiDataImplToJson(_$KpiDataImpl instance) =>

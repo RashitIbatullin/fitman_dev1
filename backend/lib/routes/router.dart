@@ -241,7 +241,7 @@ final Router router = Router()
   ..get('/api/chats/<id>/messages', (Request request, String id) => _protectedHandler((Request req) => ChatHttpController.getMessages(req, id))(request))
   ..post('/api/chats/private', (Request request) => _protectedHandler(ChatHttpController.createOrGetPrivateChat)(request))
   ..post('/api/chat', (Request request) => _protectedHandler((Request req) => ChatHttpController.createGroupChat(req))(request)) // New route for group chat
-  ..get('/api/chat/ws', ChatWsController.handler)
+  ..get('/api/chat/ws', (Request request) => _protectedHandler(ChatWsController.handler)(request))
 
 // Training Groups routes (Admin access)
   ..mount('/api/training_groups', _adminHandler(_trainingGroupsController.router.call))

@@ -8,12 +8,18 @@ part of 'dashboard_data.model.dart';
 
 _$DashboardDataImpl _$$DashboardDataImplFromJson(Map<String, dynamic> json) =>
     _$DashboardDataImpl(
-      nextTraining:
-          NextTraining.fromJson(json['next_training'] as Map<String, dynamic>),
-      trainingProgress: TrainingProgress.fromJson(
-          json['training_progress'] as Map<String, dynamic>),
-      goalProgress:
-          GoalProgress.fromJson(json['goal_progress'] as Map<String, dynamic>),
+      nextTraining: json['next_training'] == null
+          ? null
+          : NextTraining.fromJson(
+              json['next_training'] as Map<String, dynamic>),
+      trainingProgress: json['training_progress'] == null
+          ? null
+          : TrainingProgress.fromJson(
+              json['training_progress'] as Map<String, dynamic>),
+      goalProgress: json['goal_progress'] == null
+          ? null
+          : GoalProgress.fromJson(
+              json['goal_progress'] as Map<String, dynamic>),
       achievements: (json['achievements'] as List<dynamic>)
           .map((e) => Achievement.fromJson(e as Map<String, dynamic>))
           .toList(),

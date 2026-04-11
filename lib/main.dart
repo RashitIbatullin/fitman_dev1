@@ -1,5 +1,6 @@
 import 'package:fitman_app/screens/login_screen.dart';
 import 'package:fitman_app/utils/my_custom_scroll_behavior.dart';
+import 'package:fitman_app/utils/provider_observer.dart';
 import 'package:fitman_app/widgets/auth_navigator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -24,7 +25,10 @@ void main() async {
 
   await initializeDateFormatting('ru', null);
   await ApiService.init();
-  runApp(const ProviderScope(child: MyApp()));
+  runApp(ProviderScope(
+    observers: [SimpleProviderObserver()],
+    child: const MyApp(),
+  ));
 }
 
 class MyApp extends StatelessWidget {

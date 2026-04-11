@@ -326,8 +326,7 @@ class ApiService {
           
   static Future<User> updateClientProfile(Map<String, dynamic> profileData) =>
       _clientApi.updateClientProfile(profileData);
-  static Future<Map<String, dynamic>> getCalorieTrackingData() =>
-      _clientApi.getCalorieTrackingData();
+  static Future<List<dynamic>> getCalorieTrackingData() => _clientApi.getCalorieTrackingData();
   static Future<Map<String, dynamic>> getClientPreferences() =>
       _clientApi.getClientPreferences();
   static Future<void> saveClientPreferences(Map<String, dynamic> preferences) =>

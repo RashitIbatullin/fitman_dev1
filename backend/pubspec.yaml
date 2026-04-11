@@ -29,6 +29,7 @@ dependencies:
   redis: ^4.0.0
   dart_frog_web_socket: ^1.0.0
   shelf_web_socket: ^2.0.0
+  web_socket_channel: ^2.4.0 # Or a more recent compatible version
   jwt_decoder: ^2.0.1
   uuid: ^4.0.0
   http_parser: ^4.0.2

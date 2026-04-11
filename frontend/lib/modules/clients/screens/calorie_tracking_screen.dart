@@ -7,8 +7,7 @@ import 'package:intl/intl.dart';
 final calorieTrackingProvider = FutureProvider<List<CalorieTrackingData>>((
   ref,
 ) async {
-  final response = await ApiService.getCalorieTrackingData();
-  final data = response['tracking_data'] as List? ?? [];
+  final data = await ApiService.getCalorieTrackingData();
   return data
       .map((item) => CalorieTrackingData.fromJson(item as Map<String, dynamic>))
       .toList();

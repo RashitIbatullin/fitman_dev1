@@ -4,16 +4,22 @@ import '../controllers/auth_controller.dart';
 Middleware requireAuth() {
   return (Handler innerHandler) {
     return (Request request) async {
-      final authHeader = request.headers['authorization'];
+      String? token;
 
-      if (authHeader == null || !authHeader.startsWith('Bearer ')) {
-        return Response(401, body: '{"error": "Authentication required"}');
+      // Check for token in Authorization header
+      final authHeader = request.headers['authorization'];
+      if (authHeader != null && authHeader.startsWith('Bearer ')) {
+        token = authHeader.substring(7);
       }
 
-      final token = authHeader.substring(7);
-      final payload = AuthController.verifyToken(token);
+      // If not in header, check query parameters (for WebSocket)
+      token ??= request.requestedUri.queryParameters['token'];
 
-      print('Backend received token payload: $payload'); // Debug print
+      if (token == null) {
+        return Response(401, body: '{"error": "Authentication required"}');
+      }
+      
+      final payload = AuthController.verifyToken(token);
 
       if (payload == null) {
         return Response(401, body: '{"error": "Invalid or expired token"}');

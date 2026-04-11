@@ -97,7 +97,7 @@ class ClientApiService extends BaseApiService {
     return User.fromJson(data);
   }
 
-  Future<Map<String, dynamic>> getCalorieTrackingData() async {
+  Future<List<dynamic>> getCalorieTrackingData() async {
     return await get('/api/client/calorie-tracking');
   }
 

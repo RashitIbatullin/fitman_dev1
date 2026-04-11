@@ -6,9 +6,9 @@ part 'dashboard_data.model.g.dart';
 @freezed
 class DashboardData with _$DashboardData {
   const factory DashboardData({
-    required NextTraining nextTraining,
-    required TrainingProgress trainingProgress,
-    required GoalProgress goalProgress,
+    NextTraining? nextTraining,
+    TrainingProgress? trainingProgress,
+    GoalProgress? goalProgress,
     required List<Achievement> achievements,
   }) = _DashboardData;
 

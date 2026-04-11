@@ -464,9 +464,9 @@ KpiData _$KpiDataFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$KpiData {
-  double get avgWeight => throw _privateConstructorUsedError;
-  double get weightChange => throw _privateConstructorUsedError;
-  int get avgCalories => throw _privateConstructorUsedError;
+  double? get avgWeight => throw _privateConstructorUsedError;
+  double? get weightChange => throw _privateConstructorUsedError;
+  int? get avgCalories => throw _privateConstructorUsedError;
 
   /// Serializes this KpiData to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -482,7 +482,7 @@ abstract class $KpiDataCopyWith<$Res> {
   factory $KpiDataCopyWith(KpiData value, $Res Function(KpiData) then) =
       _$KpiDataCopyWithImpl<$Res, KpiData>;
   @useResult
-  $Res call({double avgWeight, double weightChange, int avgCalories});
+  $Res call({double? avgWeight, double? weightChange, int? avgCalories});
 }
 
 /// @nodoc
@@ -500,23 +500,23 @@ class _$KpiDataCopyWithImpl<$Res, $Val extends KpiData>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? avgWeight = null,
-    Object? weightChange = null,
-    Object? avgCalories = null,
+    Object? avgWeight = freezed,
+    Object? weightChange = freezed,
+    Object? avgCalories = freezed,
   }) {
     return _then(_value.copyWith(
-      avgWeight: null == avgWeight
+      avgWeight: freezed == avgWeight
           ? _value.avgWeight
           : avgWeight // ignore: cast_nullable_to_non_nullable
-              as double,
-      weightChange: null == weightChange
+              as double?,
+      weightChange: freezed == weightChange
           ? _value.weightChange
           : weightChange // ignore: cast_nullable_to_non_nullable
-              as double,
-      avgCalories: null == avgCalories
+              as double?,
+      avgCalories: freezed == avgCalories
           ? _value.avgCalories
           : avgCalories // ignore: cast_nullable_to_non_nullable
-              as int,
+              as int?,
     ) as $Val);
   }
 }
@@ -528,7 +528,7 @@ abstract class _$$KpiDataImplCopyWith<$Res> implements $KpiDataCopyWith<$Res> {
       __$$KpiDataImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({double avgWeight, double weightChange, int avgCalories});
+  $Res call({double? avgWeight, double? weightChange, int? avgCalories});
 }
 
 /// @nodoc
@@ -544,23 +544,23 @@ class __$$KpiDataImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? avgWeight = null,
-    Object? weightChange = null,
-    Object? avgCalories = null,
+    Object? avgWeight = freezed,
+    Object? weightChange = freezed,
+    Object? avgCalories = freezed,
   }) {
     return _then(_$KpiDataImpl(
-      avgWeight: null == avgWeight
+      avgWeight: freezed == avgWeight
           ? _value.avgWeight
           : avgWeight // ignore: cast_nullable_to_non_nullable
-              as double,
-      weightChange: null == weightChange
+              as double?,
+      weightChange: freezed == weightChange
           ? _value.weightChange
           : weightChange // ignore: cast_nullable_to_non_nullable
-              as double,
-      avgCalories: null == avgCalories
+              as double?,
+      avgCalories: freezed == avgCalories
           ? _value.avgCalories
           : avgCalories // ignore: cast_nullable_to_non_nullable
-              as int,
+              as int?,
     ));
   }
 }
@@ -568,20 +568,17 @@ class __$$KpiDataImplCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$KpiDataImpl implements _KpiData {
-  const _$KpiDataImpl(
-      {required this.avgWeight,
-      required this.weightChange,
-      required this.avgCalories});
+  const _$KpiDataImpl({this.avgWeight, this.weightChange, this.avgCalories});
 
   factory _$KpiDataImpl.fromJson(Map<String, dynamic> json) =>
       _$$KpiDataImplFromJson(json);
 
   @override
-  final double avgWeight;
+  final double? avgWeight;
   @override
-  final double weightChange;
+  final double? weightChange;
   @override
-  final int avgCalories;
+  final int? avgCalories;
 
   @override
   String toString() {
@@ -624,18 +621,18 @@ class _$KpiDataImpl implements _KpiData {
 
 abstract class _KpiData implements KpiData {
   const factory _KpiData(
-      {required final double avgWeight,
-      required final double weightChange,
-      required final int avgCalories}) = _$KpiDataImpl;
+      {final double? avgWeight,
+      final double? weightChange,
+      final int? avgCalories}) = _$KpiDataImpl;
 
   factory _KpiData.fromJson(Map<String, dynamic> json) = _$KpiDataImpl.fromJson;
 
   @override
-  double get avgWeight;
+  double? get avgWeight;
   @override
-  double get weightChange;
+  double? get weightChange;
   @override
-  int get avgCalories;
+  int? get avgCalories;
 
   /// Create a copy of KpiData
   /// with the given fields replaced by the non-null parameter values.

@@ -52,11 +52,14 @@ class ClientDashboard extends ConsumerWidget {
         data: (data) => ListView(
           padding: const EdgeInsets.all(16.0),
           children: [
-            _buildNextTrainingWidget(context, data.nextTraining),
+            if (data.nextTraining != null)
+              _buildNextTrainingWidget(context, data.nextTraining!),
             const SizedBox(height: 16),
-            _buildTrainingProgressWidget(context, data.trainingProgress),
+            if (data.trainingProgress != null)
+              _buildTrainingProgressWidget(context, data.trainingProgress!),
             const SizedBox(height: 16),
-            _buildGoalProgressWidget(context, data.goalProgress),
+            if (data.goalProgress != null)
+              _buildGoalProgressWidget(context, data.goalProgress!),
             const SizedBox(height: 16),
             _buildAchievementsWidget(context, data.achievements),
             const SizedBox(height: 16),

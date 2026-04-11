@@ -20,9 +20,9 @@ DashboardData _$DashboardDataFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$DashboardData {
-  NextTraining get nextTraining => throw _privateConstructorUsedError;
-  TrainingProgress get trainingProgress => throw _privateConstructorUsedError;
-  GoalProgress get goalProgress => throw _privateConstructorUsedError;
+  NextTraining? get nextTraining => throw _privateConstructorUsedError;
+  TrainingProgress? get trainingProgress => throw _privateConstructorUsedError;
+  GoalProgress? get goalProgress => throw _privateConstructorUsedError;
   List<Achievement> get achievements => throw _privateConstructorUsedError;
 
   /// Serializes this DashboardData to a JSON map.
@@ -42,14 +42,14 @@ abstract class $DashboardDataCopyWith<$Res> {
       _$DashboardDataCopyWithImpl<$Res, DashboardData>;
   @useResult
   $Res call(
-      {NextTraining nextTraining,
-      TrainingProgress trainingProgress,
-      GoalProgress goalProgress,
+      {NextTraining? nextTraining,
+      TrainingProgress? trainingProgress,
+      GoalProgress? goalProgress,
       List<Achievement> achievements});
 
-  $NextTrainingCopyWith<$Res> get nextTraining;
-  $TrainingProgressCopyWith<$Res> get trainingProgress;
-  $GoalProgressCopyWith<$Res> get goalProgress;
+  $NextTrainingCopyWith<$Res>? get nextTraining;
+  $TrainingProgressCopyWith<$Res>? get trainingProgress;
+  $GoalProgressCopyWith<$Res>? get goalProgress;
 }
 
 /// @nodoc
@@ -67,24 +67,24 @@ class _$DashboardDataCopyWithImpl<$Res, $Val extends DashboardData>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? nextTraining = null,
-    Object? trainingProgress = null,
-    Object? goalProgress = null,
+    Object? nextTraining = freezed,
+    Object? trainingProgress = freezed,
+    Object? goalProgress = freezed,
     Object? achievements = null,
   }) {
     return _then(_value.copyWith(
-      nextTraining: null == nextTraining
+      nextTraining: freezed == nextTraining
           ? _value.nextTraining
           : nextTraining // ignore: cast_nullable_to_non_nullable
-              as NextTraining,
-      trainingProgress: null == trainingProgress
+              as NextTraining?,
+      trainingProgress: freezed == trainingProgress
           ? _value.trainingProgress
           : trainingProgress // ignore: cast_nullable_to_non_nullable
-              as TrainingProgress,
-      goalProgress: null == goalProgress
+              as TrainingProgress?,
+      goalProgress: freezed == goalProgress
           ? _value.goalProgress
           : goalProgress // ignore: cast_nullable_to_non_nullable
-              as GoalProgress,
+              as GoalProgress?,
       achievements: null == achievements
           ? _value.achievements
           : achievements // ignore: cast_nullable_to_non_nullable
@@ -96,8 +96,12 @@ class _$DashboardDataCopyWithImpl<$Res, $Val extends DashboardData>
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
-  $NextTrainingCopyWith<$Res> get nextTraining {
-    return $NextTrainingCopyWith<$Res>(_value.nextTraining, (value) {
+  $NextTrainingCopyWith<$Res>? get nextTraining {
+    if (_value.nextTraining == null) {
+      return null;
+    }
+
+    return $NextTrainingCopyWith<$Res>(_value.nextTraining!, (value) {
       return _then(_value.copyWith(nextTraining: value) as $Val);
     });
   }
@@ -106,8 +110,12 @@ class _$DashboardDataCopyWithImpl<$Res, $Val extends DashboardData>
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
-  $TrainingProgressCopyWith<$Res> get trainingProgress {
-    return $TrainingProgressCopyWith<$Res>(_value.trainingProgress, (value) {
+  $TrainingProgressCopyWith<$Res>? get trainingProgress {
+    if (_value.trainingProgress == null) {
+      return null;
+    }
+
+    return $TrainingProgressCopyWith<$Res>(_value.trainingProgress!, (value) {
       return _then(_value.copyWith(trainingProgress: value) as $Val);
     });
   }
@@ -116,8 +124,12 @@ class _$DashboardDataCopyWithImpl<$Res, $Val extends DashboardData>
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
-  $GoalProgressCopyWith<$Res> get goalProgress {
-    return $GoalProgressCopyWith<$Res>(_value.goalProgress, (value) {
+  $GoalProgressCopyWith<$Res>? get goalProgress {
+    if (_value.goalProgress == null) {
+      return null;
+    }
+
+    return $GoalProgressCopyWith<$Res>(_value.goalProgress!, (value) {
       return _then(_value.copyWith(goalProgress: value) as $Val);
     });
   }
@@ -132,17 +144,17 @@ abstract class _$$DashboardDataImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {NextTraining nextTraining,
-      TrainingProgress trainingProgress,
-      GoalProgress goalProgress,
+      {NextTraining? nextTraining,
+      TrainingProgress? trainingProgress,
+      GoalProgress? goalProgress,
       List<Achievement> achievements});
 
   @override
-  $NextTrainingCopyWith<$Res> get nextTraining;
+  $NextTrainingCopyWith<$Res>? get nextTraining;
   @override
-  $TrainingProgressCopyWith<$Res> get trainingProgress;
+  $TrainingProgressCopyWith<$Res>? get trainingProgress;
   @override
-  $GoalProgressCopyWith<$Res> get goalProgress;
+  $GoalProgressCopyWith<$Res>? get goalProgress;
 }
 
 /// @nodoc
@@ -158,24 +170,24 @@ class __$$DashboardDataImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? nextTraining = null,
-    Object? trainingProgress = null,
-    Object? goalProgress = null,
+    Object? nextTraining = freezed,
+    Object? trainingProgress = freezed,
+    Object? goalProgress = freezed,
     Object? achievements = null,
   }) {
     return _then(_$DashboardDataImpl(
-      nextTraining: null == nextTraining
+      nextTraining: freezed == nextTraining
           ? _value.nextTraining
           : nextTraining // ignore: cast_nullable_to_non_nullable
-              as NextTraining,
-      trainingProgress: null == trainingProgress
+              as NextTraining?,
+      trainingProgress: freezed == trainingProgress
           ? _value.trainingProgress
           : trainingProgress // ignore: cast_nullable_to_non_nullable
-              as TrainingProgress,
-      goalProgress: null == goalProgress
+              as TrainingProgress?,
+      goalProgress: freezed == goalProgress
           ? _value.goalProgress
           : goalProgress // ignore: cast_nullable_to_non_nullable
-              as GoalProgress,
+              as GoalProgress?,
       achievements: null == achievements
           ? _value._achievements
           : achievements // ignore: cast_nullable_to_non_nullable
@@ -188,9 +200,9 @@ class __$$DashboardDataImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$DashboardDataImpl implements _DashboardData {
   const _$DashboardDataImpl(
-      {required this.nextTraining,
-      required this.trainingProgress,
-      required this.goalProgress,
+      {this.nextTraining,
+      this.trainingProgress,
+      this.goalProgress,
       required final List<Achievement> achievements})
       : _achievements = achievements;
 
@@ -198,11 +210,11 @@ class _$DashboardDataImpl implements _DashboardData {
       _$$DashboardDataImplFromJson(json);
 
   @override
-  final NextTraining nextTraining;
+  final NextTraining? nextTraining;
   @override
-  final TrainingProgress trainingProgress;
+  final TrainingProgress? trainingProgress;
   @override
-  final GoalProgress goalProgress;
+  final GoalProgress? goalProgress;
   final List<Achievement> _achievements;
   @override
   List<Achievement> get achievements {
@@ -254,20 +266,20 @@ class _$DashboardDataImpl implements _DashboardData {
 
 abstract class _DashboardData implements DashboardData {
   const factory _DashboardData(
-      {required final NextTraining nextTraining,
-      required final TrainingProgress trainingProgress,
-      required final GoalProgress goalProgress,
+      {final NextTraining? nextTraining,
+      final TrainingProgress? trainingProgress,
+      final GoalProgress? goalProgress,
       required final List<Achievement> achievements}) = _$DashboardDataImpl;
 
   factory _DashboardData.fromJson(Map<String, dynamic> json) =
       _$DashboardDataImpl.fromJson;
 
   @override
-  NextTraining get nextTraining;
+  NextTraining? get nextTraining;
   @override
-  TrainingProgress get trainingProgress;
+  TrainingProgress? get trainingProgress;
   @override
-  GoalProgress get goalProgress;
+  GoalProgress? get goalProgress;
   @override
   List<Achievement> get achievements;
 

@@ -31,9 +31,9 @@ class ChartDataPoint with _$ChartDataPoint {
 @freezed
 class KpiData with _$KpiData {
   const factory KpiData({
-    required double avgWeight,
-    required double weightChange,
-    required int avgCalories,
+    double? avgWeight,
+    double? weightChange,
+    int? avgCalories,
   }) = _KpiData;
 
   factory KpiData.fromJson(Map<String, dynamic> json) =>
