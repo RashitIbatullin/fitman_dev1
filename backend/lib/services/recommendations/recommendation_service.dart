@@ -56,7 +56,7 @@ class RecommendationService {
       print('[RecommendationService] Could not get client data for somatotype profile.');
       return null;
     }
-    final rules = await db.getSomatotypeRules();
+    final rules = await db.recommendations.getSomatotypeRules();
     final profile = _determineSomatotype(clientData, rules);
     return profile;
   }
@@ -86,9 +86,9 @@ class RecommendationService {
       };
     }
 
-    final rules = await db.getSomatotypeRules();
-    final baseRecommendations = await db.getBodyShapeRecommendations(); 
-    final whtrRefinements = await db.getWhtrRefinements();
+    final rules = await db.recommendations.getSomatotypeRules();
+    final baseRecommendations = await db.recommendations.getBodyShapeRecommendations(); 
+    final whtrRefinements = await db.recommendations.getWhtrRefinements();
     
     print('[RecommendationService] Fetched ${baseRecommendations.length} base recommendations and ${whtrRefinements.length} WHtR refinements.');
 
@@ -150,7 +150,7 @@ class RecommendationService {
     if (user == null) return null;
 
     final anthropometry = await db.clients.getAnthropometryData(userId);
-    final bioimpedance = await db.getBioimpedanceData(userId);
+    final bioimpedance = await db.clients.getBioimpedanceData(userId);
     
     if (anthropometry['start'] == null || (anthropometry['start'] as Map).isEmpty) {
       return null;

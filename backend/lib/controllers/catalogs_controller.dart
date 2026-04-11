@@ -5,7 +5,7 @@ import '../config/database.dart';
 class CatalogsController {
   static Future<Response> _getCatalog(String tableName) async {
     try {
-      final results = await Database().getCatalog(tableName);
+      final results = await Database().catalogs.getCatalog(tableName);
       return Response.ok(jsonEncode(results));
     } catch (e) {
       return Response.internalServerError(body: '{"error": "Failed to fetch catalog $tableName: $e"}');

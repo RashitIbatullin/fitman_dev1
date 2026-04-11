@@ -24,6 +24,7 @@ abstract class ClientRepository {
   );
   Future<List<Map<String, dynamic>>> getCalorieTrackingData(String clientId);
   Future<Map<String, dynamic>> getProgressData(String clientId);
+  Future<Map<String, dynamic>> getBioimpedanceData(String clientId);
 }
 
 class ClientRepositoryImpl implements ClientRepository {
@@ -273,5 +274,31 @@ class ClientRepositoryImpl implements ClientRepository {
       },
       'recommendations': 'Ваш прогресс замедлился. Попробуйте добавить больше кардио-упражнений и следите за потреблением углеводов.',
     };
+  }
+
+  @override
+  Future<Map<String, dynamic>> getBioimpedanceData(String clientId) async {
+    try {
+      final conn = await _connection;
+      final startResult = await conn.execute(
+        Sql.named('SELECT * FROM bioimpedance_start WHERE user_id = @clientId'),
+        parameters: {'clientId': clientId},
+      );
+      final finishResult = await conn.execute(
+        Sql.named('SELECT * FROM bioimpedance_finish WHERE user_id = @clientId'),
+        parameters: {'clientId': clientId},
+      );
+
+      final startData = startResult.isNotEmpty ? _convertDateTimeToString(startResult.first.toColumnMap()) : {};
+      final finishData = finishResult.isNotEmpty ? _convertDateTimeToString(finishResult.first.toColumnMap()) : {};
+
+      return {
+        'start': startData,
+        'finish': finishData,
+      };
+    } catch (e) {
+      print('❌ getBioimpedanceData error: $e');
+      rethrow;
+    }
   }
 }

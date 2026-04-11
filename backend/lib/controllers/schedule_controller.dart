@@ -19,7 +19,7 @@ class ScheduleController {
       }
 
       final db = Database();
-      final schedule = await db.getScheduleForUser(userId, userRole);
+      final schedule = await db.schedules.getScheduleForUser(userId, userRole);
 
       // TODO: We need a way to serialize the schedule items to JSON.
       // For now, let's assume the schedule is a list of maps.
