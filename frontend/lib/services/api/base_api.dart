@@ -47,6 +47,12 @@ class BaseApiService {
     return _handleResponse(response);
   }
 
+  Future<dynamic> getAllow404(String endpoint, {Map<String, String>? queryParams}) async {
+    final uri = Uri.parse('$baseUrl$endpoint').replace(queryParameters: queryParams);
+    final response = await client.get(uri, headers: BaseApiService.headers);
+    return _handleResponseAllow404(response);
+  }
+
   Future<dynamic> post(String endpoint, {required Map<String, dynamic> body}) async {
     final response = await client.post(
       Uri.parse('$baseUrl$endpoint'),
@@ -122,6 +128,31 @@ class BaseApiService {
     if (response.statusCode >= 200 && response.statusCode < 300) {
       if (response.body.isEmpty) return null;
       return jsonDecode(response.body);
+    } else {
+      String errorMessage = 'Request failed with status ${response.statusCode}';
+      try {
+        final errorData = jsonDecode(response.body);
+        if (errorData is Map && errorData.containsKey('error')) {
+          final errorMsgFromServer = errorData['error'];
+          if (errorMsgFromServer != null) {
+            errorMessage = errorMsgFromServer.toString();
+          }
+        }
+      } catch (e) {
+        if (response.body.isNotEmpty) {
+          errorMessage = response.body;
+        }
+      }
+      throw Exception(errorMessage);
+    }
+  }
+
+  dynamic _handleResponseAllow404(http.Response response) {
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      if (response.body.isEmpty) return null;
+      return jsonDecode(response.body);
+    } else if (response.statusCode == 404) {
+      return null;
     } else {
       String errorMessage = 'Request failed with status ${response.statusCode}';
       try {

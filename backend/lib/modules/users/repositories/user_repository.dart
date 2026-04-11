@@ -7,10 +7,10 @@ abstract class UserRepository {
   Future<List<Role>> getAllRoles();
   Future<Role?> getRoleByName(String roleName);
   Future<List<Role>> getRolesForUser(String userId, [Session? context]);
-  Future<List<User>> getAllUsers({bool? isArchived, String? role});
-  Future<User?> getUserByEmail(String email);
-  Future<User?> getUserByPhone(String phone);
-  Future<User?> getUserById(String id);
+  Future<List<User>> getAllUsers({bool? isArchived, String? role, Session? context});
+  Future<User?> getUserByEmail(String email, [Session? context]);
+  Future<User?> getUserByPhone(String phone, [Session? context]);
+  Future<User?> getUserById(String id, [Session? context]);
   Future<User> createUser(User user, List<String> roleNames, [String? creatorId]);
   Future<void> updateUserRoles(String userId, List<String> newRoleIds);
   Future<User?> updateUser({
@@ -121,9 +121,9 @@ class UserRepositoryImpl implements UserRepository {
   }
 
   @override
-  Future<List<User>> getAllUsers({bool? isArchived, String? role}) async {
+  Future<List<User>> getAllUsers({bool? isArchived, String? role, Session? context}) async {
     try {
-      final conn = await _connection;
+      final conn = context ?? await _connection;
 
       final whereClauses = <String>[];
       final parameters = <String, dynamic>{}; // Parameters for named SQL
@@ -229,7 +229,7 @@ class UserRepositoryImpl implements UserRepository {
           managerProfile: managerProfile,
         );
 
-        final roles = await getRolesForUser(user.id);
+        final roles = await getRolesForUser(user.id, conn);
         user = user.copyWith(roles: roles);
         users.add(user);
       }
@@ -241,9 +241,9 @@ class UserRepositoryImpl implements UserRepository {
   }
 
   @override
-  Future<User?> getUserByEmail(String email) async {
+  Future<User?> getUserByEmail(String email, [Session? context]) async {
     try {
-      final conn = await _connection;
+      final conn = context ?? await _connection;
 
       final sql = '''
         SELECT id, email, password_hash, first_name, last_name, middle_name, phone, gender, date_of_birth, photo_url, created_at, updated_at, archived_at
@@ -263,7 +263,7 @@ class UserRepositoryImpl implements UserRepository {
 
       final userMap = results.first.toColumnMap();
       var user = User.fromMap(userMap);
-      final roles = await getRolesForUser(user.id);
+      final roles = await getRolesForUser(user.id, conn);
       user = user.copyWith(roles: roles);
 
       // Fetch profiles
@@ -277,9 +277,9 @@ class UserRepositoryImpl implements UserRepository {
   }
 
   @override
-  Future<User?> getUserByPhone(String phone) async {
+  Future<User?> getUserByPhone(String phone, [Session? context]) async {
     try {
-      final conn = await _connection;
+      final conn = context ?? await _connection;
 
       final sql = '''
         SELECT id, email, password_hash, first_name, last_name, middle_name, phone, gender, date_of_birth, photo_url, created_at, updated_at, archived_at
@@ -299,7 +299,7 @@ class UserRepositoryImpl implements UserRepository {
 
       final userMap = results.first.toColumnMap();
       var user = User.fromMap(userMap);
-      final roles = await getRolesForUser(user.id);
+      final roles = await getRolesForUser(user.id, conn);
       user = user.copyWith(roles: roles);
 
       // Fetch profiles
@@ -313,9 +313,9 @@ class UserRepositoryImpl implements UserRepository {
   }
 
   @override
-  Future<User?> getUserById(String id) async {
+  Future<User?> getUserById(String id, [Session? context]) async {
     try {
-      final conn = await _connection;
+      final conn = context ?? await _connection;
 
       final sql = '''
         SELECT id, email, password_hash, first_name, last_name, middle_name, phone, gender, date_of_birth, photo_url, created_at, updated_at, archived_at
@@ -335,7 +335,7 @@ class UserRepositoryImpl implements UserRepository {
 
       final userMap = results.first.toColumnMap();
       var user = User.fromMap(userMap);
-      final roles = await getRolesForUser(user.id);
+      final roles = await getRolesForUser(user.id, conn);
       user = user.copyWith(roles: roles);
 
       // Fetch profiles
@@ -458,77 +458,78 @@ class UserRepositoryImpl implements UserRepository {
     DateTime? archivedAt,
     String? archivedReason,
   }) async {
-    try {
-      final conn = await _connection;
+    final conn = await _connection;
+    return conn.runTx((ctx) async {
+      try {
+        final setParts = <String>[];
+        final parameters = <String, dynamic>{'id': id};
 
-      final setParts = <String>[];
-      final parameters = <String, dynamic>{'id': id};
+        if (email != null) {
+          setParts.add('email = @email');
+          parameters['email'] = email;
+        }
+        if (firstName != null) {
+          setParts.add('first_name = @firstName');
+          parameters['firstName'] = firstName;
+        }
+        if (lastName != null) {
+          setParts.add('last_name = @lastName');
+          parameters['lastName'] = lastName;
+        }
+        if (middleName != null) {
+          setParts.add('middle_name = @middleName');
+          parameters['middleName'] = middleName;
+        }
+        if (phone != null) {
+          setParts.add('phone = @phone');
+          parameters['phone'] = phone;
+        }
+        if (gender != null) {
+          setParts.add('gender = @gender');
+          parameters['gender'] = gender == 'мужской' ? 0 : 1;
+        }
+        if (dateOfBirth != null) {
+          setParts.add('date_of_birth = @dateOfBirth');
+          parameters['dateOfBirth'] = dateOfBirth;
+        }
+        
+        setParts.add('archived_at = @archivedAt');
+        parameters['archivedAt'] = archivedAt;
 
-      if (email != null) {
-        setParts.add('email = @email');
-        parameters['email'] = email;
-      }
-      if (firstName != null) {
-        setParts.add('first_name = @firstName');
-        parameters['firstName'] = firstName;
-      }
-      if (lastName != null) {
-        setParts.add('last_name = @lastName');
-        parameters['lastName'] = lastName;
-      }
-      if (middleName != null) {
-        setParts.add('middle_name = @middleName');
-        parameters['middleName'] = middleName;
-      }
-      if (phone != null) {
-        setParts.add('phone = @phone');
-        parameters['phone'] = phone;
-      }
-      if (gender != null) {
-        setParts.add('gender = @gender');
-        parameters['gender'] = gender == 'мужской' ? 0 : 1;
-      }
-      if (dateOfBirth != null) {
-        setParts.add('date_of_birth = @dateOfBirth');
-        parameters['dateOfBirth'] = dateOfBirth;
-      }
-      
-      setParts.add('archived_at = @archivedAt');
-      parameters['archivedAt'] = archivedAt;
-
-      if (archivedReason != null) { // Conditionally add archivedReason
-        setParts.add('archived_reason = @archivedReason');
-        parameters['archivedReason'] = archivedReason;
-      }
+        if (archivedReason != null) { // Conditionally add archivedReason
+          setParts.add('archived_reason = @archivedReason');
+          parameters['archivedReason'] = archivedReason;
+        }
 
 
-      if (setParts.isEmpty) {
-        return getUserById(id);
+        if (setParts.isEmpty) {
+          return await getUserById(id, ctx);
+        }
+
+        setParts.add('updated_at = @updatedAt');
+        parameters['updatedAt'] = DateTime.now();
+        if (updatedBy != null) {
+          setParts.add('updated_by = @updatedBy');
+          parameters['updatedBy'] = updatedBy;
+        }
+
+        final sql = '''
+          UPDATE users 
+          SET ${setParts.join(', ')}
+          WHERE id = @id
+        ''';
+
+        await ctx.execute(
+          Sql.named(sql),
+          parameters: parameters,
+        );
+
+        return await getUserById(id, ctx);
+      } catch (e) {
+        print('❌ updateUser error: $e');
+        rethrow;
       }
-
-      setParts.add('updated_at = @updatedAt');
-      parameters['updatedAt'] = DateTime.now();
-      if (updatedBy != null) {
-        setParts.add('updated_by = @updatedBy');
-        parameters['updatedBy'] = updatedBy;
-      }
-
-      final sql = '''
-        UPDATE users 
-        SET ${setParts.join(', ')}
-        WHERE id = @id
-      ''';
-
-      await conn.execute(
-        Sql.named(sql),
-        parameters: parameters,
-      );
-
-      return await getUserById(id);
-    } catch (e) {
-      print('❌ updateUser error: $e');
-      rethrow;
-    }
+    });
   }
 
   @override
@@ -885,17 +886,62 @@ class UserRepositoryImpl implements UserRepository {
   }
   @override
   Future<User?> getTrainerForClient(String clientId) async {
-    // ... implementation
-    return null;
+    try {
+      final conn = await _connection;
+      final results = await conn.execute(
+        Sql.named('SELECT trainer_id FROM trainer_clients WHERE client_id = @clientId LIMIT 1'),
+        parameters: {'clientId': clientId},
+      );
+
+      if (results.isEmpty) {
+        return null;
+      }
+
+      final trainerId = results.first[0] as String;
+      return await getUserById(trainerId);
+    } catch (e) {
+      print('❌ getTrainerForClient error: $e');
+      rethrow;
+    }
   }
   @override
   Future<User?> getInstructorForClient(String clientId) async {
-    // ... implementation
-    return null;
+    try {
+      final conn = await _connection;
+      final results = await conn.execute(
+        Sql.named('SELECT instructor_id FROM instructor_clients WHERE client_id = @clientId LIMIT 1'),
+        parameters: {'clientId': clientId},
+      );
+
+      if (results.isEmpty) {
+        return null;
+      }
+
+      final instructorId = results.first[0] as String;
+      return await getUserById(instructorId);
+    } catch (e) {
+      print('❌ getInstructorForClient error: $e');
+      rethrow;
+    }
   }
   @override
   Future<User?> getManagerForClient(String clientId) async {
-    // ... implementation
-    return null;
+    try {
+      final conn = await _connection;
+      final results = await conn.execute(
+        Sql.named('SELECT manager_id FROM manager_clients WHERE client_id = @clientId LIMIT 1'),
+        parameters: {'clientId': clientId},
+      );
+
+      if (results.isEmpty) {
+        return null;
+      }
+
+      final managerId = results.first[0] as String;
+      return await getUserById(managerId);
+    } catch (e) {
+      print('❌ getManagerForClient error: $e');
+      rethrow;
+    }
   }
 }

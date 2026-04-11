@@ -8,7 +8,7 @@ import '../../../providers/auth_provider.dart';
 import '../../../modules/chat/widgets/message_bubble.dart'; // Adjusted relative path
 // Removed: import '../../../modules/chat/screens/chat_screen.dart'; // Import ChatScreen
 
-final instructorProvider = FutureProvider<User>((ref) async {
+final instructorProvider = FutureProvider<User?>((ref) async {
   return ApiService.getInstructorForClient();
 });
 
@@ -21,17 +21,20 @@ class MyInstructorScreen extends ConsumerStatefulWidget {
 
 class _MyInstructorScreenState extends ConsumerState<MyInstructorScreen> {
   final TextEditingController _messageController = TextEditingController();
-  final ScrollController _scrollController = ScrollController(); // Add ScrollController
+  final ScrollController _scrollController = ScrollController(); 
   
   @override
   void initState() {
     super.initState();
     _connectAndLoadChat();
-    _scrollController.addListener(_onScroll); // Add scroll listener
+    _scrollController.addListener(_onScroll); 
   }
 
   Future<void> _connectAndLoadChat() async {
     final instructor = await ref.read(instructorProvider.future);
+    if (instructor == null) {
+      return; // No instructor, no chat
+    }
     final chatNotifier = ref.read(chatProvider.notifier);
     
     await chatNotifier.connect(); 
@@ -45,9 +48,11 @@ class _MyInstructorScreenState extends ConsumerState<MyInstructorScreen> {
   @override
   void dispose() {
     _messageController.dispose();
-    _scrollController.removeListener(_onScroll); // Remove scroll listener
-    _scrollController.dispose(); // Dispose scroll controller
-    ref.read(chatProvider.notifier).disconnect(); // Disconnect WebSocket
+    _scrollController.removeListener(_onScroll); 
+    _scrollController.dispose(); 
+    if (ref.read(instructorProvider).value != null) {
+      ref.read(chatProvider.notifier).disconnect();
+    }
     super.dispose();
   }
   
@@ -141,10 +146,19 @@ class _MyInstructorScreenState extends ConsumerState<MyInstructorScreen> {
   Widget build(BuildContext context) {
     final instructorData = ref.watch(instructorProvider);
     final chatState = ref.watch(chatProvider);
-    final currentUser = ref.watch(authProvider).value?.user; // Get current user
+    final currentUser = ref.watch(authProvider).value?.user; 
 
     return instructorData.when(
       data: (instructor) {
+        if (instructor == null) {
+          return const Center(
+            child: Text(
+              'Инструктор не назначен',
+              style: TextStyle(fontSize: 18, color: Colors.grey),
+            ),
+          );
+        }
+
         final currentChatMessages = chatState.activeChatId != null
             ? chatState.messages[chatState.activeChatId!] ?? []
             : [];
@@ -196,7 +210,7 @@ class _MyInstructorScreenState extends ConsumerState<MyInstructorScreen> {
                               ? Center(child: Text('Ошибка чата: ${chatState.error}'))
                               : ListView.builder(
                                   reverse: true,
-                                  controller: _scrollController, // Assign scroll controller
+                                  controller: _scrollController, 
                                   itemCount: currentChatMessages.length + (chatState.isFetchingMore ? 1 : 0),
                                   itemBuilder: (context, index) {
                                     if (index == currentChatMessages.length && chatState.isFetchingMore) {
@@ -207,7 +221,7 @@ class _MyInstructorScreenState extends ConsumerState<MyInstructorScreen> {
                                     final userName = isMe 
                                         ? 'You' 
                                         : '${message.firstName ?? ''} ${message.lastName ?? ''}'.trim();
-                                    return MessageBubble( // Use MessageBubble
+                                    return MessageBubble( 
                                       message: message,
                                       isMe: isMe,
                                       userName: userName,

@@ -11,18 +11,21 @@ class ClientApiService extends BaseApiService {
     return await get('/api/dashboard/client');
   }
 
-  Future<User> getTrainerForClient() async {
-    final data = await get('/api/client/trainer');
+  Future<User?> getTrainerForClient() async {
+    final data = await getAllow404('/api/client/trainer');
+    if (data == null) return null;
     return User.fromJson(data['trainer']);
   }
 
-  Future<User> getInstructorForClient() async {
-    final data = await get('/api/client/instructor');
+  Future<User?> getInstructorForClient() async {
+    final data = await getAllow404('/api/client/instructor');
+    if (data == null) return null;
     return User.fromJson(data['instructor']);
   }
 
-  Future<User> getManagerForClient() async {
-    final data = await get('/api/client/manager');
+  Future<User?> getManagerForClient() async {
+    final data = await getAllow404('/api/client/manager');
+    if (data == null) return null;
     return User.fromJson(data['manager']);
   }
 

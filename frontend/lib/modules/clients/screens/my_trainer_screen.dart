@@ -8,7 +8,7 @@ import '../../../providers/auth_provider.dart';
 import '../../../modules/chat/widgets/message_bubble.dart'; // Adjusted relative path
 // Removed: import '../../../modules/chat/screens/chat_screen.dart'; // Import ChatScreen
 
-final trainerProvider = FutureProvider<User>((ref) async {
+final trainerProvider = FutureProvider<User?>((ref) async {
   return ApiService.getTrainerForClient();
 });
 
@@ -21,17 +21,20 @@ class MyTrainerScreen extends ConsumerStatefulWidget {
 
 class _MyTrainerScreenState extends ConsumerState<MyTrainerScreen> {
   final TextEditingController _messageController = TextEditingController();
-  final ScrollController _scrollController = ScrollController(); // Add ScrollController
+  final ScrollController _scrollController = ScrollController(); 
   
   @override
   void initState() {
     super.initState();
     _connectAndLoadChat();
-    _scrollController.addListener(_onScroll); // Add scroll listener
+    _scrollController.addListener(_onScroll); 
   }
 
   Future<void> _connectAndLoadChat() async {
     final trainer = await ref.read(trainerProvider.future);
+    if (trainer == null) {
+      return; // No trainer, no chat
+    }
     final chatNotifier = ref.read(chatProvider.notifier);
     
     await chatNotifier.connect(); 
@@ -44,9 +47,11 @@ class _MyTrainerScreenState extends ConsumerState<MyTrainerScreen> {
   @override
   void dispose() {
     _messageController.dispose();
-    _scrollController.removeListener(_onScroll); // Remove scroll listener
-    _scrollController.dispose(); // Dispose scroll controller
-    ref.read(chatProvider.notifier).disconnect(); // Disconnect WebSocket
+    _scrollController.removeListener(_onScroll); 
+    _scrollController.dispose(); 
+    if (ref.read(trainerProvider).value != null) {
+      ref.read(chatProvider.notifier).disconnect();
+    }
     super.dispose();
   }
 
@@ -140,10 +145,19 @@ class _MyTrainerScreenState extends ConsumerState<MyTrainerScreen> {
   Widget build(BuildContext context) {
     final trainerData = ref.watch(trainerProvider);
     final chatState = ref.watch(chatProvider);
-    final currentUser = ref.watch(authProvider).value?.user; // Get current user
+    final currentUser = ref.watch(authProvider).value?.user; 
 
     return trainerData.when(
       data: (trainer) {
+        if (trainer == null) {
+          return const Center(
+            child: Text(
+              'Тренер не назначен',
+              style: TextStyle(fontSize: 18, color: Colors.grey),
+            ),
+          );
+        }
+
         final currentChatMessages = chatState.activeChatId != null
             ? chatState.messages[chatState.activeChatId!] ?? []
             : [];
@@ -195,7 +209,7 @@ class _MyTrainerScreenState extends ConsumerState<MyTrainerScreen> {
                               ? Center(child: Text('Ошибка чата: ${chatState.error}'))
                               : ListView.builder(
                                   reverse: true,
-                                  controller: _scrollController, // Assign scroll controller
+                                  controller: _scrollController, 
                                   itemCount: currentChatMessages.length + (chatState.isFetchingMore ? 1 : 0),
                                   itemBuilder: (context, index) {
                                     if (index == currentChatMessages.length && chatState.isFetchingMore) {
@@ -206,7 +220,7 @@ class _MyTrainerScreenState extends ConsumerState<MyTrainerScreen> {
                                     final userName = isMe 
                                         ? 'You' 
                                         : '${message.firstName ?? ''} ${message.lastName ?? ''}'.trim();
-                                    return MessageBubble( // Use MessageBubble
+                                    return MessageBubble( 
                                       message: message,
                                       isMe: isMe,
                                       userName: userName,

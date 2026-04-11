@@ -252,6 +252,19 @@ CREATE TABLE instructor_clients (
     archived_by UUID REFERENCES users(id)
 );
 
+CREATE TABLE trainer_clients (
+    trainer_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    client_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    PRIMARY KEY (trainer_id, client_id),
+    company_id UUID DEFAULT '00000000-0000-0000-0000-000000000000',
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    created_by UUID REFERENCES users(id),
+    updated_by UUID REFERENCES users(id),
+    archived_at TIMESTAMPTZ,
+    archived_by UUID REFERENCES users(id)
+);
+
 CREATE TABLE manager_clients (
     manager_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     client_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,

@@ -8,7 +8,8 @@ import '../../../providers/auth_provider.dart';
 import '../../../modules/chat/widgets/message_bubble.dart'; // Adjusted relative path
 // Removed: import '../../../modules/chat/screens/chat_screen.dart'; // Import ChatScreen
 
-final managerProvider = FutureProvider<User>((ref) async {
+final managerProvider = FutureProvider<User?>((ref) async {
+  // getManagerForClient now returns User?
   return ApiService.getManagerForClient();
 });
 
@@ -21,17 +22,21 @@ class MyManagerScreen extends ConsumerStatefulWidget {
 
 class _MyManagerScreenState extends ConsumerState<MyManagerScreen> {
   final TextEditingController _messageController = TextEditingController();
-  final ScrollController _scrollController = ScrollController(); // Add ScrollController
+  final ScrollController _scrollController = ScrollController(); 
 
   @override
   void initState() {
     super.initState();
     _connectAndLoadChat();
-    _scrollController.addListener(_onScroll); // Add scroll listener
+    _scrollController.addListener(_onScroll); 
   }
 
   Future<void> _connectAndLoadChat() async {
     final manager = await ref.read(managerProvider.future);
+    if (manager == null) {
+      // No manager, so no chat to load.
+      return;
+    }
     final chatNotifier = ref.read(chatProvider.notifier);
     
     await chatNotifier.connect(); 
@@ -45,9 +50,12 @@ class _MyManagerScreenState extends ConsumerState<MyManagerScreen> {
   @override
   void dispose() {
     _messageController.dispose();
-    _scrollController.removeListener(_onScroll); // Remove scroll listener
-    _scrollController.dispose(); // Dispose scroll controller
-    ref.read(chatProvider.notifier).disconnect(); // Disconnect WebSocket
+    _scrollController.removeListener(_onScroll); 
+    _scrollController.dispose(); 
+    // Only disconnect if we were connected
+    if (ref.read(managerProvider).value != null) {
+      ref.read(chatProvider.notifier).disconnect();
+    }
     super.dispose();
   }
 
@@ -144,6 +152,15 @@ class _MyManagerScreenState extends ConsumerState<MyManagerScreen> {
 
     return managerAsyncValue.when(
       data: (manager) {
+        if (manager == null) {
+          return const Center(
+            child: Text(
+              'Менеджер не назначен',
+              style: TextStyle(fontSize: 18, color: Colors.grey),
+            ),
+          );
+        }
+
         final currentChatMessages = chatState.activeChatId != null
             ? chatState.messages[chatState.activeChatId!] ?? []
             : [];
@@ -194,7 +211,7 @@ class _MyManagerScreenState extends ConsumerState<MyManagerScreen> {
                               ? Center(child: Text('Ошибка чата: ${chatState.error}'))
                               : ListView.builder(
                                   reverse: true,
-                                  controller: _scrollController, // Assign scroll controller
+                                  controller: _scrollController, 
                                   itemCount: currentChatMessages.length + (chatState.isFetchingMore ? 1 : 0),
                                   itemBuilder: (context, index) {
                                     if (index == currentChatMessages.length && chatState.isFetchingMore) {
@@ -205,7 +222,7 @@ class _MyManagerScreenState extends ConsumerState<MyManagerScreen> {
                                     final userName = isMe 
                                         ? 'You' 
                                         : '${message.firstName ?? ''} ${message.lastName ?? ''}'.trim();
-                                    return MessageBubble( // Use MessageBubble
+                                    return MessageBubble( 
                                       message: message,
                                       isMe: isMe,
                                       userName: userName,
