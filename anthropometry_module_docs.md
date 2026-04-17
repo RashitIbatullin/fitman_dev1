@@ -92,7 +92,7 @@ CREATE TABLE anthropometry_measurements (
 ## 4. Пользовательские интерфейсы
 Функционал доступен из карточки клиента.
 
-### 4.1. `new_anthropometry_screen.dart`
+### 4.1. `anthropometry_screen.dart`
 Главный экран модуля, разделенный на 2 вкладки:
 *   **Вкладка "Постоянные данные"**: Отображает виджет `FixedValuesView`.
 *   **Вкладка "Периодические замеры"**: Отображает виджет `AnthropometryListScreen`.
@@ -139,7 +139,7 @@ CREATE TABLE anthropometry_measurements (
 ├── providers/
 │   └── ... (провайдеры используются из других файлов, например, auth_provider)
 ├── screens/
-│   ├── new_anthropometry_screen.dart
+│   ├── anthropometry_screen.dart
 │   ├── anthropometry_list_screen.dart
 │   ├── anthropometry_edit_screen.dart
 │   └── anthropometry_detail_screen.dart
