@@ -1,14 +1,11 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:fitman_app/modules/clients/screens/full_screen_photo_editor.dart';
 import 'package:fitman_app/widgets/dashed_crosshair_painter.dart';
 import 'package:fitman_app/widgets/image_comparison_slider.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:fitman_app/services/api_service.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fitman_app/providers/auth_provider.dart';
 
@@ -99,6 +96,12 @@ class _PhotoComparisonScreenState extends ConsumerState<PhotoComparisonScreen> {
   }
 
   Future<void> _pickAndUploadImage(String photoType) async {
+    // TODO: Refactor this method to work with the new AnthropometryMeasurement model.
+    // The current implementation uses a deprecated ApiService method.
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Функция загрузки временно отключена.')),
+    );
+    /*
     try {
       FilePickerResult? result =
           await FilePicker.platform.pickFiles(type: FileType.image);
@@ -150,6 +153,7 @@ class _PhotoComparisonScreenState extends ConsumerState<PhotoComparisonScreen> {
         SnackBar(content: Text('Ошибка при выборе файла: $e')),
       );
     }
+    */
   }
 
   Widget _buildPhotoSection(
@@ -466,7 +470,7 @@ class _PhotoViewState extends State<_PhotoView> {
   String? _imageUrlWithCacheBust;
   ui.Image? _renderedImage;
   Matrix4 _currentTransform = Matrix4.identity();
-  bool _isSaving = false;
+  final bool _isSaving = false;
 
   @override
   void initState() {
@@ -507,6 +511,12 @@ class _PhotoViewState extends State<_PhotoView> {
   }
 
   Future<void> save() async {
+    // TODO: Refactor this method to work with the new AnthropometryMeasurement model.
+    // The current implementation uses a deprecated ApiService method.
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Функция сохранения временно отключена.')),
+    );
+    /*
     final completer = Completer<void>();
     setState(() {
       _isSaving = true;
@@ -585,6 +595,7 @@ class _PhotoViewState extends State<_PhotoView> {
         });
       }
     }
+    */
   }
 
   @override

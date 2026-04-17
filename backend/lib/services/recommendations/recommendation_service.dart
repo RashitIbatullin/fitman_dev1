@@ -1,16 +1,19 @@
-import '../../config/database.dart';
 import 'package:fitman_common/fitman_common.dart';
+
+import '../../config/database.dart';
 import 'somatotype_helper.dart';
 
 // Helper data classes for clarity
 class _ClientData {
   final User user;
-  final Map<String, dynamic> anthropometry;
+  final AnthropometryMeasurement? measurement;
+  final AnthropometryFixed? fixedData;
   final Map<String, dynamic> bioimpedance;
 
   _ClientData({
     required this.user,
-    required this.anthropometry,
+    this.measurement,
+    this.fixedData,
     required this.bioimpedance,
   });
 }
@@ -44,41 +47,35 @@ class WhtrProfiles {
   }
 }
 
-
 class RecommendationService {
   final db = Database();
 
-  /// Returns a calculated SomatotypeProfile for a given user.
-  /// This is the single source of truth for somatotype calculation.
   Future<SomatotypeProfile?> getSomatotypeProfileForUser(String userId) async {
     final clientData = await _getClientData(userId);
-    if (clientData == null) {
-      print('[RecommendationService] Could not get client data for somatotype profile.');
+    if (clientData?.fixedData == null) {
+      print('[RecommendationService] Could not get fixed data for somatotype profile.');
       return null;
     }
     final rules = await db.recommendations.getSomatotypeRules();
-    final profile = _determineSomatotype(clientData, rules);
+    final profile = _determineSomatotype(clientData!, rules);
     return profile;
   }
 
-  /// Returns a calculated WhtrProfile for a given user and measurement type.
   Future<WhtrProfiles?> getWhtrProfilesForUser(String userId) async {
     final clientData = await _getClientData(userId);
-    if (clientData == null) {
+    if (clientData?.fixedData == null || clientData?.measurement == null) {
       print('[RecommendationService] Could not get client data for WHtR profile.');
       return null;
     }
-    final startProfile = _determineWhtrProfile(clientData, 'start');
-    final finishProfile = _determineWhtrProfile(clientData, 'finish');
-    return WhtrProfiles(start: startProfile, finish: finishProfile);
+    final profile = _determineWhtrProfile(clientData!);
+    return WhtrProfiles(start: profile, finish: profile);
   }
 
   Future<Map<String, String?>> generateRecommendation(String userId) async {
     print('[RecommendationService] Starting recommendation generation for userId: $userId');
 
-    // 1. Сбор данных
     final clientData = await _getClientData(userId);
-    if (clientData == null) {
+    if (clientData?.measurement == null || clientData?.fixedData == null) {
       print('[RecommendationService] ERROR: Failed to get client data or client has no anthropometry.');
       return {
         'client_recommendation': 'Недостаточно данных для генерации рекомендации.',
@@ -87,16 +84,15 @@ class RecommendationService {
     }
 
     final rules = await db.recommendations.getSomatotypeRules();
-    final baseRecommendations = await db.recommendations.getBodyShapeRecommendations(); 
+    final baseRecommendations = await db.recommendations.getBodyShapeRecommendations();
     final whtrRefinements = await db.recommendations.getWhtrRefinements();
-    
+
     print('[RecommendationService] Fetched ${baseRecommendations.length} base recommendations and ${whtrRefinements.length} WHtR refinements.');
 
-    // 2. Анализ
-    final somatotype = _determineSomatotype(clientData, rules);
-    final bodyShape = _determineBodyShape(clientData.anthropometry['start']);
-    final whtrProfile = _determineWhtrProfile(clientData, 'start'); // Explicitly use 'start' for recommendations
-    
+    final somatotype = _determineSomatotype(clientData!, rules);
+    final bodyShape = _determineBodyShape(clientData.measurement!);
+    final whtrProfile = _determineWhtrProfile(clientData);
+
     print('[RecommendationService] Calculated values:');
     print('  - Goal ID: ${clientData.user.clientProfile?.goalTrainingId}');
     print('  - Level ID: ${clientData.user.clientProfile?.levelTrainingId}');
@@ -104,7 +100,6 @@ class RecommendationService {
     print('  - Body Shape: $bodyShape');
     print('  - WHtR: ${whtrProfile.ratio.toStringAsFixed(2)} (${whtrProfile.gradation})');
 
-    // 3. Генерация рекомендации
     final recommendation = _buildFinalRecommendation(
       bodyShape: bodyShape,
       whtrGradation: whtrProfile.gradation,
@@ -121,20 +116,20 @@ class RecommendationService {
         'trainer_recommendation': 'Не найдено подходящей рекомендации в базе. Проверьте каталоги body_shape_recommendations и whtr_refinements.',
       };
     }
-    
+
     print('[RecommendationService] Successfully built a combined recommendation.');
 
-    final String methodologyExplanation = '''
-Рекомендации сформированы на основе комплексного анализа. Ваши текущие показатели (на основе замеров "Начало"):
+    final methodologyExplanation = '''
+Рекомендации сформированы на основе комплексного анализа Вашего последнего замера:
 *   **Тип фигуры:** $bodyShape
 *   **Индекс WHtR:** ${whtrProfile.gradation} (коэф. ${whtrProfile.ratio.toStringAsFixed(2)})
 
 Эти данные, а также ваш соматотип, цели и уровень подготовки, используются для подбора индивидуального плана.
 ''';
 
-    final String clientBaseRec = recommendation['client_recommendation'] ?? '';
-    final String trainerBaseRec = recommendation['trainer_recommendation'] ?? '';
-    final String somatotypeHelp = getSomatotypeHelpTextForRecommendation(somatotype);
+    final clientBaseRec = recommendation['client_recommendation'] ?? '';
+    final trainerBaseRec = recommendation['trainer_recommendation'] ?? '';
+    final somatotypeHelp = getSomatotypeHelpTextForRecommendation(somatotype);
 
     final enrichedClientRecommendation = methodologyExplanation + clientBaseRec + somatotypeHelp;
     final enrichedTrainerRecommendation = methodologyExplanation + trainerBaseRec + somatotypeHelp;
@@ -149,45 +144,41 @@ class RecommendationService {
     final user = await db.users.getUserById(userId);
     if (user == null) return null;
 
-    final anthropometry = await db.clients.getAnthropometryData(userId);
+    final measurements = await db.clients.getAnthropometryMeasurements(userId);
+    final fixedData = await db.clients.getFixedAnthropometry(userId);
     final bioimpedance = await db.clients.getBioimpedanceData(userId);
-    
-    if (anthropometry['start'] == null || (anthropometry['start'] as Map).isEmpty) {
-      return null;
-    }
-    if (anthropometry['fixed'] == null || (anthropometry['fixed'] as Map).isEmpty) {
-      return null;
-    }
 
     return _ClientData(
       user: user,
-      anthropometry: anthropometry,
+      measurement: measurements.isNotEmpty ? measurements.first : null,
+      fixedData: fixedData,
       bioimpedance: bioimpedance,
     );
   }
 
-  SomatotypeProfile _determineSomatotype(_ClientData data, List<Map<String, dynamic>> rules) {
+  SomatotypeProfile _determineSomatotype(
+      _ClientData data, List<Map<String, dynamic>> rules) {
     final gender = data.user.gender == 'мужской' ? 'M' : 'Ж';
-    final wristCirc = (data.anthropometry['fixed']?['wrist_circ'] as num?)?.toDouble();
-    final ankleCirc = (data.anthropometry['fixed']?['ankle_circ'] as num?)?.toDouble();
+    final wristCirc = data.fixedData?.wristCirc?.toDouble();
+    final ankleCirc = data.fixedData?.ankleCirc?.toDouble();
 
-    if (wristCirc == null) { // wristCirc is mandatory for this calculation
+    if (wristCirc == null) {
       return SomatotypeProfile();
     }
 
     final scores = <String, double>{};
-    final relevantRules = rules.where((r) => r['gender'] == gender || r['gender'] == 'ALL').toList();
+    final relevantRules = rules
+        .where((r) => r['gender'] == gender || r['gender'] == 'ALL')
+        .toList();
 
     for (final rule in relevantRules) {
       final typeName = rule['name'] as String;
-      
       final wristMin = (rule['wrist_min'] as num?)?.toDouble();
       final wristMax = (rule['wrist_max'] as num?)?.toDouble();
       final ankleMin = (rule['ankle_min'] as num?)?.toDouble();
       final ankleMax = (rule['ankle_max'] as num?)?.toDouble();
-
       final wristScore = _calculateScore(wristCirc, wristMin, wristMax);
-      
+
       if (ankleCirc != null) {
         final ankleScore = _calculateScore(ankleCirc, ankleMin, ankleMax);
         scores[typeName] = (wristScore + ankleScore) / 2;
@@ -210,67 +201,50 @@ class RecommendationService {
     const falloffRange = 2.0;
     const falloffFactor = 100 / falloffRange;
 
-    if (min != null && max != null) { // Мезоморф
-      if (value >= min && value <= max) {
-        return 100;
-      } else if (value > max && value <= max + falloffRange) {
-        return 100 - (value - max) * falloffFactor;
-      } else if (value < min && value >= min - falloffRange) {
-        return 100 - (min - value) * falloffFactor;
-      }
-    } else if (min == null && max != null) { // Эктоморф
-      if (value <= max) {
-        return 100;
-      } else if (value > max && value <= max + falloffRange) {
-        return 100 - (value - max) * falloffFactor;
-      }
-    } else if (min != null && max == null) { // Эндоморф
-      if (value >= min) {
-        return 100;
-      } else if (value < min && value >= min - falloffRange) {
-        return 100 - (min - value) * falloffFactor;
-      }
+    if (min != null && max != null) {
+      if (value >= min && value <= max) return 100;
+      if (value > max && value <= max + falloffRange) return 100 - (value - max) * falloffFactor;
+      if (value < min && value >= min - falloffRange) return 100 - (min - value) * falloffFactor;
+    } else if (min == null && max != null) {
+      if (value <= max) return 100;
+      if (value > max && value <= max + falloffRange) return 100 - (value - max) * falloffFactor;
+    } else if (min != null && max == null) {
+      if (value >= min) return 100;
+      if (value < min && value >= min - falloffRange) return 100 - (min - value) * falloffFactor;
     }
     return 0;
   }
 
-  String _determineBodyShape(Map<String, dynamic> startAnthro) {
-    final shoulders = (startAnthro['shoulders_circ'] as num?)?.toDouble();
-    final waist = (startAnthro['waist_circ'] as num?)?.toDouble();
-    final hips = (startAnthro['hips_circ'] as num?)?.toDouble();
+  String _determineBodyShape(AnthropometryMeasurement measurement) {
+    final shoulders = measurement.shouldersCirc?.toDouble();
+    final waist = measurement.waistCirc?.toDouble();
+    final hips = measurement.hipsCirc?.toDouble();
 
     if (shoulders == null || waist == null || hips == null || shoulders == 0 || waist == 0 || hips == 0) {
       return 'Не определен';
     }
 
-    // Логика из ТЗ
     final waistToHips = waist / hips;
     final shouldersToHips = (shoulders / hips).abs();
 
-    if (waistToHips >= 0.85 && waist > shoulders && waist > hips) {
-      return 'Яблоко';
+    if (waistToHips >= 0.85 && waist > shoulders && waist > hips) return 'Яблоко';
+    if (hips > shoulders * 1.05) return 'Груша';
+    if (shouldersToHips >= 0.95 && shouldersToHips <= 1.05) {
+      if ((waist / shoulders) < 0.75) return 'Песочные часы';
+      return 'Прямоугольник';
     }
-    if (hips > shoulders * 1.05) {
-      return 'Груша';
-    }
-    if (shouldersToHips >= 0.95 && shouldersToHips <= 1.05) { // Shoulders and hips are about the same
-       if ((waist / shoulders) < 0.75) return 'Песочные часы';
-       return 'Прямоугольник';
-    }
-    if (shoulders > hips * 1.05) {
-      return 'Перевернутый треугольник';
-    }
+    if (shoulders > hips * 1.05) return 'Перевернутый треугольник';
 
     return 'Не определен';
   }
 
-  WhtrProfile _determineWhtrProfile(_ClientData data, String type) {
+  WhtrProfile _determineWhtrProfile(_ClientData data) {
     print('--- DETERMINING WHTR PROFILE ---');
-    final height = (data.anthropometry['fixed']?['height'] as num?)?.toDouble();
-    final waist = (data.anthropometry[type]?['waist_circ'] as num?)?.toDouble();
+    final height = data.fixedData?.height?.toDouble();
+    final waist = data.measurement?.waistCirc?.toDouble();
     final age = data.user.age;
-    
-    print('Input data: age=$age, height=$height, waist ($type)=$waist');
+
+    print('Input data: age=$age, height=$height, waist=$waist');
 
     if (height == null || waist == null || height == 0) {
       print('Result: Incomplete data.');
@@ -304,7 +278,7 @@ class RecommendationService {
         gradation = 'Ожирение';
       }
     }
-    
+
     print('Final gradation: $gradation');
     print('--- END WHTR PROFILE ---');
     return WhtrProfile(ratio: ratio, gradation: gradation);
@@ -323,13 +297,12 @@ class RecommendationService {
       return null;
     }
 
-    // 1. Find base recommendation (strict search)
     final baseRec = baseRecommendations.firstWhere(
       (rec) =>
           rec['body_type'] == bodyShape &&
           rec['goal_training_id'] == goalId &&
           rec['level_training_id'] == levelId,
-      orElse: () => {}, // Return an empty map if not found
+      orElse: () => <String, dynamic>{},
     );
 
     if (baseRec.isEmpty) {
@@ -337,20 +310,19 @@ class RecommendationService {
       return null;
     }
 
-    // 2. Find refinement
     final refinement = whtrRefinements.firstWhere(
       (ref) =>
           ref['whtr_gradation'] == whtrGradation &&
           ref['goal_training_id'] == goalId,
-      orElse: () => {}, // Return an empty map if not found
+      orElse: () => <String, dynamic>{},
     );
 
     final clientText = (baseRec['recommendation_text_client'] ?? '') +
         (refinement['refinement_text_client'] ?? '');
-    
+
     final trainerText = (baseRec['recommendation_text_trainer'] ?? '') +
         (refinement['refinement_text_trainer'] ?? '');
-    
+
     return {
       'client_recommendation': clientText,
       'trainer_recommendation': trainerText,

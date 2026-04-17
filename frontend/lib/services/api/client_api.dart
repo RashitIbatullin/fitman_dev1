@@ -29,8 +29,29 @@ class ClientApiService extends BaseApiService {
     return User.fromJson(data['manager']);
   }
 
-  Future<Map<String, dynamic>> getOwnAnthropometryData() async {
-    return await get('/api/client/anthropometry');
+  Future<List<AnthropometryMeasurement>> getAnthropometryMeasurements() async {
+    final data = await get('/api/client/anthropometry') as List;
+    return data.map((item) => AnthropometryMeasurement.fromJson(item)).toList();
+  }
+
+  Future<AnthropometryMeasurement> saveAnthropometryMeasurement(
+    AnthropometryMeasurement measurement,
+  ) async {
+    final data = await post('/api/client/anthropometry', body: measurement.toJson());
+    return AnthropometryMeasurement.fromJson(data);
+  }
+
+  Future<AnthropometryFixed?> getFixedAnthropometry() async {
+    final data = await getAllow404('/api/client/anthropometry/fixed');
+    if (data == null) return null;
+    return AnthropometryFixed.fromJson(data);
+  }
+
+  Future<AnthropometryFixed> saveFixedAnthropometry(
+    AnthropometryFixed fixedData,
+  ) async {
+    final data = await post('/api/client/anthropometry/fixed', body: fixedData.toJson());
+    return AnthropometryFixed.fromJson(data);
   }
 
   Future<String> getSomatotypeProfile() async {
@@ -43,51 +64,14 @@ class ClientApiService extends BaseApiService {
     return WhtrProfiles.fromJson(data);
   }
 
-  Future<void> updateAnthropometryFixed({
-    required int height,
-    required int wristCirc,
-    required int ankleCirc,
-  }) async {
-    await post('/api/client/anthropometry/fixed', body: {
-      'height': height,
-      'wristCirc': wristCirc,
-      'ankleCirc': ankleCirc,
-    });
-  }
-
-  Future<void> updateAnthropometryMeasurements({
-    required String type,
-    required double weight,
-    required int shouldersCirc,
-    required int breastCirc,
-    required int waistCirc,
-    required int hipsCirc,
-  }) async {
-    await post('/api/client/anthropometry/measurements', body: {
-      'type': type,
-      'weight': weight,
-      'shouldersCirc': shouldersCirc,
-      'breastCirc': breastCirc,
-      'waistCirc': waistCirc,
-      'hipsCirc': hipsCirc,
-    });
-  }
-
   Future<Map<String, dynamic>> uploadAnthropometryPhoto({
     required List<int> photoBytes,
     required String fileName,
-    required String type,
-    DateTime? photoDateTime,
   }) async {
     final file = http.MultipartFile.fromBytes('photo', photoBytes, filename: fileName);
-    final fields = {'type': type};
-    if (photoDateTime != null) {
-      fields['photoDateTime'] = photoDateTime.toIso8601String();
-    }
-    
     return await multipartPost(
       '/api/client/anthropometry/photo',
-      fields: fields,
+      fields: {},
       file: file,
     );
   }

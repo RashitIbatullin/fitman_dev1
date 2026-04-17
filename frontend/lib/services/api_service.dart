@@ -294,36 +294,24 @@ class ApiService {
   static Future<User?> getInstructorForClient() => _clientApi.getInstructorForClient();
   static Future<User?> getManagerForClient() => _clientApi.getManagerForClient();
 
-  static Future<Map<String, dynamic>> getOwnAnthropometryData() => _clientApi.getOwnAnthropometryData();
+  static Future<List<AnthropometryMeasurement>> getAnthropometryMeasurements() =>
+      _clientApi.getAnthropometryMeasurements();
+  static Future<AnthropometryMeasurement> saveAnthropometryMeasurement(
+          AnthropometryMeasurement measurement) =>
+      _clientApi.saveAnthropometryMeasurement(measurement);
+  static Future<AnthropometryFixed?> getFixedAnthropometry() =>
+      _clientApi.getFixedAnthropometry();
+  static Future<AnthropometryFixed> saveFixedAnthropometry(
+          AnthropometryFixed fixedData) =>
+      _clientApi.saveFixedAnthropometry(fixedData);
+
   static Future<String> getSomatotypeProfile() => _clientApi.getSomatotypeProfile();
   static Future<WhtrProfiles> getWhtrProfiles() => _clientApi.getWhtrProfiles();
 
-  static Future<void> updateAnthropometryFixed({required int height, required int wristCirc, required int ankleCirc}) =>
-      _clientApi.updateAnthropometryFixed(height: height, wristCirc: wristCirc, ankleCirc: ankleCirc);
-
-  static Future<void> updateAnthropometryMeasurements(
-          {required String type,
-          required double weight,
-          required int shouldersCirc,
-          required int breastCirc,
-          required int waistCirc,
-          required int hipsCirc}) =>
-      _clientApi.updateAnthropometryMeasurements(
-          type: type,
-          weight: weight,
-          shouldersCirc: shouldersCirc,
-          breastCirc: breastCirc,
-          waistCirc: waistCirc,
-          hipsCirc: hipsCirc);
-
   static Future<Map<String, dynamic>> uploadAnthropometryPhoto(
-          {required List<int> photoBytes,
-          required String fileName,
-          required String type,
-          DateTime? photoDateTime}) =>
-      _clientApi.uploadAnthropometryPhoto(
-          photoBytes: photoBytes, fileName: fileName, type: type, photoDateTime: photoDateTime);
-          
+          {required List<int> photoBytes, required String fileName}) =>
+      _clientApi.uploadAnthropometryPhoto(photoBytes: photoBytes, fileName: fileName);
+
   static Future<User> updateClientProfile(Map<String, dynamic> profileData) =>
       _clientApi.updateClientProfile(profileData);
   static Future<List<dynamic>> getCalorieTrackingData() => _clientApi.getCalorieTrackingData();
@@ -349,50 +337,30 @@ class ApiService {
 
 
   // --- Admin Methods ---
-  static Future<Map<String, dynamic>> getAnthropometryDataForClient(String clientId) =>
-      _adminApi.getAnthropometryDataForClient(clientId);
+  static Future<List<AnthropometryMeasurement>> getAnthropometryMeasurementsForClient(
+          String clientId) =>
+      _adminApi.getAnthropometryMeasurementsForClient(clientId);
+
+  static Future<AnthropometryMeasurement> saveAnthropometryMeasurementForClient(
+    String clientId,
+    AnthropometryMeasurement measurement,
+  ) =>
+      _adminApi.saveAnthropometryMeasurementForClient(clientId, measurement);
+
+  static Future<AnthropometryFixed?> getFixedAnthropometryForClient(
+          String clientId) =>
+      _adminApi.getFixedAnthropometryForClient(clientId);
+  
+  static Future<AnthropometryFixed> saveFixedAnthropometryForClient(
+    String clientId,
+    AnthropometryFixed fixedData,
+  ) =>
+      _adminApi.saveFixedAnthropometryForClient(clientId, fixedData);
+
   static Future<String> getSomatotypeProfileForClient(String clientId) =>
       _adminApi.getSomatotypeProfileForClient(clientId);
   static Future<WhtrProfiles> getWhtrProfilesForClient(String clientId) =>
       _adminApi.getWhtrProfilesForClient(clientId);
-  
-  static Future<void> updateAnthropometryFixedForClient({
-    required String clientId,
-    required int height,
-    required int wristCirc,
-    required int ankleCirc,
-  }) => _adminApi.updateAnthropometryFixedForClient(
-      clientId: clientId, height: height, wristCirc: wristCirc, ankleCirc: ankleCirc);
-
-  static Future<void> updateAnthropometryMeasurementsForClient({
-    required String clientId,
-    required String type,
-    required double weight,
-    required int shouldersCirc,
-    required int breastCirc,
-    required int waistCirc,
-    required int hipsCirc,
-  }) => _adminApi.updateAnthropometryMeasurementsForClient(
-      clientId: clientId,
-      type: type,
-      weight: weight,
-      shouldersCirc: shouldersCirc,
-      breastCirc: breastCirc,
-      waistCirc: waistCirc,
-      hipsCirc: hipsCirc);
-  
-  static Future<Map<String, dynamic>> uploadAnthropometryPhotoForClient({
-    required String clientId,
-    required List<int> photoBytes,
-    required String fileName,
-    required String type,
-    DateTime? photoDateTime,
-  }) => _adminApi.uploadAnthropometryPhotoForClient(
-      clientId: clientId,
-      photoBytes: photoBytes,
-      fileName: fileName,
-      type: type,
-      photoDateTime: photoDateTime);
 
   // --- Support Staff Methods ---
   static Future<List<SupportStaff>> getAllSupportStaff({bool? isArchived}) =>

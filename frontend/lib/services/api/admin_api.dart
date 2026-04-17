@@ -1,4 +1,3 @@
-import 'package:http/http.dart' as http;
 import 'package:fitman_common/fitman_common.dart';
 import 'base_api.dart';
 
@@ -6,72 +5,48 @@ import 'base_api.dart';
 class AdminApiService extends BaseApiService {
   AdminApiService({super.client});
 
-  Future<Map<String, dynamic>> getAnthropometryDataForClient(String clientId) async {
-    return await get('/api/admin/clients/$clientId/anthropometry');
+  Future<List<AnthropometryMeasurement>> getAnthropometryMeasurementsForClient(
+      String clientId) async {
+    final data = await get('/api/admin/clients/$clientId/anthropometry') as List;
+    return data.map((item) => AnthropometryMeasurement.fromJson(item)).toList();
+  }
+
+  Future<AnthropometryMeasurement> saveAnthropometryMeasurementForClient(
+    String clientId,
+    AnthropometryMeasurement measurement,
+  ) async {
+    final data = await post('/api/admin/clients/$clientId/anthropometry',
+        body: measurement.toJson());
+    return AnthropometryMeasurement.fromJson(data);
+  }
+
+  Future<AnthropometryFixed?> getFixedAnthropometryForClient(
+      String clientId) async {
+    final data =
+        await getAllow404('/api/admin/clients/$clientId/anthropometry/fixed');
+    if (data == null) return null;
+    return AnthropometryFixed.fromJson(data);
+  }
+
+  Future<AnthropometryFixed> saveFixedAnthropometryForClient(
+    String clientId,
+    AnthropometryFixed fixedData,
+  ) async {
+    final data = await post(
+        '/api/admin/clients/$clientId/anthropometry/fixed',
+        body: fixedData.toJson());
+    return AnthropometryFixed.fromJson(data);
   }
 
   Future<String> getSomatotypeProfileForClient(String clientId) async {
-    final data = await get('/api/admin/clients/$clientId/anthropometry/somatotype');
+    final data =
+        await get('/api/admin/clients/$clientId/anthropometry/somatotype');
     return data['profile_string'] as String? ?? 'Не удалось рассчитать соматотип.';
   }
 
   Future<WhtrProfiles> getWhtrProfilesForClient(String clientId) async {
-    final data = await get('/api/admin/clients/$clientId/anthropometry/whtr-profiles');
+    final data =
+        await get('/api/admin/clients/$clientId/anthropometry/whtr-profiles');
     return WhtrProfiles.fromJson(data);
-  }
-
-  Future<void> updateAnthropometryFixedForClient({
-    required String clientId,
-    required int height,
-    required int wristCirc,
-    required int ankleCirc,
-  }) async {
-    await post('/api/admin/clients/$clientId/anthropometry/fixed', body: {
-      'height': height,
-      'wristCirc': wristCirc,
-      'ankleCirc': ankleCirc,
-    });
-  }
-
-  Future<void> updateAnthropometryMeasurementsForClient({
-    required String clientId,
-    required String type,
-    required double weight,
-    required int shouldersCirc,
-    required int breastCirc,
-    required int waistCirc,
-    required int hipsCirc,
-  }) async {
-    await post('/api/admin/clients/$clientId/anthropometry/measurements', body: {
-      'type': type,
-      'weight': weight,
-      'shouldersCirc': shouldersCirc,
-      'breastCirc': breastCirc,
-      'waistCirc': waistCirc,
-      'hipsCirc': hipsCirc,
-    });
-  }
-
-  Future<Map<String, dynamic>> uploadAnthropometryPhotoForClient({
-    required String clientId,
-    required List<int> photoBytes,
-    required String fileName,
-    required String type,
-    DateTime? photoDateTime,
-  }) async {
-    final file = http.MultipartFile.fromBytes('photo', photoBytes, filename: fileName);
-    final fields = {
-      'type': type,
-      'clientId': clientId,
-    };
-    if (photoDateTime != null) {
-      fields['photoDateTime'] = photoDateTime.toIso8601String();
-    }
-    
-    return await multipartPost(
-      '/api/admin/clients/$clientId/anthropometry/photo',
-      fields: fields,
-      file: file,
-    );
   }
 }

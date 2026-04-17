@@ -9,7 +9,7 @@ import '../../../providers/auth_provider.dart';
 import 'my_trainer_screen.dart';
 import 'my_instructor_screen.dart';
 import 'my_manager_screen.dart';
-import 'anthropometry_screen.dart';
+import 'new_anthropometry_screen.dart';
 import 'sessions_screen.dart';
 import 'calorie_tracking_screen.dart';
 import 'progress_screen.dart';
@@ -73,7 +73,7 @@ class ClientDashboard extends ConsumerWidget {
       const MyTrainerScreen(),
       const MyInstructorScreen(),
       const MyManagerScreen(),
-      AnthropometryScreen(clientId: user.id.toString()),
+      NewAnthropometryScreen(clientId: user.id.toString()),
       const SessionsScreen(),
       const CalorieTrackingScreen(),
       const ProgressScreen(),

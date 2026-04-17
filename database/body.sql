@@ -3,10 +3,8 @@
 -- Скрипт является идемпотентным.
 
 -- Удаление старых таблиц, если они существуют
-DROP TABLE IF EXISTS 
-    "anthropometry_fix",
-    "anthropometry_start",
-    "anthropometry_finish",
+DROP TABLE IF EXISTS
+	"anthropometry_fix", 
     "types_body_build", 
     "body_shape_recommendations", 
     "whtr_refinements", 
@@ -32,13 +30,12 @@ CREATE TABLE anthropometry_fix (
     archived_by UUID
 );
 
-CREATE TABLE anthropometry_start (
-    user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
-    date_time TIMESTAMPTZ DEFAULT NOW(),
-    photo VARCHAR(255),
+CREATE TABLE anthropometry_measurements (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    date_time TIMESTAMPTZ NOT NULL,
+    photo_url VARCHAR(255),
     photo_date_time TIMESTAMPTZ,
-    profile_photo VARCHAR(255),
-    profile_photo_date_time TIMESTAMPTZ,
     weight REAL,
     shoulders_circ INT,
     breast_circ INT,
@@ -49,30 +46,13 @@ CREATE TABLE anthropometry_start (
     updated_at TIMESTAMPTZ DEFAULT NOW(),
     created_by UUID REFERENCES users(id),
     updated_by UUID REFERENCES users(id),
-    archived_at TIMESTAMP WITH TIME ZONE,
-    archived_by UUID
+    archived_at TIMESTAMPTZ,
+    archived_by UUID REFERENCES users(id),
+	archived_reason TEXT,
+    UNIQUE(user_id, date_time)
 );
+CREATE INDEX IF NOT EXISTS idx_anthropometry_measurements_user_id ON anthropometry_measurements(user_id);
 
-CREATE TABLE anthropometry_finish (
-    user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
-    date_time TIMESTAMPTZ DEFAULT NOW(),
-    photo VARCHAR(255),
-    photo_date_time TIMESTAMPTZ,
-    profile_photo VARCHAR(255),
-    profile_photo_date_time TIMESTAMPTZ,
-    weight REAL,
-    shoulders_circ INT,
-    breast_circ INT,
-    waist_circ INT,
-    hips_circ INT,
-    company_id UUID DEFAULT '00000000-0000-0000-0000-000000000000',
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW(),
-    created_by UUID REFERENCES users(id),
-    updated_by UUID REFERENCES users(id),
-    archived_at TIMESTAMP WITH TIME ZONE,
-    archived_by UUID
-);
 
 -- Каталог "Типы телосложения" для алгоритма определения соматотипа
 -- This table is also defined in infrastructure.sql. Keeping it consistent.
@@ -141,8 +121,8 @@ CREATE TABLE ai_recommendation_cache (
     UNIQUE(user_id, created_at)
 );
 
--- 6. Таблицы биоимпеданса
-CREATE TABLE bioimpedance_start (
+-- 6. Таблица биоимпеданса
+CREATE TABLE bioimpedance_measurements (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES users(id),
     date_time TIMESTAMPTZ NOT NULL,
@@ -162,25 +142,5 @@ CREATE TABLE bioimpedance_start (
     archived_by UUID REFERENCES users(id)
 );
 
-CREATE TABLE bioimpedance_finish (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL REFERENCES users(id),
-    date_time TIMESTAMPTZ NOT NULL,
-    fat_percentage REAL,
-    muscle_mass REAL,
-    water_percentage REAL,
-    visceral_fat INTEGER,
-    bmc REAL,
-    bmi REAL,
-    metabolism INTEGER,
-    company_id UUID DEFAULT '00000000-0000-0000-0000-000000000000',
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW(),
-    created_by UUID REFERENCES users(id),
-    updated_by UUID REFERENCES users(id),
-    archived_at TIMESTAMPTZ,
-    archived_by UUID REFERENCES users(id)
-);
 
-CREATE INDEX IF NOT EXISTS idx_bioimpedance_start_user_id ON bioimpedance_start(user_id);
-CREATE INDEX IF NOT EXISTS idx_bioimpedance_finish_user_id ON bioimpedance_finish(user_id);
+CREATE INDEX IF NOT EXISTS idx_bioimpedance_measurements_user_id ON bioimpedance_measurements(user_id);

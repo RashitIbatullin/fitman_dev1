@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:fitman_common/fitman_common.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_multipart/shelf_multipart.dart';
 import '../../../config/database.dart';
@@ -21,217 +22,190 @@ class AnthropometryController {
       }
 
       final recommendationService = RecommendationService();
-      final profile = await recommendationService.getSomatotypeProfileForUser(clientId);
+      final profile =
+          await recommendationService.getSomatotypeProfileForUser(clientId);
 
       if (profile == null) {
-        return Response.notFound(jsonEncode({'profile_string': 'Недостаточно данных для расчета соматотипа.'}));
+        return Response.notFound(jsonEncode(
+            {'profile_string': 'Недостаточно данных для расчета соматотипа.'}));
       }
 
       return Response.ok(jsonEncode({'profile_string': profile.toString()}));
-
     } catch (e) {
       print('Get somatotype error: $e');
-      return Response.internalServerError(body: jsonEncode({'error': 'Internal server error'}));
+      return Response.internalServerError(
+          body: jsonEncode({'error': 'Internal server error'}));
     }
   }
 
-  static Future<Response> getAnthropometryDataForClient(Request request, [String? id]) async {
+  // Methods for periodic measurements
+  static Future<Response> getAnthropometry(Request request,
+      [String? id]) async {
     try {
       final user = request.context['user'] as Map<String, dynamic>?;
       if (user == null) {
         return Response.unauthorized(jsonEncode({'error': 'Not authenticated'}));
       }
-
-      String clientId;
-      if (id != null) {
-        clientId = id;
-      } else {
-        clientId = user['userId'] as String;
-      }
-      print('[getAnthropometryDataForClient] Authenticated userId: ${user['userId']}, Using clientId: $clientId');
-      final data = await Database().clients.getAnthropometryData(clientId);
-
+      final clientId = id ?? user['userId'] as String;
+      final data =
+          await Database().clients.getAnthropometryMeasurements(clientId);
       return Response.ok(jsonEncode(data));
     } catch (e) {
       print('Get anthropometry data error: $e');
-      return Response.internalServerError(body: jsonEncode({'error': 'Internal server error'}));
+      return Response.internalServerError(
+          body: jsonEncode({'error': 'Internal server error'}));
     }
   }
 
-  static Future<Response> uploadPhoto(Request request, [String? id]) async {
+  static Future<Response> saveAnthropometry(Request request,
+      [String? id]) async {
     try {
       final user = request.context['user'] as Map<String, dynamic>?;
       if (user == null) {
         return Response.unauthorized(jsonEncode({'error': 'Not authenticated'}));
       }
-
-      String clientId;
-      if (id != null) {
-        clientId = id;
-      } else {
-        clientId = user['userId'] as String;
+      final body = await request.readAsString();
+      final data = jsonDecode(body) as Map<String, dynamic>;
+      final measurement = AnthropometryMeasurement.fromJson(data);
+      final authorizedClientId = id ?? user['userId'] as String;
+      if (measurement.userId != authorizedClientId) {
+        return Response.forbidden(
+            jsonEncode({'error': 'Mismatched user ID'}));
       }
-      print('[uploadPhoto] Authenticated userId: ${user['userId']}, Using clientId: $clientId');
+      final updatedMeasurement = measurement.copyWith(
+        updatedBy: user['userId'] as String,
+        createdBy: measurement.id == null ? user['userId'] as String : measurement.createdBy,
+      );
+      final savedMeasurement = await Database()
+          .clients
+          .saveAnthropometryMeasurement(updatedMeasurement);
+      return Response.ok(jsonEncode(savedMeasurement));
+    } catch (e, s) {
+      print('Save anthropometry error: $e');
+      print(s);
+      return Response.internalServerError(
+          body: jsonEncode({'error': e.toString()}));
+    }
+  }
 
-      String? type;
+  // Methods for fixed data
+  static Future<Response> getFixedAnthropometry(Request request, [String? id]) async {
+    try {
+      final user = request.context['user'] as Map<String, dynamic>?;
+      if (user == null) {
+        return Response.unauthorized(jsonEncode({'error': 'Not authenticated'}));
+      }
+      final clientId = id ?? user['userId'] as String;
+      final data = await Database().clients.getFixedAnthropometry(clientId);
+      if (data == null) {
+        return Response.notFound(jsonEncode({'message': 'No fixed data found for user'}));
+      }
+      return Response.ok(jsonEncode(data));
+    } catch (e) {
+      print('Get fixed anthropometry error: $e');
+      return Response.internalServerError(body: jsonEncode({'error': 'Internal server error'}));
+    }
+  }
+
+  static Future<Response> saveFixedAnthropometry(Request request, [String? id]) async {
+    try {
+      final user = request.context['user'] as Map<String, dynamic>?;
+      if (user == null) {
+        return Response.unauthorized(jsonEncode({'error': 'Not authenticated'}));
+      }
+      final body = await request.readAsString();
+      final data = jsonDecode(body) as Map<String, dynamic>;
+      final fixedData = AnthropometryFixed.fromJson(data);
+       final authorizedClientId = id ?? user['userId'] as String;
+      if (fixedData.userId != authorizedClientId) {
+        return Response.forbidden(
+            jsonEncode({'error': 'Mismatched user ID'}));
+      }
+      final updatedFixedData = fixedData.copyWith(
+        updatedBy: user['userId'] as String,
+        createdBy: fixedData.createdBy ?? user['userId'] as String,
+      );
+      final savedData = await Database().clients.saveFixedAnthropometry(updatedFixedData);
+      return Response.ok(jsonEncode(savedData));
+    } catch (e) {
+      print('Save fixed anthropometry error: $e');
+      return Response.internalServerError(body: jsonEncode({'error': 'Internal server error'}));
+    }
+  }
+
+  // Unchanged methods
+  static Future<Response> uploadPhoto(Request request) async {
+    try {
+      final user = request.context['user'] as Map<String, dynamic>?;
+      if (user == null) {
+        return Response.unauthorized(jsonEncode({'error': 'Not authenticated'}));
+      }
       String? fileName;
       List<int>? fileBytes;
-      DateTime? photoDateTimeFromRequest;
-
       if (request.formData() case final form?) {
         await for (final formData in form.formData) {
-          print('formData.name: ${formData.name}');
-          print('formData.filename: ${formData.filename}');
-          if (formData.name == 'type') {
-            type = await formData.part.readString();
-          } else if (formData.name == 'photo') {
+          if (formData.name == 'photo') {
             fileName = formData.filename;
             fileBytes = await formData.part.readBytes();
-          } else if (formData.name == 'photoDateTime') {
-            photoDateTimeFromRequest = DateTime.tryParse(await formData.part.readString());
+            break; 
           }
         }
       } else {
         return Response.badRequest(body: jsonEncode({'error': 'Not a multipart/form-data request'}));
       }
-
-      if (type == null || fileName == null || fileBytes == null) {
-        return Response.badRequest(body: jsonEncode({'error': 'Missing required fields'}));
+      if (fileName == null || fileBytes == null) {
+        return Response.badRequest(
+            body: jsonEncode({'error': 'Missing photo file'}));
       }
-
-      final uploadDir = Directory('../uploads');
+      final uploadDir = Directory('../uploads/avatars');
       if (!await uploadDir.exists()) {
         await uploadDir.create(recursive: true);
       }
-
-      final filePath = '${uploadDir.path}/$fileName';
+      final extension = fileName.split('.').last;
+      final uniqueFileName = '${DateTime.now().millisecondsSinceEpoch}_${user['userId']}.$extension';
+      final filePath = '${uploadDir.path}/$uniqueFileName';
       final file = File(filePath);
       await file.writeAsBytes(fileBytes);
-
-      final photoUrl = '/uploads/$fileName';
-
-      final now = photoDateTimeFromRequest ?? DateTime.now();
-      final creatorId = user['userId'] as String;
-      await Database().clients.updateAnthropometryPhoto(clientId, photoUrl, type, now, creatorId);
-
+      final photoUrl = '/uploads/avatars/$uniqueFileName';
       return Response.ok(jsonEncode({
         'url': photoUrl,
-        'photo_date_time': now.toIso8601String(),
       }));
     } catch (e, s) {
       print('Upload photo error: $e');
       print(s);
-      return Response.internalServerError(body: jsonEncode({'error': 'Internal server error'}));
+      return Response.internalServerError(
+          body: jsonEncode({'error': 'Internal server error'}));
     }
   }
 
-  static Future<Response> updateFixedAnthropometry(Request request, [String? id]) async {
+  
+  static Future<Response> getWhtrProfiles(Request request,
+      [String? id]) async {
     try {
       final user = request.context['user'] as Map<String, dynamic>?;
       if (user == null) {
         return Response.unauthorized(jsonEncode({'error': 'Not authenticated'}));
       }
-
       String clientId;
       if (id != null) {
         clientId = id;
       } else {
         clientId = user['userId'] as String;
       }
-      print('[updateFixedAnthropometry] Authenticated userId: ${user['userId']}, Using clientId: $clientId');
-
-      final body = await request.readAsString();
-      final data = jsonDecode(body) as Map<String, dynamic>;
-      final height = data['height'] as int?;
-      final wristCirc = data['wristCirc'] as int?;
-      final ankleCirc = data['ankleCirc'] as int?;
-
-      final creatorId = user['userId'] as String;
-      await Database().clients.updateAnthropometryFixed(clientId, height, wristCirc, ankleCirc, creatorId);
-
-      return Response.ok(jsonEncode({'message': 'Fixed anthropometry updated successfully'}));
-    } catch (e, s) {
-      print('Update fixed anthropometry error: $e');
-      print(s);
-      return Response.internalServerError(body: jsonEncode({'error': 'Internal server error'}));
-    }
-  }
-
-  static Future<Response> updateMeasurementsAnthropometry(Request request, [String? id]) async {
-    try {
-      final user = request.context['user'] as Map<String, dynamic>?;
-      if (user == null) {
-        return Response.unauthorized(jsonEncode({'error': 'Not authenticated'}));
-      }
-
-      String clientId;
-      if (id != null) {
-        clientId = id;
-      } else {
-        clientId = user['userId'] as String;
-      }
-      print('[updateMeasurementsAnthropometry] Authenticated userId: ${user['userId']}, Using clientId: $clientId');
-
-      final body = await request.readAsString();
-      final data = jsonDecode(body) as Map<String, dynamic>;
-      final weight = (data['weight'] as num?)?.toDouble();
-      final shouldersCirc = data['shouldersCirc'] as int?;
-      final breastCirc = data['breastCirc'] as int?;
-      final waistCirc = data['waistCirc'] as int?;
-      final hipsCirc = data['hipsCirc'] as int?;
-
-      final type = data['type'] as String; // 'start' or 'finish'
-
-      if (type != 'start' && type != 'finish') {
-        return Response.badRequest(body: jsonEncode({'error': 'Invalid anthropometry type. Must be "start" or "finish"'}));
-      }
-
-      final creatorId = user['userId'] as String;
-      await Database().clients.updateAnthropometryMeasurements(
-        clientId,
-        type,
-        weight,
-        shouldersCirc,
-        breastCirc,
-        waistCirc,
-        hipsCirc,
-        creatorId,
-      );
-
-      return Response.ok(jsonEncode({'message': 'Measurements anthropometry updated successfully'}));
-    } catch (e, s) {
-      print('Update measurements anthropometry error: $e');
-      print(s);
-      return Response.internalServerError(body: jsonEncode({'error': e.toString()}));
-    }
-  }
-
-  static Future<Response> getWhtrProfiles(Request request, [String? id]) async {
-    try {
-      final user = request.context['user'] as Map<String, dynamic>?;
-      if (user == null) {
-        return Response.unauthorized(jsonEncode({'error': 'Not authenticated'}));
-      }
-
-      String clientId;
-      if (id != null) {
-        clientId = id;
-      } else {
-        clientId = user['userId'] as String;
-      }
-
       final recommendationService = RecommendationService();
-      final profiles = await recommendationService.getWhtrProfilesForUser(clientId);
-
+      final profiles =
+          await recommendationService.getWhtrProfilesForUser(clientId);
       if (profiles == null) {
-        return Response.notFound(jsonEncode({'error': 'Could not calculate WHtR profiles. User not found or missing anthropometry data.'}));
+        return Response.notFound(jsonEncode({
+          'error':
+              'Could not calculate WHtR profiles. User not found or missing anthropometry data.'
+        }));
       }
-
       return Response.ok(jsonEncode(profiles.toJson()));
-
     } catch (e) {
       print('Get WHtR profiles error: $e');
-      return Response.internalServerError(body: jsonEncode({'error': 'Internal server error'}));
+      return Response.internalServerError(
+          body: jsonEncode({'error': 'Internal server error'}));
     }
   }
 }

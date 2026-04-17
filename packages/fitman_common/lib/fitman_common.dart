@@ -8,6 +8,8 @@ export 'modules/rooms/room_type.enum.dart';
 export 'modules/rooms/nullable_date_time_converter.dart';
 export 'functional/training/training_plan.model.dart';
 export 'modules/clients/anthropometry/anthropometry_data.model.dart';
+export 'modules/clients/anthropometry/anthropometry_measurement.dart';
+export 'modules/clients/anthropometry/anthropometry_fixed.dart';
 export 'modules/clients/calories/calorie_tracking_data.model.dart';
 export 'modules/clients/progress/progress_data.model.dart';
 export 'functional/schedule/schedule_item.model.dart';

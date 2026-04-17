@@ -1,27 +1,20 @@
+import 'package:fitman_common/modules/clients/anthropometry/anthropometry_fixed.dart';
+import 'package:fitman_common/modules/clients/anthropometry/anthropometry_measurement.dart';
 import 'package:postgres/postgres.dart';
 
 import '../../../config/database.dart';
 
 abstract class ClientRepository {
-  Future<Map<String, dynamic>> getAnthropometryData(String clientId);
-  Future<void> updateAnthropometryPhoto(String clientId, String photoUrl, String type, DateTime? photoDateTime, String creatorId);
-  Future<void> updateAnthropometryFixed(
+  Future<List<AnthropometryMeasurement>> getAnthropometryMeasurements(
     String clientId,
-    int? height,
-    int? wristCirc,
-    int? ankleCirc,
-    String creatorId,
   );
-  Future<void> updateAnthropometryMeasurements(
-    String clientId,
-    String type, // 'start' or 'finish'
-    double? weight,
-    int? shouldersCirc,
-    int? breastCirc,
-    int? waistCirc,
-    int? hipsCirc,
-    String creatorId,
+  Future<AnthropometryMeasurement> saveAnthropometryMeasurement(
+    AnthropometryMeasurement measurement,
   );
+  Future<AnthropometryFixed?> getFixedAnthropometry(String clientId);
+  Future<AnthropometryFixed> saveFixedAnthropometry(
+      AnthropometryFixed fixedData);
+
   Future<List<Map<String, dynamic>>> getCalorieTrackingData(String clientId);
   Future<Map<String, dynamic>> getProgressData(String clientId);
   Future<Map<String, dynamic>> getBioimpedanceData(String clientId);
@@ -35,190 +28,152 @@ class ClientRepositoryImpl implements ClientRepository {
   Future<Connection> get _connection => _db.connection;
 
   @override
-  Future<Map<String, dynamic>> getAnthropometryData(String clientId) async {
+  Future<List<AnthropometryMeasurement>> getAnthropometryMeasurements(
+    String clientId,
+  ) async {
     try {
       final conn = await _connection;
-      final fixedResult = await conn.execute(
+      final result = await conn.execute(
+        Sql.named('''
+          SELECT id, user_id, date_time, photo, photo_date_time, profile_photo, profile_photo_date_time, 
+                 weight, shoulders_circ, breast_circ, waist_circ, hips_circ, 
+                 company_id, created_at, updated_at, created_by, updated_by, 
+                 archived_at, archived_by, archived_reason
+          FROM anthropometry_measurements 
+          WHERE user_id = @clientId 
+          ORDER BY date_time DESC
+        '''),
+        parameters: {'clientId': clientId},
+      );
+
+      return result.map((row) {
+        try {
+          return AnthropometryMeasurement.fromJson(_convertDateTimeToString(row.toColumnMap()));
+        } catch (e, s) {
+          print('❌ Failed to parse anthropometry measurement row:');
+          print('Row data: ${row.toColumnMap()}');
+          print('Error: $e');
+          print('Stacktrace: $s');
+          return null;
+        }
+      }).whereType<AnthropometryMeasurement>().toList();
+    } catch (e) {
+      print('❌ getAnthropometryMeasurements error: $e');
+      rethrow;
+    }
+  }
+
+  @override
+  Future<AnthropometryMeasurement> saveAnthropometryMeasurement(
+    AnthropometryMeasurement measurement,
+  ) async {
+    try {
+      final conn = await _connection;
+      final params = measurement.toJson()
+        ..remove('created_at')
+        ..remove('updated_at')
+        ..remove('archived_at')
+        ..remove('archived_by')
+        ..remove('archived_reason');
+
+      final result = await conn.execute(
+        Sql.named('''
+          INSERT INTO anthropometry_measurements (
+            id, user_id, date_time, photo, photo_date_time, profile_photo, profile_photo_date_time, 
+            weight, shoulders_circ, breast_circ, waist_circ, hips_circ, 
+            company_id, updated_at, created_by, updated_by
+          )
+          VALUES (
+            COALESCE(@id, gen_random_uuid()), @user_id, @date_time, @photo, @photo_date_time, 
+            @profile_photo, @profile_photo_date_time, @weight, @shoulders_circ, 
+            @breast_circ, @waist_circ, @hips_circ, @company_id, NOW(), 
+            @created_by, @updated_by
+          )
+          ON CONFLICT (id) DO UPDATE SET
+            date_time = EXCLUDED.date_time,
+            photo = EXCLUDED.photo,
+            photo_date_time = EXCLUDED.photo_date_time,
+            profile_photo = EXCLUDED.profile_photo,
+            profile_photo_date_time = EXCLUDED.profile_photo_date_time,
+            weight = EXCLUDED.weight,
+            shoulders_circ = EXCLUDED.shoulders_circ,
+            breast_circ = EXCLUDED.breast_circ,
+            waist_circ = EXCLUDED.waist_circ,
+            hips_circ = EXCLUDED.hips_circ,
+            updated_at = NOW(),
+            updated_by = EXCLUDED.updated_by
+          RETURNING *;
+        '''),
+        parameters: params,
+      );
+
+      if (result.isEmpty) {
+        throw Exception('Failed to save anthropometry measurement.');
+      }
+
+      return AnthropometryMeasurement.fromJson(_convertDateTimeToString(result.first.toColumnMap()));
+    } catch (e) {
+      print('❌ saveAnthropometryMeasurement error: $e');
+      rethrow;
+    }
+  }
+
+  @override
+  Future<AnthropometryFixed?> getFixedAnthropometry(String clientId) async {
+    try {
+      final conn = await _connection;
+      final result = await conn.execute(
         Sql.named('SELECT * FROM anthropometry_fix WHERE user_id = @clientId'),
         parameters: {'clientId': clientId},
       );
-      final startResult = await conn.execute(
-        Sql.named('SELECT *, profile_photo, profile_photo_date_time FROM anthropometry_start WHERE user_id = @clientId'),
-        parameters: {'clientId': clientId},
-      );
-      final finishResult = await conn.execute(
-        Sql.named('SELECT *, profile_photo, profile_photo_date_time FROM anthropometry_finish WHERE user_id = @clientId'),
-        parameters: {'clientId': clientId},
-      );
-
-      final fixedData = fixedResult.isNotEmpty ? _convertDateTimeToString(fixedResult.first.toColumnMap()) : {};
-      final startData = startResult.isNotEmpty ? _convertDateTimeToString(startResult.first.toColumnMap()) : {};
-      final finishData = finishResult.isNotEmpty ? _convertDateTimeToString(finishResult.first.toColumnMap()) : {};
-
-      print('[getAnthropometryData] startData: $startData');
-      print('[getAnthropometryData] finishData: $finishData');
-
-      return {
-        'fixed': fixedData,
-        'start': startData,
-        'finish': finishData,
-      };
-    } catch (e) {
-      print('❌ getAnthropometryData error: $e');
-      rethrow;
-    }
-  }
-
-  Map<String, dynamic> _convertDateTimeToString(Map<String, dynamic> map) {
-    final newMap = <String, dynamic>{};
-    map.forEach((key, value) {
-      if (value is DateTime) {
-        newMap[key] = value.toIso8601String();
-      } else {
-        newMap[key] = value;
+      if (result.isEmpty) {
+        return null;
       }
-    });
-    return newMap;
+      return AnthropometryFixed.fromJson(_convertDateTimeToString(result.first.toColumnMap()));
+    } catch (e) {
+      print('❌ getFixedAnthropometry error: $e');
+      rethrow;
+    }
   }
 
   @override
-  Future<void> updateAnthropometryPhoto(String clientId, String photoUrl, String type, DateTime? photoDateTime, String creatorId) async {
+  Future<AnthropometryFixed> saveFixedAnthropometry(
+      AnthropometryFixed fixedData) async {
     try {
       final conn = await _connection;
-      String tableName;
-      String photoColumn;
-      String photoDateTimeColumn;
+      final params = fixedData.toJson()
+        ..remove('created_at')
+        ..remove('updated_at');
 
-      switch (type) {
-        case 'start_front':
-          tableName = 'anthropometry_start';
-          photoColumn = 'photo';
-          photoDateTimeColumn = 'photo_date_time';
-          break;
-        case 'finish_front':
-          tableName = 'anthropometry_finish';
-          photoColumn = 'photo';
-          photoDateTimeColumn = 'photo_date_time';
-          break;
-        case 'start_profile':
-          tableName = 'anthropometry_start';
-          photoColumn = 'profile_photo';
-          photoDateTimeColumn = 'profile_photo_date_time';
-          break;
-        case 'finish_profile':
-          tableName = 'anthropometry_finish';
-          photoColumn = 'profile_photo';
-          photoDateTimeColumn = 'profile_photo_date_time';
-          break;
-        default:
-          throw ArgumentError('Invalid photo type: $type');
+      final result = await conn.execute(
+        Sql.named('''
+        INSERT INTO anthropometry_fix (user_id, height, wrist_circ, ankle_circ, created_by, updated_by, company_id, updated_at)
+        VALUES (@user_id, @height, @wrist_circ, @ankle_circ, @created_by, @updated_by, @company_id, NOW())
+        ON CONFLICT (user_id) DO UPDATE
+        SET 
+          height = EXCLUDED.height,
+          wrist_circ = EXCLUDED.wrist_circ,
+          ankle_circ = EXCLUDED.ankle_circ,
+          updated_at = NOW(),
+          updated_by = EXCLUDED.updated_by
+        RETURNING *;
+      '''),
+        parameters: params,
+      );
+
+      if (result.isEmpty) {
+        throw Exception('Failed to save fixed anthropometry.');
       }
-
-      await conn.execute(
-        Sql.named('''
-          INSERT INTO $tableName (user_id, $photoColumn, $photoDateTimeColumn, created_by, updated_by)
-          VALUES (@clientId, @photoUrl, @photoDateTime, @creatorId, @creatorId)
-          ON CONFLICT (user_id) DO UPDATE
-          SET $photoColumn = @photoUrl, $photoDateTimeColumn = @photoDateTime, updated_at = NOW(), updated_by = @creatorId
-        '''),
-        parameters: {
-          'photoUrl': photoUrl,
-          'clientId': clientId,
-          'photoDateTime': photoDateTime ?? DateTime.now(),
-          'creatorId': creatorId,
-        },
-      );
+      return AnthropometryFixed.fromJson(_convertDateTimeToString(result.first.toColumnMap()));
     } catch (e) {
-      print('❌ updateAnthropometryPhoto error: $e');
+      print('❌ saveFixedAnthropometry error: $e');
       rethrow;
     }
   }
 
   @override
-  Future<void> updateAnthropometryFixed(
-    String clientId,
-    int? height,
-    int? wristCirc,
-    int? ankleCirc,
-    String creatorId,
-  ) async {
-    try {
-      final conn = await _connection;
-      await conn.execute(
-        Sql.named('''
-          INSERT INTO anthropometry_fix (user_id, height, wrist_circ, ankle_circ, created_by, updated_by)
-          VALUES (@clientId, @height, @wristCirc, @ankleCirc, @creatorId, @creatorId)
-          ON CONFLICT (user_id) DO UPDATE
-          SET 
-            height = @height,
-            wrist_circ = @wristCirc,
-            ankle_circ = @ankleCirc,
-            updated_at = NOW(),
-            updated_by = @creatorId
-        '''),
-        parameters: {
-          'clientId': clientId,
-          'height': height,
-          'wristCirc': wristCirc,
-          'ankleCirc': ankleCirc,
-          'creatorId': creatorId,
-        },
-      );
-    } catch (e) {
-      print('❌ updateAnthropometryFixed error: $e');
-      rethrow;
-    }
-  }
-
-  @override
-  Future<void> updateAnthropometryMeasurements(
-    String clientId,
-    String type, // 'start' or 'finish'
-    double? weight,
-    int? shouldersCirc,
-    int? breastCirc,
-    int? waistCirc,
-    int? hipsCirc,
-    String creatorId,
-  ) async {
-    try {
-      final conn = await _connection;
-      final tableName = type == 'start' ? 'anthropometry_start' : 'anthropometry_finish';
-      final now = DateTime.now();
-      await conn.execute(
-        Sql.named('''
-          INSERT INTO $tableName (user_id, weight, shoulders_circ, breast_circ, waist_circ, hips_circ, date_time, created_by, updated_by)
-          VALUES (@clientId, @weight, @shouldersCirc, @breastCirc, @waistCirc, @hipsCirc, @now, @creatorId, @creatorId)
-          ON CONFLICT (user_id) DO UPDATE
-          SET 
-            weight = @weight,
-            shoulders_circ = @shouldersCirc,
-            breast_circ = @breastCirc,
-            waist_circ = @waistCirc,
-            hips_circ = @hipsCirc,
-            date_time = @now,
-            updated_at = NOW(),
-            updated_by = @creatorId
-        '''),
-        parameters: {
-          'clientId': clientId,
-          'weight': weight,
-          'shouldersCirc': shouldersCirc,
-          'breastCirc': breastCirc,
-          'waistCirc': waistCirc,
-          'hipsCirc': hipsCirc,
-          'now': now,
-          'creatorId': creatorId,
-        },
-      );
-    } catch (e) {
-      print('❌ updateAnthropometryMeasurements error: $e');
-      rethrow;
-    }
-  }
-
-  @override
-  Future<List<Map<String, dynamic>>> getCalorieTrackingData(String clientId) async {
+  Future<List<Map<String, dynamic>>> getCalorieTrackingData(
+      String clientId) async {
     // TODO: Implement actual database query
     print('Fetching calorie tracking data for client $clientId');
     // Placeholder implementation
@@ -230,13 +185,6 @@ class ClientRepositoryImpl implements ClientRepository {
         'burned': 2500,
         'balance': -300,
       },
-      {
-        'date': '2025-10-29T18:00:00',
-        'training': 'Тренировка 2',
-        'consumed': 2400,
-        'burned': 2100,
-        'balance': 300,
-      },
     ];
   }
 
@@ -246,33 +194,15 @@ class ClientRepositoryImpl implements ClientRepository {
     print('Fetching progress data for client $clientId');
     // Placeholder implementation
     return {
-      'weight': [
-        {'date': '2025-10-01', 'value': 85},
-        {'date': '2025-10-08', 'value': 84},
-        {'date': '2025-10-15', 'value': 82},
-        {'date': '2025-10-22', 'value': 83},
-        {'date': '2025-10-29', 'value': 81},
-      ],
-      'calories': [
-        {'date': '2025-10-01', 'value': 2200},
-        {'date': '2025-10-08', 'value': 2100},
-        {'date': '2025-10-15', 'value': 2000},
-        {'date': '2025-10-22', 'value': 2300},
-        {'date': '2025-10-29', 'value': 2050},
-      ],
-      'balance': [
-        {'date': '2025-10-01', 'value': -300},
-        {'date': '2025-10-08', 'value': 100},
-        {'date': '2025-10-15', 'value': -500},
-        {'date': '2025-10-22', 'value': 200},
-        {'date': '2025-10-29', 'value': -150},
-      ],
+      'weight': [{'date': '2025-10-01', 'value': 85}],
+      'calories': [],
+      'balance': [],
       'kpi': {
-        'avgWeight': 82.2,
-        'weightChange': -2.8,
-        'avgCalories': 2130,
+        'avgWeight': 0,
+        'weightChange': 0,
+        'avgCalories': 0,
       },
-      'recommendations': 'Ваш прогресс замедлился. Попробуйте добавить больше кардио-упражнений и следите за потреблением углеводов.',
+      'recommendations': 'Нет данных для рекомендаций.',
     };
   }
 
@@ -289,8 +219,12 @@ class ClientRepositoryImpl implements ClientRepository {
         parameters: {'clientId': clientId},
       );
 
-      final startData = startResult.isNotEmpty ? _convertDateTimeToString(startResult.first.toColumnMap()) : {};
-      final finishData = finishResult.isNotEmpty ? _convertDateTimeToString(finishResult.first.toColumnMap()) : {};
+      final startData = startResult.isNotEmpty
+          ? _convertDateTimeToString(startResult.first.toColumnMap())
+          : {};
+      final finishData = finishResult.isNotEmpty
+          ? _convertDateTimeToString(finishResult.first.toColumnMap())
+          : {};
 
       return {
         'start': startData,
@@ -300,5 +234,17 @@ class ClientRepositoryImpl implements ClientRepository {
       print('❌ getBioimpedanceData error: $e');
       rethrow;
     }
+  }
+
+  Map<String, dynamic> _convertDateTimeToString(Map<String, dynamic> map) {
+    final newMap = <String, dynamic>{};
+    map.forEach((key, value) {
+      if (value is DateTime) {
+        newMap[key] = value.toIso8601String();
+      } else {
+        newMap[key] = value;
+      }
+    });
+    return newMap;
   }
 }

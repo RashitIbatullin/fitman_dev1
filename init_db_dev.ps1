@@ -45,7 +45,7 @@ $EQUIPMENT_FILE = "database\equipment.sql"
 $GROUPS_FILE = "database\groups.sql"
 $LESSONS_FILE = "database\lessons.sql"
 $CHAT_FILE = "database\chat.sql"
-$RECOMMENDATIONS_FILE = "database\recommendations.sql"
+$BODY_FILE = "database\body.sql"
 
 Write-Host "Настройки подключения:" -ForegroundColor Yellow
 Write-Host "Хост: $DB_HOST"
@@ -91,7 +91,7 @@ if (-not (Test-SqlFile $EQUIPMENT_FILE)) { exit 1 }
 if (-not (Test-SqlFile $GROUPS_FILE)) { exit 1 }
 if (-not (Test-SqlFile $LESSONS_FILE)) { exit 1 }
 if (-not (Test-SqlFile $CHAT_FILE)) { exit 1 }
-if (-not (Test-SqlFile $RECOMMENDATIONS_FILE)) { exit 1 }
+if (-not (Test-SqlFile $BODY_FILE)) { exit 1 }
 
 # Функция выполнения SQL-файла
 function Execute-SqlFile {
@@ -176,7 +176,7 @@ if (-not (Execute-SqlFile -File $EQUIPMENT_FILE -Description "Структура
 if (-not (Execute-SqlFile -File $GROUPS_FILE -Description "Структура таблиц для Групп")) { exit 1 }
 if (-not (Execute-SqlFile -File $LESSONS_FILE -Description "Структура таблиц для Занятий и Планов")) { exit 1 }
 if (-not (Execute-SqlFile -File $CHAT_FILE -Description "Структура таблиц для Чата")) { exit 1 }
-if (-not (Execute-SqlFile -File $RECOMMENDATIONS_FILE -Description "Структура и данные для Рекомендаций")) { exit 1 }
+if (-not (Execute-SqlFile -File $BODY_FILE -Description "Структура и данные для Рекомендаций")) { exit 1 }
 
 # 5. Выполнение Dart-сидера для наполнения данными
 Write-Host ""
