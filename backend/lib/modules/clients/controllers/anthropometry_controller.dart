@@ -47,8 +47,13 @@ class AnthropometryController {
         return Response.unauthorized(jsonEncode({'error': 'Not authenticated'}));
       }
       final clientId = id ?? user['userId'] as String;
-      final data =
-          await Database().clients.getAnthropometryMeasurements(clientId);
+      final includeArchived =
+          request.url.queryParameters['includeArchived'] == 'true';
+
+      final data = await Database().clients.getAnthropometryMeasurements(
+            clientId,
+            includeArchived: includeArchived,
+          );
       return Response.ok(jsonEncode(data));
     } catch (e) {
       print('Get anthropometry data error: $e');
@@ -85,6 +90,50 @@ class AnthropometryController {
       print(s);
       return Response.internalServerError(
           body: jsonEncode({'error': e.toString()}));
+    }
+  }
+
+  static Future<Response> archiveAnthropometryMeasurement(
+      Request request, String clientId, String measurementId) async {
+    try {
+      final user = request.context['user'] as Map<String, dynamic>?;
+      if (user == null) {
+        return Response.unauthorized(jsonEncode({'error': 'Not authenticated'}));
+      }
+      final userId = user['userId'] as String;
+      
+      final body = await request.readAsString();
+      if (body.isEmpty) {
+        return Response.badRequest(body: jsonEncode({'error': 'Missing reason in request body'}));
+      }
+      final data = jsonDecode(body) as Map<String, dynamic>;
+      final reason = data['reason'] as String?;
+
+      if (reason == null || reason.trim().length < 5) {
+        return Response.badRequest(body: jsonEncode({'error': 'Reason must be at least 5 characters long'}));
+      }
+
+      await Database()
+          .clients
+          .archiveAnthropometryMeasurement(measurementId, userId, reason);
+
+      return Response(204); // No Content
+    } catch (e) {
+      print('Archive anthropometry measurement error: $e');
+      return Response.internalServerError(
+          body: jsonEncode({'error': 'Internal server error'}));
+    }
+  }
+
+  static Future<Response> unarchiveAnthropometryMeasurement(
+      Request request, String clientId, String measurementId) async {
+    try {
+      await Database().clients.unarchiveAnthropometryMeasurement(measurementId);
+      return Response(204); // No Content
+    } catch (e) {
+      print('Unarchive anthropometry measurement error: $e');
+      return Response.internalServerError(
+          body: jsonEncode({'error': 'Internal server error'}));
     }
   }
 

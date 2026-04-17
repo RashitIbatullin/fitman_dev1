@@ -6,13 +6,26 @@ import 'package:fitman_app/providers/auth_provider.dart';
 
 final fixedAnthropometryProvider =
     FutureProvider.family<AnthropometryFixed?, String>((ref, clientId) async {
-  final bool isAdmin = ref.watch(authProvider.select((auth) =>
-      auth.value?.user?.roles.any((r) => r.name == 'admin') ?? false));
+  final authState = ref.watch(authProvider);
+  final user = authState.asData?.value.user;
+  if (user == null) {
+    // Return null or throw an exception if the user is not authenticated
+    // and this view should not be displayed.
+    return null;
+  }
+  
+  final userRoles = user.roles.map((r) => r.name).toSet();
+  final isStaff = userRoles.contains('admin') || userRoles.contains('trainer') || userRoles.contains('instructor') || userRoles.contains('manager');
 
-  if (isAdmin) {
+  if (isStaff) {
     return ApiService.getFixedAnthropometryForClient(clientId);
   } else {
-    return ApiService.getFixedAnthropometry();
+    // A client can only view their own data.
+    if (user.id == clientId) {
+      return ApiService.getFixedAnthropometry();
+    }
+    // A client cannot view another client's data.
+    return null; 
   }
 });
 
@@ -70,11 +83,13 @@ class _FixedValuesViewState extends ConsumerState<FixedValuesView> {
   }
 
   Future<void> _submit() async {
-    if (!_isButtonEnabled) return;
+    if (!_isButtonEnabled || !mounted) return;
     if (_formKey.currentState?.validate() ?? false) {
       setState(() {
         _isLoading = true;
       });
+
+      final scaffoldMessenger = ScaffoldMessenger.of(context);
 
       try {
         final fixedData =
@@ -90,15 +105,16 @@ class _FixedValuesViewState extends ConsumerState<FixedValuesView> {
           ankleCirc: int.tryParse(_ankleController.text),
         );
 
-        await ApiService.saveFixedAnthropometry(dataToSave);
+        await ApiService.saveFixedAnthropometryForClient(widget.clientId, dataToSave);
 
         ref.invalidate(fixedAnthropometryProvider(widget.clientId));
+        
+        scaffoldMessenger.showSnackBar(
+          const SnackBar(
+              content: Text('Данные успешно сохранены'),
+              backgroundColor: Colors.green),
+        );
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-                content: Text('Данные успешно сохранены'),
-                backgroundColor: Colors.green),
-          );
            // Update initial values after successful save
           _initialHeight = _heightController.text;
           _initialWrist = _wristController.text;
@@ -106,11 +122,9 @@ class _FixedValuesViewState extends ConsumerState<FixedValuesView> {
           _updateButtonState(); // Recalculate button state
         }
       } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Ошибка сохранения: $e')),
-          );
-        }
+        scaffoldMessenger.showSnackBar(
+          SnackBar(content: Text('Ошибка сохранения: $e')),
+        );
       } finally {
         if (mounted) {
           setState(() {
@@ -123,6 +137,14 @@ class _FixedValuesViewState extends ConsumerState<FixedValuesView> {
 
   @override
   Widget build(BuildContext context) {
+    final authState = ref.watch(authProvider);
+    final user = authState.asData?.value.user;
+    final roles = user?.roles.map((r) => r.name).toSet() ?? {};
+    final canEdit = roles.contains('admin') ||
+        roles.contains('trainer') ||
+        roles.contains('instructor') ||
+        roles.contains('manager');
+        
     final asyncData = ref.watch(fixedAnthropometryProvider(widget.clientId));
 
     return asyncData.when(
@@ -141,7 +163,9 @@ class _FixedValuesViewState extends ConsumerState<FixedValuesView> {
           _initialAnkle = _ankleController.text;
         }
         
-        WidgetsBinding.instance.addPostFrameCallback((_) => _updateButtonState());
+        if(canEdit) {
+          WidgetsBinding.instance.addPostFrameCallback((_) => _updateButtonState());
+        }
 
         return SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
@@ -151,12 +175,14 @@ class _FixedValuesViewState extends ConsumerState<FixedValuesView> {
               children: [
                 TextFormField(
                   controller: _heightController,
+                  readOnly: !canEdit,
                   decoration: const InputDecoration(labelText: 'Рост (см)'),
                   keyboardType: TextInputType.number,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _wristController,
+                  readOnly: !canEdit,
                   decoration:
                       const InputDecoration(labelText: 'Обхват запястья (см)'),
                   keyboardType: TextInputType.number,
@@ -164,18 +190,20 @@ class _FixedValuesViewState extends ConsumerState<FixedValuesView> {
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _ankleController,
+                  readOnly: !canEdit,
                   decoration:
                       const InputDecoration(labelText: 'Обхват лодыжки (см)'),
                   keyboardType: TextInputType.number,
                 ),
                 const SizedBox(height: 32),
-                if (_isLoading)
-                  const CircularProgressIndicator()
-                else
-                  ElevatedButton(
-                    onPressed: _isButtonEnabled ? _submit : null,
-                    child: const Text('Сохранить'),
-                  ),
+                if (canEdit)
+                  if (_isLoading)
+                    const CircularProgressIndicator()
+                  else
+                    ElevatedButton(
+                      onPressed: _isButtonEnabled ? _submit : null,
+                      child: const Text('Сохранить'),
+                    ),
               ],
             ),
           ),

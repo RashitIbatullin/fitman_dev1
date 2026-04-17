@@ -73,7 +73,9 @@ class _AnthropometryEditScreenState
           hipsCirc: int.tryParse(_controllers['hipsCirc']!.text),
         );
 
-        await ApiService.saveAnthropometryMeasurement(measurementToSave);
+        // Use the appropriate API service method
+        await ApiService.saveAnthropometryMeasurementForClient(
+            widget.clientId, measurementToSave);
 
         ref.invalidate(anthropometryListProvider(widget.clientId));
         if (mounted) {
@@ -130,7 +132,8 @@ class _AnthropometryEditScreenState
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ListTile(
-                title: Text('Дата замера: ${DateFormat.yMMMd('ru').format(_dateTime)}'),
+                title: Text(
+                    'Дата замера: ${DateFormat.yMMMd('ru').format(_dateTime)}'),
                 trailing: const Icon(Icons.calendar_today),
                 onTap: () async {
                   final pickedDate = await showDatePicker(

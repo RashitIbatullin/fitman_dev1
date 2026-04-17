@@ -294,8 +294,9 @@ class ApiService {
   static Future<User?> getInstructorForClient() => _clientApi.getInstructorForClient();
   static Future<User?> getManagerForClient() => _clientApi.getManagerForClient();
 
-  static Future<List<AnthropometryMeasurement>> getAnthropometryMeasurements() =>
-      _clientApi.getAnthropometryMeasurements();
+  static Future<List<AnthropometryMeasurement>> getAnthropometryMeasurements(
+          {bool? includeArchived}) =>
+      _clientApi.getAnthropometryMeasurements(includeArchived: includeArchived);
   static Future<AnthropometryMeasurement> saveAnthropometryMeasurement(
           AnthropometryMeasurement measurement) =>
       _clientApi.saveAnthropometryMeasurement(measurement);
@@ -338,8 +339,8 @@ class ApiService {
 
   // --- Admin Methods ---
   static Future<List<AnthropometryMeasurement>> getAnthropometryMeasurementsForClient(
-          String clientId) =>
-      _adminApi.getAnthropometryMeasurementsForClient(clientId);
+          String clientId, {bool? includeArchived}) =>
+      _adminApi.getAnthropometryMeasurementsForClient(clientId, includeArchived: includeArchived);
 
   static Future<AnthropometryMeasurement> saveAnthropometryMeasurementForClient(
     String clientId,
@@ -361,6 +362,14 @@ class ApiService {
       _adminApi.getSomatotypeProfileForClient(clientId);
   static Future<WhtrProfiles> getWhtrProfilesForClient(String clientId) =>
       _adminApi.getWhtrProfilesForClient(clientId);
+
+  static Future<void> archiveAnthropometryMeasurement(
+          String clientId, String measurementId, String reason) =>
+      _adminApi.archiveAnthropometryMeasurement(clientId, measurementId, reason);
+
+  static Future<void> unarchiveAnthropometryMeasurement(
+          String clientId, String measurementId) =>
+      _adminApi.unarchiveAnthropometryMeasurement(clientId, measurementId);
 
   // --- Support Staff Methods ---
   static Future<List<SupportStaff>> getAllSupportStaff({bool? isArchived}) =>

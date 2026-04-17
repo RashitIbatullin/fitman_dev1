@@ -6,8 +6,12 @@ class AdminApiService extends BaseApiService {
   AdminApiService({super.client});
 
   Future<List<AnthropometryMeasurement>> getAnthropometryMeasurementsForClient(
-      String clientId) async {
-    final data = await get('/api/admin/clients/$clientId/anthropometry') as List;
+      String clientId, {bool? includeArchived}) async {
+    var endpoint = '/api/admin/clients/$clientId/anthropometry';
+    if (includeArchived != null) {
+      endpoint += '?includeArchived=$includeArchived';
+    }
+    final data = await get(endpoint) as List;
     return data.map((item) => AnthropometryMeasurement.fromJson(item)).toList();
   }
 
@@ -48,5 +52,21 @@ class AdminApiService extends BaseApiService {
     final data =
         await get('/api/admin/clients/$clientId/anthropometry/whtr-profiles');
     return WhtrProfiles.fromJson(data);
+  }
+
+  Future<void> archiveAnthropometryMeasurement(
+      String clientId, String measurementId, String reason) async {
+    await post(
+      '/api/admin/clients/$clientId/anthropometry/$measurementId/archive',
+      body: {'reason': reason},
+    );
+  }
+
+  Future<void> unarchiveAnthropometryMeasurement(
+      String clientId, String measurementId) async {
+    await put(
+      '/api/admin/clients/$clientId/anthropometry/$measurementId/unarchive',
+      body: {},
+    );
   }
 }

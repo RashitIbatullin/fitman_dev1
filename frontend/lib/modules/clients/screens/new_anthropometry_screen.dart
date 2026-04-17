@@ -42,7 +42,8 @@ class _NewAnthropometryScreenState extends ConsumerState<NewAnthropometryScreen>
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
-    final currentUserId = authState.asData?.value.user?.id;
+    final user = authState.asData?.value.user;
+    final currentUserId = user?.id;
     final targetClientId = widget.clientId ?? currentUserId;
 
     if (targetClientId == null) {
@@ -51,6 +52,12 @@ class _NewAnthropometryScreenState extends ConsumerState<NewAnthropometryScreen>
         body: const Center(child: Text('Не удалось определить ID клиента.')),
       );
     }
+
+    final roles = user?.roles.map((r) => r.name).toSet() ?? {};
+    final canEdit = roles.contains('admin') ||
+        roles.contains('trainer') ||
+        roles.contains('instructor') ||
+        roles.contains('manager');
 
     return Scaffold(
       appBar: AppBar(
@@ -70,7 +77,7 @@ class _NewAnthropometryScreenState extends ConsumerState<NewAnthropometryScreen>
           AnthropometryListScreen(clientId: targetClientId),
         ],
       ),
-      floatingActionButton: _showFab
+      floatingActionButton: _showFab && canEdit
           ? FloatingActionButton(
               heroTag: 'add_periodic_measurement',
               onPressed: () {

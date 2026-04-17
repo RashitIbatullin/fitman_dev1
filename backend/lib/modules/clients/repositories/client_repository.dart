@@ -6,14 +6,18 @@ import '../../../config/database.dart';
 
 abstract class ClientRepository {
   Future<List<AnthropometryMeasurement>> getAnthropometryMeasurements(
-    String clientId,
-  );
+    String clientId, {
+    bool includeArchived,
+  });
   Future<AnthropometryMeasurement> saveAnthropometryMeasurement(
     AnthropometryMeasurement measurement,
   );
   Future<AnthropometryFixed?> getFixedAnthropometry(String clientId);
   Future<AnthropometryFixed> saveFixedAnthropometry(
       AnthropometryFixed fixedData);
+  Future<void> archiveAnthropometryMeasurement(
+      String measurementId, String archivedBy, String archivedReason);
+  Future<void> unarchiveAnthropometryMeasurement(String measurementId);
 
   Future<List<Map<String, dynamic>>> getCalorieTrackingData(String clientId);
   Future<Map<String, dynamic>> getProgressData(String clientId);
@@ -28,21 +32,72 @@ class ClientRepositoryImpl implements ClientRepository {
   Future<Connection> get _connection => _db.connection;
 
   @override
-  Future<List<AnthropometryMeasurement>> getAnthropometryMeasurements(
-    String clientId,
-  ) async {
+  Future<void> archiveAnthropometryMeasurement(
+      String measurementId, String archivedBy, String archivedReason) async {
     try {
       final conn = await _connection;
-      final result = await conn.execute(
+      await conn.execute(
         Sql.named('''
+          UPDATE anthropometry_measurements
+          SET archived_at = NOW(), archived_by = @archivedBy, archived_reason = @archivedReason
+          WHERE id = @measurementId
+        '''),
+        parameters: {
+          'measurementId': measurementId,
+          'archivedBy': archivedBy,
+          'archivedReason': archivedReason,
+        },
+      );
+    } catch (e) {
+      print('❌ archiveAnthropometryMeasurement error: $e');
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> unarchiveAnthropometryMeasurement(String measurementId) async {
+    try {
+      final conn = await _connection;
+      await conn.execute(
+        Sql.named('''
+          UPDATE anthropometry_measurements
+          SET archived_at = NULL, archived_by = NULL, archived_reason = NULL
+          WHERE id = @measurementId
+        '''),
+        parameters: {
+          'measurementId': measurementId,
+        },
+      );
+    } catch (e) {
+      print('❌ unarchiveAnthropometryMeasurement error: $e');
+      rethrow;
+    }
+  }
+
+  @override
+  Future<List<AnthropometryMeasurement>> getAnthropometryMeasurements(
+    String clientId, {
+    bool includeArchived = false,
+  }) async {
+    try {
+      final conn = await _connection;
+      var query = '''
           SELECT id, user_id, date_time, photo, photo_date_time, profile_photo, profile_photo_date_time, 
                  weight, shoulders_circ, breast_circ, waist_circ, hips_circ, 
                  company_id, created_at, updated_at, created_by, updated_by, 
                  archived_at, archived_by, archived_reason
           FROM anthropometry_measurements 
-          WHERE user_id = @clientId 
-          ORDER BY date_time DESC
-        '''),
+          WHERE user_id = @clientId
+        ''';
+
+      if (!includeArchived) {
+        query += ' AND archived_at IS NULL';
+      }
+
+      query += ' ORDER BY date_time DESC';
+
+      final result = await conn.execute(
+        Sql.named(query),
         parameters: {'clientId': clientId},
       );
 

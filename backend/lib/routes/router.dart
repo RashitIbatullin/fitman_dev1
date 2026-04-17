@@ -230,6 +230,8 @@ final Router router = Router()
   ..post('/api/admin/clients/<id>/anthropometry/fixed', (Request request, String id) => _adminHandler((Request req) => AnthropometryController.saveFixedAnthropometry(req, id))(request))
   ..get('/api/admin/clients/<id>/anthropometry/somatotype', (Request request, String id) => _adminHandler((Request req) => AnthropometryController.getSomatotype(req, id))(request))
   ..get('/api/admin/clients/<id>/anthropometry/whtr-profiles', (Request request, String id) => _adminHandler((Request req) => AnthropometryController.getWhtrProfiles(req, id))(request))
+  ..post('/api/admin/clients/<id>/anthropometry/<measurementId>/archive', (Request request, String id, String measurementId) => _adminHandler((Request req) => AnthropometryController.archiveAnthropometryMeasurement(req, id, measurementId))(request))
+  ..put('/api/admin/clients/<id>/anthropometry/<measurementId>/unarchive', (Request request, String id, String measurementId) => _adminHandler((Request req) => AnthropometryController.unarchiveAnthropometryMeasurement(req, id, measurementId))(request))
 
 // Work Schedule routes
   ..get('/api/work-schedules', (Request request) => _protectedHandler(WorkScheduleController.getWorkSchedules)(request))

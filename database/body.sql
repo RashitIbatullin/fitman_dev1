@@ -34,8 +34,6 @@ CREATE TABLE anthropometry_measurements (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     date_time TIMESTAMPTZ NOT NULL,
-    photo_url VARCHAR(255),
-    photo_date_time TIMESTAMPTZ,
     weight REAL,
     shoulders_circ INT,
     breast_circ INT,

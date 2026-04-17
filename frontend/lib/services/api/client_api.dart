@@ -29,8 +29,13 @@ class ClientApiService extends BaseApiService {
     return User.fromJson(data['manager']);
   }
 
-  Future<List<AnthropometryMeasurement>> getAnthropometryMeasurements() async {
-    final data = await get('/api/client/anthropometry') as List;
+  Future<List<AnthropometryMeasurement>> getAnthropometryMeasurements(
+      {bool? includeArchived}) async {
+    var endpoint = '/api/client/anthropometry';
+    if (includeArchived != null) {
+      endpoint += '?includeArchived=$includeArchived';
+    }
+    final data = await get(endpoint) as List;
     return data.map((item) => AnthropometryMeasurement.fromJson(item)).toList();
   }
 
