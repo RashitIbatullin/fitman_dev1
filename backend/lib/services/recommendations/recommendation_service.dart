@@ -8,13 +8,13 @@ class _ClientData {
   final User user;
   final AnthropometryMeasurement? measurement;
   final AnthropometryFixed? fixedData;
-  final Map<String, dynamic> bioimpedance;
+  // final Map<String, dynamic> bioimpedance;
 
   _ClientData({
     required this.user,
     this.measurement,
     this.fixedData,
-    required this.bioimpedance,
+    // required this.bioimpedance,
   });
 }
 
@@ -146,13 +146,13 @@ class RecommendationService {
 
     final measurements = await db.clients.getAnthropometryMeasurements(userId);
     final fixedData = await db.clients.getFixedAnthropometry(userId);
-    final bioimpedance = await db.clients.getBioimpedanceData(userId);
+    // final bioimpedance = await db.clients.getBioimpedanceData(userId);
 
     return _ClientData(
       user: user,
       measurement: measurements.isNotEmpty ? measurements.first : null,
       fixedData: fixedData,
-      bioimpedance: bioimpedance,
+      // bioimpedance: bioimpedance,
     );
   }
 

@@ -3,7 +3,53 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fitman_app/services/api_service.dart';
 import 'package:intl/intl.dart';
-import 'anthropometry_list_screen.dart'; // For the provider
+
+import 'package:fitman_app/providers/auth_provider.dart';
+import '../../../utils/body_shape_helper.dart';
+import 'anthropometry_list_screen.dart'; // For the anthropometryListProvider
+
+// New Providers
+final somatotypeProvider =
+    FutureProvider.family<String, String?>((ref, clientId) async {
+  final authState = ref.watch(authProvider);
+  final user = authState.asData?.value.user;
+  if (user == null) {
+    throw Exception('User not authenticated');
+  }
+  
+  final userRoles = user.roles.map((r) => r.name).toSet();
+  final bool isStaff = userRoles.contains('admin') ||
+      userRoles.contains('trainer') ||
+      userRoles.contains('instructor') ||
+      userRoles.contains('manager');
+
+  if (isStaff && clientId != null) {
+    return ApiService.getSomatotypeProfileForClient(clientId);
+  } else {
+    return ApiService.getSomatotypeProfile();
+  }
+});
+
+final whtrProfilesProvider =
+    FutureProvider.family<WhtrProfiles, String?>((ref, clientId) async {
+  final authState = ref.watch(authProvider);
+  final user = authState.asData?.value.user;
+  if (user == null) {
+    throw Exception('User not authenticated');
+  }
+
+  final userRoles = user.roles.map((r) => r.name).toSet();
+  final bool isStaff = userRoles.contains('admin') ||
+      userRoles.contains('trainer') ||
+      userRoles.contains('instructor') ||
+      userRoles.contains('manager');
+  
+  if (isStaff && clientId != null) {
+    return ApiService.getWhtrProfilesForClient(clientId);
+  } else {
+    return ApiService.getWhtrProfiles();
+  }
+});
 
 final recommendationProvider = FutureProvider.autoDispose
     .family<Map<String, dynamic>, String>((ref, clientId) async {
@@ -61,10 +107,18 @@ class ComparisonAndRecommendationScreen extends ConsumerWidget {
               const SizedBox(height: 16),
               _buildComparisonCard(first, second),
               const SizedBox(height: 24),
+
+              Text('Анализ фигуры', style: Theme.of(context).textTheme.headlineSmall),
+              const SizedBox(height: 16),
+              _BodyShapeCard(clientId: clientId),
+              const SizedBox(height: 16),
+              _WhtrCard(clientId: clientId),
+              const SizedBox(height: 24),
+              
               Text('Рекомендации системы',
                   style: Theme.of(context).textTheme.headlineSmall),
               const SizedBox(height: 16),
-              _RecommendationView(first: first, second: second),
+              _RecommendationView(measurement: second, clientId: clientId),
             ],
           );
         },
@@ -135,28 +189,22 @@ class ComparisonAndRecommendationScreen extends ConsumerWidget {
 }
 
 class _RecommendationView extends ConsumerWidget {
-  final AnthropometryMeasurement first;
-  final AnthropometryMeasurement second;
+  final AnthropometryMeasurement measurement;
+  final String clientId;
 
-  const _RecommendationView({required this.first, required this.second});
+  const _RecommendationView({required this.measurement, required this.clientId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final rec1Async = ref.watch(recommendationProvider(first.userId));
-    final rec2Async = ref.watch(recommendationProvider(second.userId));
+    final recAsync = ref.watch(recommendationProvider(clientId));
 
-    return rec1Async.when(
-      data: (rec1) => rec2Async.when(
-        data: (rec2) {
+    return recAsync.when(
+      data: (rec) {
           const defaultMessage = 'Не удалось подобрать индивидуальную рекомендацию. Обратитесь к тренеру.';
           
-          final rec1Text = rec1['client_recommendation']?.toString();
-          final rec2Text = rec2['client_recommendation']?.toString();
+          final recText = rec['client_recommendation']?.toString();
 
-          final bool isRec1Default = rec1Text == null || rec1Text.contains(defaultMessage);
-          final bool isRec2Default = rec2Text == null || rec2Text.contains(defaultMessage);
-
-          if (isRec1Default && isRec2Default) {
+          if (recText == null || recText.contains(defaultMessage) || recText.isEmpty) {
             return const Card(
               child: Padding(
                 padding: EdgeInsets.all(16.0),
@@ -165,22 +213,10 @@ class _RecommendationView extends ConsumerWidget {
             );
           }
 
-          return Column(
-            children: [
-              if (!isRec1Default)
-                _buildSingleRecommendationCard(first, rec1Text),
-              if (!isRec2Default) ...[
-                const SizedBox(height: 16),
-                _buildSingleRecommendationCard(second, rec2Text),
-              ]
-            ],
-          );
+          return _buildSingleRecommendationCard(measurement, recText);
         },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, s) => Text('Ошибка загрузки рекомендации 2: $e'),
-      ),
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, s) => Text('Ошибка загрузки рекомендации 1: $e'),
+      error: (e, s) => Text('Ошибка загрузки рекомендации: $e'),
     );
   }
 
@@ -197,6 +233,85 @@ class _RecommendationView extends ConsumerWidget {
             ],
           ),
       ),
+    );
+  }
+}
+
+class _BodyShapeCard extends ConsumerWidget {
+  const _BodyShapeCard({required this.clientId});
+  final String clientId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final somatotypeAsync = ref.watch(somatotypeProvider(clientId));
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: somatotypeAsync.when(
+          data: (shape) {
+            return Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Тип фигуры', style: TextStyle(color: Colors.grey)),
+                    const SizedBox(height: 4),
+                    Text(shape, style: Theme.of(context).textTheme.titleLarge),
+                  ],
+                ),
+                IconButton(
+                  icon: const Icon(Icons.help_outline, color: Colors.grey),
+                  onPressed: () => showBodyShapeHelpDialog(context, shape),
+                )
+              ],
+            );
+          },
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (e, s) => Text('Ошибка: $e'),
+        ),
+      ),
+    );
+  }
+}
+
+class _WhtrCard extends ConsumerWidget {
+  const _WhtrCard({required this.clientId});
+  final String clientId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final whtrAsync = ref.watch(whtrProfilesProvider(clientId));
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: whtrAsync.when(
+          data: (profiles) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Индекс WHtR (талия/рост)', style: TextStyle(fontWeight: FontWeight.bold)),
+                const SizedBox(height: 12),
+                _buildWhtrRow('Начало:', profiles.start),
+                const SizedBox(height: 8),
+                _buildWhtrRow('Текущий:', profiles.finish),
+              ],
+            );
+          },
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (e, s) => Text('Ошибка: $e'),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildWhtrRow(String title, WhtrProfile profile) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(title),
+        Text('${profile.gradation} (${profile.ratio.toStringAsFixed(2)})', style: const TextStyle(fontWeight: FontWeight.bold)),
+      ],
     );
   }
 }

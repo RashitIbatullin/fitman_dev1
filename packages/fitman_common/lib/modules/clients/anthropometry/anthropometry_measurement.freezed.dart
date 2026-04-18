@@ -24,10 +24,6 @@ mixin _$AnthropometryMeasurement {
   String? get id => throw _privateConstructorUsedError;
   String get userId => throw _privateConstructorUsedError;
   DateTime get dateTime => throw _privateConstructorUsedError;
-  String? get photo => throw _privateConstructorUsedError;
-  DateTime? get photoDateTime => throw _privateConstructorUsedError;
-  String? get profilePhoto => throw _privateConstructorUsedError;
-  DateTime? get profilePhotoDateTime => throw _privateConstructorUsedError;
   double? get weight => throw _privateConstructorUsedError;
   int? get shouldersCirc => throw _privateConstructorUsedError;
   int? get breastCirc => throw _privateConstructorUsedError;
@@ -62,10 +58,6 @@ abstract class $AnthropometryMeasurementCopyWith<$Res> {
       {String? id,
       String userId,
       DateTime dateTime,
-      String? photo,
-      DateTime? photoDateTime,
-      String? profilePhoto,
-      DateTime? profilePhotoDateTime,
       double? weight,
       int? shouldersCirc,
       int? breastCirc,
@@ -100,10 +92,6 @@ class _$AnthropometryMeasurementCopyWithImpl<$Res,
     Object? id = freezed,
     Object? userId = null,
     Object? dateTime = null,
-    Object? photo = freezed,
-    Object? photoDateTime = freezed,
-    Object? profilePhoto = freezed,
-    Object? profilePhotoDateTime = freezed,
     Object? weight = freezed,
     Object? shouldersCirc = freezed,
     Object? breastCirc = freezed,
@@ -131,22 +119,6 @@ class _$AnthropometryMeasurementCopyWithImpl<$Res,
           ? _value.dateTime
           : dateTime // ignore: cast_nullable_to_non_nullable
               as DateTime,
-      photo: freezed == photo
-          ? _value.photo
-          : photo // ignore: cast_nullable_to_non_nullable
-              as String?,
-      photoDateTime: freezed == photoDateTime
-          ? _value.photoDateTime
-          : photoDateTime // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
-      profilePhoto: freezed == profilePhoto
-          ? _value.profilePhoto
-          : profilePhoto // ignore: cast_nullable_to_non_nullable
-              as String?,
-      profilePhotoDateTime: freezed == profilePhotoDateTime
-          ? _value.profilePhotoDateTime
-          : profilePhotoDateTime // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
       weight: freezed == weight
           ? _value.weight
           : weight // ignore: cast_nullable_to_non_nullable
@@ -216,10 +188,6 @@ abstract class _$$AnthropometryMeasurementImplCopyWith<$Res>
       {String? id,
       String userId,
       DateTime dateTime,
-      String? photo,
-      DateTime? photoDateTime,
-      String? profilePhoto,
-      DateTime? profilePhotoDateTime,
       double? weight,
       int? shouldersCirc,
       int? breastCirc,
@@ -253,10 +221,6 @@ class __$$AnthropometryMeasurementImplCopyWithImpl<$Res>
     Object? id = freezed,
     Object? userId = null,
     Object? dateTime = null,
-    Object? photo = freezed,
-    Object? photoDateTime = freezed,
-    Object? profilePhoto = freezed,
-    Object? profilePhotoDateTime = freezed,
     Object? weight = freezed,
     Object? shouldersCirc = freezed,
     Object? breastCirc = freezed,
@@ -284,22 +248,6 @@ class __$$AnthropometryMeasurementImplCopyWithImpl<$Res>
           ? _value.dateTime
           : dateTime // ignore: cast_nullable_to_non_nullable
               as DateTime,
-      photo: freezed == photo
-          ? _value.photo
-          : photo // ignore: cast_nullable_to_non_nullable
-              as String?,
-      photoDateTime: freezed == photoDateTime
-          ? _value.photoDateTime
-          : photoDateTime // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
-      profilePhoto: freezed == profilePhoto
-          ? _value.profilePhoto
-          : profilePhoto // ignore: cast_nullable_to_non_nullable
-              as String?,
-      profilePhotoDateTime: freezed == profilePhotoDateTime
-          ? _value.profilePhotoDateTime
-          : profilePhotoDateTime // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
       weight: freezed == weight
           ? _value.weight
           : weight // ignore: cast_nullable_to_non_nullable
@@ -363,10 +311,6 @@ class _$AnthropometryMeasurementImpl implements _AnthropometryMeasurement {
       {this.id,
       required this.userId,
       required this.dateTime,
-      this.photo,
-      this.photoDateTime,
-      this.profilePhoto,
-      this.profilePhotoDateTime,
       this.weight,
       this.shouldersCirc,
       this.breastCirc,
@@ -390,14 +334,6 @@ class _$AnthropometryMeasurementImpl implements _AnthropometryMeasurement {
   final String userId;
   @override
   final DateTime dateTime;
-  @override
-  final String? photo;
-  @override
-  final DateTime? photoDateTime;
-  @override
-  final String? profilePhoto;
-  @override
-  final DateTime? profilePhotoDateTime;
   @override
   final double? weight;
   @override
@@ -427,7 +363,7 @@ class _$AnthropometryMeasurementImpl implements _AnthropometryMeasurement {
 
   @override
   String toString() {
-    return 'AnthropometryMeasurement(id: $id, userId: $userId, dateTime: $dateTime, photo: $photo, photoDateTime: $photoDateTime, profilePhoto: $profilePhoto, profilePhotoDateTime: $profilePhotoDateTime, weight: $weight, shouldersCirc: $shouldersCirc, breastCirc: $breastCirc, waistCirc: $waistCirc, hipsCirc: $hipsCirc, companyId: $companyId, createdAt: $createdAt, updatedAt: $updatedAt, createdBy: $createdBy, updatedBy: $updatedBy, archivedAt: $archivedAt, archivedBy: $archivedBy, archivedReason: $archivedReason)';
+    return 'AnthropometryMeasurement(id: $id, userId: $userId, dateTime: $dateTime, weight: $weight, shouldersCirc: $shouldersCirc, breastCirc: $breastCirc, waistCirc: $waistCirc, hipsCirc: $hipsCirc, companyId: $companyId, createdAt: $createdAt, updatedAt: $updatedAt, createdBy: $createdBy, updatedBy: $updatedBy, archivedAt: $archivedAt, archivedBy: $archivedBy, archivedReason: $archivedReason)';
   }
 
   @override
@@ -439,13 +375,6 @@ class _$AnthropometryMeasurementImpl implements _AnthropometryMeasurement {
             (identical(other.userId, userId) || other.userId == userId) &&
             (identical(other.dateTime, dateTime) ||
                 other.dateTime == dateTime) &&
-            (identical(other.photo, photo) || other.photo == photo) &&
-            (identical(other.photoDateTime, photoDateTime) ||
-                other.photoDateTime == photoDateTime) &&
-            (identical(other.profilePhoto, profilePhoto) ||
-                other.profilePhoto == profilePhoto) &&
-            (identical(other.profilePhotoDateTime, profilePhotoDateTime) ||
-                other.profilePhotoDateTime == profilePhotoDateTime) &&
             (identical(other.weight, weight) || other.weight == weight) &&
             (identical(other.shouldersCirc, shouldersCirc) ||
                 other.shouldersCirc == shouldersCirc) &&
@@ -475,29 +404,24 @@ class _$AnthropometryMeasurementImpl implements _AnthropometryMeasurement {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hashAll([
-        runtimeType,
-        id,
-        userId,
-        dateTime,
-        photo,
-        photoDateTime,
-        profilePhoto,
-        profilePhotoDateTime,
-        weight,
-        shouldersCirc,
-        breastCirc,
-        waistCirc,
-        hipsCirc,
-        companyId,
-        createdAt,
-        updatedAt,
-        createdBy,
-        updatedBy,
-        archivedAt,
-        archivedBy,
-        archivedReason
-      ]);
+  int get hashCode => Object.hash(
+      runtimeType,
+      id,
+      userId,
+      dateTime,
+      weight,
+      shouldersCirc,
+      breastCirc,
+      waistCirc,
+      hipsCirc,
+      companyId,
+      createdAt,
+      updatedAt,
+      createdBy,
+      updatedBy,
+      archivedAt,
+      archivedBy,
+      archivedReason);
 
   /// Create a copy of AnthropometryMeasurement
   /// with the given fields replaced by the non-null parameter values.
@@ -521,10 +445,6 @@ abstract class _AnthropometryMeasurement implements AnthropometryMeasurement {
       {final String? id,
       required final String userId,
       required final DateTime dateTime,
-      final String? photo,
-      final DateTime? photoDateTime,
-      final String? profilePhoto,
-      final DateTime? profilePhotoDateTime,
       final double? weight,
       final int? shouldersCirc,
       final int? breastCirc,
@@ -548,14 +468,6 @@ abstract class _AnthropometryMeasurement implements AnthropometryMeasurement {
   String get userId;
   @override
   DateTime get dateTime;
-  @override
-  String? get photo;
-  @override
-  DateTime? get photoDateTime;
-  @override
-  String? get profilePhoto;
-  @override
-  DateTime? get profilePhotoDateTime;
   @override
   double? get weight;
   @override

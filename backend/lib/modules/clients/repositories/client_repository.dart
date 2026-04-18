@@ -79,10 +79,11 @@ class ClientRepositoryImpl implements ClientRepository {
     String clientId, {
     bool includeArchived = false,
   }) async {
+    // V2: Removed photo columns from query to fix non-existent column error.
     try {
       final conn = await _connection;
       var query = '''
-          SELECT id, user_id, date_time, photo, photo_date_time, profile_photo, profile_photo_date_time, 
+          SELECT id, user_id, date_time, 
                  weight, shoulders_circ, breast_circ, waist_circ, hips_circ, 
                  company_id, created_at, updated_at, created_by, updated_by, 
                  archived_at, archived_by, archived_reason
@@ -134,22 +135,18 @@ class ClientRepositoryImpl implements ClientRepository {
       final result = await conn.execute(
         Sql.named('''
           INSERT INTO anthropometry_measurements (
-            id, user_id, date_time, photo, photo_date_time, profile_photo, profile_photo_date_time, 
+            id, user_id, date_time,
             weight, shoulders_circ, breast_circ, waist_circ, hips_circ, 
             company_id, updated_at, created_by, updated_by
           )
           VALUES (
-            COALESCE(@id, gen_random_uuid()), @user_id, @date_time, @photo, @photo_date_time, 
-            @profile_photo, @profile_photo_date_time, @weight, @shoulders_circ, 
+            COALESCE(@id, gen_random_uuid()), @user_id, @date_time,
+            @weight, @shoulders_circ, 
             @breast_circ, @waist_circ, @hips_circ, @company_id, NOW(), 
             @created_by, @updated_by
           )
           ON CONFLICT (id) DO UPDATE SET
             date_time = EXCLUDED.date_time,
-            photo = EXCLUDED.photo,
-            photo_date_time = EXCLUDED.photo_date_time,
-            profile_photo = EXCLUDED.profile_photo,
-            profile_photo_date_time = EXCLUDED.profile_photo_date_time,
             weight = EXCLUDED.weight,
             shoulders_circ = EXCLUDED.shoulders_circ,
             breast_circ = EXCLUDED.breast_circ,

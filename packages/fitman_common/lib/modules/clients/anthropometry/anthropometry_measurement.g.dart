@@ -12,14 +12,6 @@ _$AnthropometryMeasurementImpl _$$AnthropometryMeasurementImplFromJson(
       id: json['id'] as String?,
       userId: json['user_id'] as String,
       dateTime: DateTime.parse(json['date_time'] as String),
-      photo: json['photo'] as String?,
-      photoDateTime: json['photo_date_time'] == null
-          ? null
-          : DateTime.parse(json['photo_date_time'] as String),
-      profilePhoto: json['profile_photo'] as String?,
-      profilePhotoDateTime: json['profile_photo_date_time'] == null
-          ? null
-          : DateTime.parse(json['profile_photo_date_time'] as String),
       weight: (json['weight'] as num?)?.toDouble(),
       shouldersCirc: (json['shoulders_circ'] as num?)?.toInt(),
       breastCirc: (json['breast_circ'] as num?)?.toInt(),
@@ -47,11 +39,6 @@ Map<String, dynamic> _$$AnthropometryMeasurementImplToJson(
       'id': instance.id,
       'user_id': instance.userId,
       'date_time': instance.dateTime.toIso8601String(),
-      'photo': instance.photo,
-      'photo_date_time': instance.photoDateTime?.toIso8601String(),
-      'profile_photo': instance.profilePhoto,
-      'profile_photo_date_time':
-          instance.profilePhotoDateTime?.toIso8601String(),
       'weight': instance.weight,
       'shoulders_circ': instance.shouldersCirc,
       'breast_circ': instance.breastCirc,

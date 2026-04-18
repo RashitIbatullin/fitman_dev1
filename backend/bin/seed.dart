@@ -130,6 +130,27 @@ class DatabaseSeeder {
       '''), parameters: {'user_id': clientId, 'goal': goals['Набор мышечной массы и силы'], 'level': levels['Новичок'], 'created_by': adminId});
     print('   👤 Created Client');
 
+    print('   📏 Seeding measurements for demo client...');
+    // Fixed measurement
+    await _connection.execute(Sql.named(r'''
+        INSERT INTO anthropometry_fix (user_id, height, wrist_circ, ankle_circ)
+        VALUES (@user_id, 175, 18, 22)
+        ON CONFLICT (user_id) DO UPDATE SET height = EXCLUDED.height, wrist_circ = EXCLUDED.wrist_circ, ankle_circ = EXCLUDED.ankle_circ;
+      '''), parameters: {'user_id': clientId});
+
+    // Periodic measurement 1 (past)
+    await _connection.execute(Sql.named(r'''
+        INSERT INTO anthropometry_measurements (user_id, date_time, weight, shoulders_circ, breast_circ, waist_circ, hips_circ)
+        VALUES (@user_id, @date, 85.0, 110, 100, 90, 105);
+      '''), parameters: {'user_id': clientId, 'date': DateTime.now().subtract(const Duration(days: 30))});
+
+    // Periodic measurement 2 (present)
+    await _connection.execute(Sql.named(r'''
+        INSERT INTO anthropometry_measurements (user_id, date_time, weight, shoulders_circ, breast_circ, waist_circ, hips_circ)
+        VALUES (@user_id, @date, 83.5, 112, 101, 88, 104);
+      '''), parameters: {'user_id': clientId, 'date': DateTime.now()});
+    print('   📏 measurements for demo client seeded.');
+
     await _assign(managerId, 'manager_trainers', 'trainer_id', trainerId);
     await _assign(managerId, 'manager_instructors', 'instructor_id', instructorId);
     await _assign(managerId, 'manager_clients', 'client_id', clientId);

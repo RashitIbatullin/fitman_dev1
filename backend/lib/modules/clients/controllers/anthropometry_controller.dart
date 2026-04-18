@@ -31,10 +31,11 @@ class AnthropometryController {
       }
 
       return Response.ok(jsonEncode({'profile_string': profile.toString()}));
-    } catch (e) {
+    } catch (e, s) {
       print('Get somatotype error: $e');
+      print(s);
       return Response.internalServerError(
-          body: jsonEncode({'error': 'Internal server error'}));
+          body: jsonEncode({'error': e.toString(), 'stackTrace': s.toString()}));
     }
   }
 
@@ -251,10 +252,11 @@ class AnthropometryController {
         }));
       }
       return Response.ok(jsonEncode(profiles.toJson()));
-    } catch (e) {
+    } catch (e, s) {
       print('Get WHtR profiles error: $e');
+      print(s);
       return Response.internalServerError(
-          body: jsonEncode({'error': 'Internal server error'}));
+          body: jsonEncode({'error': e.toString(), 'stackTrace': s.toString()}));
     }
   }
 }

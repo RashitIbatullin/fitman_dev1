@@ -4,7 +4,9 @@
 
 -- Удаление старых таблиц, если они существуют
 DROP TABLE IF EXISTS
-	"anthropometry_fix", 
+	"anthropometry_fix",
+    "anthropometry_measurements",
+    "bioimpedance_measurements",
     "types_body_build", 
     "body_shape_recommendations", 
     "whtr_refinements", 
