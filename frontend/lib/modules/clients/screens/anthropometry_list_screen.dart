@@ -1,6 +1,8 @@
 import 'package:fitman_app/modules/clients/screens/anthropometry_detail_screen.dart';
 import 'package:fitman_app/modules/clients/screens/anthropometry_edit_screen.dart';
-import 'package:fitman_app/modules/clients/screens/comparison_and_recommendation_screen.dart';
+import 'package:fitman_app/modules/clients/screens/comparison_screen.dart';
+import 'package:fitman_app/modules/clients/screens/analysis_screen.dart';
+import 'package:fitman_app/modules/clients/screens/system_recommendation_screen.dart';
 import 'package:fitman_common/fitman_common.dart';
 import 'package:fitman_app/services/api_service.dart';
 import 'package:flutter/material.dart';
@@ -27,40 +29,17 @@ final anthropometryListProvider =
       userRoles.contains('instructor') ||
       userRoles.contains('manager');
 
-  List<AnthropometryMeasurement> measurements; // Declared here
+  List<AnthropometryMeasurement> measurements;
 
   if (isStaff && clientId != null) {
     measurements = await ApiService.getAnthropometryMeasurementsForClient(clientId,
         includeArchived: showArchived);
   } else {
-    // Clients should not see archived measurements of their own
     measurements = await ApiService.getAnthropometryMeasurements(includeArchived: false);
   }
-  // Sort by dateTime in ascending order (earliest first)
+  
   measurements.sort((a, b) => a.dateTime.compareTo(b.dateTime));
   return measurements;
-});
-
-// New provider for Fixed Anthropometry
-final fixedAnthropometryProvider =
-    FutureProvider.family<AnthropometryFixed?, String?>((ref, clientId) async {
-  final authState = ref.watch(authProvider);
-  final user = authState.asData?.value.user;
-  if (user == null) {
-    throw Exception('User not authenticated');
-  }
-
-  final userRoles = user.roles.map((r) => r.name).toSet();
-  final bool isStaff = userRoles.contains('admin') ||
-      userRoles.contains('trainer') ||
-      userRoles.contains('instructor') ||
-      userRoles.contains('manager');
-
-  if (isStaff && clientId != null) {
-    return ApiService.getFixedAnthropometryForClient(clientId);
-  } else {
-    return ApiService.getFixedAnthropometry();
-  }
 });
 
 
@@ -227,7 +206,6 @@ class _AnthropometryListScreenState
     final showArchived = ref.watch(showArchivedProvider);
     final measurementsAsync =
         ref.watch(anthropometryListProvider(targetClientId));
-    final bool canShowRecommendations = _selectedMeasurementIds.length == 2;
 
     return Scaffold(
       appBar: canEdit
@@ -352,20 +330,58 @@ class _AnthropometryListScreenState
               ),
               Padding(
                 padding: const EdgeInsets.all(16.0),
-                child: Column(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
+                    // Comparison Button
                     ElevatedButton(
-                      onPressed: canShowRecommendations
+                      onPressed: _selectedMeasurementIds.length == 2
                           ? () {
+                              final selectedMeasurements = measurements
+                                  .where((m) =>
+                                      _selectedMeasurementIds.contains(m.id))
+                                  .toList();
+                              selectedMeasurements.sort((a, b) => a.dateTime.compareTo(b.dateTime));
                               Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (_) => ComparisonAndRecommendationScreen(
-                                        measurementIds:
-                                            _selectedMeasurementIds.toList(),
-                                        clientId: targetClientId,
-                                      )));
+                                builder: (_) => ComparisonScreen(
+                                  first: selectedMeasurements[0],
+                                  second: selectedMeasurements[1],
+                                ),
+                              ));
                             }
                           : null,
-                      child: const Text('Сравнение и рекомендации'),
+                      child: const Text('Сравнение'),
+                    ),
+                    // Analysis Button
+                    ElevatedButton(
+                      onPressed: _selectedMeasurementIds.isNotEmpty
+                          ? () {
+                              Navigator.of(context).push(MaterialPageRoute(
+                                builder: (_) =>
+                                    AnalysisScreen(clientId: targetClientId),
+                              ));
+                            }
+                          : null,
+                      child: const Text('Анализ'),
+                    ),
+                    // Recommendation Button
+                    ElevatedButton(
+                      onPressed: _selectedMeasurementIds.isNotEmpty
+                          ? () {
+                              final latestMeasurement = measurements
+                                  .where((m) =>
+                                      _selectedMeasurementIds.contains(m.id))
+                                  .reduce((a, b) =>
+                                      a.dateTime.isAfter(b.dateTime) ? a : b);
+                              Navigator.of(context).push(MaterialPageRoute(
+                                builder: (_) => SystemRecommendationScreen(
+                                  measurement: latestMeasurement,
+                                  clientId: targetClientId,
+                                ),
+                              ));
+                            }
+                          : null,
+                      child: const Text('Рекомендации'),
                     ),
                   ],
                 ),

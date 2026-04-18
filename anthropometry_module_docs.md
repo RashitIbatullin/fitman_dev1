@@ -5,21 +5,19 @@
 ## 1. Модель данных
 
 ### 1.1. `AnthropometryFixed` (Постоянные замеры)
-Хранит базовые, редко изменяемые антропометрические данные клиента, используемые для определения соматотипа и других расчетов.
+Хранит базовые, редко изменяемые антропометрические данные клиента.
 
 ```dart
 class AnthropometryFixed {
   String userId;
-  DateTime? dateTime;
   int? height;
   int? wristCirc;
   int? ankleCirc;
-  // ... служебные поля
 }
 ```
 
 ### 1.2. `AnthropometryMeasurement` (Периодические замеры)
-Хранит данные регулярных замеров для отслеживания динамики и прогресса клиента.
+Хранит данные регулярных замеров для отслеживания динамики.
 
 ```dart
 class AnthropometryMeasurement {
@@ -31,10 +29,21 @@ class AnthropometryMeasurement {
   int? breastCirc;
   int? waistCirc;
   int? hipsCirc;
-  DateTime? archivedAt;
-  String? archivedBy;
-  String? archivedReason;
-  // ... служебные поля
+}
+```
+
+### 1.3. `WhtrProfile` и `WhtrProfiles`
+Модели для хранения и передачи данных о коэффициенте "талия-рост" (WHtR).
+
+```dart
+class WhtrProfile {
+  double ratio;
+  String gradation;
+}
+
+class WhtrProfiles {
+  WhtrProfile start;
+  WhtrProfile finish;
 }
 ```
 
@@ -44,109 +53,111 @@ class AnthropometryMeasurement {
 ```sql
 CREATE TABLE anthropometry_fix (
     user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
-    date_time TIMESTAMPTZ DEFAULT NOW(),
     height INT,
     wrist_circ INT,
-    ankle_circ INT,
-    -- ... служебные поля
+    ankle_circ INT
 );
 ```
 
 ### 2.2. `anthropometry_measurements`
 ```sql
 CREATE TABLE anthropometry_measurements (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id UUID PRIMARY KEY,
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     date_time TIMESTAMPTZ NOT NULL,
     weight REAL,
     shoulders_circ INT,
     breast_circ INT,
     waist_circ INT,
-    hips_circ INT,
-    archived_at TIMESTAMPTZ,
-    archived_by UUID REFERENCES users(id),
-	  archived_reason TEXT,
-    -- ... служебные поля
-    UNIQUE(user_id, date_time)
+    hips_circ INT
 );
 ```
 
 ## 3. API endpoints
-Управление антропометрией осуществляется через эндпоинты, разделенные по ролям (клиентские и административные).
+Управление антропометрией осуществляется через эндпоинты, разделенные по ролям.
 
 ### 3.1. Клиентские эндпоинты
-`GET    /api/client/anthropometry` # Получение списка своих периодических замеров (только активные).
+`GET    /api/client/anthropometry` # Получение списка своих замеров.
 `GET    /api/client/anthropometry/fixed` # Получение своих постоянных замеров.
+`GET    /api/client/anthropometry/somatotype` # Получение соматотипа и типа фигуры.
+`GET    /api/client/anthropometry/whtr-profiles` # Получение WHtR профилей.
 
 ### 3.2. Административные эндпоинты (для сотрудников)
-`GET    /api/admin/clients/:id/anthropometry` # Получение списка замеров клиента. Принимает query-параметр `?includeArchived=true`.
-`POST   /api/admin/clients/:id/anthropometry` # Создание или обновление периодического замера для клиента.
-
+`GET    /api/admin/clients/:id/anthropometry` # Получение замеров клиента.
+`POST   /api/admin/clients/:id/anthropometry` # Создание/обновление замера.
 `GET    /api/admin/clients/:id/anthropometry/fixed` # Получение постоянных замеров клиента.
-`POST   /api/admin/clients/:id/anthropometry/fixed` # Создание или обновление постоянных замеров для клиента.
-
-`POST   /api/admin/clients/:id/anthropometry/:measurementId/archive` # Архивирование замера с указанием причины в теле запроса.
-`PUT    /api/admin/clients/:id/anthropometry/:measurementId/unarchive` # Восстановление замера из архива.
-
+`POST   /api/admin/clients/:id/anthropometry/fixed` # Создание/обновление постоянных замеров.
 
 ## 4. Пользовательские интерфейсы
 Функционал доступен из карточки клиента.
 
-### 4.1. `anthropometry_screen.dart`
-Главный экран модуля, разделенный на 2 вкладки:
-*   **Вкладка "Постоянные данные"**: Отображает виджет `FixedValuesView`.
-*   **Вкладка "Периодические замеры"**: Отображает виджет `AnthropometryListScreen`.
-*   **Кнопка "Создать замер" (+)**: Видна только сотрудникам на вкладке "Периодические замеры", открывает `anthropometry_edit_screen.dart` для создания новой записи.
+### 4.1. `anthropometry_list_screen.dart`
+Отображает отсортированный по дате список периодических замеров.
+*   Каждая строка содержит чекбокс для выбора.
+*   При выборе замеров внизу экрана становятся активными кнопки:
+    *   **"Сравнение"**: Активна при выборе 2 замеров. Открывает `comparison_screen.dart`.
+    *   **"Анализ"**: Активна при выборе 1 или 2 замеров. Открывает `analysis_screen.dart`.
+    *   **"Рекомендации"**: Активна при выборе 1 или 2 замеров. Открывает `system_recommendation_screen.dart`.
 
-### 4.2. `fixed_values_view.dart`
-*   **Для сотрудников**: Форма с редактируемыми полями для роста и обхватов запястья/лодыжки. Кнопка "Сохранить" активна только при наличии изменений.
-*   **Для клиентов**: Поля отображаются в режиме "только для чтения", кнопка "Сохранить" скрыта.
+### 4.2. `comparison_screen.dart`
+Экран для визуального сравнения двух замеров.
+*   Отображает два силуэта, наложенных друг на друга, со слайдером для сравнения.
+*   Силуэты окрашены в разные цвета.
+*   Под слайдером находится легенда с датами и временем замеров.
+*   Ниже отображается таблица со сравнением числовых показателей (вес, обхваты) и их динамикой.
 
-### 4.3. `anthropometry_list_screen.dart`
-Отображает список периодических замеров.
-*   **Для сотрудников**:
-    *   В `AppBar`'е есть переключатель "Показать архив" для просмотра/скрытия архивных записей.
-    *   Каждая строка содержит чекбокс для выбора, название и кебаб-меню (три точки) с действиями.
-    *   Кебаб-меню для активной записи: "Редактировать", "Архивировать".
-    *   Кебаб-меню для архивной записи: "Деархивировать".
-    *   Внизу экрана кнопка "Посмотреть рекомендации", активная при выборе двух замеров.
-*   **Для клиентов**:
-    *   Нет переключателя архива.
-    *   Каждая строка содержит чекбокс и название. Нажатие на строку открывает экран `anthropometry_detail_screen.dart` для просмотра деталей.
-    *   Внизу экрана кнопка "Посмотреть рекомендации", активная при выборе двух замеров.
+### 4.3. `analysis_screen.dart`
+Экран для отображения аналитических данных на основе последних замеров клиента.
+*   Отображает карточку с определенным **типом фигуры** ('Яблоко', 'Груша' и т.д.) и кнопкой помощи, объясняющей его особенности.
+*   Отображает карточку с **соматотипом по Шелдону** (Эктоморф, Мезоморф, Эндоморф в %).
+*   Отображает карточку с **индексом WHtR** (соотношение талии к росту), показывая значения для начального и текущего замера.
 
-### 4.4. `anthropometry_edit_screen.dart`
-Форма создания/редактирования периодического замера. Доступна только сотрудникам. Содержит поля для веса, обхватов и выбора даты.
+### 4.4. `system_recommendation_screen.dart`
+Экран для отображения персональных рекомендаций.
+*   На основе последнего выбранного замера и аналитических данных (тип фигуры, WHtR, цель, уровень) показывает текстовые рекомендации для клиента.
 
-### 4.5. `anthropometry_detail_screen.dart`
-Экран просмотра деталей одного периодического замера в режиме "только для чтения". Доступен клиентам.
+### 4.5. `body_silhouette_painter.dart`
+Кастомный `painter` для отрисовки 2D-силуэта человека.
+*   Принимает на вход `AnthropometryMeasurement` и `height`.
+*   Строит схематичную, но пропорциональную фигуру человека с головой, торсом, руками и ногами.
+*   Позволяет задавать цвет для отрисовки.
 
 ## 5. Архитектура и расположение кода
-Функционал является частью модуля "Клиенты" (`clients`).
 
-### Бэкенд (`/backend/lib/modules/clients/`)
+### Бэкенд (`/backend/lib/`)
 ```
-/clients/
+/lib/
 ├── controllers/
-│   └── anthropometry_controller.dart # API для антропометрии
-├── repositories/
-│   └── client_repository.dart      # Репозиторий с SQL-запросами для антропометрии
+│   └── anthropometry_controller.dart 
+├── modules/
+│   └── clients/
+│       └── repositories/
+│           └── client_repository.dart 
+└── services/
+    └── recommendations/
+        ├── recommendation_service.dart # Основная логика расчетов
+        └── somatotype_helper.dart
 ```
 
-### Фронтенд (`/frontend/lib/modules/clients/`)
+### Фронтенд (`/frontend/lib/`)
 ```
-/clients/
+/lib/
+├── modules/
+│   └── clients/
+│       ├── screens/
+│       │   ├── anthropometry_list_screen.dart
+│       │   ├── comparison_screen.dart
+│       │   ├── analysis_screen.dart
+│       │   └── system_recommendation_screen.dart
+│       └── widgets/
+│           └── body_silhouette_painter.dart
 ├── providers/
-│   └── ... (провайдеры используются из других файлов, например, auth_provider)
-├── screens/
-│   ├── anthropometry_screen.dart
-│   ├── anthropometry_list_screen.dart
-│   ├── anthropometry_edit_screen.dart
-│   └── anthropometry_detail_screen.dart
-├── widgets/
-│   └── fixed_values_view.dart
-└── services/
-    ├── api/
-    │   ├── client_api.dart   # Клиентские API-методы
-    │   └── admin_api.dart    # Административные API-методы
+│   └── auth_provider.dart
+├── services/
+│   ├── api_service.dart
+│   └── api/
+│       ├── client_api.dart
+│       └── admin_api.dart
+└── utils/
+    └── body_shape_helper.dart
 ```
