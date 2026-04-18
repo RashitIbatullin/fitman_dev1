@@ -306,7 +306,7 @@ class ApiService {
           AnthropometryFixed fixedData) =>
       _clientApi.saveFixedAnthropometry(fixedData);
 
-  static Future<String> getSomatotypeProfile() => _clientApi.getSomatotypeProfile();
+  static Future<Map<String, dynamic>> getSomatotypeProfile() => _clientApi.getSomatotypeProfile();
   static Future<WhtrProfiles> getWhtrProfiles() => _clientApi.getWhtrProfiles();
 
   static Future<Map<String, dynamic>> uploadAnthropometryPhoto(
@@ -358,7 +358,7 @@ class ApiService {
   ) =>
       _adminApi.saveFixedAnthropometryForClient(clientId, fixedData);
 
-  static Future<String> getSomatotypeProfileForClient(String clientId) =>
+  static Future<Map<String, dynamic>> getSomatotypeProfileForClient(String clientId) =>
       _adminApi.getSomatotypeProfileForClient(clientId);
   static Future<WhtrProfiles> getWhtrProfilesForClient(String clientId) =>
       _adminApi.getWhtrProfilesForClient(clientId);

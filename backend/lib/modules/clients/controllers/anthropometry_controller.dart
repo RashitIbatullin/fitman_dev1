@@ -22,15 +22,19 @@ class AnthropometryController {
       }
 
       final recommendationService = RecommendationService();
-      final profile =
+      final somatotypeProfile =
           await recommendationService.getSomatotypeProfileForUser(clientId);
+      final bodyShape = await recommendationService.getBodyShapeForUser(clientId);
 
-      if (profile == null) {
+      if (somatotypeProfile == null) {
         return Response.notFound(jsonEncode(
-            {'profile_string': 'Недостаточно данных для расчета соматотипа.'}));
+            {'error': 'Недостаточно данных для расчета соматотипа.'}));
       }
 
-      return Response.ok(jsonEncode({'profile_string': profile.toString()}));
+      return Response.ok(jsonEncode({
+        'somatotype_profile': somatotypeProfile.toString(),
+        'body_shape': bodyShape,
+      }));
     } catch (e, s) {
       print('Get somatotype error: $e');
       print(s);

@@ -59,9 +59,9 @@ class ClientApiService extends BaseApiService {
     return AnthropometryFixed.fromJson(data);
   }
 
-  Future<String> getSomatotypeProfile() async {
+  Future<Map<String, dynamic>> getSomatotypeProfile() async {
     final data = await get('/api/client/anthropometry/somatotype');
-    return data['profile_string'] as String? ?? 'Не удалось рассчитать соматотип.';
+    return data;
   }
 
   Future<WhtrProfiles> getWhtrProfiles() async {

@@ -42,10 +42,10 @@ class AdminApiService extends BaseApiService {
     return AnthropometryFixed.fromJson(data);
   }
 
-  Future<String> getSomatotypeProfileForClient(String clientId) async {
+  Future<Map<String, dynamic>> getSomatotypeProfileForClient(String clientId) async {
     final data =
         await get('/api/admin/clients/$clientId/anthropometry/somatotype');
-    return data['profile_string'] as String? ?? 'Не удалось рассчитать соматотип.';
+    return data;
   }
 
   Future<WhtrProfiles> getWhtrProfilesForClient(String clientId) async {

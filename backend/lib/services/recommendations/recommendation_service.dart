@@ -61,6 +61,14 @@ class RecommendationService {
     return profile;
   }
 
+  Future<String> getBodyShapeForUser(String userId) async {
+    final clientData = await _getClientData(userId);
+    if (clientData == null || clientData.measurement == null) {
+      return 'Не определен';
+    }
+    return _determineBodyShape(clientData.measurement!);
+  }
+
   Future<WhtrProfiles?> getWhtrProfilesForUser(String userId) async {
     final clientData = await _getClientData(userId);
     if (clientData?.fixedData == null || clientData?.measurement == null) {
