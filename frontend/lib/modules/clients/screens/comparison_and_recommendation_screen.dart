@@ -10,11 +10,11 @@ final recommendationProvider = FutureProvider.autoDispose
   return ApiService.getRecommendation(clientId);
 });
 
-class RecommendationScreen extends ConsumerWidget {
+class ComparisonAndRecommendationScreen extends ConsumerWidget {
   final List<String> measurementIds;
   final String clientId;
 
-  const RecommendationScreen(
+  const ComparisonAndRecommendationScreen(
       {super.key, required this.measurementIds, required this.clientId});
 
   @override
@@ -23,7 +23,7 @@ class RecommendationScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Рекомендации'),
+        title: const Text('Сравнение и рекомендации'),
       ),
       body: measurementsAsync.when(
         data: (allMeasurements) {
@@ -42,6 +42,20 @@ class RecommendationScreen extends ConsumerWidget {
           return ListView(
             padding: const EdgeInsets.all(16.0),
             children: [
+              // Legend
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _buildLegendItem(context, Colors.blue.shade300, 'Замер 1: ${DateFormat.yMMMd('ru').add_jm().format(first.dateTime.toLocal())}'),
+                    const SizedBox(width: 20),
+                    _buildLegendItem(context, Colors.red.shade300, 'Замер 2: ${DateFormat.yMMMd('ru').add_jm().format(second.dateTime.toLocal())}'),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 8.0),
+
               Text('Сравнение замеров',
                   style: Theme.of(context).textTheme.headlineSmall),
               const SizedBox(height: 16),
@@ -58,6 +72,20 @@ class RecommendationScreen extends ConsumerWidget {
         error: (e, s) =>
             Center(child: Text('Ошибка загрузки данных: $e')),
       ),
+    );
+  }
+
+  Widget _buildLegendItem(BuildContext context, Color color, String text) {
+    return Row(
+      children: [
+        Container(
+          width: 20,
+          height: 20,
+          color: color,
+        ),
+        const SizedBox(width: 8),
+        Text(text, style: Theme.of(context).textTheme.bodySmall),
+      ],
     );
   }
 

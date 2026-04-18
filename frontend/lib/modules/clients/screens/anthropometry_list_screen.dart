@@ -1,7 +1,6 @@
 import 'package:fitman_app/modules/clients/screens/anthropometry_detail_screen.dart';
 import 'package:fitman_app/modules/clients/screens/anthropometry_edit_screen.dart';
-import 'package:fitman_app/modules/clients/screens/recommendation_screen.dart';
-import 'package:fitman_app/modules/clients/screens/silhouette_comparison_screen.dart'; // Import the new screen
+import 'package:fitman_app/modules/clients/screens/comparison_and_recommendation_screen.dart';
 import 'package:fitman_common/fitman_common.dart';
 import 'package:fitman_app/services/api_service.dart';
 import 'package:flutter/material.dart';
@@ -229,9 +228,6 @@ class _AnthropometryListScreenState
     final measurementsAsync =
         ref.watch(anthropometryListProvider(targetClientId));
     final bool canShowRecommendations = _selectedMeasurementIds.length == 2;
-    final fixedAnthropometryAsync =
-        ref.watch(fixedAnthropometryProvider(targetClientId));
-    final bool canShowSilhouettes = false; // Temporarily hide the button
 
     return Scaffold(
       appBar: canEdit
@@ -362,7 +358,7 @@ class _AnthropometryListScreenState
                       onPressed: canShowRecommendations
                           ? () {
                               Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (_) => RecommendationScreen(
+                                  builder: (_) => ComparisonAndRecommendationScreen(
                                         measurementIds:
                                             _selectedMeasurementIds.toList(),
                                         clientId: targetClientId,
@@ -371,36 +367,6 @@ class _AnthropometryListScreenState
                           : null,
                       child: const Text('Сравнение и рекомендации'),
                     ),
-                    if (canShowSilhouettes) // Conditionally render the spacer and button
-                      const SizedBox(height: 8.0),
-                    if (canShowSilhouettes) // Conditionally render the button
-                      ElevatedButton(
-                        onPressed: canShowSilhouettes
-                            ? () {
-                                final List<AnthropometryMeasurement> selectedMeasurements = measurements
-                                    .where((m) => _selectedMeasurementIds.contains(m.id))
-                                    .toList();
-                                
-                                final int? personHeight = fixedAnthropometryAsync.valueOrNull?.height;
-
-                                if (selectedMeasurements.length == 2 && personHeight != null) {
-                                  selectedMeasurements.sort((a, b) => a.dateTime.compareTo(b.dateTime));
-
-                                  Navigator.of(context).push(MaterialPageRoute(
-                                      builder: (_) => SilhouetteComparisonScreen(
-                                            measurement1: selectedMeasurements[0],
-                                            measurement2: selectedMeasurements[1],
-                                            height: personHeight,
-                                          )));
-                                } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('Для сравнения силуэтов необходимо выбрать два замера и указать рост в постоянных замерах.')),
-                                  );
-                                }
-                              }
-                            : null,
-                        child: const Text('Сравнить силуэты'),
-                      ),
                   ],
                 ),
               ),
