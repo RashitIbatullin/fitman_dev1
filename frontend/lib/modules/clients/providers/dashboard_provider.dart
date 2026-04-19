@@ -4,6 +4,5 @@ import '../../../services/api_service.dart';
 
 final dashboardDataProvider = FutureProvider<DashboardData>((ref) async {
   final data = await ApiService.getClientDashboardData();
-  print('[DashboardProvider] Raw data from API: $data'); // Debug print
   return DashboardData.fromJson(data);
 });

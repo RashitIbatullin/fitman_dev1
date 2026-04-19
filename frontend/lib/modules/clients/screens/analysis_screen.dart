@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fitman_app/services/api_service.dart';
 import 'package:fitman_app/providers/auth_provider.dart';
 import 'package:fitman_app/utils/body_shape_helper.dart';
+import 'package:intl/intl.dart';
 
 final somatotypeProvider =
     FutureProvider.family<Map<String, dynamic>, String?>((ref, clientId) async {
@@ -49,7 +50,10 @@ final whtrProfilesProvider =
 
 class AnalysisScreen extends StatelessWidget {
   final String clientId;
-  const AnalysisScreen({super.key, required this.clientId});
+  final AnthropometryMeasurement measurement;
+
+  const AnalysisScreen(
+      {super.key, required this.clientId, required this.measurement});
 
   @override
   Widget build(BuildContext context) {
@@ -58,6 +62,13 @@ class AnalysisScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
+          Padding(
+            padding: const EdgeInsets.only(bottom: 16.0),
+            child: Text(
+              'Анализ на основе замера от ${DateFormat('dd.MM.yyyy HH:mm', 'ru').format(measurement.dateTime.toLocal())}',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ),
           _BodyShapeCard(clientId: clientId),
           const SizedBox(height: 16),
           _SomatotypeCard(clientId: clientId),
@@ -88,9 +99,10 @@ class _BodyShapeCard extends ConsumerWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Тип фигуры', style: TextStyle(color: Colors.grey)),
-                    const SizedBox(height: 4),
-                    Text(shape, style: Theme.of(context).textTheme.titleLarge),
+                    const Text('Тип фигуры',
+                        style: TextStyle(fontWeight: FontWeight.bold)),                    const SizedBox(height: 4),
+                    Text(shape,
+                        style: Theme.of(context).textTheme.titleLarge),
                   ],
                 ),
                 IconButton(
@@ -124,7 +136,8 @@ class _SomatotypeCard extends ConsumerWidget {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Соматотип по Шелдону', style: TextStyle(color: Colors.grey)),
+                const Text('Соматотип',
+                    style: TextStyle(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 4),
                 Text(profile, style: Theme.of(context).textTheme.bodyLarge),
               ],

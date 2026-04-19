@@ -356,9 +356,16 @@ class _AnthropometryListScreenState
                     ElevatedButton(
                       onPressed: _selectedMeasurementIds.isNotEmpty
                           ? () {
+                              final latestMeasurement = measurements
+                                  .where((m) =>
+                                      _selectedMeasurementIds.contains(m.id))
+                                  .reduce((a, b) =>
+                                      a.dateTime.isAfter(b.dateTime) ? a : b);
                               Navigator.of(context).push(MaterialPageRoute(
-                                builder: (_) =>
-                                    AnalysisScreen(clientId: targetClientId),
+                                builder: (_) => AnalysisScreen(
+                                  clientId: targetClientId,
+                                  measurement: latestMeasurement,
+                                ),
                               ));
                             }
                           : null,
