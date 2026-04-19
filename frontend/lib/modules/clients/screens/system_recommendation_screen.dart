@@ -1,12 +1,24 @@
+import 'package:equatable/equatable.dart';
 import 'package:fitman_common/fitman_common.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fitman_app/services/api_service.dart';
 import 'package:intl/intl.dart';
 
+class RecommendationParams extends Equatable {
+  final String clientId;
+  final String? measurementId;
+
+  const RecommendationParams({required this.clientId, this.measurementId});
+
+  @override
+  List<Object?> get props => [clientId, measurementId];
+}
+
 final recommendationProvider = FutureProvider.autoDispose
-    .family<Map<String, dynamic>, String>((ref, clientId) async {
-  return ApiService.getRecommendation(clientId);
+    .family<Map<String, dynamic>, RecommendationParams>((ref, params) async {
+  return ApiService.getRecommendation(params.clientId,
+      measurementId: params.measurementId);
 });
 
 class SystemRecommendationScreen extends ConsumerWidget {
@@ -35,11 +47,14 @@ class _RecommendationView extends ConsumerWidget {
   final AnthropometryMeasurement measurement;
   final String clientId;
 
-  const _RecommendationView({required this.measurement, required this.clientId});
+  const _RecommendationView(
+      {required this.measurement, required this.clientId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final recAsync = ref.watch(recommendationProvider(clientId));
+    final params =
+        RecommendationParams(clientId: clientId, measurementId: measurement.id);
+    final recAsync = ref.watch(recommendationProvider(params));
 
     return recAsync.when(
       data: (rec) {
@@ -51,10 +66,13 @@ class _RecommendationView extends ConsumerWidget {
         if (recText == null ||
             recText.contains(defaultMessage) ||
             recText.isEmpty) {
-          return const Card(
+          return Card(
             child: Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Text(defaultMessage),
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                defaultMessage,
+                textAlign: TextAlign.center,
+              ),
             ),
           );
         }

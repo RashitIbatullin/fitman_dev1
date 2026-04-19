@@ -69,13 +69,17 @@ class RecommendationService {
     return _determineBodyShape(clientData.measurement!);
   }
 
+  /// Calculates the WHtR profile for a single, specific measurement.
+  ///
+  /// This is used to get a consistent WHtR value for a measurement across
+  /// different parts of the app (e.g., Analysis and Recommendations).
   Future<WhtrProfile?> getWhtrForMeasurement(String measurementId) async {
     final measurement =
         await db.clients.getAnthropometryMeasurementById(measurementId);
     if (measurement == null) return null;
 
     final clientData =
-        await _getClientData(measurement.userId, measurement: measurement);
+        await _getClientData(measurement.userId, measurementId: measurementId);
     if (clientData?.fixedData == null) return null;
 
     return _determineWhtrProfile(clientData!);
@@ -92,11 +96,15 @@ class RecommendationService {
     return WhtrProfiles(start: profile, finish: profile);
   }
 
-  Future<Map<String, String?>> generateRecommendation(String userId) async {
+  /// Generates a personalized recommendation for a user.
+  ///
+  /// Can generate a recommendation for a [measurementId]. If null, it will
+  /// use the latest available measurement for that user.
+  Future<Map<String, String?>> generateRecommendation(String userId, {String? measurementId}) async {
     print(
-        '[RecommendationService] Starting recommendation generation for userId: $userId');
+        '[RecommendationService] Starting recommendation generation for userId: $userId, measurementId: $measurementId');
 
-    final clientData = await _getClientData(userId);
+    final clientData = await _getClientData(userId, measurementId: measurementId);
     if (clientData?.measurement == null || clientData?.fixedData == null) {
       print(
           '[RecommendationService] ERROR: Failed to get client data or client has no anthropometry.');
@@ -173,16 +181,22 @@ class RecommendationService {
     };
   }
 
-  Future<_ClientData?> _getClientData(String userId, {AnthropometryMeasurement? measurement}) async {
+  /// Internal helper to fetch all necessary data for a client.
+  ///
+  /// If [measurementId] is provided, it fetches that specific measurement.
+  /// Otherwise, it fetches the latest available measurement.
+  Future<_ClientData?> _getClientData(String userId, {String? measurementId}) async {
     final user = await db.users.getUserById(userId);
     if (user == null) return null;
 
-    AnthropometryMeasurement? finalMeasurement = measurement;
-    if (finalMeasurement == null) {
+    AnthropometryMeasurement? finalMeasurement;
+    if (measurementId != null) {
+      finalMeasurement = await db.clients.getAnthropometryMeasurementById(measurementId);
+    } else {
       final measurements = await db.clients.getAnthropometryMeasurements(userId);
       finalMeasurement = measurements.isNotEmpty ? measurements.first : null;
     }
-    
+
     final fixedData = await db.clients.getFixedAnthropometry(userId);
 
     return _ClientData(

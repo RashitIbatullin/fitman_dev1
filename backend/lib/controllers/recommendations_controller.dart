@@ -14,6 +14,7 @@ class RecommendationsController {
       }
 
       final userId = id;
+      final measurementId = request.url.queryParameters['measurement_id'];
 
       // Authorization could be added here:
       // e.g., check if the requesting user (user['userId']) is an admin, 
@@ -21,10 +22,13 @@ class RecommendationsController {
       // For now, we allow any authenticated user.
 
       final service = RecommendationService();
-      final recommendation = await service.generateRecommendation(userId);
+      final recommendation =
+          await service.generateRecommendation(userId, measurementId: measurementId);
 
-      if (recommendation['trainer_recommendation']!.contains('Недостаточно данных')) {
-         return Response.notFound(jsonEncode({'error': recommendation['trainer_recommendation']}));
+      if (recommendation['trainer_recommendation']!
+          .contains('Недостаточно данных')) {
+        return Response.notFound(
+            jsonEncode({'error': recommendation['trainer_recommendation']}));
       }
 
       return Response.ok(jsonEncode(recommendation));

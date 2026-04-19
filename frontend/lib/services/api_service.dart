@@ -340,8 +340,8 @@ class ApiService {
   static Future<void> updateWorkSchedule(Map<String, dynamic> schedule) =>
       _scheduleApi.updateWorkSchedule(schedule);
 
-  static Future<Map<String, dynamic>> getRecommendation(String clientId) =>
-      _recommendationApi.getRecommendation(clientId);
+  static Future<Map<String, dynamic>> getRecommendation(String clientId, {String? measurementId}) =>
+      _recommendationApi.getRecommendation(clientId, measurementId: measurementId);
 
 
   // --- Admin Methods ---

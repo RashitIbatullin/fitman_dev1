@@ -22,12 +22,13 @@ abstract class ClientRepository {
   Future<List<Map<String, dynamic>>> getCalorieTrackingData(String clientId);
   Future<Map<String, dynamic>> getProgressData(String clientId);
   Future<Map<String, dynamic>> getBioimpedanceData(String clientId);
+
+  /// Fetches a single anthropometry measurement by its unique ID.
   Future<AnthropometryMeasurement?> getAnthropometryMeasurementById(
       String measurementId);
   }
 
-  class ClientRepositoryImpl implements ClientRepository {
-  ClientRepositoryImpl(this._db);
+  class ClientRepositoryImpl implements ClientRepository {  ClientRepositoryImpl(this._db);
 
   final Database _db;
 
@@ -292,6 +293,7 @@ abstract class ClientRepository {
     }
   }
 
+  /// Fetches a single anthropometry measurement by its unique ID.
   @override
   Future<AnthropometryMeasurement?> getAnthropometryMeasurementById(
       String measurementId) async {
