@@ -309,6 +309,13 @@ class ApiService {
   static Future<Map<String, dynamic>> getSomatotypeProfile() => _clientApi.getSomatotypeProfile();
   static Future<WhtrProfiles> getWhtrProfiles() => _clientApi.getWhtrProfiles();
 
+  static Future<WhtrProfile> getWhtrForMeasurement(String measurementId, {String? clientId}) async {
+    if (clientId != null) {
+      return _adminApi.getWhtrForMeasurement(clientId, measurementId);
+    }
+    return _clientApi.getWhtrForMeasurement(measurementId);
+  }
+
   static Future<Map<String, dynamic>> uploadAnthropometryPhoto(
           {required List<int> photoBytes, required String fileName}) =>
       _clientApi.uploadAnthropometryPhoto(photoBytes: photoBytes, fileName: fileName);

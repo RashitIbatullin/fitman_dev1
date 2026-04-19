@@ -217,6 +217,7 @@ final Router router = Router()
   ..post('/api/client/anthropometry/photo', (Request request) => _protectedHandler(AnthropometryController.uploadPhoto)(request))
   ..get('/api/client/anthropometry/somatotype', (Request request) => _protectedHandler(AnthropometryController.getSomatotype)(request))
   ..get('/api/client/anthropometry/whtr-profiles', (Request request) => _protectedHandler(AnthropometryController.getWhtrProfiles)(request))
+  ..get('/api/client/anthropometry/measurements/<id>/whtr', (Request request, String id) => _protectedHandler((Request req) => AnthropometryController.getWhtrForMeasurement(req, id))(request))
   ..get('/api/client/calorie-tracking', (Request request) => _protectedHandler(CalorieTrackingController.getCalorieTrackingDataForClient)(request))
   ..get('/api/client/progress', (Request request) => _protectedHandler(ProgressController.getProgressDataForClient)(request))
   ..get('/api/recommendations/<id>', (Request request, String id) => _protectedHandler((Request req) => RecommendationsController.getRecommendation(req, id))(request))
@@ -232,6 +233,8 @@ final Router router = Router()
   ..get('/api/admin/clients/<id>/anthropometry/whtr-profiles', (Request request, String id) => _adminHandler((Request req) => AnthropometryController.getWhtrProfiles(req, id))(request))
   ..post('/api/admin/clients/<id>/anthropometry/<measurementId>/archive', (Request request, String id, String measurementId) => _adminHandler((Request req) => AnthropometryController.archiveAnthropometryMeasurement(req, id, measurementId))(request))
   ..put('/api/admin/clients/<id>/anthropometry/<measurementId>/unarchive', (Request request, String id, String measurementId) => _adminHandler((Request req) => AnthropometryController.unarchiveAnthropometryMeasurement(req, id, measurementId))(request))
+  ..get('/api/admin/clients/<id>/measurements/<measurementId>/whtr', (Request request, String id, String measurementId) => _adminHandler((Request req) => AnthropometryController.getWhtrForMeasurement(req, measurementId))(request))
+
 
 // Work Schedule routes
   ..get('/api/work-schedules', (Request request) => _protectedHandler(WorkScheduleController.getWorkSchedules)(request))

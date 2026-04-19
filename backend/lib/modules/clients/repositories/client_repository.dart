@@ -22,9 +22,11 @@ abstract class ClientRepository {
   Future<List<Map<String, dynamic>>> getCalorieTrackingData(String clientId);
   Future<Map<String, dynamic>> getProgressData(String clientId);
   Future<Map<String, dynamic>> getBioimpedanceData(String clientId);
-}
+  Future<AnthropometryMeasurement?> getAnthropometryMeasurementById(
+      String measurementId);
+  }
 
-class ClientRepositoryImpl implements ClientRepository {
+  class ClientRepositoryImpl implements ClientRepository {
   ClientRepositoryImpl(this._db);
 
   final Database _db;
@@ -286,6 +288,28 @@ class ClientRepositoryImpl implements ClientRepository {
       };
     } catch (e) {
       print('❌ getBioimpedanceData error: $e');
+      rethrow;
+    }
+  }
+
+  @override
+  Future<AnthropometryMeasurement?> getAnthropometryMeasurementById(
+      String measurementId) async {
+    try {
+      final conn = await _connection;
+      final result = await conn.execute(
+        Sql.named('SELECT * FROM anthropometry_measurements WHERE id = @id LIMIT 1'),
+        parameters: {'id': measurementId},
+      );
+
+      if (result.isEmpty) {
+        return null;
+      }
+
+      return AnthropometryMeasurement.fromJson(
+          _convertDateTimeToString(result.first.toColumnMap()));
+    } catch (e) {
+      print('❌ getAnthropometryMeasurementById error: $e');
       rethrow;
     }
   }

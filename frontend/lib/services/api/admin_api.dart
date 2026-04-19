@@ -69,4 +69,11 @@ class AdminApiService extends BaseApiService {
       body: {},
     );
   }
+
+  Future<WhtrProfile> getWhtrForMeasurement(
+      String clientId, String measurementId) async {
+    final data = await get(
+        '/api/admin/clients/$clientId/measurements/$measurementId/whtr');
+    return WhtrProfile.fromJson(data);
+  }
 }

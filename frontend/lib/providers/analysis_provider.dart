@@ -49,28 +49,27 @@ final somatotypeStringProvider =
 /// This is dynamic as it depends on `waistCirc` from the measurement.
 final whtrProfileProvider =
     FutureProvider.family<WhtrProfile, AnthropometryMeasurement>((ref, measurement) async {
-  final fixed = await ref.watch(fixedAnthropometryProvider(measurement.userId).future);
-  final height = fixed?.height;
-  final waist = measurement.waistCirc;
-
-  if (height == null || height == 0 || waist == null) {
-    return WhtrProfile(ratio: 0, gradation: 'Нет данных');
+  final authState = ref.watch(authProvider);
+  final user = authState.asData?.value.user;
+  if (user == null) {
+    throw Exception('Not authenticated');
+  }
+  if (measurement.id == null) {
+    throw Exception('Measurement has no ID');
   }
 
-  final ratio = waist / height;
-  String gradation;
-  // Note: This logic for gradation might need to be verified against backend logic.
-  if (ratio < 0.4) {
-    gradation = 'Экстремальная худоба';
-  } else if (ratio < 0.5) {
-    gradation = 'Норма';
-  } else if (ratio < 0.6) {
-    gradation = 'Избыточный вес';
+  final userRoles = user.roles.map((r) => r.name).toSet();
+  final isStaff = userRoles.contains('admin') ||
+      userRoles.contains('trainer') ||
+      userRoles.contains('instructor');
+
+  if (isStaff && measurement.userId != user.id) {
+    // Staff viewing a client's measurement
+    return ApiService.getWhtrForMeasurement(measurement.id!, clientId: measurement.userId);
   } else {
-    gradation = 'Ожирение';
+    // Client viewing their own measurement
+    return ApiService.getWhtrForMeasurement(measurement.id!);
   }
-
-  return WhtrProfile(ratio: ratio, gradation: gradation);
 });
 
 

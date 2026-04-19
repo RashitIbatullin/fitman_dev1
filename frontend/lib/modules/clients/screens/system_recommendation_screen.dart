@@ -66,7 +66,7 @@ class _RecommendationView extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                    'Замер от ${DateFormat('dd.MM.yyyy HH:mm', 'ru').format(measurement.dateTime)}',
+                    'Замер от ${DateFormat('dd.MM.yyyy HH:mm', 'ru').format(measurement.dateTime.toLocal())}',
                     style: const TextStyle(fontWeight: FontWeight.bold)),
                 const Divider(height: 20),
                 Text(recText),

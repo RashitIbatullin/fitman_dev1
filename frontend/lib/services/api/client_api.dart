@@ -101,4 +101,9 @@ class ClientApiService extends BaseApiService {
   Future<Map<String, dynamic>> getProgressData() async {
     return await get('/api/client/progress');
   }
+
+  Future<WhtrProfile> getWhtrForMeasurement(String measurementId) async {
+    final data = await get('/api/client/anthropometry/measurements/$measurementId/whtr');
+    return WhtrProfile.fromJson(data);
+  }
 }

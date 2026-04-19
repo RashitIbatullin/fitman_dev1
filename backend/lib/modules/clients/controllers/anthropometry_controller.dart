@@ -55,10 +55,6 @@ class AnthropometryController {
       final includeArchived =
           request.url.queryParameters['includeArchived'] == 'true';
 
-      // LOGGING
-      print(
-          '[getAnthropometry] Fetching for clientId: $clientId, includeArchived: $includeArchived');
-
       final data = await Database().clients.getAnthropometryMeasurements(
             clientId,
             includeArchived: includeArchived,
@@ -262,6 +258,28 @@ class AnthropometryController {
       return Response.ok(jsonEncode(profiles.toJson()));
     } catch (e, s) {
       print('Get WHtR profiles error: $e');
+      print(s);
+      return Response.internalServerError(
+          body: jsonEncode({'error': e.toString(), 'stackTrace': s.toString()}));
+    }
+  }
+
+  static Future<Response> getWhtrForMeasurement(
+      Request request, String measurementId) async {
+    try {
+      final recommendationService = RecommendationService();
+      final profile =
+          await recommendationService.getWhtrForMeasurement(measurementId);
+
+      if (profile == null) {
+        return Response.notFound(jsonEncode({
+          'error':
+              'Could not calculate WHtR profile. Measurement not found or missing fixed data.'
+        }));
+      }
+      return Response.ok(jsonEncode(profile.toJson()));
+    } catch (e, s) {
+      print('Get WHtR for measurement error: $e');
       print(s);
       return Response.internalServerError(
           body: jsonEncode({'error': e.toString(), 'stackTrace': s.toString()}));
