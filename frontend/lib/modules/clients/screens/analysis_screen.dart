@@ -1,62 +1,24 @@
+import 'package:fitman_app/providers/analysis_provider.dart';
 import 'package:fitman_common/fitman_common.dart';
+import 'package:fitman_app/utils/body_shape_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fitman_app/services/api_service.dart';
-import 'package:fitman_app/providers/auth_provider.dart';
-import 'package:fitman_app/utils/body_shape_helper.dart';
 import 'package:intl/intl.dart';
 
-final somatotypeProvider =
-    FutureProvider.family<Map<String, dynamic>, String?>((ref, clientId) async {
-  final authState = ref.watch(authProvider);
-  final user = authState.asData?.value.user;
-  if (user == null) {
-    throw Exception('User not authenticated');
-  }
-
-  final userRoles = user.roles.map((r) => r.name).toSet();
-  final bool isStaff = userRoles.contains('admin') ||
-      userRoles.contains('trainer') ||
-      userRoles.contains('instructor') ||
-      userRoles.contains('manager');
-
-  if (isStaff && clientId != null) {
-    return ApiService.getSomatotypeProfileForClient(clientId);
-  } else {
-    return ApiService.getSomatotypeProfile();
-  }
-});
-
-final whtrProfilesProvider =
-    FutureProvider.family<WhtrProfiles, String?>((ref, clientId) async {
-  final authState = ref.watch(authProvider);
-  final user = authState.asData?.value.user;
-  if (user == null) {
-    throw Exception('User not authenticated');
-  }
-
-  final userRoles = user.roles.map((r) => r.name).toSet();
-  final bool isStaff = userRoles.contains('admin') ||
-      userRoles.contains('trainer') ||
-      userRoles.contains('instructor') ||
-      userRoles.contains('manager');
-
-  if (isStaff && clientId != null) {
-    return ApiService.getWhtrProfilesForClient(clientId);
-  } else {
-    return ApiService.getWhtrProfiles();
-  }
-});
-
-class AnalysisScreen extends StatelessWidget {
-  final String clientId;
+class AnalysisScreen extends ConsumerWidget {
   final AnthropometryMeasurement measurement;
 
-  const AnalysisScreen(
-      {super.key, required this.clientId, required this.measurement});
+  const AnalysisScreen({
+    super.key,
+    required this.measurement,
+  });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Note: measurement.id can be null for a new, unsaved measurement.
+    // The button logic in the list screen should prevent this, but we add a fallback.
+    final analysisAsync = ref.watch(singleAnalysisProvider(measurement.id ?? ''));
+
     return Scaffold(
       appBar: AppBar(title: const Text('Анализ фигуры')),
       body: ListView(
@@ -69,127 +31,111 @@ class AnalysisScreen extends StatelessWidget {
               style: Theme.of(context).textTheme.bodySmall,
             ),
           ),
-          _BodyShapeCard(clientId: clientId),
-          const SizedBox(height: 16),
-          _SomatotypeCard(clientId: clientId),
-          const SizedBox(height: 16),
-          _WhtrCard(clientId: clientId),
+          analysisAsync.when(
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (err, stack) =>
+                Center(child: Text('Не удалось загрузить анализ: $err')),
+            data: (data) {
+              return Column(
+                children: [
+                  _BodyShapeCard(bodyShape: data.bodyShape),
+                  const SizedBox(height: 16),
+                  _SomatotypeCard(somatotypeProfile: data.somatotypeProfile),
+                  const SizedBox(height: 16),
+                  _WhtrCard(whtrProfile: data.whtrProfile),
+                ],
+              );
+            },
+          ),
         ],
       ),
     );
   }
 }
 
-class _BodyShapeCard extends ConsumerWidget {
-  const _BodyShapeCard({required this.clientId});
-  final String? clientId;
+class _BodyShapeCard extends StatelessWidget {
+  const _BodyShapeCard({required this.bodyShape});
+  final String bodyShape;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final somatotypeAsync = ref.watch(somatotypeProvider(clientId));
+  Widget build(BuildContext context) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: somatotypeAsync.when(
-          data: (data) {
-            final shape = data['body_shape'] as String? ?? 'Не определен';
-            return Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('Тип фигуры',
-                        style: TextStyle(fontWeight: FontWeight.bold)),                    const SizedBox(height: 4),
-                    Text(shape,
-                        style: Theme.of(context).textTheme.titleLarge),
-                  ],
-                ),
-                IconButton(
-                  icon: const Icon(Icons.help_outline, color: Colors.grey),
-                  onPressed: () => showBodyShapeHelpDialog(context, shape),
-                )
-              ],
-            );
-          },
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (e, s) => Text('Ошибка: $e'),
-        ),
-      ),
-    );
-  }
-}
-
-class _SomatotypeCard extends ConsumerWidget {
-  const _SomatotypeCard({required this.clientId});
-  final String? clientId;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final somatotypeAsync = ref.watch(somatotypeProvider(clientId));
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: somatotypeAsync.when(
-          data: (data) {
-            final profile = data['somatotype_profile'] as String? ?? 'N/A';
-            return Column(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Соматотип',
+                const Text('Тип фигуры',
                     style: TextStyle(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 4),
-                Text(profile, style: Theme.of(context).textTheme.bodyLarge),
+                Text(bodyShape, style: Theme.of(context).textTheme.titleLarge),
               ],
-            );
-          },
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (e, s) => Text('Ошибка: $e'),
+            ),
+            IconButton(
+              icon: const Icon(Icons.help_outline, color: Colors.grey),
+              onPressed: () => showBodyShapeHelpDialog(context, bodyShape),
+            )
+          ],
         ),
       ),
     );
   }
 }
 
-class _WhtrCard extends ConsumerWidget {
-  const _WhtrCard({required this.clientId});
-  final String clientId;
+class _SomatotypeCard extends StatelessWidget {
+  const _SomatotypeCard({required this.somatotypeProfile});
+  final String somatotypeProfile;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final whtrAsync = ref.watch(whtrProfilesProvider(clientId));
+  Widget build(BuildContext context) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: whtrAsync.when(
-          data: (profiles) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('Индекс WHtR (талия/рост)',
-                    style: TextStyle(fontWeight: FontWeight.bold)),
-                const SizedBox(height: 12),
-                _buildWhtrRow('Начало:', profiles.start),
-                const SizedBox(height: 8),
-                _buildWhtrRow('Текущий:', profiles.finish),
-              ],
-            );
-          },
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (e, s) => Text('Ошибка: $e'),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Соматотип',
+                style: TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 4),
+            Text(somatotypeProfile,
+                style: Theme.of(context).textTheme.bodyLarge),
+          ],
         ),
       ),
     );
   }
+}
 
-  Widget _buildWhtrRow(String title, WhtrProfile profile) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(title),
-        Text('${profile.gradation} (${profile.ratio.toStringAsFixed(2)})',
-            style: const TextStyle(fontWeight: FontWeight.bold)),
-      ],
+class _WhtrCard extends StatelessWidget {
+  const _WhtrCard({required this.whtrProfile});
+  final WhtrProfile whtrProfile;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Индекс WHtR (талия/рост)',
+                style: TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('Значение:'),
+                Text(
+                    '${whtrProfile.gradation} (${whtrProfile.ratio.toStringAsFixed(2)})',
+                    style: const TextStyle(fontWeight: FontWeight.bold)),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

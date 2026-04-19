@@ -2,6 +2,7 @@ import 'package:fitman_app/modules/clients/screens/anthropometry_detail_screen.d
 import 'package:fitman_app/modules/clients/screens/anthropometry_edit_screen.dart';
 import 'package:fitman_app/modules/clients/screens/comparison_screen.dart';
 import 'package:fitman_app/modules/clients/screens/analysis_screen.dart';
+import 'package:fitman_app/modules/clients/screens/analysis_comparison_screen.dart';
 import 'package:fitman_app/modules/clients/screens/system_recommendation_screen.dart';
 import 'package:fitman_common/fitman_common.dart';
 import 'package:fitman_app/services/api_service.dart';
@@ -354,21 +355,32 @@ class _AnthropometryListScreenState
                     ),
                     // Analysis Button
                     ElevatedButton(
-                      onPressed: _selectedMeasurementIds.isNotEmpty
-                          ? () {
-                              final latestMeasurement = measurements
-                                  .where((m) =>
-                                      _selectedMeasurementIds.contains(m.id))
-                                  .reduce((a, b) =>
-                                      a.dateTime.isAfter(b.dateTime) ? a : b);
-                              Navigator.of(context).push(MaterialPageRoute(
-                                builder: (_) => AnalysisScreen(
-                                  clientId: targetClientId,
-                                  measurement: latestMeasurement,
-                                ),
-                              ));
-                            }
-                          : null,
+                      onPressed:
+                          (_selectedMeasurementIds.length == 1 || _selectedMeasurementIds.length == 2)
+                              ? () {
+                                  final selectedMeasurements = measurements
+                                      .where((m) => _selectedMeasurementIds
+                                          .contains(m.id))
+                                      .toList();
+                                  selectedMeasurements.sort(
+                                      (a, b) => a.dateTime.compareTo(b.dateTime));
+
+                                  if (selectedMeasurements.length == 1) {
+                                    Navigator.of(context).push(MaterialPageRoute(
+                                      builder: (_) => AnalysisScreen(
+                                        measurement: selectedMeasurements[0],
+                                      ),
+                                    ));
+                                  } else {
+                                    Navigator.of(context).push(MaterialPageRoute(
+                                      builder: (_) => AnalysisComparisonScreen(
+                                        first: selectedMeasurements[0],
+                                        second: selectedMeasurements[1],
+                                      ),
+                                    ));
+                                  }
+                                }
+                              : null,
                       child: const Text('Анализ'),
                     ),
                     // Recommendation Button
