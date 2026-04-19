@@ -105,6 +105,34 @@ class _AnthropometryEditScreenState
     );
   }
 
+  Future<void> _selectDateTime(BuildContext context) async {
+    final pickedDate = await showDatePicker(
+      context: context,
+      initialDate: _dateTime,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+    if (pickedDate == null) return;
+
+    if (!mounted) return;
+
+    final pickedTime = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.fromDateTime(_dateTime),
+    );
+    if (pickedTime == null) return;
+
+    setState(() {
+      _dateTime = DateTime(
+        pickedDate.year,
+        pickedDate.month,
+        pickedDate.day,
+        pickedTime.hour,
+        pickedTime.minute,
+      );
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -133,21 +161,11 @@ class _AnthropometryEditScreenState
             children: [
               ListTile(
                 title: Text(
-                    'Дата замера: ${DateFormat.yMMMd('ru').format(_dateTime)}'),
+                    'Дата замера: ${DateFormat.yMMMd('ru').add_jm().format(_dateTime)}'),
                 trailing: const Icon(Icons.calendar_today),
-                onTap: () async {
-                  final pickedDate = await showDatePicker(
-                    context: context,
-                    initialDate: _dateTime,
-                    firstDate: DateTime(2000),
-                    lastDate: DateTime(2101),
-                  );
-                  if (pickedDate != null) {
-                    setState(() {
-                      _dateTime = pickedDate;
-                    });
-                  }
-                },
+                onTap: widget.measurement == null
+                    ? () => _selectDateTime(context)
+                    : null,
               ),
               _buildTextFormField('Вес (кг)', 'weight'),
               _buildTextFormField('Обхват плеч (см)', 'shouldersCirc'),
