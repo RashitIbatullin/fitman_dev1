@@ -55,6 +55,10 @@ class AnthropometryController {
       final includeArchived =
           request.url.queryParameters['includeArchived'] == 'true';
 
+      // LOGGING
+      print(
+          '[getAnthropometry] Fetching for clientId: $clientId, includeArchived: $includeArchived');
+
       final data = await Database().clients.getAnthropometryMeasurements(
             clientId,
             includeArchived: includeArchived,

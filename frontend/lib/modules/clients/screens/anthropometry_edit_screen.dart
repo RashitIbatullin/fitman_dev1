@@ -77,7 +77,12 @@ class _AnthropometryEditScreenState
         await ApiService.saveAnthropometryMeasurementForClient(
             widget.clientId, measurementToSave);
 
-        ref.invalidate(anthropometryListProvider(widget.clientId));
+        ref.invalidate(anthropometryListProvider(
+          AnthropometryListParams(
+            clientId: widget.clientId,
+            includeArchived: ref.read(showArchivedProvider),
+          ),
+        ));
         if (mounted) {
           Navigator.of(context).pop();
         }

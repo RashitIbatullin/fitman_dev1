@@ -91,7 +91,9 @@ class ClientRepositoryImpl implements ClientRepository {
           WHERE user_id = @clientId
         ''';
 
-      if (!includeArchived) {
+      if (includeArchived) {
+        query += ' AND archived_at IS NOT NULL';
+      } else {
         query += ' AND archived_at IS NULL';
       }
 

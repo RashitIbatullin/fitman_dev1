@@ -1,3 +1,4 @@
+import 'package:equatable/equatable.dart';
 import 'package:fitman_app/modules/clients/screens/anthropometry_detail_screen.dart';
 import 'package:fitman_app/modules/clients/screens/anthropometry_edit_screen.dart';
 import 'package:fitman_app/modules/clients/screens/comparison_screen.dart';
@@ -14,16 +15,28 @@ import '../../../providers/auth_provider.dart';
 
 final showArchivedProvider = StateProvider<bool>((ref) => false);
 
-final anthropometryListProvider =
-    FutureProvider.family<List<AnthropometryMeasurement>, String?>(
-        (ref, clientId) async {
+class AnthropometryListParams extends Equatable {
+  final String? clientId;
+  final bool includeArchived;
+
+  const AnthropometryListParams({
+    required this.clientId,
+    required this.includeArchived,
+  });
+
+  @override
+  List<Object?> get props => [clientId, includeArchived];
+}
+
+final anthropometryListProvider = FutureProvider.family
+    <List<AnthropometryMeasurement>, AnthropometryListParams>(
+        (ref, params) async {
   final authState = ref.watch(authProvider);
   final user = authState.asData?.value.user;
   if (user == null) {
     throw Exception('User not authenticated');
   }
 
-  final showArchived = ref.watch(showArchivedProvider);
   final userRoles = user.roles.map((r) => r.name).toSet();
   final bool isStaff = userRoles.contains('admin') ||
       userRoles.contains('trainer') ||
@@ -32,18 +45,18 @@ final anthropometryListProvider =
 
   List<AnthropometryMeasurement> measurements;
 
-  if (isStaff && clientId != null) {
-    measurements = await ApiService.getAnthropometryMeasurementsForClient(clientId,
-        includeArchived: showArchived);
+  if (isStaff && params.clientId != null) {
+    measurements = await ApiService.getAnthropometryMeasurementsForClient(
+        params.clientId!,
+        includeArchived: params.includeArchived);
   } else {
-    measurements = await ApiService.getAnthropometryMeasurements(includeArchived: false);
+    measurements = await ApiService.getAnthropometryMeasurements(
+        includeArchived: params.includeArchived);
   }
-  
+
   measurements.sort((a, b) => a.dateTime.compareTo(b.dateTime));
   return measurements;
 });
-
-
 
 class AnthropometryListScreen extends ConsumerStatefulWidget {
   final String? clientId;
@@ -151,7 +164,13 @@ class _AnthropometryListScreenState
     try {
       await ApiService.archiveAnthropometryMeasurement(
           clientId, measurement.id!, reason);
-      ref.invalidate(anthropometryListProvider(widget.clientId));
+      // Invalidate both archived and non-archived states
+      ref.invalidate(anthropometryListProvider(
+        AnthropometryListParams(clientId: clientId, includeArchived: true),
+      ));
+      ref.invalidate(anthropometryListProvider(
+        AnthropometryListParams(clientId: clientId, includeArchived: false),
+      ));
       scaffoldMessenger.showSnackBar(
         const SnackBar(
           content: Text('Замер успешно архивирован.'),
@@ -171,7 +190,13 @@ class _AnthropometryListScreenState
     try {
       await ApiService.unarchiveAnthropometryMeasurement(
           clientId, measurementId);
-      ref.invalidate(anthropometryListProvider(widget.clientId));
+      // Invalidate both archived and non-archived states
+      ref.invalidate(anthropometryListProvider(
+        AnthropometryListParams(clientId: clientId, includeArchived: true),
+      ));
+      ref.invalidate(anthropometryListProvider(
+        AnthropometryListParams(clientId: clientId, includeArchived: false),
+      ));
       scaffoldMessenger.showSnackBar(
         const SnackBar(
           content: Text('Замер успешно восстановлен из архива.'),
@@ -205,31 +230,28 @@ class _AnthropometryListScreenState
         roles.contains('manager');
 
     final showArchived = ref.watch(showArchivedProvider);
-    final measurementsAsync =
-        ref.watch(anthropometryListProvider(targetClientId));
+    final listParams = AnthropometryListParams(
+        clientId: targetClientId, includeArchived: showArchived);
+    final measurementsAsync = ref.watch(anthropometryListProvider(listParams));
 
     return Scaffold(
-      appBar: canEdit
-          ? AppBar(
-              toolbarHeight: kToolbarHeight,
-              elevation: 1,
-              backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
-              automaticallyImplyLeading: false,
-              title: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  const Text('Показать архив', style: TextStyle(fontSize: 14)),
-                  Switch(
-                    value: showArchived,
-                    onChanged: (value) {
-                      ref.read(showArchivedProvider.notifier).state = value;
-                      ref.invalidate(anthropometryListProvider);
-                    },
-                  ),
-                ],
-              ),
-            )
-          : null,
+      appBar: AppBar(
+        toolbarHeight: kToolbarHeight,
+        elevation: 1,
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            const Text('Показать архив', style: TextStyle(fontSize: 14)),
+            Switch(
+              value: showArchived,
+              onChanged: (value) {
+                ref.read(showArchivedProvider.notifier).state = value;
+              },
+            ),
+          ],
+        ),
+      ),
       body: measurementsAsync.when(
         data: (measurements) {
           if (measurements.isEmpty) {
@@ -414,3 +436,4 @@ class _AnthropometryListScreenState
     );
   }
 }
+
