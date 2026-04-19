@@ -16,11 +16,14 @@ class AnalysisComparisonScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final firstAnalysis = ref.watch(singleAnalysisProvider(first.id!));
-    final secondAnalysis = ref.watch(singleAnalysisProvider(second.id!));
+    // Static data (fetches once for the user)
+    final somatotypeAsync = ref.watch(somatotypeStringProvider(first.userId));
 
-    final headerStyle =
-        Theme.of(context).textTheme.labelMedium?.copyWith(color: Colors.grey);
+    // Dynamic data (fetches for each measurement)
+    final bodyShape1 = ref.watch(bodyShapeProvider(first));
+    final bodyShape2 = ref.watch(bodyShapeProvider(second));
+    final whtr1Async = ref.watch(whtrProfileProvider(first));
+    final whtr2Async = ref.watch(whtrProfileProvider(second));
 
     return Scaffold(
       appBar: AppBar(
@@ -29,90 +32,81 @@ class AnalysisComparisonScreen extends ConsumerWidget {
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
-          _buildDateHeader(context, headerStyle),
-          const SizedBox(height: 16),
-          // Comparison Cards
-          firstAnalysis.when(
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (err, stack) => Text('Ошибка: $err'),
-            data: (firstData) => secondAnalysis.when(
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (err, stack) => Text('Ошибка: $err'),
-              data: (secondData) {
-                return Column(
-                  children: [
-                    _ComparisonCard(
-                      title: 'Тип фигуры',
-                      firstValue: firstData.bodyShape,
-                      secondValue: secondData.bodyShape,
-                    ),
-                    const SizedBox(height: 16),
-                    _ComparisonCard(
-                      title: 'Соматотип',
-                      firstValue: firstData.somatotypeProfile,
-                      secondValue: secondData.somatotypeProfile,
-                    ),
-                    const SizedBox(height: 16),
-                    _ComparisonCard(
-                      title: 'Индекс WHtR',
-                      firstValue:
-                          '${firstData.whtrProfile.gradation} (${firstData.whtrProfile.ratio.toStringAsFixed(2)})',
-                      secondValue:
-                          '${secondData.whtrProfile.gradation} (${secondData.whtrProfile.ratio.toStringAsFixed(2)})',
-                    ),
-                  ],
-                );
-              },
+          // Static data card
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Соматотип',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 4),
+                  somatotypeAsync.when(
+                    data: (somatotype) => Text(somatotype,
+                        style: Theme.of(context).textTheme.bodyLarge),
+                    loading: () =>
+                        const Center(child: CircularProgressIndicator()),
+                    error: (e, s) => Text('Ошибка: $e'),
+                  ),
+                ],
+              ),
             ),
+          ),
+          const Divider(height: 32),
+
+          // Dynamic data cards
+          _DynamicComparisonCard(
+            title: 'Тип фигуры',
+            firstMeasurement: first,
+            secondMeasurement: second,
+            firstValue: bodyShape1,
+            secondValue: bodyShape2,
+          ),
+          const SizedBox(height: 16),
+          whtr1Async.when(
+            data: (whtr1) => whtr2Async.when(
+              data: (whtr2) => _DynamicComparisonCard(
+                title: 'Индекс WHtR',
+                firstMeasurement: first,
+                secondMeasurement: second,
+                firstValue:
+                    '${whtr1.gradation} (${whtr1.ratio.toStringAsFixed(2)})',
+                secondValue:
+                    '${whtr2.gradation} (${whtr2.ratio.toStringAsFixed(2)})',
+              ),
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (e, s) => Text('Ошибка: $e'),
+            ),
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (e, s) => Text('Ошибка: $e'),
           ),
         ],
       ),
     );
   }
-
-  Widget _buildDateHeader(BuildContext context, TextStyle? headerStyle) {
-    return Card(
-      elevation: 0,
-      color: Theme.of(context).colorScheme.surfaceContainerHighest,
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Row(
-          children: [
-            Expanded(
-              child: Text(
-                DateFormat.yMd('ru').add_jm().format(first.dateTime.toLocal()),
-                style: headerStyle,
-                textAlign: TextAlign.center,
-              ),
-            ),
-            Expanded(
-              child: Text(
-                DateFormat.yMd('ru').add_jm().format(second.dateTime.toLocal()),
-                style: headerStyle,
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }
 
-class _ComparisonCard extends StatelessWidget {
+class _DynamicComparisonCard extends StatelessWidget {
   final String title;
+  final AnthropometryMeasurement firstMeasurement;
+  final AnthropometryMeasurement secondMeasurement;
   final String firstValue;
   final String secondValue;
 
-  const _ComparisonCard({
+  const _DynamicComparisonCard({
     required this.title,
+    required this.firstMeasurement,
+    required this.secondMeasurement,
     required this.firstValue,
     required this.secondValue,
   });
 
   @override
   Widget build(BuildContext context) {
-    final valueStyle = Theme.of(context).textTheme.bodyLarge;
+    final dateStyle = Theme.of(context).textTheme.labelMedium;
+    final valueStyle =
+        Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold);
 
     return Card(
       child: Padding(
@@ -122,20 +116,50 @@ class _ComparisonCard extends StatelessWidget {
           children: [
             Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                    child: Text(firstValue,
-                        style: valueStyle, textAlign: TextAlign.center)),
-                const VerticalDivider(),
-                Expanded(
-                    child: Text(secondValue,
-                        style: valueStyle, textAlign: TextAlign.center)),
-              ],
+            _buildComparisonRow(
+              context: context,
+              date: firstMeasurement.dateTime,
+              value: firstValue,
+              dateStyle: dateStyle,
+              valueStyle: valueStyle,
+            ),
+            const SizedBox(height: 8),
+            _buildComparisonRow(
+              context: context,
+              date: secondMeasurement.dateTime,
+              value: secondValue,
+              dateStyle: dateStyle,
+              valueStyle: valueStyle,
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildComparisonRow({
+    required BuildContext context,
+    required DateTime date,
+    required String value,
+    required TextStyle? dateStyle,
+    required TextStyle? valueStyle,
+  }) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          '${DateFormat.yMd('ru').add_jm().format(date.toLocal())}:',
+          style: dateStyle,
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Text(
+            value,
+            style: valueStyle,
+            textAlign: TextAlign.end,
+          ),
+        ),
+      ],
     );
   }
 }

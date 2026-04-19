@@ -15,9 +15,11 @@ class AnalysisScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Note: measurement.id can be null for a new, unsaved measurement.
-    // The button logic in the list screen should prevent this, but we add a fallback.
-    final analysisAsync = ref.watch(singleAnalysisProvider(measurement.id ?? ''));
+    // Watch all the individual providers
+    final somatotypeAsync =
+        ref.watch(somatotypeStringProvider(measurement.userId));
+    final bodyShape = ref.watch(bodyShapeProvider(measurement)); // This one is sync
+    final whtrAsync = ref.watch(whtrProfileProvider(measurement));
 
     return Scaffold(
       appBar: AppBar(title: const Text('Анализ фигуры')),
@@ -31,21 +33,42 @@ class AnalysisScreen extends ConsumerWidget {
               style: Theme.of(context).textTheme.bodySmall,
             ),
           ),
-          analysisAsync.when(
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (err, stack) =>
-                Center(child: Text('Не удалось загрузить анализ: $err')),
-            data: (data) {
-              return Column(
-                children: [
-                  _BodyShapeCard(bodyShape: data.bodyShape),
-                  const SizedBox(height: 16),
-                  _SomatotypeCard(somatotypeProfile: data.somatotypeProfile),
-                  const SizedBox(height: 16),
-                  _WhtrCard(whtrProfile: data.whtrProfile),
-                ],
-              );
-            },
+
+          // Card for Somatotype (async provider)
+          somatotypeAsync.when(
+            data: (somatotype) => _SomatotypeCard(somatotypeProfile: somatotype),
+            loading: () => Card(
+                child: Center(
+                    child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: CircularProgressIndicator(),
+            ))),
+            error: (e, s) => Card(
+                child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text('Ошибка: $e'),
+            )),
+          ),
+          const SizedBox(height: 16),
+
+          // Card for Body Shape (sync provider)
+          _BodyShapeCard(bodyShape: bodyShape),
+          const SizedBox(height: 16),
+
+          // Card for WHtR (async provider)
+          whtrAsync.when(
+            data: (whtr) => _WhtrCard(whtrProfile: whtr),
+            loading: () => Card(
+                child: Center(
+                    child: Padding(
+              padding: EdgeInsets.all(16.0),
+              child: CircularProgressIndicator(),
+            ))),
+            error: (e, s) => Card(
+                child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text('Ошибка: $e'),
+            )),
           ),
         ],
       ),
