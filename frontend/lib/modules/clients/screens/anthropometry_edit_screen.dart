@@ -83,17 +83,17 @@ class _AnthropometryEditScreenState
             includeArchived: ref.read(showArchivedProvider),
           ),
         ));
-        if (context.mounted) {
+        if (mounted) {
           Navigator.of(context).pop();
         }
       } catch (e) {
-        if (context.mounted) {
+        if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Ошибка сохранения: $e')),
           );
         }
       } finally {
-        if (context.mounted) {
+        if (mounted) {
           setState(() {
             _isLoading = false;
           });

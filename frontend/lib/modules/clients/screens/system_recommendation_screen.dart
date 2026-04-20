@@ -81,7 +81,6 @@ class _RecommendationViewState extends ConsumerState<_RecommendationView> {
           await ref.read(somatotypeStringProvider(widget.clientId).future);
       final goals = await ref.read(trainingGoalsProvider.future);
       final levels = await ref.read(trainingLevelsProvider.future);
-      final bodyShape = ref.read(bodyShapeProvider(widget.measurement));
 
       // 2. Process data
       final goalName = goals
@@ -106,7 +105,6 @@ class _RecommendationViewState extends ConsumerState<_RecommendationView> {
             goalName: goalName,
             levelName: levelName,
             somatotype: somatotype,
-            bodyShape: bodyShape,
             measurement: widget.measurement);
 
         _professionalPrompt = _generateProfessionalPrompt(
@@ -117,18 +115,18 @@ class _RecommendationViewState extends ConsumerState<_RecommendationView> {
             goalName: goalName,
             levelName: levelName,
             somatotype: somatotype,
-            bodyShape: bodyShape,
             measurement: widget.measurement);
             
         _isPromptVisible = true;
       });
     } catch (e) {
-      if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Ошибка генерации промпта: $e')),
         );
+      }
     } finally {
-      if (context.mounted) {
+      if (mounted) {
         setState(() {
           _isLoadingPrompt = false;
         });
@@ -143,7 +141,6 @@ class _RecommendationViewState extends ConsumerState<_RecommendationView> {
     required String goalName,
     required String levelName,
     required String somatotype,
-    required String bodyShape,
     required AnthropometryMeasurement measurement,
   }) {
      final measurementDetails = [
@@ -162,7 +159,7 @@ class _RecommendationViewState extends ConsumerState<_RecommendationView> {
         'Отвечай в стиле дружелюбного и поддерживающего фитнес-тренера. '
         'Данные клиента: пол $gender, возраст $age лет, рост $height см. '
         'Его(ее) цель: "$goalName", уровень подготовки: "$levelName". '
-        'Тип телосложения (соматотип): $somatotype. Тип фигуры: $bodyShape. '
+        'Тип телосложения (соматотип): $somatotype. '
         'Данные последнего замера от ${DateFormat('dd.MM.yyyy').format(measurement.dateTime)}: $measurementDetails.';
   }
 
@@ -174,7 +171,6 @@ class _RecommendationViewState extends ConsumerState<_RecommendationView> {
     required String goalName,
     required String levelName,
     required String somatotype,
-    required String bodyShape,
     required AnthropometryMeasurement measurement,
   }) {
     final measurementDetails = {
@@ -203,7 +199,6 @@ class _RecommendationViewState extends ConsumerState<_RecommendationView> {
 ## Антропометрические данные
 - **Рост (см):** $height
 - **Соматотип:** $somatotype
-- **Тип фигуры:** $bodyShape
 - **Замер от ${DateFormat('yyyy-MM-dd').format(measurement.dateTime)}:**
 $measurementDetails
 ''';

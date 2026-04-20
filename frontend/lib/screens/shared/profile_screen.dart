@@ -51,13 +51,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
   Future<void> _saveProfile() async {
     if (!_isDirty()) {
-      if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Нет изменений для сохранения.'),
-          backgroundColor: Colors.amber,
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Нет изменений для сохранения.'),
+            backgroundColor: Colors.amber,
+          ),
+        );
+      }
       return;
     }
 
@@ -104,20 +105,22 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         _photoUrl = updatedUser.photoUrl;
       });
 
-      if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Профиль успешно обновлен', style: TextStyle(color: Colors.white)),
-          backgroundColor: Colors.green,
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Профиль успешно обновлен', style: TextStyle(color: Colors.white)),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
     } catch (e) {
-      if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Ошибка обновления профиля: $e')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Ошибка обновления профиля: $e')),
+        );
+      }
     } finally {
-      if (context.mounted) {
+      if (mounted) {
         setState(() {
           _isLoading = false;
         });
