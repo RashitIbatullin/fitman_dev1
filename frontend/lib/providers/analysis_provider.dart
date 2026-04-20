@@ -1,11 +1,11 @@
-///
-/// This file contains granular providers for calculating and fetching
-/// individual anthropometric analysis data points.
-///
-/// This approach allows for better separation of concerns and more efficient
-/// UI updates, as widgets can subscribe only to the data they need.
-///
-library fitman_app.providers.analysis;
+//
+// This file contains granular providers for calculating and fetching
+// individual anthropometric analysis data points.
+//
+// This approach allows for better separation of concerns and more efficient
+// UI updates, as widgets can subscribe only to the data they need.
+//
+
 
 import 'package:fitman_app/providers/auth_provider.dart';
 import 'package:fitman_app/services/api_service.dart';

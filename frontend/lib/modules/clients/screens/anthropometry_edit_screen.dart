@@ -83,17 +83,17 @@ class _AnthropometryEditScreenState
             includeArchived: ref.read(showArchivedProvider),
           ),
         ));
-        if (mounted) {
+        if (context.mounted) {
           Navigator.of(context).pop();
         }
       } catch (e) {
-        if (mounted) {
+        if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Ошибка сохранения: $e')),
           );
         }
       } finally {
-        if (mounted) {
+        if (context.mounted) {
           setState(() {
             _isLoading = false;
           });
@@ -119,7 +119,7 @@ class _AnthropometryEditScreenState
     );
     if (pickedDate == null) return;
 
-    if (!mounted) return;
+    if (!context.mounted) return;
 
     final pickedTime = await showTimePicker(
       context: context,

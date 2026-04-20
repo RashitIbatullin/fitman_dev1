@@ -3,7 +3,7 @@ import 'package:fitman_app/services/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fitman_common/fitman_common.dart';
-import '../../providers/catalogs_provider.dart';
+import 'package:fitman_app/modules/clients/providers/training_catalogs_provider.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   final User user;
@@ -51,6 +51,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
   Future<void> _saveProfile() async {
     if (!_isDirty()) {
+      if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Нет изменений для сохранения.'),
@@ -103,7 +104,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         _photoUrl = updatedUser.photoUrl;
       });
 
-      if (!mounted) return;
+      if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Профиль успешно обновлен', style: TextStyle(color: Colors.white)),
@@ -111,12 +112,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         ),
       );
     } catch (e) {
-      if (!mounted) return;
+      if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Ошибка обновления профиля: $e')),
       );
     } finally {
-      if (mounted) {
+      if (context.mounted) {
         setState(() {
           _isLoading = false;
         });
@@ -233,8 +234,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   Widget _buildSettingsSection(bool canEdit) {
     final clientProfile = widget.user.clientProfile;
     final isClientRole = widget.user.roles.any((r) => r.name == 'client');
-    final goalsAsync = ref.watch(goalsTrainingProvider);
-    final levelsAsync = ref.watch(levelsTrainingProvider);
+    final goalsAsync = ref.watch(trainingGoalsProvider);
+    final levelsAsync = ref.watch(trainingLevelsProvider);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
