@@ -1,9 +1,10 @@
-import 'package:fitman_app/providers/analysis_provider.dart';
 import 'package:fitman_common/fitman_common.dart';
 import 'package:fitman_app/utils/body_shape_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+
+import '../providers/analysis_provider.dart';
 
 class AnalysisScreen extends ConsumerWidget {
   final AnthropometryMeasurement measurement;

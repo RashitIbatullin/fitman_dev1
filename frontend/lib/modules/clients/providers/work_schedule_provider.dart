@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:fitman_common/fitman_common.dart';
-import '../../services/api_service.dart';
+import '../../../../services/api_service.dart';
 
 final workScheduleProvider =
     StateNotifierProvider<WorkScheduleNotifier, AsyncValue<List<WorkSchedule>>>(
