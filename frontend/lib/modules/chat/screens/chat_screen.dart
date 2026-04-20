@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
+import '../../users/providers/auth_provider.dart';
 import '../providers/chat_provider.dart'; // Adjusted relative path
-import '../../../providers/auth_provider.dart'; // Adjusted relative path
 import '../widgets/message_bubble.dart'; // Corrected path within the module
 
 class ChatScreen extends ConsumerStatefulWidget {

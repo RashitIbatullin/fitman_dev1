@@ -7,12 +7,13 @@
 //
 
 
-import 'package:fitman_app/providers/auth_provider.dart';
 import 'package:fitman_app/services/api_service.dart';
 import 'package:fitman_app/utils/body_shape_calculator.dart';
 import 'package:fitman_app/utils/somatotype_calculator.dart';
 import 'package:fitman_common/fitman_common.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../users/providers/auth_provider.dart';
 
 // --- Foundational Data Providers ---
 

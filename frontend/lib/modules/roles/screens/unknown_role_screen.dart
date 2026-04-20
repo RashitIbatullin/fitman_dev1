@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../providers/auth_provider.dart';
+
+import '../../users/providers/auth_provider.dart';
 
 class UnknownRoleScreen extends ConsumerWidget {
   const UnknownRoleScreen({super.key});

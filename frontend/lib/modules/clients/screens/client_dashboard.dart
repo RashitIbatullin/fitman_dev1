@@ -1,11 +1,11 @@
 import '../../../screens/shared/profile_screen.dart';
 
+import '../../users/providers/auth_provider.dart';
 import '../providers/dashboard_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:fitman_common/fitman_common.dart';
-import '../../../providers/auth_provider.dart';
 import 'my_trainer_screen.dart';
 import 'my_instructor_screen.dart';
 import 'my_manager_screen.dart';
@@ -13,7 +13,7 @@ import 'anthropometry_screen.dart';
 import 'sessions_screen.dart';
 import 'calorie_tracking_screen.dart';
 import 'progress_screen.dart';
-import '../../chat/screens/chat_list_screen.dart'; // Corrected import path
+import '../../chat/screens/chat_list_screen.dart';
 
 final clientDashboardIndexProvider = StateProvider<int>((ref) => 0);
 
@@ -73,7 +73,7 @@ class ClientDashboard extends ConsumerWidget {
       const MyTrainerScreen(),
       const MyInstructorScreen(),
       const MyManagerScreen(),
-      AnthropometryScreen(clientId: user.id.toString()),
+      AnthropometryScreen(clientId: user.id.toString(), isEmbedded: true), // <--- FIX APPLIED HERE
       const SessionsScreen(),
       const CalorieTrackingScreen(),
       const ProgressScreen(),
@@ -239,7 +239,7 @@ class ClientDashboard extends ConsumerWidget {
     );
   }
 
-  Widget _buildNextTrainingWidget(BuildContext context, NextTraining data) {
+    Widget _buildNextTrainingWidget(BuildContext context, NextTraining data) {
     final duration = data.time.difference(DateTime.now());
     final formattedDuration = duration.isNegative
         ? 'Прошло'

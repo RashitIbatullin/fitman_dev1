@@ -5,7 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fitman_common/fitman_common.dart';
-import '../services/api_service.dart';
+
+import '../../../services/api_service.dart';
 
 // 1. Единый класс состояния аутентификации
 @immutable

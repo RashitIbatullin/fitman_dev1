@@ -1,6 +1,5 @@
 import 'package:equatable/equatable.dart';
 import 'package:fitman_app/modules/clients/widgets/ai_prompt_view.dart';
-import 'package:fitman_app/providers/auth_provider.dart';
 import 'package:fitman_app/modules/clients/providers/training_catalogs_provider.dart';
 import 'package:fitman_common/fitman_common.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fitman_app/services/api_service.dart';
 import 'package:intl/intl.dart';
 
+import '../../users/providers/auth_provider.dart';
 import '../providers/analysis_provider.dart';
 
 // Provider for the initial system recommendation

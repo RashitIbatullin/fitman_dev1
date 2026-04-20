@@ -4,7 +4,7 @@ import 'package:fitman_app/screens/shared/profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/auth_provider.dart';
+import '../modules/users/providers/auth_provider.dart';
 import '../modules/users/screens/user_list_screen.dart';
 import 'admin/catalogs_screen.dart';
 

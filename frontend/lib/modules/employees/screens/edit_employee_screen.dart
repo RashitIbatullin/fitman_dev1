@@ -6,9 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:fitman_common/fitman_common.dart';
-import '../../../providers/auth_provider.dart';
 import '../../../services/api_service.dart';
 import '../../clients/screens/full_screen_photo_editor.dart';
+import '../../users/providers/auth_provider.dart';
 import '../../users/screens/user_list_screen.dart';
 import 'manage_user_roles_screen.dart';
 import '../widgets/competency_tab.dart';

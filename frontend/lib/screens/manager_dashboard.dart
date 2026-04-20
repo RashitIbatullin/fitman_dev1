@@ -1,11 +1,11 @@
 import 'package:fitman_common/fitman_common.dart';
 import 'package:fitman_app/modules/users/screens/user_list_screen.dart';
-import 'package:fitman_app/providers/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fitman_app/screens/shared/profile_screen.dart';
 
+import '../modules/users/providers/auth_provider.dart';
 import 'manager/schedule_view.dart';
 
 import 'package:fitman_app/modules/employees/screens/competency_screen.dart';

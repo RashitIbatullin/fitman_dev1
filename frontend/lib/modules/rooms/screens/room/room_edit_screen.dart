@@ -1,11 +1,12 @@
 import 'package:fitman_app/modules/rooms/room_type_extensions.dart';
-import 'package:fitman_app/providers/auth_provider.dart';
 import 'package:fitman_app/services/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fitman_app/modules/rooms/providers/room/building_provider.dart';
 import 'package:fitman_app/modules/rooms/providers/room/room_provider.dart';
 import 'package:fitman_common/fitman_common.dart';
+
+import '../../../users/providers/auth_provider.dart';
 
 class RoomEditScreen extends ConsumerStatefulWidget {
   final Room room;

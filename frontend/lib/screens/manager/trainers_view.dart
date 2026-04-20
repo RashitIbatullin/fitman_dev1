@@ -3,7 +3,8 @@ import 'package:fitman_app/services/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../providers/auth_provider.dart';
+import '../../modules/users/providers/auth_provider.dart';
+
 
 // Провайдер для получения тренеров для конкретного менеджера
 final assignedTrainersProvider = FutureProvider.family<List<User>, String>((

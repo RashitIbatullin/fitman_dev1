@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../providers/auth_provider.dart'; // Adjusted relative path
 import '../../../services/api_service.dart'; // Adjusted relative path
-import 'package:fitman_common/fitman_common.dart'; // Adjusted relative path
+import 'package:fitman_common/fitman_common.dart';
+
+import '../../users/providers/auth_provider.dart'; // Adjusted relative path
 
 class CreateChatDialog extends ConsumerStatefulWidget {
   const CreateChatDialog({super.key});

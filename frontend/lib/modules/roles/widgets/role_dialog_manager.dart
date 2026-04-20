@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../providers/auth_provider.dart';
+import '../../users/providers/auth_provider.dart';
 import 'role_selection_dialog.dart';
 import 'package:fitman_common/fitman_common.dart';
 

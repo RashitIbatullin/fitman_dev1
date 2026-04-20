@@ -3,11 +3,13 @@ import 'package:fitman_app/modules/clients/widgets/fixed_values_view.dart';
 import 'package:fitman_app/modules/clients/screens/anthropometry_list_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fitman_app/providers/auth_provider.dart';
+import '../../users/providers/auth_provider.dart';
 
 class AnthropometryScreen extends ConsumerStatefulWidget {
   final String? clientId;
-  const AnthropometryScreen({super.key, this.clientId});
+  final bool isEmbedded;
+
+  const AnthropometryScreen({super.key, this.clientId, this.isEmbedded = false});
 
   @override
   ConsumerState<AnthropometryScreen> createState() =>
@@ -30,11 +32,12 @@ class _AnthropometryScreenState extends ConsumerState<AnthropometryScreen>
         });
       }
     });
+     // Set initial state
+    _showFab = _tabController.index == 1;
   }
 
   @override
   void dispose() {
-    _tabController.removeListener(() {});
     _tabController.dispose();
     super.dispose();
   }
@@ -58,18 +61,43 @@ class _AnthropometryScreenState extends ConsumerState<AnthropometryScreen>
         roles.contains('trainer') ||
         roles.contains('instructor') ||
         roles.contains('manager');
+    
+    final showArchived = ref.watch(showArchivedProvider);
+
+    final tabBar = TabBar(
+      controller: _tabController,
+      tabs: const [
+        Tab(text: 'Постоянные данные'),
+        Tab(text: 'Периодические замеры'),
+      ],
+    );
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Антропометрия'),
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: const [
-            Tab(text: 'Постоянные данные'),
-            Tab(text: 'Периодические замеры'),
-          ],
-        ),
-      ),
+      appBar: widget.isEmbedded
+          ? AppBar(
+              automaticallyImplyLeading: false,
+              title: Container(),
+              titleSpacing: 0,
+              bottom: tabBar,
+            )
+          : AppBar(
+              title: const Text('Антропометрия'),
+              actions: [
+                if (_showFab) ...[
+                  const Center(
+                      child:
+                          Text('Показать архив', style: TextStyle(fontSize: 14))),
+                  Switch(
+                    value: showArchived,
+                    onChanged: (value) {
+                      ref.read(showArchivedProvider.notifier).state = value;
+                    },
+                  ),
+                  const SizedBox(width: 8),
+                ],
+              ],
+              bottom: tabBar,
+            ),
       body: TabBarView(
         controller: _tabController,
         children: [

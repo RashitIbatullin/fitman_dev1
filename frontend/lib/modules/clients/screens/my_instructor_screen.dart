@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart'; // Import file_picker
 import '../../../modules/chat/providers/chat_provider.dart'; // Adjusted relative path
-import '../../../providers/auth_provider.dart';
-import '../../../modules/chat/widgets/message_bubble.dart'; // Adjusted relative path
+import '../../../modules/chat/widgets/message_bubble.dart';
+import '../../users/providers/auth_provider.dart'; // Adjusted relative path
 // Removed: import '../../../modules/chat/screens/chat_screen.dart'; // Import ChatScreen
 
 final instructorProvider = FutureProvider<User?>((ref) async {

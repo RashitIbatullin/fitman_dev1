@@ -11,7 +11,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
-import '../../../providers/auth_provider.dart';
+import '../../users/providers/auth_provider.dart';
+
 
 final showArchivedProvider = StateProvider<bool>((ref) => false);
 
@@ -218,10 +219,7 @@ class _AnthropometryListScreenState
     final targetClientId = widget.clientId ?? currentUserId;
 
     if (targetClientId == null) {
-      return Scaffold(
-          appBar: AppBar(title: const Text('Антропометрия')),
-          body:
-              const Center(child: Text('Не удалось определить ID клиента.')));
+      return const Center(child: Text('Не удалось определить ID клиента.'));
     }
     final roles = user?.roles.map((r) => r.name).toSet() ?? {};
     final canEdit = roles.contains('admin') ||
@@ -234,205 +232,186 @@ class _AnthropometryListScreenState
         clientId: targetClientId, includeArchived: showArchived);
     final measurementsAsync = ref.watch(anthropometryListProvider(listParams));
 
-    return Scaffold(
-      appBar: AppBar(
-        toolbarHeight: kToolbarHeight,
-        elevation: 1,
-        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
+    return measurementsAsync.when(
+      data: (measurements) {
+        if (measurements.isEmpty) {
+          return Center(
+              child: Text(showArchived
+                  ? 'В архиве нет замеров.'
+                  : canEdit
+                      ? 'Замеры еще не были добавлены.'
+                      : 'У вас еще нет ни одного замера.'));
+        }
+        return Column(
           children: [
-            const Text('Показать архив', style: TextStyle(fontSize: 14)),
-            Switch(
-              value: showArchived,
-              onChanged: (value) {
-                ref.read(showArchivedProvider.notifier).state = value;
-              },
-            ),
-          ],
-        ),
-      ),
-      body: measurementsAsync.when(
-        data: (measurements) {
-          if (measurements.isEmpty) {
-            return Center(
-                child: Text(showArchived
-                    ? 'В архиве нет замеров.'
-                    : canEdit
-                        ? 'Замеры еще не были добавлены.'
-                        : 'У вас еще нет ни одного замера.'));
-          }
-          return Column(
-            children: [
-              Expanded(
-                child: ListView.builder(
-                  itemCount: measurements.length,
-                  itemBuilder: (context, index) {
-                    final measurement = measurements[index];
-                    final isArchived = measurement.archivedAt != null;
-                    return Card(
-                      color: isArchived ? Colors.grey.shade200 : null,
-                      margin: const EdgeInsets.symmetric(
-                          horizontal: 16.0, vertical: 8.0),
-                      child: ListTile(
-                        leading: Checkbox(
-                          value:
-                              _selectedMeasurementIds.contains(measurement.id),
-                          onChanged: isArchived
-                              ? null
-                              : (selected) {
-                                  if (measurement.id != null) {
-                                    _onMeasurementSelected(
-                                        selected, measurement.id!);
-                                  }
-                                },
-                        ),
-                        title: Text(
-                          'Замер от ${DateFormat.yMMMd('ru').add_jm().format(measurement.dateTime.toLocal())}',
-                          style: TextStyle(
-                              decoration: isArchived
-                                  ? TextDecoration.lineThrough
-                                  : null),
-                        ),
-                        subtitle: Text(
-                            'Вес: ${measurement.weight?.toStringAsFixed(1) ?? 'N/A'} кг'),
-                        trailing: canEdit
-                            ? PopupMenuButton<String>(
-                                onSelected: (value) {
-                                  if (value == 'edit') {
-                                    Navigator.of(context).push(
-                                        MaterialPageRoute(
-                                            builder: (_) =>
-                                                AnthropometryEditScreen(
-                                                  measurement: measurement,
-                                                  clientId: targetClientId,
-                                                )));
-                                  } else if (value == 'archive') {
-                                    if (measurement.id != null) {
-                                      _showArchiveDialog(
-                                          targetClientId, measurement);
-                                    }
-                                  } else if (value == 'unarchive') {
-                                    if (measurement.id != null) {
-                                      _unarchiveMeasurement(
-                                          targetClientId, measurement.id!);
-                                    }
-                                  }
-                                },
-                                itemBuilder: (BuildContext context) =>
-                                    <PopupMenuEntry<String>>[
-                                  if (!isArchived)
-                                    const PopupMenuItem<String>(
-                                      value: 'edit',
-                                      child: Text('Редактировать'),
-                                    ),
-                                  if (!isArchived)
-                                    const PopupMenuItem<String>(
-                                      value: 'archive',
-                                      child: Text('Архивировать'),
-                                    ),
-                                  if (isArchived)
-                                    const PopupMenuItem<String>(
-                                      value: 'unarchive',
-                                      child: Text('Деархивировать'),
-                                    ),
-                                ],
-                              )
-                            : null,
-                        onTap: !canEdit
-                            ? () {
-                                Navigator.of(context).push(MaterialPageRoute(
-                                    builder: (_) => AnthropometryDetailScreen(
-                                        measurement: measurement)));
-                              }
-                            : null,
+            Expanded(
+              child: ListView.builder(
+                itemCount: measurements.length,
+                itemBuilder: (context, index) {
+                  final measurement = measurements[index];
+                  final isArchived = measurement.archivedAt != null;
+                  return Card(
+                    color: isArchived ? Colors.grey.shade200 : null,
+                    margin: const EdgeInsets.symmetric(
+                        horizontal: 16.0, vertical: 8.0),
+                    child: ListTile(
+                      leading: Checkbox(
+                        value:
+                            _selectedMeasurementIds.contains(measurement.id),
+                        onChanged: isArchived
+                            ? null
+                            : (selected) {
+                                if (measurement.id != null) {
+                                  _onMeasurementSelected(
+                                      selected, measurement.id!);
+                                }
+                              },
                       ),
-                    );
-                  },
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    // Comparison Button
-                    ElevatedButton(
-                      onPressed: _selectedMeasurementIds.length == 2
-                          ? () {
-                              final selectedMeasurements = measurements
-                                  .where((m) =>
-                                      _selectedMeasurementIds.contains(m.id))
-                                  .toList();
-                              selectedMeasurements.sort((a, b) => a.dateTime.compareTo(b.dateTime));
-                              Navigator.of(context).push(MaterialPageRoute(
-                                builder: (_) => ComparisonScreen(
-                                  first: selectedMeasurements[0],
-                                  second: selectedMeasurements[1],
-                                ),
-                              ));
-                            }
-                          : null,
-                      child: const Text('Сравнение'),
-                    ),
-                    // Analysis Button
-                    ElevatedButton(
-                      onPressed:
-                          (_selectedMeasurementIds.length == 1 || _selectedMeasurementIds.length == 2)
-                              ? () {
-                                  final selectedMeasurements = measurements
-                                      .where((m) => _selectedMeasurementIds
-                                          .contains(m.id))
-                                      .toList();
-                                  selectedMeasurements.sort(
-                                      (a, b) => a.dateTime.compareTo(b.dateTime));
-
-                                  if (selectedMeasurements.length == 1) {
-                                    Navigator.of(context).push(MaterialPageRoute(
-                                      builder: (_) => AnalysisScreen(
-                                        measurement: selectedMeasurements[0],
-                                      ),
-                                    ));
-                                  } else {
-                                    Navigator.of(context).push(MaterialPageRoute(
-                                      builder: (_) => AnalysisComparisonScreen(
-                                        first: selectedMeasurements[0],
-                                        second: selectedMeasurements[1],
-                                      ),
-                                    ));
+                      title: Text(
+                        'Замер от ${DateFormat.yMMMd('ru').add_jm().format(measurement.dateTime.toLocal())}',
+                        style: TextStyle(
+                            decoration: isArchived
+                                ? TextDecoration.lineThrough
+                                : null),
+                      ),
+                      subtitle: Text(
+                          'Вес: ${measurement.weight?.toStringAsFixed(1) ?? 'N/A'} кг'),
+                      trailing: canEdit
+                          ? PopupMenuButton<String>(
+                              onSelected: (value) {
+                                if (value == 'edit') {
+                                  Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                          builder: (_) =>
+                                              AnthropometryEditScreen(
+                                                measurement: measurement,
+                                                clientId: targetClientId,
+                                              )));
+                                } else if (value == 'archive') {
+                                  if (measurement.id != null) {
+                                    _showArchiveDialog(
+                                        targetClientId, measurement);
+                                  }
+                                } else if (value == 'unarchive') {
+                                  if (measurement.id != null) {
+                                    _unarchiveMeasurement(
+                                        targetClientId, measurement.id!);
                                   }
                                 }
-                              : null,
-                      child: const Text('Анализ'),
-                    ),
-                    // Recommendation Button
-                    ElevatedButton(
-                      onPressed: _selectedMeasurementIds.isNotEmpty
+                              },
+                              itemBuilder: (BuildContext context) =>
+                                  <PopupMenuEntry<String>>[
+                                if (!isArchived)
+                                  const PopupMenuItem<String>(
+                                    value: 'edit',
+                                    child: Text('Редактировать'),
+                                  ),
+                                if (!isArchived)
+                                  const PopupMenuItem<String>(
+                                    value: 'archive',
+                                    child: Text('Архивировать'),
+                                  ),
+                                if (isArchived)
+                                  const PopupMenuItem<String>(
+                                    value: 'unarchive',
+                                    child: Text('Деархивировать'),
+                                  ),
+                              ],
+                            )
+                          : null,
+                      onTap: !canEdit
                           ? () {
-                              final latestMeasurement = measurements
-                                  .where((m) =>
-                                      _selectedMeasurementIds.contains(m.id))
-                                  .reduce((a, b) =>
-                                      a.dateTime.isAfter(b.dateTime) ? a : b);
                               Navigator.of(context).push(MaterialPageRoute(
-                                builder: (_) => SystemRecommendationScreen(
-                                  measurement: latestMeasurement,
-                                  clientId: targetClientId,
-                                ),
-                              ));
+                                  builder: (_) => AnthropometryDetailScreen(
+                                      measurement: measurement)));
                             }
                           : null,
-                      child: const Text('Рекомендации'),
                     ),
-                  ],
-                ),
+                  );
+                },
               ),
-            ],
-          );
-        },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, s) => Center(child: Text('Ошибка: $e')),
-      ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  // Comparison Button
+                  ElevatedButton(
+                    onPressed: _selectedMeasurementIds.length == 2
+                        ? () {
+                            final selectedMeasurements = measurements
+                                .where((m) =>
+                                    _selectedMeasurementIds.contains(m.id))
+                                .toList();
+                            selectedMeasurements.sort((a, b) => a.dateTime.compareTo(b.dateTime));
+                            Navigator.of(context).push(MaterialPageRoute(
+                              builder: (_) => ComparisonScreen(
+                                first: selectedMeasurements[0],
+                                second: selectedMeasurements[1],
+                              ),
+                            ));
+                          }
+                        : null,
+                    child: const Text('Сравнение'),
+                  ),
+                  // Analysis Button
+                  ElevatedButton(
+                    onPressed:
+                        (_selectedMeasurementIds.length == 1 || _selectedMeasurementIds.length == 2)
+                            ? () {
+                                final selectedMeasurements = measurements
+                                    .where((m) => _selectedMeasurementIds
+                                        .contains(m.id))
+                                    .toList();
+                                selectedMeasurements.sort(
+                                    (a, b) => a.dateTime.compareTo(b.dateTime));
+
+                                if (selectedMeasurements.length == 1) {
+                                  Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (_) => AnalysisScreen(
+                                      measurement: selectedMeasurements[0],
+                                    ),
+                                  ));
+                                } else {
+                                  Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (_) => AnalysisComparisonScreen(
+                                      first: selectedMeasurements[0],
+                                      second: selectedMeasurements[1],
+                                    ),
+                                  ));
+                                }
+                              }
+                            : null,
+                    child: const Text('Анализ'),
+                  ),
+                  // Recommendation Button
+                  ElevatedButton(
+                    onPressed: _selectedMeasurementIds.isNotEmpty
+                        ? () {
+                            final latestMeasurement = measurements
+                                .where((m) =>
+                                    _selectedMeasurementIds.contains(m.id))
+                                .reduce((a, b) =>
+                                    a.dateTime.isAfter(b.dateTime) ? a : b);
+                            Navigator.of(context).push(MaterialPageRoute(
+                              builder: (_) => SystemRecommendationScreen(
+                                measurement: latestMeasurement,
+                                clientId: targetClientId,
+                              ),
+                            ));
+                          }
+                        : null,
+                    child: const Text('Рекомендации'),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        );
+      },
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (e, s) => Center(child: Text('Ошибка: $e')),
     );
   }
 }
