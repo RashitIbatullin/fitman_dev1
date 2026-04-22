@@ -17,6 +17,8 @@ _$AnthropometryMeasurementImpl _$$AnthropometryMeasurementImplFromJson(
       breastCirc: (json['breast_circ'] as num).toInt(),
       waistCirc: (json['waist_circ'] as num).toInt(),
       hipsCirc: (json['hips_circ'] as num).toInt(),
+      fatPercentage: (json['fat_percentage'] as num?)?.toDouble(),
+      muscleMass: (json['muscle_mass'] as num?)?.toDouble(),
       companyId: json['company_id'] as String?,
       createdAt: json['created_at'] == null
           ? null
@@ -44,6 +46,8 @@ Map<String, dynamic> _$$AnthropometryMeasurementImplToJson(
       'breast_circ': instance.breastCirc,
       'waist_circ': instance.waistCirc,
       'hips_circ': instance.hipsCirc,
+      'fat_percentage': instance.fatPercentage,
+      'muscle_mass': instance.muscleMass,
       'company_id': instance.companyId,
       'created_at': instance.createdAt?.toIso8601String(),
       'updated_at': instance.updatedAt?.toIso8601String(),

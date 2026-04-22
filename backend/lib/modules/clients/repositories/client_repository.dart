@@ -82,12 +82,12 @@ abstract class ClientRepository {
     String clientId, {
     bool includeArchived = false,
   }) async {
-    // V2: Removed photo columns from query to fix non-existent column error.
     try {
       final conn = await _connection;
       var query = '''
           SELECT id, user_id, date_time, 
-                 weight, shoulders_circ, breast_circ, waist_circ, hips_circ, 
+                 weight, shoulders_circ, breast_circ, waist_circ, hips_circ,
+                 fat_percentage, muscle_mass,
                  company_id, created_at, updated_at, created_by, updated_by, 
                  archived_at, archived_by, archived_reason
           FROM anthropometry_measurements 
@@ -141,13 +141,16 @@ abstract class ClientRepository {
         Sql.named('''
           INSERT INTO anthropometry_measurements (
             id, user_id, date_time,
-            weight, shoulders_circ, breast_circ, waist_circ, hips_circ, 
+            weight, shoulders_circ, breast_circ, waist_circ, hips_circ,
+            fat_percentage, muscle_mass,
             company_id, updated_at, created_by, updated_by
           )
           VALUES (
             COALESCE(@id, gen_random_uuid()), @user_id, @date_time,
             @weight, @shoulders_circ, 
-            @breast_circ, @waist_circ, @hips_circ, @company_id, NOW(), 
+            @breast_circ, @waist_circ, @hips_circ, 
+            @fat_percentage, @muscle_mass,
+            @company_id, NOW(), 
             @created_by, @updated_by
           )
           ON CONFLICT (id) DO UPDATE SET
@@ -157,6 +160,8 @@ abstract class ClientRepository {
             breast_circ = EXCLUDED.breast_circ,
             waist_circ = EXCLUDED.waist_circ,
             hips_circ = EXCLUDED.hips_circ,
+            fat_percentage = EXCLUDED.fat_percentage,
+            muscle_mass = EXCLUDED.muscle_mass,
             updated_at = NOW(),
             updated_by = EXCLUDED.updated_by
           RETURNING *;

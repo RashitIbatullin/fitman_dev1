@@ -151,13 +151,16 @@ class _RecommendationViewState extends ConsumerState<_RecommendationView> {
     required String coeffActivity,
     required AnthropometryMeasurement measurement,
   }) {
-    final measurementDetails = [
+    final details = [
       'вес: ${measurement.weight.toStringAsFixed(1)} кг',
-        'обхват плеч: ${measurement.shouldersCirc} см',
-        'обхват груди: ${measurement.breastCirc} см',
-        'обхват талии: ${measurement.waistCirc} см',
-        'обхват бедер: ${measurement.hipsCirc} см',
-    ].join(', ');
+      'обхват плеч: ${measurement.shouldersCirc} см',
+      'обхват груди: ${measurement.breastCirc} см',
+      'обхват талии: ${measurement.waistCirc} см',
+      'обхват бедер: ${measurement.hipsCirc} см',
+      if (measurement.fatPercentage != null) 'процент жира: ${measurement.fatPercentage!.toStringAsFixed(1)}%',
+      if (measurement.muscleMass != null) 'мышечная масса: ${measurement.muscleMass!.toStringAsFixed(1)} кг',
+    ];
+    final measurementDetails = details.join(', ');
 
     return 'Сформируй персональные рекомендации по тренировкам и питанию для клиента. '
         'Отвечай в стиле дружелюбного и поддерживающего фитнес-тренера. '
@@ -178,36 +181,36 @@ class _RecommendationViewState extends ConsumerState<_RecommendationView> {
     required String coeffActivity,
     required AnthropometryMeasurement measurement,
   }) {
-    final measurementDetails = {
+    final measurementDetailsMap = {
       'Вес, кг': measurement.weight.toStringAsFixed(1),
       'Обхват плеч, см': measurement.shouldersCirc.toString(),
       'Обхват груди, см': measurement.breastCirc.toString(),
       'Обхват талии, см': measurement.waistCirc.toString(),
       'Обхват бедер, см': measurement.hipsCirc.toString(),
-    }
-        .entries
+      if (measurement.fatPercentage != null)
+        'Процент жира, %': measurement.fatPercentage!.toStringAsFixed(1),
+      if (measurement.muscleMass != null)
+        'Мышечная масса, кг': measurement.muscleMass!.toStringAsFixed(1),
+    };
+    final measurementDetails = measurementDetailsMap.entries
         .map((e) => '- ${e.key}: ${e.value}')
-        .join('');
+        .join('\n');
 
-    return '''Задание: Проанализируй данные клиента и подготовь развернутые рекомендации для фитнес-тренера.
-Цель: Помочь тренеру составить или скорректировать программу тренировок и питания.
-Формат ответа: Структурированный текст с использованием профессиональной терминологии. Включи анализ текущих показателей, рисков (если есть) и предложи конкретные направления для работы.
-
-# Входные данные
-
-## Профиль клиента
-- **Пол:** $gender
-- **Возраст:** $age
-- **Цель тренировок:** $goalName
-- **Уровень подготовки:** $levelName
-- **Коэффициент активности:** $coeffActivity
-
-## Антропометрические данные
-- **Рост (см):** $height
-- **Соматотип:** $somatotype
-- **Замер от ${DateFormat('yyyy-MM-dd').format(measurement.dateTime)}:**
-$measurementDetails
-''';
+    return 'Задание: Проанализируй данные клиента и подготовь развернутые рекомендации для фитнес-тренера.\n'
+        'Цель: Помочь тренеру составить или скорректировать программу тренировок и питания.\n'
+        'Формат ответа: Структурированный текст с использованием профессиональной терминологии. Включи анализ текущих показателей, рисков (если есть) и предложи конкретные направления для работы.\n\n'
+        '# Входные данные\n\n'
+        '## Профиль клиента\n'
+        '- **Пол:** $gender\n'
+        '- **Возраст:** $age\n'
+        '- **Цель тренировок:** $goalName\n'
+        '- **Уровень подготовки:** $levelName\n'
+        '- **Коэффициент активности:** $coeffActivity\n\n'
+        '## Антропометрические данные\n'
+        '- **Рост (см):** $height\n'
+        '- **Соматотип:** $somatotype\n'
+        '- **Замер от ${DateFormat('yyyy-MM-dd').format(measurement.dateTime)}:**\n'
+        '$measurementDetails';
   }
 
   @override

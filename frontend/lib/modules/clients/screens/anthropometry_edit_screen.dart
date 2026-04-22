@@ -40,6 +40,8 @@ class _AnthropometryEditScreenState
       'breastCirc': TextEditingController(text: m?.breastCirc.toString()),
       'waistCirc': TextEditingController(text: m?.waistCirc.toString()),
       'hipsCirc': TextEditingController(text: m?.hipsCirc.toString()),
+      'fatPercentage': TextEditingController(text: m?.fatPercentage?.toString()),
+      'muscleMass': TextEditingController(text: m?.muscleMass?.toString()),
     };
   }
 
@@ -53,23 +55,35 @@ class _AnthropometryEditScreenState
 
   Future<void> _submit() async {
     if (_formKey.currentState?.validate() ?? false) {
+      final fatPercentageText = _controllers['fatPercentage']!.text;
+      final muscleMassText = _controllers['muscleMass']!.text;
+
+      if ((fatPercentageText.isNotEmpty && muscleMassText.isEmpty) ||
+          (fatPercentageText.isEmpty && muscleMassText.isNotEmpty)) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('Поля биоимпеданса должны быть заполнены вместе.')),
+        );
+        return;
+      }
+
       setState(() {
         _isLoading = true;
       });
 
       try {
-        // Safe to parse because validators have already checked.
         final weight = double.parse(_controllers['weight']!.text);
         final shouldersCirc = int.parse(_controllers['shouldersCirc']!.text);
         final breastCirc = int.parse(_controllers['breastCirc']!.text);
         final waistCirc = int.parse(_controllers['waistCirc']!.text);
         final hipsCirc = int.parse(_controllers['hipsCirc']!.text);
+        final fatPercentage = double.tryParse(fatPercentageText);
+        final muscleMass = double.tryParse(muscleMassText);
 
         final measurementToSave = (widget.measurement ??
                 AnthropometryMeasurement(
                   userId: widget.clientId,
                   dateTime: _dateTime,
-                  // Provide all required fields for creation
                   weight: weight,
                   shouldersCirc: shouldersCirc,
                   breastCirc: breastCirc,
@@ -83,11 +97,14 @@ class _AnthropometryEditScreenState
           breastCirc: breastCirc,
           waistCirc: waistCirc,
           hipsCirc: hipsCirc,
+          fatPercentage: fatPercentage,
+          muscleMass: muscleMass,
         );
 
-        // Use the appropriate API service method
         await ApiService.saveAnthropometryMeasurementForClient(
             widget.clientId, measurementToSave);
+
+        if (!mounted) return; // Robust check after async gap.
 
         ref.invalidate(anthropometryListProvider(
           AnthropometryListParams(
@@ -95,15 +112,14 @@ class _AnthropometryEditScreenState
             includeArchived: ref.read(showArchivedProvider),
           ),
         ));
-        if (mounted) {
-          Navigator.of(context).pop();
-        }
+        
+        Navigator.of(context).pop();
+
       } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Ошибка сохранения: $e')),
-          );
-        }
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Ошибка сохранения: $e')),
+        );
       } finally {
         if (mounted) {
           setState(() {
@@ -114,7 +130,7 @@ class _AnthropometryEditScreenState
     }
   }
 
-  Widget _buildTextFormField(String label, String key, {bool isDouble = false}) {
+  Widget _buildTextFormField(String label, String key, {bool isDouble = false, bool isRequired = true}) {
     return TextFormField(
       controller: _controllers[key],
       decoration: InputDecoration(labelText: label),
@@ -122,24 +138,16 @@ class _AnthropometryEditScreenState
       autovalidateMode: AutovalidateMode.onUserInteraction,
       validator: (value) {
         if (value == null || value.isEmpty) {
-          return 'Поле не может быть пустым';
+          return isRequired ? 'Поле не может быть пустым' : null;
         }
-        if (isDouble) {
-          final number = double.tryParse(value);
-          if (number == null) {
-            return 'Введите корректное число';
-          }
-          if (number == 0) {
-            return 'Значение не может быть 0';
-          }
-        } else {
-          final number = int.tryParse(value);
-          if (number == null) {
-            return 'Введите корректное целое число';
-          }
-          if (number == 0) {
-            return 'Значение не может быть 0';
-          }
+        
+        final numValue = isDouble ? double.tryParse(value) : int.tryParse(value);
+
+        if (numValue == null) {
+          return 'Введите корректное число';
+        }
+        if (isRequired && numValue == 0) {
+          return 'Значение не может быть 0';
         }
         return null;
       },
@@ -213,6 +221,11 @@ class _AnthropometryEditScreenState
               _buildTextFormField('Обхват груди (см)', 'breastCirc'),
               _buildTextFormField('Обхват талии (см)', 'waistCirc'),
               _buildTextFormField('Обхват бедер (см)', 'hipsCirc'),
+              const SizedBox(height: 16),
+              const Text('Биоимпеданс (необязательно)', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey)),
+              const Divider(),
+              _buildTextFormField('Процент жира (%)', 'fatPercentage', isDouble: true, isRequired: false),
+              _buildTextFormField('Мышечная масса (кг)', 'muscleMass', isDouble: true, isRequired: false),
             ],
           ),
         ),

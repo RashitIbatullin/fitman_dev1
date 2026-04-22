@@ -14,6 +14,8 @@ class AnthropometryMeasurement with _$AnthropometryMeasurement {
     required int breastCirc,
     required int waistCirc,
     required int hipsCirc,
+    double? fatPercentage,
+    double? muscleMass,
     String? companyId,
     DateTime? createdAt,
     DateTime? updatedAt,

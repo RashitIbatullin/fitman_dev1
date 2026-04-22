@@ -41,6 +41,8 @@ CREATE TABLE anthropometry_measurements (
     breast_circ INT,
     waist_circ INT,
     hips_circ INT,
+    fat_percentage REAL,
+    muscle_mass REAL,
     company_id UUID DEFAULT '00000000-0000-0000-0000-000000000000',
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),

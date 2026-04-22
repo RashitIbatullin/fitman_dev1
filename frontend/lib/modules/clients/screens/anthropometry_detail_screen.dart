@@ -33,6 +33,12 @@ class AnthropometryDetailScreen extends ConsumerWidget {
                 '${measurement.waistCirc.toString()} см'),
             _buildDetailRow('Обхват бедер:',
                 '${measurement.hipsCirc.toString()} см'),
+            if (measurement.fatPercentage != null)
+              _buildDetailRow('Процент жира:',
+                  '${measurement.fatPercentage!.toStringAsFixed(1)} %'),
+            if (measurement.muscleMass != null)
+              _buildDetailRow('Мышечная масса:',
+                  '${measurement.muscleMass!.toStringAsFixed(1)} кг'),
           ],
         ),
       ),

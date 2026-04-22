@@ -65,6 +65,11 @@ class ComparisonScreen extends StatelessWidget {
                 'Обхват талии, см', first.waistCirc, second.waistCirc),
             _buildComparisonRow(
                 'Обхват бедер, см', first.hipsCirc, second.hipsCirc),
+            const Divider(),
+            _buildComparisonRow(
+                'Процент жира, %', first.fatPercentage, second.fatPercentage),
+            _buildComparisonRow(
+                'Мышечная масса, кг', first.muscleMass, second.muscleMass),
           ],
         ),
       ),

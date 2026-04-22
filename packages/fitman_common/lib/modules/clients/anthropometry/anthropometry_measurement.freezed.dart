@@ -29,6 +29,8 @@ mixin _$AnthropometryMeasurement {
   int get breastCirc => throw _privateConstructorUsedError;
   int get waistCirc => throw _privateConstructorUsedError;
   int get hipsCirc => throw _privateConstructorUsedError;
+  double? get fatPercentage => throw _privateConstructorUsedError;
+  double? get muscleMass => throw _privateConstructorUsedError;
   String? get companyId => throw _privateConstructorUsedError;
   DateTime? get createdAt => throw _privateConstructorUsedError;
   DateTime? get updatedAt => throw _privateConstructorUsedError;
@@ -63,6 +65,8 @@ abstract class $AnthropometryMeasurementCopyWith<$Res> {
       int breastCirc,
       int waistCirc,
       int hipsCirc,
+      double? fatPercentage,
+      double? muscleMass,
       String? companyId,
       DateTime? createdAt,
       DateTime? updatedAt,
@@ -97,6 +101,8 @@ class _$AnthropometryMeasurementCopyWithImpl<$Res,
     Object? breastCirc = null,
     Object? waistCirc = null,
     Object? hipsCirc = null,
+    Object? fatPercentage = freezed,
+    Object? muscleMass = freezed,
     Object? companyId = freezed,
     Object? createdAt = freezed,
     Object? updatedAt = freezed,
@@ -139,6 +145,14 @@ class _$AnthropometryMeasurementCopyWithImpl<$Res,
           ? _value.hipsCirc
           : hipsCirc // ignore: cast_nullable_to_non_nullable
               as int,
+      fatPercentage: freezed == fatPercentage
+          ? _value.fatPercentage
+          : fatPercentage // ignore: cast_nullable_to_non_nullable
+              as double?,
+      muscleMass: freezed == muscleMass
+          ? _value.muscleMass
+          : muscleMass // ignore: cast_nullable_to_non_nullable
+              as double?,
       companyId: freezed == companyId
           ? _value.companyId
           : companyId // ignore: cast_nullable_to_non_nullable
@@ -193,6 +207,8 @@ abstract class _$$AnthropometryMeasurementImplCopyWith<$Res>
       int breastCirc,
       int waistCirc,
       int hipsCirc,
+      double? fatPercentage,
+      double? muscleMass,
       String? companyId,
       DateTime? createdAt,
       DateTime? updatedAt,
@@ -226,6 +242,8 @@ class __$$AnthropometryMeasurementImplCopyWithImpl<$Res>
     Object? breastCirc = null,
     Object? waistCirc = null,
     Object? hipsCirc = null,
+    Object? fatPercentage = freezed,
+    Object? muscleMass = freezed,
     Object? companyId = freezed,
     Object? createdAt = freezed,
     Object? updatedAt = freezed,
@@ -268,6 +286,14 @@ class __$$AnthropometryMeasurementImplCopyWithImpl<$Res>
           ? _value.hipsCirc
           : hipsCirc // ignore: cast_nullable_to_non_nullable
               as int,
+      fatPercentage: freezed == fatPercentage
+          ? _value.fatPercentage
+          : fatPercentage // ignore: cast_nullable_to_non_nullable
+              as double?,
+      muscleMass: freezed == muscleMass
+          ? _value.muscleMass
+          : muscleMass // ignore: cast_nullable_to_non_nullable
+              as double?,
       companyId: freezed == companyId
           ? _value.companyId
           : companyId // ignore: cast_nullable_to_non_nullable
@@ -316,6 +342,8 @@ class _$AnthropometryMeasurementImpl implements _AnthropometryMeasurement {
       required this.breastCirc,
       required this.waistCirc,
       required this.hipsCirc,
+      this.fatPercentage,
+      this.muscleMass,
       this.companyId,
       this.createdAt,
       this.updatedAt,
@@ -345,6 +373,10 @@ class _$AnthropometryMeasurementImpl implements _AnthropometryMeasurement {
   @override
   final int hipsCirc;
   @override
+  final double? fatPercentage;
+  @override
+  final double? muscleMass;
+  @override
   final String? companyId;
   @override
   final DateTime? createdAt;
@@ -363,7 +395,7 @@ class _$AnthropometryMeasurementImpl implements _AnthropometryMeasurement {
 
   @override
   String toString() {
-    return 'AnthropometryMeasurement(id: $id, userId: $userId, dateTime: $dateTime, weight: $weight, shouldersCirc: $shouldersCirc, breastCirc: $breastCirc, waistCirc: $waistCirc, hipsCirc: $hipsCirc, companyId: $companyId, createdAt: $createdAt, updatedAt: $updatedAt, createdBy: $createdBy, updatedBy: $updatedBy, archivedAt: $archivedAt, archivedBy: $archivedBy, archivedReason: $archivedReason)';
+    return 'AnthropometryMeasurement(id: $id, userId: $userId, dateTime: $dateTime, weight: $weight, shouldersCirc: $shouldersCirc, breastCirc: $breastCirc, waistCirc: $waistCirc, hipsCirc: $hipsCirc, fatPercentage: $fatPercentage, muscleMass: $muscleMass, companyId: $companyId, createdAt: $createdAt, updatedAt: $updatedAt, createdBy: $createdBy, updatedBy: $updatedBy, archivedAt: $archivedAt, archivedBy: $archivedBy, archivedReason: $archivedReason)';
   }
 
   @override
@@ -384,6 +416,10 @@ class _$AnthropometryMeasurementImpl implements _AnthropometryMeasurement {
                 other.waistCirc == waistCirc) &&
             (identical(other.hipsCirc, hipsCirc) ||
                 other.hipsCirc == hipsCirc) &&
+            (identical(other.fatPercentage, fatPercentage) ||
+                other.fatPercentage == fatPercentage) &&
+            (identical(other.muscleMass, muscleMass) ||
+                other.muscleMass == muscleMass) &&
             (identical(other.companyId, companyId) ||
                 other.companyId == companyId) &&
             (identical(other.createdAt, createdAt) ||
@@ -414,6 +450,8 @@ class _$AnthropometryMeasurementImpl implements _AnthropometryMeasurement {
       breastCirc,
       waistCirc,
       hipsCirc,
+      fatPercentage,
+      muscleMass,
       companyId,
       createdAt,
       updatedAt,
@@ -450,6 +488,8 @@ abstract class _AnthropometryMeasurement implements AnthropometryMeasurement {
       required final int breastCirc,
       required final int waistCirc,
       required final int hipsCirc,
+      final double? fatPercentage,
+      final double? muscleMass,
       final String? companyId,
       final DateTime? createdAt,
       final DateTime? updatedAt,
@@ -478,6 +518,10 @@ abstract class _AnthropometryMeasurement implements AnthropometryMeasurement {
   int get waistCirc;
   @override
   int get hipsCirc;
+  @override
+  double? get fatPercentage;
+  @override
+  double? get muscleMass;
   @override
   String? get companyId;
   @override
