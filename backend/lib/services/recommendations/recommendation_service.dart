@@ -47,6 +47,15 @@ class WhtrProfiles {
   }
 }
 
+class MetabolicProfile {
+  final double bmr;
+  final double tdee;
+
+  MetabolicProfile({required this.bmr, required this.tdee});
+
+  Map<String, dynamic> toJson() => {'bmr': bmr, 'tdee': tdee};
+}
+
 class RecommendationService {
   final db = Database();
 
@@ -94,6 +103,43 @@ class RecommendationService {
     // TODO: This should calculate for the START and FINISH measurements, not just the latest.
     final profile = _determineWhtrProfile(clientData!);
     return WhtrProfiles(start: profile, finish: profile);
+  }
+
+  Future<MetabolicProfile?> calculateMetabolicRate(
+    String userId,
+    String measurementId,
+  ) async {
+    final clientData = await _getClientData(userId, measurementId: measurementId);
+
+    if (clientData?.measurement?.fatPercentage == null) {
+      print('[RecommendationService] Not enough data to calculate BMR/TDEE: fat percentage is null.');
+      return null;
+    }
+    
+    if (clientData?.measurement?.weight == null) {
+       print('[RecommendationService] Not enough data to calculate BMR/TDEE: weight is null.');
+      return null;
+    }
+
+    final coeffActivity = clientData?.user.clientProfile?.coeffActivity;
+    if (coeffActivity == null) {
+       print('[RecommendationService] Not enough data to calculate BMR/TDEE: coeffActivity is null.');
+      return null;
+    }
+
+    final weight = clientData!.measurement!.weight;
+    final fatPercentage = clientData.measurement!.fatPercentage!;
+
+    // Katch-McArdle Formula
+    final lbm = weight * (1 - (fatPercentage / 100));
+    if (lbm <= 0) {
+      print('[RecommendationService] Calculated LBM is zero or negative, cannot calculate BMR.');
+      return null;
+    }
+    final bmr = 370 + (21.6 * lbm);
+    final tdee = bmr * coeffActivity;
+
+    return MetabolicProfile(bmr: bmr, tdee: tdee);
   }
 
   /// Generates a personalized recommendation for a user.

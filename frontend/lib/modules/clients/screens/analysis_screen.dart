@@ -21,6 +21,13 @@ class AnalysisScreen extends ConsumerWidget {
         ref.watch(somatotypeStringProvider(measurement.userId));
     final bodyShape = ref.watch(bodyShapeProvider(measurement)); // This one is sync
     final whtrAsync = ref.watch(whtrProfileProvider(measurement));
+    final metabolicRateAsync = ref.watch(metabolicRateProvider(
+        MetabolicRateParams(
+            clientId: measurement.userId,
+            measurementId: measurement.id!
+        )
+    ));
+
 
     return Scaffold(
       appBar: AppBar(title: const Text('Анализ фигуры')),
@@ -38,10 +45,10 @@ class AnalysisScreen extends ConsumerWidget {
           // Card for Somatotype (async provider)
           somatotypeAsync.when(
             data: (somatotype) => _SomatotypeCard(somatotypeProfile: somatotype),
-            loading: () => Card(
+            loading: () => const Card(
                 child: Center(
                     child: Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: EdgeInsets.all(16.0),
               child: CircularProgressIndicator(),
             ))),
             error: (e, s) => Card(
@@ -59,7 +66,7 @@ class AnalysisScreen extends ConsumerWidget {
           // Card for WHtR (async provider)
           whtrAsync.when(
             data: (whtr) => _WhtrCard(whtrProfile: whtr),
-            loading: () => Card(
+            loading: () => const Card(
                 child: Center(
                     child: Padding(
               padding: EdgeInsets.all(16.0),
@@ -69,6 +76,23 @@ class AnalysisScreen extends ConsumerWidget {
                 child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Text('Ошибка: $e'),
+            )),
+          ),
+          const SizedBox(height: 16),
+
+          // Card for BMR/TDEE (async provider)
+          metabolicRateAsync.when(
+            data: (data) => _MetabolicRateCard(data: data),
+            loading: () => const Card(
+                child: Center(
+                    child: Padding(
+              padding: EdgeInsets.all(16.0),
+              child: CircularProgressIndicator(),
+            ))),
+            error: (e, s) => Card(
+                child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text('Ошибка расчета метаболизма: $e'),
             )),
           ),
         ],
@@ -154,6 +178,59 @@ class _WhtrCard extends StatelessWidget {
                 const Text('Значение:'),
                 Text(
                     '${whtrProfile.gradation} (${whtrProfile.ratio.toStringAsFixed(2)})',
+                    style: const TextStyle(fontWeight: FontWeight.bold)),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _MetabolicRateCard extends StatelessWidget {
+  const _MetabolicRateCard({required this.data});
+  final Map<String, dynamic> data;
+
+  @override
+  Widget build(BuildContext context) {
+    final bmr = data['bmr'] as double?;
+    final tdee = data['tdee'] as double?;
+    
+    if (bmr == null || tdee == null) {
+      return const Card(
+        child: Padding(
+          padding: EdgeInsets.all(16.0),
+          child: Text('Недостаточно данных для расчета BMR/TDEE (требуется % жира).'),
+        ),
+      );
+    }
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Базовый метаболизм (BMR)',
+                style: TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('В состоянии покоя (BMR):'),
+                Text(
+                    '${bmr.toStringAsFixed(0)} ккал',
+                    style: const TextStyle(fontWeight: FontWeight.bold)),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('С учетом активности (TDEE):'),
+                Text(
+                    '${tdee.toStringAsFixed(0)} ккал',
                     style: const TextStyle(fontWeight: FontWeight.bold)),
               ],
             ),

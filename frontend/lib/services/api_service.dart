@@ -343,6 +343,9 @@ class ApiService {
   static Future<Map<String, dynamic>> getRecommendation(String clientId, {String? measurementId}) =>
       _recommendationApi.getRecommendation(clientId, measurementId: measurementId);
 
+  static Future<Map<String, dynamic>> getMetabolicRate(String clientId, String measurementId) =>
+      _recommendationApi.getMetabolicRate(clientId, measurementId);
+
 
   // --- Admin Methods ---
   static Future<List<AnthropometryMeasurement>> getAnthropometryMeasurementsForClient(

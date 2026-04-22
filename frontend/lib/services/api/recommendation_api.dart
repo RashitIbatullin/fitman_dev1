@@ -12,4 +12,10 @@ class RecommendationApiService extends BaseApiService {
     }
     return await get(endpoint);
   }
+
+  /// Fetches the calculated BMR and TDEE for a client based on a specific measurement.
+  Future<Map<String, dynamic>> getMetabolicRate(String clientId, String measurementId) async {
+    final endpoint = '/api/clients/$clientId/measurements/$measurementId/metabolic-rate';
+    return await get(endpoint);
+  }
 }

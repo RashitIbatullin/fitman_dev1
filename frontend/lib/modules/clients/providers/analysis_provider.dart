@@ -6,7 +6,7 @@
 // UI updates, as widgets can subscribe only to the data they need.
 //
 
-
+import 'package:equatable/equatable.dart';
 import 'package:fitman_app/services/api_service.dart';
 import 'package:fitman_app/utils/body_shape_calculator.dart';
 import 'package:fitman_app/utils/somatotype_calculator.dart';
@@ -46,6 +46,22 @@ final fixedAnthropometryProvider =
 });
 
 // --- Calculation/Analysis Providers ---
+
+class MetabolicRateParams extends Equatable {
+  final String clientId;
+  final String measurementId;
+
+  const MetabolicRateParams({required this.clientId, required this.measurementId});
+
+  @override
+  List<Object?> get props => [clientId, measurementId];
+}
+
+final metabolicRateProvider =
+    FutureProvider.autoDispose.family<Map<String, dynamic>, MetabolicRateParams>(
+        (ref, params) async {
+  return ApiService.getMetabolicRate(params.clientId, params.measurementId);
+});
 
 /// Calculates the Somatotype string (e.g., "Эктоморф: 65%, ...").
 /// This is static for a user as it depends on fixed measurements (wrist, ankle) and gender.

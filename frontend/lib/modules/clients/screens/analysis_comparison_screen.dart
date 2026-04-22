@@ -82,6 +82,8 @@ class AnalysisComparisonScreen extends ConsumerWidget {
             loading: () => const Center(child: CircularProgressIndicator()),
             error: (e, s) => Text('Ошибка: $e'),
           ),
+          const SizedBox(height: 16),
+          _MetabolicRateComparisonCard(first: first, second: second),
         ],
       ),
     );
@@ -164,3 +166,103 @@ class _DynamicComparisonCard extends StatelessWidget {
     );
   }
 }
+
+class _MetabolicRateComparisonCard extends ConsumerWidget {
+  final AnthropometryMeasurement first;
+  final AnthropometryMeasurement second;
+
+  const _MetabolicRateComparisonCard({required this.first, required this.second});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (first.id == null || second.id == null) {
+      return const SizedBox.shrink();
+    }
+
+    final params1 =
+        MetabolicRateParams(clientId: first.userId, measurementId: first.id!);
+    final params2 =
+        MetabolicRateParams(clientId: second.userId, measurementId: second.id!);
+
+    final async1 = ref.watch(metabolicRateProvider(params1));
+    final async2 = ref.watch(metabolicRateProvider(params2));
+
+    final dateStyle = Theme.of(context).textTheme.labelMedium;
+    final valueStyle =
+        Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold);
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Базовый метаболизм (BMR)',
+                style: TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 12),
+            async1.when(
+              data: (data1) {
+                if (data1.isEmpty) return const Text('Нет данных для замера 1');
+                final bmr1 = (data1['bmr'] as double).toStringAsFixed(0);
+                final tdee1 = (data1['tdee'] as double).toStringAsFixed(0);
+                return _buildComparisonRow(
+                  context: context,
+                  date: first.dateTime,
+                  value: 'BMR: $bmr1, TDEE: $tdee1 ккал',
+                  dateStyle: dateStyle,
+                  valueStyle: valueStyle,
+                );
+              },
+              loading: () => const Center(child: LinearProgressIndicator()),
+              error: (e, s) => Text('Ошибка: $e'),
+            ),
+            const SizedBox(height: 8),
+            async2.when(
+              data: (data2) {
+                if (data2.isEmpty) return const Text('Нет данных для замера 2');
+                final bmr2 = (data2['bmr'] as double).toStringAsFixed(0);
+                final tdee2 = (data2['tdee'] as double).toStringAsFixed(0);
+                return _buildComparisonRow(
+                  context: context,
+                  date: second.dateTime,
+                  value: 'BMR: $bmr2, TDEE: $tdee2 ккал',
+                  dateStyle: dateStyle,
+                  valueStyle: valueStyle,
+                );
+              },
+              loading: () => const Center(child: LinearProgressIndicator()),
+              error: (e, s) => Text('Ошибка: $e'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildComparisonRow({
+    required BuildContext context,
+    required DateTime date,
+    required String value,
+    required TextStyle? dateStyle,
+    required TextStyle? valueStyle,
+  }) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          '${DateFormat.yMd('ru').add_jm().format(date.toLocal())}:',
+          style: dateStyle,
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Text(
+            value,
+            style: valueStyle,
+            textAlign: TextAlign.end,
+          ),
+        ),
+      ],
+    );
+  }
+}
+

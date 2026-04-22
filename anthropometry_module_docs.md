@@ -1,175 +1,164 @@
 # Модуль "Антропометрия"
 
-Учет и анализ антропометрических данных клиентов, включая постоянные (рост, обхваты для соматотипа) и периодические (вес, обхваты тела) замеры.
+Учет и анализ антропометрических данных клиентов, включая постоянные (рост, обхваты для соматотипа) и периодические (вес, обхваты тела, данные биоимпеданса) замеры.
 
 ## 1. Модели данных
 
 ### 1.1. `AnthropometryFixed` (Постоянные замеры)
-Хранит базовые, редко изменяемые антропометрические данные клиента.
+Хранит базовые, редко изменяемые антропометрические данные клиента. Все поля являются обязательными.
 
 ```dart
+// packages/fitman_common/lib/modules/clients/anthropometry/anthropometry_fixed.dart
 class AnthropometryFixed {
-  String userId;
-  double? height;
-  int? wristCirc;
-  int? ankleCirc;
+  required String userId;
+  required DateTime createdAt;
+  required int height;
+  required int wristCirc;
+  required int ankleCirc;
+  // ...служебные поля
 }
 ```
 
 ### 1.2. `AnthropometryMeasurement` (Периодические замеры)
-Хранит данные регулярных замеров для отслеживания динамики. Включает поля для архивации.
+Хранит данные регулярных замеров для отслеживания динамики.
+- Основные поля (`weight`, обхваты) являются **обязательными**.
+- Поля биоимпеданса (`fatPercentage`, `muscleMass`) являются **необязательными**, но должны заполняться парой.
 
 ```dart
+// packages/fitman_common/lib/modules/clients/anthropometry/anthropometry_measurement.dart
 class AnthropometryMeasurement {
-  String id;
-  String userId;
-  DateTime dateTime;
-  double? weight;
-  int? shouldersCirc;
-  int? breastCirc;
-  int? waistCirc;
-  int? hipsCirc;
-  DateTime? archivedAt;
-  String? archivedBy;
-  String? archivedReason;
+  String? id;
+  required String userId;
+  required DateTime dateTime;
+  required double weight;
+  required int shouldersCirc;
+  required int breastCirc;
+  required int waistCirc;
+  required int hipsCirc;
+  double? fatPercentage;
+  double? muscleMass;
+  // ...служебные поля для архивации и аудита
 }
 ```
 
-### 1.3. `WhtrProfile`
-Модель для хранения данных о коэффициенте "талия-рост" (WHtR).
+### 1.3. Расчетные профили (Backend)
+Эти модели не хранятся в БД, а создаются "на лету" на бэкенде в `recommendation_service.dart`.
+
+- **`WhtrProfile`**: Профиль для индекса "талия-рост" (WHtR).
+- **`MetabolicProfile`**: Профиль для базального метаболизма (BMR) и суточной потребности в калориях (TDEE).
 
 ```dart
 class WhtrProfile {
-  double ratio;
-  String gradation;
+  final double ratio;
+  final String gradation;
+}
+
+class MetabolicProfile {
+  final double bmr;
+  final double tdee;
 }
 ```
 
-## 2. Таблицы базы данных
+
+## 2. Таблицы базы данных (`database/body.sql`)
 
 ### 2.1. `anthropometry_fix`
-```sql
-CREATE TABLE anthropometry_fix (
-    user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
-    height REAL,
-    wrist_circ INT,
-    ankle_circ INT
-);
-```
+Схема не изменилась, но теперь все поля (`height`, `wrist_circ`, `ankle_circ`) должны быть `NOT NULL`.
 
 ### 2.2. `anthropometry_measurements`
+В таблицу добавлены два новых необязательных поля.
 ```sql
 CREATE TABLE anthropometry_measurements (
-    id UUID PRIMARY KEY,
-    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    date_time TIMESTAMPTZ NOT NULL,
-    weight REAL,
-    shoulders_circ INT,
-    breast_circ INT,
-    waist_circ INT,
-    hips_circ INT,
-    archived_at TIMESTAMPTZ,
-    archived_by UUID,
-    archived_reason TEXT
+    -- ...старые поля...
+    weight REAL NOT NULL,
+    shoulders_circ INT NOT NULL,
+    breast_circ INT NOT NULL,
+    waist_circ INT NOT NULL,
+    hips_circ INT NOT NULL,
+    fat_percentage REAL, -- Новое поле
+    muscle_mass REAL,    -- Новое поле
+    -- ...служебные поля...
 );
 ```
 
-## 3. API эндпоинты
-Управление антропометрией осуществляется через эндпоинты, разделенные по ролям.
+## 3. Валидация в формах ввода
+Для всех полей антропометрии (постоянной и периодической) на экранах `fixed_values_view.dart` и `anthropometry_edit_screen.dart` введена валидация:
+1.  Все обязательные поля не могут быть пустыми.
+2.  Все обязательные поля не могут содержать значение "0".
+3.  Поля биоимпеданса (`fatPercentage`, `muscleMass`) должны быть заполнены **вместе**. Если заполнено одно, второе также становится обязательным. Проверка происходит при нажатии кнопки "Сохранить".
 
-### 3.1. Клиентские эндпоинты
-`GET    /api/client/anthropometry`
-`GET    /api/client/anthropometry/fixed`
-`POST   /api/client/anthropometry`
-`GET    /api/client/anthropometry/measurements/<id>/whtr`
+## 4. API эндпоинты
+Добавлен новый эндпоинт для получения расчетных данных по метаболизму.
 
-### 3.2. Административные эндпоинты (для сотрудников)
-`GET    /api/admin/clients/:id/anthropometry`
-`POST   /api/admin/clients/:id/anthropometry`
-`GET    /api/admin/clients/:id/anthropometry/fixed`
-`POST   /api/admin/clients/:id/anthropometry/fixed`
-`POST   /api/admin/clients/:id/anthropometry/<measurementId>/archive`
-`PUT    /api/admin/clients/:id/anthropometry/<measurementId>/unarchive`
-`GET    /api/admin/clients/:id/measurements/<measurementId>/whtr`
+`GET /api/clients/<userId>/measurements/<measurementId>/metabolic-rate`
+- **Описание**: Рассчитывает и возвращает BMR и TDEE для конкретного замера клиента.
+- **Логика**: Использует формулу Кэтча-МакАрдла, которая требует наличия `fatPercentage` в данных замера.
+- **Ответ**: `MetabolicProfile` в формате JSON.
 
+## 5. Пользовательские интерфейсы
+Функционал был расширен для отображения новых данных.
 
-## 4. Пользовательские интерфейсы
-Функционал доступен из карточки клиента.
+### 5.1. `analysis_screen.dart` (Анализ одного замера)
+В дополнение к существующим карточкам добавлена новая:
+- **Карточка "Базовый метаболизм"**: Асинхронно запрашивает данные с нового эндпоинта и отображает BMR (в покое) и TDEE (с учетом активности) в ккал.
 
-### 4.1. `anthropometry_list_screen.dart`
-Отображает список периодических замеров.
-*   Каждая строка содержит чекбокс для выбора. Можно выбрать 1 или 2 замера.
-*   При выборе замеров внизу экрана становятся активными кнопки:
-    *   **"Сравнение"**: Активна при выборе 2 замеров. Открывает `comparison_screen.dart`.
-    *   **"Анализ"**: Активна при выборе 1 или 2 замеров.
-        *   При выборе 1 замера открывает `analysis_screen.dart`.
-        *   При выборе 2 замеров открывает `analysis_comparison_screen.dart`.
-    *   **"Рекомендации"**: Активна при выборе 1 замера. Открывает `system_recommendation_screen.dart`.
+### 5.2. `analysis_comparison_screen.dart` (Сравнение двух замеров)
+В дополнение к существующим карточкам добавлена новая:
+- **Карточка "Базовый метаболизм"**: Асинхронно запрашивает и отображает BMR/TDEE для каждого из двух замеров, позволяя сравнить их динамику.
 
-### 4.2. `comparison_screen.dart`
-Экран для визуального сравнения двух замеров.
-*   Отображает два силуэта, наложенных друг на друга, со слайдером для сравнения.
-*   Силуэты окрашены в разные цвета.
-*   Под слайдером находится легенда с датами и временем замеров.
-*   Ниже отображается таблица со сравнением числовых показателей (вес, обхваты) и их динамикой.
+### 5.3. `system_recommendation_screen.dart`
+Промпт, генерируемый для ИИ, теперь включает данные биоимпеданса, если они есть в замере.
+```
+...
+## Антропометрические данные
+- **Рост (см):** $height
+- **Соматотип:** $somatotype
+- **Замер от ...:**
+- Вес, кг: ...
+...
+- Процент жира, %: {fatPercentage} (если есть)
+- Мышечная масса, кг: {muscleMass} (если есть)
+```
 
-### 4.3. `analysis_screen.dart` (Анализ одного замера)
-Экран для отображения аналитических данных для **одного конкретного** замера.
-*   **Карточка "Соматотип"**: Статичный параметр, рассчитывается на основе постоянных замеров.
-*   **Карточка "Тип фигуры"**: Динамический параметр, рассчитывается на основе обхватов из выбранного замера.
-*   **Карточка "Индекс WHtR"**: Динамический параметр, рассчитывается для выбранного замера.
+## 6. Архитектура и Провайдеры
+В `analysis_provider.dart` добавлен новый провайдер.
 
-### 4.4. `analysis_comparison_screen.dart` (Сравнение двух замеров)
-Экран для сравнения аналитических данных двух замеров.
-*   **Статичные данные**: Вверху отображается общая для обоих замеров информация (Соматотип), т.к. она не меняется.
-*   **Динамичные данные**: Для каждого изменяемого параметра (Тип фигуры, Индекс WHtR) создается отдельная карточка, где построчно сравниваются значения для первого и второго замера.
+- **`metabolicRateProvider(params)`**: Асинхронно обращается к новому эндпоинту `/metabolic-rate` и возвращает `MetabolicProfile` с данными BMR и TDEE.
 
-### 4.5. `system_recommendation_screen.dart`
-Экран для отображения персональных рекомендаций и генерации промпта для ИИ.
-*   На основе **конкретного выбранного замера** запрашивает у бэкенда рекомендацию.
-*   Генерирует промпт для ИИ, используя данные клиента (возраст, пол, рост, цель, уровень), соматотип и данные замера.
+Логика расчета BMR/TDEE реализована на бэкенде в `recommendation_service.dart`.
 
-## 5. Архитектура и Провайдеры
-Логика получения и расчета данных вынесена в гранулярные провайдеры.
+## 7. Расположение кода
 
-### 5.1. Провайдеры данных
-Находятся в `frontend/lib/modules/clients/providers/analysis_provider.dart`.
-
-*   `somatotypeStringProvider(userId)`: Асинхронно получает данные пользователя и постоянные замеры, вызывает **локальный калькулятор** и возвращает строку с соматотипом.
-*   `bodyShapeProvider(measurement)`: Синхронно вызывает **локальный калькулятор** и возвращает строку с типом фигуры для конкретного замера.
-*   `whtrProfileProvider(measurement)`: Асинхронно обращается к (`.../whtr`), чтобы получить `WhtrProfile` для конкретного замера. Это обеспечивает единство данных с модулем рекомендаций.
-
-### 5.2. Расположение кода
-
-#### Бэкенд
-*Логика для расчета WHtR и соответствующие эндпоинты.*
+### 7.1. Бэкенд
+*Логика для расчета аналитических профилей и соответствующие эндпоинты.*
 ```
 /backend/lib/
+├── controllers/
+│   └── recommendations_controller.dart # Контроллер для нового эндпоинта BMR/TDEE.
 ├── modules/
 │   └── clients/
-│       ├── controllers/
-│       │   └── anthropometry_controller.dart  # Контроллер для обработки запросов по антропометрии.
 │       └── repositories/
-│           └── client_repository.dart         # Репозиторий для получения данных клиента, включая замеры.
+│           └── client_repository.dart    # SQL-запросы для сохранения и получения новых полей.
+├── routes/
+│   └── router.dart                     # Центральный роутер, где прописан новый маршрут.
 └── services/
     └── recommendations/
-        └── recommendation_service.dart      # Сервис, содержащий бизнес-логику для расчета WHtR.
+        └── recommendation_service.dart # Сервис с бизнес-логикой для расчета WHtR и нового MetabolicProfile (BMR/TDEE).
 ```
 
-#### Фронтенд
-*Основные файлы модуля антропометрии и анализа.*
+### 7.2. Фронтенд
+*Экраны и провайдеры для ввода, просмотра и анализа антропометрии.*
 ```
 /frontend/lib/
 └── modules/
     └── clients/
         ├── providers/
-        │   └── analysis_provider.dart          # Провайдеры для аналитических расчетов (соматотип, тип фигуры, WHtR).
+        │   └── analysis_provider.dart      # Провайдеры для всех аналитических данных, включая новый metabolicRateProvider.
         ├── screens/
-        │   ├── analysis_comparison_screen.dart # Экран для сравнения аналитики ДВУХ замеров.
-        │   ├── analysis_screen.dart            # Экран для анализа ОДНОГО замера.
-        │   └── system_recommendation_screen.dart # Экран для рекомендаций и генерации промпта для ИИ.
-        └── utils/
-            ├── body_shape_calculator.dart      # Локальный калькулятор для определения типа фигуры.
-            └── somatotype_calculator.dart      # Локальный калькулятор для определения соматотипа.
+        │   ├── anthropometry_edit_screen.dart # Форма для СОЗДАНИЯ/РЕДАКТИРОВАНИЯ периодических замеров. Здесь была добавлена валидация.
+        │   ├── anthropometry_list_screen.dart # Список всех периодических замеров клиента.
+        │   ├── analysis_screen.dart         # Экран анализа ОДНОГО замера. Сюда добавлена карточка BMR/TDEE.
+        │   └── analysis_comparison_screen.dart# Экран сравнения ДВУХ анализов. Сюда добавлена карточка сравнения BMR/TDEE.
+        └── widgets/
+            └── fixed_values_view.dart      # Виджет-форма для постоянных замеров. Здесь была добавлена валидация.
 ```
-

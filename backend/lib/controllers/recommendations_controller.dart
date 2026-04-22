@@ -37,4 +37,25 @@ class RecommendationsController {
       return Response.internalServerError(body: jsonEncode({'error': 'An internal error occurred.'}));
     }
   }
+
+  static Future<Response> getMetabolicRate(Request request, String userId, String measurementId) async {
+    try {
+      final user = request.context['user'] as Map<String, dynamic>?;
+      if (user == null) {
+        return Response.unauthorized(jsonEncode({'error': 'Not authenticated'}));
+      }
+
+      final service = RecommendationService();
+      final result = await service.calculateMetabolicRate(userId, measurementId);
+
+      if (result == null) {
+        return Response.notFound(
+            jsonEncode({'error': 'Недостаточно данных для расчета.'}));
+      }
+      return Response.ok(jsonEncode(result.toJson()));
+    } catch (e) {
+      print('RecommendationsController error (getMetabolicRate): $e');
+      return Response.internalServerError(body: jsonEncode({'error': 'An internal error occurred.'}));
+    }
+  }
 }
