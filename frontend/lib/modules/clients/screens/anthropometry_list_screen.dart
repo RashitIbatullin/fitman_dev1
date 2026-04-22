@@ -319,13 +319,11 @@ class _AnthropometryListScreenState
                               ],
                             )
                           : null,
-                      onTap: !canEdit
-                          ? () {
-                              Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (_) => AnthropometryDetailScreen(
-                                      measurement: measurement)));
-                            }
-                          : null,
+                      onTap: () {
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (_) =>
+                                AnthropometryDetailScreen(measurement: measurement)));
+                      },
                     ),
                   );
                 },
