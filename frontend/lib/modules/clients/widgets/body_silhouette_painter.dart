@@ -24,10 +24,10 @@ class BodySilhouettePainter extends CustomPainter {
 
     // --- 1. Get Data and Handle Nulls ---
     final double personHeightCm = (height?.toDouble() ?? 175.0); // Assuming height is in cm
-    final shouldersCirc = measurement.shouldersCirc?.toDouble() ?? 100;
-    final breastCirc = measurement.breastCirc?.toDouble() ?? 90;
-    final waistCirc = measurement.waistCirc?.toDouble() ?? 70;
-    final hipsCirc = measurement.hipsCirc?.toDouble() ?? 95;
+    final shouldersCirc = measurement.shouldersCirc.toDouble();
+    final breastCirc = measurement.breastCirc.toDouble();
+    final waistCirc = measurement.waistCirc.toDouble();
+    final hipsCirc = measurement.hipsCirc.toDouble();
 
     // --- 2. Calculate Widths from Circumferences ---
     // Approximation: width = circumference / PI

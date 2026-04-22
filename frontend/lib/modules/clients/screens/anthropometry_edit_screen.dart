@@ -34,12 +34,12 @@ class _AnthropometryEditScreenState
     final m = widget.measurement;
     _dateTime = m?.dateTime ?? DateTime.now();
     _controllers = {
-      'weight': TextEditingController(text: m?.weight?.toString()),
+      'weight': TextEditingController(text: m?.weight.toString()),
       'shouldersCirc':
-          TextEditingController(text: m?.shouldersCirc?.toString()),
-      'breastCirc': TextEditingController(text: m?.breastCirc?.toString()),
-      'waistCirc': TextEditingController(text: m?.waistCirc?.toString()),
-      'hipsCirc': TextEditingController(text: m?.hipsCirc?.toString()),
+          TextEditingController(text: m?.shouldersCirc.toString()),
+      'breastCirc': TextEditingController(text: m?.breastCirc.toString()),
+      'waistCirc': TextEditingController(text: m?.waistCirc.toString()),
+      'hipsCirc': TextEditingController(text: m?.hipsCirc.toString()),
     };
   }
 
@@ -58,19 +58,31 @@ class _AnthropometryEditScreenState
       });
 
       try {
+        // Safe to parse because validators have already checked.
+        final weight = double.parse(_controllers['weight']!.text);
+        final shouldersCirc = int.parse(_controllers['shouldersCirc']!.text);
+        final breastCirc = int.parse(_controllers['breastCirc']!.text);
+        final waistCirc = int.parse(_controllers['waistCirc']!.text);
+        final hipsCirc = int.parse(_controllers['hipsCirc']!.text);
+
         final measurementToSave = (widget.measurement ??
                 AnthropometryMeasurement(
                   userId: widget.clientId,
                   dateTime: _dateTime,
+                  // Provide all required fields for creation
+                  weight: weight,
+                  shouldersCirc: shouldersCirc,
+                  breastCirc: breastCirc,
+                  waistCirc: waistCirc,
+                  hipsCirc: hipsCirc,
                 ))
             .copyWith(
           dateTime: _dateTime,
-          // Dynamic values from the form
-          weight: double.tryParse(_controllers['weight']!.text),
-          shouldersCirc: int.tryParse(_controllers['shouldersCirc']!.text),
-          breastCirc: int.tryParse(_controllers['breastCirc']!.text),
-          waistCirc: int.tryParse(_controllers['waistCirc']!.text),
-          hipsCirc: int.tryParse(_controllers['hipsCirc']!.text),
+          weight: weight,
+          shouldersCirc: shouldersCirc,
+          breastCirc: breastCirc,
+          waistCirc: waistCirc,
+          hipsCirc: hipsCirc,
         );
 
         // Use the appropriate API service method
@@ -102,11 +114,35 @@ class _AnthropometryEditScreenState
     }
   }
 
-  Widget _buildTextFormField(String label, String key) {
+  Widget _buildTextFormField(String label, String key, {bool isDouble = false}) {
     return TextFormField(
       controller: _controllers[key],
       decoration: InputDecoration(labelText: label),
-      keyboardType: TextInputType.number,
+      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Поле не может быть пустым';
+        }
+        if (isDouble) {
+          final number = double.tryParse(value);
+          if (number == null) {
+            return 'Введите корректное число';
+          }
+          if (number == 0) {
+            return 'Значение не может быть 0';
+          }
+        } else {
+          final number = int.tryParse(value);
+          if (number == null) {
+            return 'Введите корректное целое число';
+          }
+          if (number == 0) {
+            return 'Значение не может быть 0';
+          }
+        }
+        return null;
+      },
     );
   }
 
@@ -172,7 +208,7 @@ class _AnthropometryEditScreenState
                     ? () => _selectDateTime(context)
                     : null,
               ),
-              _buildTextFormField('Вес (кг)', 'weight'),
+              _buildTextFormField('Вес (кг)', 'weight', isDouble: true),
               _buildTextFormField('Обхват плеч (см)', 'shouldersCirc'),
               _buildTextFormField('Обхват груди (см)', 'breastCirc'),
               _buildTextFormField('Обхват талии (см)', 'waistCirc'),

@@ -7,11 +7,11 @@ part 'anthropometry_fixed.g.dart';
 class AnthropometryFixed with _$AnthropometryFixed {
   const factory AnthropometryFixed({
     required String userId,
-    int? height,
-    int? wristCirc,
-    int? ankleCirc,
+    required int height,
+    required int wristCirc,
+    required int ankleCirc,
     String? companyId,
-    DateTime? createdAt,
+    required DateTime createdAt,
     DateTime? updatedAt,
     String? createdBy,
     String? updatedBy,

@@ -21,11 +21,11 @@ AnthropometryFixed _$AnthropometryFixedFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$AnthropometryFixed {
   String get userId => throw _privateConstructorUsedError;
-  int? get height => throw _privateConstructorUsedError;
-  int? get wristCirc => throw _privateConstructorUsedError;
-  int? get ankleCirc => throw _privateConstructorUsedError;
+  int get height => throw _privateConstructorUsedError;
+  int get wristCirc => throw _privateConstructorUsedError;
+  int get ankleCirc => throw _privateConstructorUsedError;
   String? get companyId => throw _privateConstructorUsedError;
-  DateTime? get createdAt => throw _privateConstructorUsedError;
+  DateTime get createdAt => throw _privateConstructorUsedError;
   DateTime? get updatedAt => throw _privateConstructorUsedError;
   String? get createdBy => throw _privateConstructorUsedError;
   String? get updatedBy => throw _privateConstructorUsedError;
@@ -48,11 +48,11 @@ abstract class $AnthropometryFixedCopyWith<$Res> {
   @useResult
   $Res call(
       {String userId,
-      int? height,
-      int? wristCirc,
-      int? ankleCirc,
+      int height,
+      int wristCirc,
+      int ankleCirc,
       String? companyId,
-      DateTime? createdAt,
+      DateTime createdAt,
       DateTime? updatedAt,
       String? createdBy,
       String? updatedBy});
@@ -74,11 +74,11 @@ class _$AnthropometryFixedCopyWithImpl<$Res, $Val extends AnthropometryFixed>
   @override
   $Res call({
     Object? userId = null,
-    Object? height = freezed,
-    Object? wristCirc = freezed,
-    Object? ankleCirc = freezed,
+    Object? height = null,
+    Object? wristCirc = null,
+    Object? ankleCirc = null,
     Object? companyId = freezed,
-    Object? createdAt = freezed,
+    Object? createdAt = null,
     Object? updatedAt = freezed,
     Object? createdBy = freezed,
     Object? updatedBy = freezed,
@@ -88,26 +88,26 @@ class _$AnthropometryFixedCopyWithImpl<$Res, $Val extends AnthropometryFixed>
           ? _value.userId
           : userId // ignore: cast_nullable_to_non_nullable
               as String,
-      height: freezed == height
+      height: null == height
           ? _value.height
           : height // ignore: cast_nullable_to_non_nullable
-              as int?,
-      wristCirc: freezed == wristCirc
+              as int,
+      wristCirc: null == wristCirc
           ? _value.wristCirc
           : wristCirc // ignore: cast_nullable_to_non_nullable
-              as int?,
-      ankleCirc: freezed == ankleCirc
+              as int,
+      ankleCirc: null == ankleCirc
           ? _value.ankleCirc
           : ankleCirc // ignore: cast_nullable_to_non_nullable
-              as int?,
+              as int,
       companyId: freezed == companyId
           ? _value.companyId
           : companyId // ignore: cast_nullable_to_non_nullable
               as String?,
-      createdAt: freezed == createdAt
+      createdAt: null == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
+              as DateTime,
       updatedAt: freezed == updatedAt
           ? _value.updatedAt
           : updatedAt // ignore: cast_nullable_to_non_nullable
@@ -134,11 +134,11 @@ abstract class _$$AnthropometryFixedImplCopyWith<$Res>
   @useResult
   $Res call(
       {String userId,
-      int? height,
-      int? wristCirc,
-      int? ankleCirc,
+      int height,
+      int wristCirc,
+      int ankleCirc,
       String? companyId,
-      DateTime? createdAt,
+      DateTime createdAt,
       DateTime? updatedAt,
       String? createdBy,
       String? updatedBy});
@@ -158,11 +158,11 @@ class __$$AnthropometryFixedImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? userId = null,
-    Object? height = freezed,
-    Object? wristCirc = freezed,
-    Object? ankleCirc = freezed,
+    Object? height = null,
+    Object? wristCirc = null,
+    Object? ankleCirc = null,
     Object? companyId = freezed,
-    Object? createdAt = freezed,
+    Object? createdAt = null,
     Object? updatedAt = freezed,
     Object? createdBy = freezed,
     Object? updatedBy = freezed,
@@ -172,26 +172,26 @@ class __$$AnthropometryFixedImplCopyWithImpl<$Res>
           ? _value.userId
           : userId // ignore: cast_nullable_to_non_nullable
               as String,
-      height: freezed == height
+      height: null == height
           ? _value.height
           : height // ignore: cast_nullable_to_non_nullable
-              as int?,
-      wristCirc: freezed == wristCirc
+              as int,
+      wristCirc: null == wristCirc
           ? _value.wristCirc
           : wristCirc // ignore: cast_nullable_to_non_nullable
-              as int?,
-      ankleCirc: freezed == ankleCirc
+              as int,
+      ankleCirc: null == ankleCirc
           ? _value.ankleCirc
           : ankleCirc // ignore: cast_nullable_to_non_nullable
-              as int?,
+              as int,
       companyId: freezed == companyId
           ? _value.companyId
           : companyId // ignore: cast_nullable_to_non_nullable
               as String?,
-      createdAt: freezed == createdAt
+      createdAt: null == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
+              as DateTime,
       updatedAt: freezed == updatedAt
           ? _value.updatedAt
           : updatedAt // ignore: cast_nullable_to_non_nullable
@@ -213,11 +213,11 @@ class __$$AnthropometryFixedImplCopyWithImpl<$Res>
 class _$AnthropometryFixedImpl implements _AnthropometryFixed {
   const _$AnthropometryFixedImpl(
       {required this.userId,
-      this.height,
-      this.wristCirc,
-      this.ankleCirc,
+      required this.height,
+      required this.wristCirc,
+      required this.ankleCirc,
       this.companyId,
-      this.createdAt,
+      required this.createdAt,
       this.updatedAt,
       this.createdBy,
       this.updatedBy});
@@ -228,15 +228,15 @@ class _$AnthropometryFixedImpl implements _AnthropometryFixed {
   @override
   final String userId;
   @override
-  final int? height;
+  final int height;
   @override
-  final int? wristCirc;
+  final int wristCirc;
   @override
-  final int? ankleCirc;
+  final int ankleCirc;
   @override
   final String? companyId;
   @override
-  final DateTime? createdAt;
+  final DateTime createdAt;
   @override
   final DateTime? updatedAt;
   @override
@@ -297,11 +297,11 @@ class _$AnthropometryFixedImpl implements _AnthropometryFixed {
 abstract class _AnthropometryFixed implements AnthropometryFixed {
   const factory _AnthropometryFixed(
       {required final String userId,
-      final int? height,
-      final int? wristCirc,
-      final int? ankleCirc,
+      required final int height,
+      required final int wristCirc,
+      required final int ankleCirc,
       final String? companyId,
-      final DateTime? createdAt,
+      required final DateTime createdAt,
       final DateTime? updatedAt,
       final String? createdBy,
       final String? updatedBy}) = _$AnthropometryFixedImpl;
@@ -312,15 +312,15 @@ abstract class _AnthropometryFixed implements AnthropometryFixed {
   @override
   String get userId;
   @override
-  int? get height;
+  int get height;
   @override
-  int? get wristCirc;
+  int get wristCirc;
   @override
-  int? get ankleCirc;
+  int get ankleCirc;
   @override
   String? get companyId;
   @override
-  DateTime? get createdAt;
+  DateTime get createdAt;
   @override
   DateTime? get updatedAt;
   @override

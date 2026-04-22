@@ -93,30 +93,34 @@ class _FixedValuesViewState extends ConsumerState<FixedValuesView> {
       final scaffoldMessenger = ScaffoldMessenger.of(context);
 
       try {
-        final fixedData =
+        final height = int.parse(_heightController.text);
+        final wristCirc = int.parse(_wristController.text);
+        final ankleCirc = int.parse(_ankleController.text);
+
+        final existingData =
             ref.read(fixedAnthropometryProvider(widget.clientId)).asData?.value;
 
-        final dataToSave = (fixedData ??
-                AnthropometryFixed(
-                  userId: widget.clientId,
-                ))
-            .copyWith(
-          height: int.tryParse(_heightController.text),
-          wristCirc: int.tryParse(_wristController.text),
-          ankleCirc: int.tryParse(_ankleController.text),
+        final dataToSave = AnthropometryFixed(
+          userId: widget.clientId,
+          height: height,
+          wristCirc: wristCirc,
+          ankleCirc: ankleCirc,
+          createdAt: existingData?.createdAt ?? DateTime.now(),
+          updatedAt: DateTime.now(),
         );
 
-        await ApiService.saveFixedAnthropometryForClient(widget.clientId, dataToSave);
+        await ApiService.saveFixedAnthropometryForClient(
+            widget.clientId, dataToSave);
 
         ref.invalidate(fixedAnthropometryProvider(widget.clientId));
-        
+
         scaffoldMessenger.showSnackBar(
           const SnackBar(
               content: Text('Данные успешно сохранены'),
               backgroundColor: Colors.green),
         );
         if (mounted) {
-           // Update initial values after successful save
+          // Update initial values after successful save
           _initialHeight = _heightController.text;
           _initialWrist = _wristController.text;
           _initialAnkle = _ankleController.text;
@@ -179,6 +183,19 @@ class _FixedValuesViewState extends ConsumerState<FixedValuesView> {
                   readOnly: !canEdit,
                   decoration: const InputDecoration(labelText: 'Рост (см)'),
                   keyboardType: TextInputType.number,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Поле не может быть пустым';
+                    }
+                    final number = int.tryParse(value);
+                    if (number == null) {
+                      return 'Введите корректное число';
+                    }
+                    if (number == 0) {
+                      return 'Значение не может быть 0';
+                    }
+                    return null;
+                  },
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
@@ -187,6 +204,19 @@ class _FixedValuesViewState extends ConsumerState<FixedValuesView> {
                   decoration:
                       const InputDecoration(labelText: 'Обхват запястья (см)'),
                   keyboardType: TextInputType.number,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Поле не может быть пустым';
+                    }
+                    final number = int.tryParse(value);
+                    if (number == null) {
+                      return 'Введите корректное число';
+                    }
+                    if (number == 0) {
+                      return 'Значение не может быть 0';
+                    }
+                    return null;
+                  },
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
@@ -195,6 +225,19 @@ class _FixedValuesViewState extends ConsumerState<FixedValuesView> {
                   decoration:
                       const InputDecoration(labelText: 'Обхват лодыжки (см)'),
                   keyboardType: TextInputType.number,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Поле не может быть пустым';
+                    }
+                    final number = int.tryParse(value);
+                    if (number == null) {
+                      return 'Введите корректное число';
+                    }
+                    if (number == 0) {
+                      return 'Значение не может быть 0';
+                    }
+                    return null;
+                  },
                 ),
                 const SizedBox(height: 32),
                 if (canEdit)

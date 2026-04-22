@@ -24,11 +24,11 @@ mixin _$AnthropometryMeasurement {
   String? get id => throw _privateConstructorUsedError;
   String get userId => throw _privateConstructorUsedError;
   DateTime get dateTime => throw _privateConstructorUsedError;
-  double? get weight => throw _privateConstructorUsedError;
-  int? get shouldersCirc => throw _privateConstructorUsedError;
-  int? get breastCirc => throw _privateConstructorUsedError;
-  int? get waistCirc => throw _privateConstructorUsedError;
-  int? get hipsCirc => throw _privateConstructorUsedError;
+  double get weight => throw _privateConstructorUsedError;
+  int get shouldersCirc => throw _privateConstructorUsedError;
+  int get breastCirc => throw _privateConstructorUsedError;
+  int get waistCirc => throw _privateConstructorUsedError;
+  int get hipsCirc => throw _privateConstructorUsedError;
   String? get companyId => throw _privateConstructorUsedError;
   DateTime? get createdAt => throw _privateConstructorUsedError;
   DateTime? get updatedAt => throw _privateConstructorUsedError;
@@ -58,11 +58,11 @@ abstract class $AnthropometryMeasurementCopyWith<$Res> {
       {String? id,
       String userId,
       DateTime dateTime,
-      double? weight,
-      int? shouldersCirc,
-      int? breastCirc,
-      int? waistCirc,
-      int? hipsCirc,
+      double weight,
+      int shouldersCirc,
+      int breastCirc,
+      int waistCirc,
+      int hipsCirc,
       String? companyId,
       DateTime? createdAt,
       DateTime? updatedAt,
@@ -92,11 +92,11 @@ class _$AnthropometryMeasurementCopyWithImpl<$Res,
     Object? id = freezed,
     Object? userId = null,
     Object? dateTime = null,
-    Object? weight = freezed,
-    Object? shouldersCirc = freezed,
-    Object? breastCirc = freezed,
-    Object? waistCirc = freezed,
-    Object? hipsCirc = freezed,
+    Object? weight = null,
+    Object? shouldersCirc = null,
+    Object? breastCirc = null,
+    Object? waistCirc = null,
+    Object? hipsCirc = null,
     Object? companyId = freezed,
     Object? createdAt = freezed,
     Object? updatedAt = freezed,
@@ -119,26 +119,26 @@ class _$AnthropometryMeasurementCopyWithImpl<$Res,
           ? _value.dateTime
           : dateTime // ignore: cast_nullable_to_non_nullable
               as DateTime,
-      weight: freezed == weight
+      weight: null == weight
           ? _value.weight
           : weight // ignore: cast_nullable_to_non_nullable
-              as double?,
-      shouldersCirc: freezed == shouldersCirc
+              as double,
+      shouldersCirc: null == shouldersCirc
           ? _value.shouldersCirc
           : shouldersCirc // ignore: cast_nullable_to_non_nullable
-              as int?,
-      breastCirc: freezed == breastCirc
+              as int,
+      breastCirc: null == breastCirc
           ? _value.breastCirc
           : breastCirc // ignore: cast_nullable_to_non_nullable
-              as int?,
-      waistCirc: freezed == waistCirc
+              as int,
+      waistCirc: null == waistCirc
           ? _value.waistCirc
           : waistCirc // ignore: cast_nullable_to_non_nullable
-              as int?,
-      hipsCirc: freezed == hipsCirc
+              as int,
+      hipsCirc: null == hipsCirc
           ? _value.hipsCirc
           : hipsCirc // ignore: cast_nullable_to_non_nullable
-              as int?,
+              as int,
       companyId: freezed == companyId
           ? _value.companyId
           : companyId // ignore: cast_nullable_to_non_nullable
@@ -188,11 +188,11 @@ abstract class _$$AnthropometryMeasurementImplCopyWith<$Res>
       {String? id,
       String userId,
       DateTime dateTime,
-      double? weight,
-      int? shouldersCirc,
-      int? breastCirc,
-      int? waistCirc,
-      int? hipsCirc,
+      double weight,
+      int shouldersCirc,
+      int breastCirc,
+      int waistCirc,
+      int hipsCirc,
       String? companyId,
       DateTime? createdAt,
       DateTime? updatedAt,
@@ -221,11 +221,11 @@ class __$$AnthropometryMeasurementImplCopyWithImpl<$Res>
     Object? id = freezed,
     Object? userId = null,
     Object? dateTime = null,
-    Object? weight = freezed,
-    Object? shouldersCirc = freezed,
-    Object? breastCirc = freezed,
-    Object? waistCirc = freezed,
-    Object? hipsCirc = freezed,
+    Object? weight = null,
+    Object? shouldersCirc = null,
+    Object? breastCirc = null,
+    Object? waistCirc = null,
+    Object? hipsCirc = null,
     Object? companyId = freezed,
     Object? createdAt = freezed,
     Object? updatedAt = freezed,
@@ -248,26 +248,26 @@ class __$$AnthropometryMeasurementImplCopyWithImpl<$Res>
           ? _value.dateTime
           : dateTime // ignore: cast_nullable_to_non_nullable
               as DateTime,
-      weight: freezed == weight
+      weight: null == weight
           ? _value.weight
           : weight // ignore: cast_nullable_to_non_nullable
-              as double?,
-      shouldersCirc: freezed == shouldersCirc
+              as double,
+      shouldersCirc: null == shouldersCirc
           ? _value.shouldersCirc
           : shouldersCirc // ignore: cast_nullable_to_non_nullable
-              as int?,
-      breastCirc: freezed == breastCirc
+              as int,
+      breastCirc: null == breastCirc
           ? _value.breastCirc
           : breastCirc // ignore: cast_nullable_to_non_nullable
-              as int?,
-      waistCirc: freezed == waistCirc
+              as int,
+      waistCirc: null == waistCirc
           ? _value.waistCirc
           : waistCirc // ignore: cast_nullable_to_non_nullable
-              as int?,
-      hipsCirc: freezed == hipsCirc
+              as int,
+      hipsCirc: null == hipsCirc
           ? _value.hipsCirc
           : hipsCirc // ignore: cast_nullable_to_non_nullable
-              as int?,
+              as int,
       companyId: freezed == companyId
           ? _value.companyId
           : companyId // ignore: cast_nullable_to_non_nullable
@@ -311,11 +311,11 @@ class _$AnthropometryMeasurementImpl implements _AnthropometryMeasurement {
       {this.id,
       required this.userId,
       required this.dateTime,
-      this.weight,
-      this.shouldersCirc,
-      this.breastCirc,
-      this.waistCirc,
-      this.hipsCirc,
+      required this.weight,
+      required this.shouldersCirc,
+      required this.breastCirc,
+      required this.waistCirc,
+      required this.hipsCirc,
       this.companyId,
       this.createdAt,
       this.updatedAt,
@@ -335,15 +335,15 @@ class _$AnthropometryMeasurementImpl implements _AnthropometryMeasurement {
   @override
   final DateTime dateTime;
   @override
-  final double? weight;
+  final double weight;
   @override
-  final int? shouldersCirc;
+  final int shouldersCirc;
   @override
-  final int? breastCirc;
+  final int breastCirc;
   @override
-  final int? waistCirc;
+  final int waistCirc;
   @override
-  final int? hipsCirc;
+  final int hipsCirc;
   @override
   final String? companyId;
   @override
@@ -445,11 +445,11 @@ abstract class _AnthropometryMeasurement implements AnthropometryMeasurement {
       {final String? id,
       required final String userId,
       required final DateTime dateTime,
-      final double? weight,
-      final int? shouldersCirc,
-      final int? breastCirc,
-      final int? waistCirc,
-      final int? hipsCirc,
+      required final double weight,
+      required final int shouldersCirc,
+      required final int breastCirc,
+      required final int waistCirc,
+      required final int hipsCirc,
       final String? companyId,
       final DateTime? createdAt,
       final DateTime? updatedAt,
@@ -469,15 +469,15 @@ abstract class _AnthropometryMeasurement implements AnthropometryMeasurement {
   @override
   DateTime get dateTime;
   @override
-  double? get weight;
+  double get weight;
   @override
-  int? get shouldersCirc;
+  int get shouldersCirc;
   @override
-  int? get breastCirc;
+  int get breastCirc;
   @override
-  int? get waistCirc;
+  int get waistCirc;
   @override
-  int? get hipsCirc;
+  int get hipsCirc;
   @override
   String? get companyId;
   @override

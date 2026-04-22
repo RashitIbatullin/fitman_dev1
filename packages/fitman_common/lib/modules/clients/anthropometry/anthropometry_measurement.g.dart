@@ -12,11 +12,11 @@ _$AnthropometryMeasurementImpl _$$AnthropometryMeasurementImplFromJson(
       id: json['id'] as String?,
       userId: json['user_id'] as String,
       dateTime: DateTime.parse(json['date_time'] as String),
-      weight: (json['weight'] as num?)?.toDouble(),
-      shouldersCirc: (json['shoulders_circ'] as num?)?.toInt(),
-      breastCirc: (json['breast_circ'] as num?)?.toInt(),
-      waistCirc: (json['waist_circ'] as num?)?.toInt(),
-      hipsCirc: (json['hips_circ'] as num?)?.toInt(),
+      weight: (json['weight'] as num).toDouble(),
+      shouldersCirc: (json['shoulders_circ'] as num).toInt(),
+      breastCirc: (json['breast_circ'] as num).toInt(),
+      waistCirc: (json['waist_circ'] as num).toInt(),
+      hipsCirc: (json['hips_circ'] as num).toInt(),
       companyId: json['company_id'] as String?,
       createdAt: json['created_at'] == null
           ? null

@@ -56,9 +56,12 @@ final somatotypeStringProvider =
   final user = await ref.watch(userProvider(userId).future);
   final fixed = await ref.watch(fixedAnthropometryProvider(userId).future);
 
+  if (fixed == null) {
+    return 'Недостаточно данных';
+  }
   return calculateSomatotype(
-    wristCirc: fixed?.wristCirc?.toDouble(),
-    ankleCirc: fixed?.ankleCirc?.toDouble(),
+    wristCirc: fixed.wristCirc.toDouble(),
+    ankleCirc: fixed.ankleCirc.toDouble(),
     gender: user.gender,
   );
 });

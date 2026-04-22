@@ -84,18 +84,22 @@ class _RecommendationViewState extends ConsumerState<_RecommendationView> {
       final levels = await ref.read(trainingLevelsProvider.future);
 
       // 2. Process data
+      final goalId = client.clientProfile?.goalTrainingId;
       final goalName = goals
-          .firstWhere((g) => g.id == client.clientProfile?.goalTrainingId,
+          .firstWhere((g) => g.id == goalId,
               orElse: () => const GoalTraining(id: '', name: 'не указана'))
           .name;
+
+      final levelId = client.clientProfile?.levelTrainingId;
       final levelName = levels
-          .firstWhere((l) => l.id == client.clientProfile?.levelTrainingId,
+          .firstWhere((l) => l.id == levelId,
               orElse: () => const LevelTraining(id: '', name: 'не указан'))
           .name;
       
       final age = client.age ?? 'не указан';
       final gender = client.gender ?? 'не указан';
-      final height = fixedInfo?.height?.toStringAsFixed(0) ?? 'не указан';
+      final height = fixedInfo?.height.toStringAsFixed(0) ?? 'не указан';
+      final coeffActivity = client.clientProfile?.coeffActivity.toString() ?? 'не указан';
 
       // 3. Generate prompts
       setState(() {
@@ -106,6 +110,7 @@ class _RecommendationViewState extends ConsumerState<_RecommendationView> {
             goalName: goalName,
             levelName: levelName,
             somatotype: somatotype,
+            coeffActivity: coeffActivity,
             measurement: widget.measurement);
 
         _professionalPrompt = _generateProfessionalPrompt(
@@ -116,6 +121,7 @@ class _RecommendationViewState extends ConsumerState<_RecommendationView> {
             goalName: goalName,
             levelName: levelName,
             somatotype: somatotype,
+            coeffActivity: coeffActivity,
             measurement: widget.measurement);
             
         _isPromptVisible = true;
@@ -142,23 +148,20 @@ class _RecommendationViewState extends ConsumerState<_RecommendationView> {
     required String goalName,
     required String levelName,
     required String somatotype,
+    required String coeffActivity,
     required AnthropometryMeasurement measurement,
   }) {
-     final measurementDetails = [
-      'вес: ${measurement.weight?.toStringAsFixed(1) ?? 'N/A'} кг',
-      if (measurement.shouldersCirc != null)
+    final measurementDetails = [
+      'вес: ${measurement.weight.toStringAsFixed(1)} кг',
         'обхват плеч: ${measurement.shouldersCirc} см',
-      if (measurement.breastCirc != null)
         'обхват груди: ${measurement.breastCirc} см',
-      if (measurement.waistCirc != null)
         'обхват талии: ${measurement.waistCirc} см',
-      if (measurement.hipsCirc != null)
         'обхват бедер: ${measurement.hipsCirc} см',
     ].join(', ');
 
     return 'Сформируй персональные рекомендации по тренировкам и питанию для клиента. '
         'Отвечай в стиле дружелюбного и поддерживающего фитнес-тренера. '
-        'Данные клиента: пол $gender, возраст $age лет, рост $height см. '
+        'Данные клиента: пол $gender, возраст $age лет, рост $height см, коэффициент активности $coeffActivity. '
         'Его(ее) цель: "$goalName", уровень подготовки: "$levelName". '
         'Тип телосложения (соматотип): $somatotype. '
         'Данные последнего замера от ${DateFormat('dd.MM.yyyy').format(measurement.dateTime)}: $measurementDetails.';
@@ -172,18 +175,19 @@ class _RecommendationViewState extends ConsumerState<_RecommendationView> {
     required String goalName,
     required String levelName,
     required String somatotype,
+    required String coeffActivity,
     required AnthropometryMeasurement measurement,
   }) {
     final measurementDetails = {
-      'Вес, кг': measurement.weight?.toStringAsFixed(1) ?? 'N/A',
-      'Обхват плеч, см': measurement.shouldersCirc?.toString() ?? 'N/A',
-      'Обхват груди, см': measurement.breastCirc?.toString() ?? 'N/A',
-      'Обхват талии, см': measurement.waistCirc?.toString() ?? 'N/A',
-      'Обхват бедер, см': measurement.hipsCirc?.toString() ?? 'N/A',
+      'Вес, кг': measurement.weight.toStringAsFixed(1),
+      'Обхват плеч, см': measurement.shouldersCirc.toString(),
+      'Обхват груди, см': measurement.breastCirc.toString(),
+      'Обхват талии, см': measurement.waistCirc.toString(),
+      'Обхват бедер, см': measurement.hipsCirc.toString(),
     }
         .entries
         .map((e) => '- ${e.key}: ${e.value}')
-        .join('\n');
+        .join('');
 
     return '''Задание: Проанализируй данные клиента и подготовь развернутые рекомендации для фитнес-тренера.
 Цель: Помочь тренеру составить или скорректировать программу тренировок и питания.
@@ -196,6 +200,7 @@ class _RecommendationViewState extends ConsumerState<_RecommendationView> {
 - **Возраст:** $age
 - **Цель тренировок:** $goalName
 - **Уровень подготовки:** $levelName
+- **Коэффициент активности:** $coeffActivity
 
 ## Антропометрические данные
 - **Рост (см):** $height

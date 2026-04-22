@@ -275,7 +275,7 @@ class _AnthropometryListScreenState
                                 : null),
                       ),
                       subtitle: Text(
-                          'Вес: ${measurement.weight?.toStringAsFixed(1) ?? 'N/A'} кг'),
+                          'Вес: ${measurement.weight.toStringAsFixed(1)} кг'),
                       trailing: canEdit
                           ? PopupMenuButton<String>(
                               onSelected: (value) {

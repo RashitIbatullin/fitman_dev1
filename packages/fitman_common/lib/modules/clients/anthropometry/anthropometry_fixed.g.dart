@@ -10,13 +10,11 @@ _$AnthropometryFixedImpl _$$AnthropometryFixedImplFromJson(
         Map<String, dynamic> json) =>
     _$AnthropometryFixedImpl(
       userId: json['user_id'] as String,
-      height: (json['height'] as num?)?.toInt(),
-      wristCirc: (json['wrist_circ'] as num?)?.toInt(),
-      ankleCirc: (json['ankle_circ'] as num?)?.toInt(),
+      height: (json['height'] as num).toInt(),
+      wristCirc: (json['wrist_circ'] as num).toInt(),
+      ankleCirc: (json['ankle_circ'] as num).toInt(),
       companyId: json['company_id'] as String?,
-      createdAt: json['created_at'] == null
-          ? null
-          : DateTime.parse(json['created_at'] as String),
+      createdAt: DateTime.parse(json['created_at'] as String),
       updatedAt: json['updated_at'] == null
           ? null
           : DateTime.parse(json['updated_at'] as String),
@@ -32,7 +30,7 @@ Map<String, dynamic> _$$AnthropometryFixedImplToJson(
       'wrist_circ': instance.wristCirc,
       'ankle_circ': instance.ankleCirc,
       'company_id': instance.companyId,
-      'created_at': instance.createdAt?.toIso8601String(),
+      'created_at': instance.createdAt.toIso8601String(),
       'updated_at': instance.updatedAt?.toIso8601String(),
       'created_by': instance.createdBy,
       'updated_by': instance.updatedBy,

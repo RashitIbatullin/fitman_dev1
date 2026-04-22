@@ -210,12 +210,8 @@ class RecommendationService {
   SomatotypeProfile _determineSomatotype(
       _ClientData data, List<Map<String, dynamic>> rules) {
     final gender = data.user.gender == 'мужской' ? 'M' : 'Ж';
-    final wristCirc = data.fixedData?.wristCirc?.toDouble();
-    final ankleCirc = data.fixedData?.ankleCirc?.toDouble();
-
-    if (wristCirc == null) {
-      return SomatotypeProfile();
-    }
+    final wristCirc = data.fixedData!.wristCirc.toDouble();
+    final ankleCirc = data.fixedData!.ankleCirc.toDouble();
 
     final scores = <String, double>{};
     final relevantRules = rules
@@ -230,12 +226,8 @@ class RecommendationService {
       final ankleMax = (rule['ankle_max'] as num?)?.toDouble();
       final wristScore = _calculateScore(wristCirc, wristMin, wristMax);
 
-      if (ankleCirc != null) {
-        final ankleScore = _calculateScore(ankleCirc, ankleMin, ankleMax);
-        scores[typeName] = (wristScore + ankleScore) / 2;
-      } else {
-        scores[typeName] = wristScore;
-      }
+      final ankleScore = _calculateScore(ankleCirc, ankleMin, ankleMax);
+      scores[typeName] = (wristScore + ankleScore) / 2;
     }
 
     final totalScore = scores.values.fold(0.0, (sum, val) => sum + val);
@@ -267,11 +259,11 @@ class RecommendationService {
   }
 
   String _determineBodyShape(AnthropometryMeasurement measurement) {
-    final shoulders = measurement.shouldersCirc?.toDouble();
-    final waist = measurement.waistCirc?.toDouble();
-    final hips = measurement.hipsCirc?.toDouble();
+    final shoulders = measurement.shouldersCirc.toDouble();
+    final waist = measurement.waistCirc.toDouble();
+    final hips = measurement.hipsCirc.toDouble();
 
-    if (shoulders == null || waist == null || hips == null || shoulders == 0 || waist == 0 || hips == 0) {
+    if (shoulders == 0 || waist == 0 || hips == 0) {
       return 'Не определен';
     }
 
@@ -291,13 +283,15 @@ class RecommendationService {
 
   WhtrProfile _determineWhtrProfile(_ClientData data) {
     print('--- DETERMINING WHTR PROFILE ---');
-    final height = data.fixedData?.height?.toDouble();
-    final waist = data.measurement?.waistCirc?.toDouble();
+    // Callers of this method (_determineWhtrProfile) guarantee that
+    // clientData.fixedData and clientData.measurement are not null.
+    final height = data.fixedData!.height.toDouble();
+    final waist = data.measurement!.waistCirc.toDouble();
     final age = data.user.age;
 
     print('Input data: age=$age, height=$height, waist=$waist');
 
-    if (height == null || waist == null || height == 0) {
+    if (height == 0) {
       print('Result: Incomplete data.');
       return WhtrProfile(ratio: 0, gradation: 'Не определен');
     }
