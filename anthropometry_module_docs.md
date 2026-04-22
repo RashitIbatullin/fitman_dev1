@@ -2,7 +2,7 @@
 
 Учет и анализ антропометрических данных клиентов, включая постоянные (рост, обхваты для соматотипа) и периодические (вес, обхваты тела) замеры.
 
-## 1. Модель данных
+## 1. Модели данных
 
 ### 1.1. `AnthropometryFixed` (Постоянные замеры)
 Хранит базовые, редко изменяемые антропометрические данные клиента.
@@ -10,14 +10,14 @@
 ```dart
 class AnthropometryFixed {
   String userId;
-  int? height;
+  double? height;
   int? wristCirc;
   int? ankleCirc;
 }
 ```
 
 ### 1.2. `AnthropometryMeasurement` (Периодические замеры)
-Хранит данные регулярных замеров для отслеживания динамики.
+Хранит данные регулярных замеров для отслеживания динамики. Включает поля для архивации.
 
 ```dart
 class AnthropometryMeasurement {
@@ -29,21 +29,19 @@ class AnthropometryMeasurement {
   int? breastCirc;
   int? waistCirc;
   int? hipsCirc;
+  DateTime? archivedAt;
+  String? archivedBy;
+  String? archivedReason;
 }
 ```
 
-### 1.3. `WhtrProfile` и `WhtrProfiles`
-Модели для хранения и передачи данных о коэффициенте "талия-рост" (WHtR).
+### 1.3. `WhtrProfile`
+Модель для хранения данных о коэффициенте "талия-рост" (WHtR).
 
 ```dart
 class WhtrProfile {
   double ratio;
   String gradation;
-}
-
-class WhtrProfiles {
-  WhtrProfile start;
-  WhtrProfile finish;
 }
 ```
 
@@ -53,7 +51,7 @@ class WhtrProfiles {
 ```sql
 CREATE TABLE anthropometry_fix (
     user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
-    height INT,
+    height REAL,
     wrist_circ INT,
     ankle_circ INT
 );
@@ -69,35 +67,44 @@ CREATE TABLE anthropometry_measurements (
     shoulders_circ INT,
     breast_circ INT,
     waist_circ INT,
-    hips_circ INT
+    hips_circ INT,
+    archived_at TIMESTAMPTZ,
+    archived_by UUID,
+    archived_reason TEXT
 );
 ```
 
-## 3. API endpoints
+## 3. API эндпоинты
 Управление антропометрией осуществляется через эндпоинты, разделенные по ролям.
 
 ### 3.1. Клиентские эндпоинты
-`GET    /api/client/anthropometry` # Получение списка своих замеров.
-`GET    /api/client/anthropometry/fixed` # Получение своих постоянных замеров.
-`GET    /api/client/anthropometry/somatotype` # Получение соматотипа и типа фигуры.
-`GET    /api/client/anthropometry/whtr-profiles` # Получение WHtR профилей.
+`GET    /api/client/anthropometry`
+`GET    /api/client/anthropometry/fixed`
+`POST   /api/client/anthropometry`
+`GET    /api/client/anthropometry/measurements/<id>/whtr`
 
 ### 3.2. Административные эндпоинты (для сотрудников)
-`GET    /api/admin/clients/:id/anthropometry` # Получение замеров клиента.
-`POST   /api/admin/clients/:id/anthropometry` # Создание/обновление замера.
-`GET    /api/admin/clients/:id/anthropometry/fixed` # Получение постоянных замеров клиента.
-`POST   /api/admin/clients/:id/anthropometry/fixed` # Создание/обновление постоянных замеров.
+`GET    /api/admin/clients/:id/anthropometry`
+`POST   /api/admin/clients/:id/anthropometry`
+`GET    /api/admin/clients/:id/anthropometry/fixed`
+`POST   /api/admin/clients/:id/anthropometry/fixed`
+`POST   /api/admin/clients/:id/anthropometry/<measurementId>/archive`
+`PUT    /api/admin/clients/:id/anthropometry/<measurementId>/unarchive`
+`GET    /api/admin/clients/:id/measurements/<measurementId>/whtr`
+
 
 ## 4. Пользовательские интерфейсы
 Функционал доступен из карточки клиента.
 
 ### 4.1. `anthropometry_list_screen.dart`
-Отображает отсортированный по дате список периодических замеров.
-*   Каждая строка содержит чекбокс для выбора.
+Отображает список периодических замеров.
+*   Каждая строка содержит чекбокс для выбора. Можно выбрать 1 или 2 замера.
 *   При выборе замеров внизу экрана становятся активными кнопки:
     *   **"Сравнение"**: Активна при выборе 2 замеров. Открывает `comparison_screen.dart`.
-    *   **"Анализ"**: Активна при выборе 1 или 2 замеров. Открывает `analysis_screen.dart`.
-    *   **"Рекомендации"**: Активна при выборе 1 или 2 замеров. Открывает `system_recommendation_screen.dart`.
+    *   **"Анализ"**: Активна при выборе 1 или 2 замеров.
+        *   При выборе 1 замера открывает `analysis_screen.dart`.
+        *   При выборе 2 замеров открывает `analysis_comparison_screen.dart`.
+    *   **"Рекомендации"**: Активна при выборе 1 замера. Открывает `system_recommendation_screen.dart`.
 
 ### 4.2. `comparison_screen.dart`
 Экран для визуального сравнения двух замеров.
@@ -106,58 +113,63 @@ CREATE TABLE anthropometry_measurements (
 *   Под слайдером находится легенда с датами и временем замеров.
 *   Ниже отображается таблица со сравнением числовых показателей (вес, обхваты) и их динамикой.
 
-### 4.3. `analysis_screen.dart`
-Экран для отображения аналитических данных на основе последних замеров клиента.
-*   Отображает карточку с определенным **типом фигуры** ('Яблоко', 'Груша' и т.д.) и кнопкой помощи, объясняющей его особенности.
-*   Отображает карточку с **соматотипом по Шелдону** (Эктоморф, Мезоморф, Эндоморф в %).
-*   Отображает карточку с **индексом WHtR** (соотношение талии к росту), показывая значения для начального и текущего замера.
+### 4.3. `analysis_screen.dart` (Анализ одного замера)
+Экран для отображения аналитических данных для **одного конкретного** замера.
+*   **Карточка "Соматотип"**: Статичный параметр, рассчитывается на основе постоянных замеров.
+*   **Карточка "Тип фигуры"**: Динамический параметр, рассчитывается на основе обхватов из выбранного замера.
+*   **Карточка "Индекс WHtR"**: Динамический параметр, рассчитывается для выбранного замера.
 
-### 4.4. `system_recommendation_screen.dart`
-Экран для отображения персональных рекомендаций.
-*   На основе последнего выбранного замера и аналитических данных (тип фигуры, WHtR, цель, уровень) показывает текстовые рекомендации для клиента.
+### 4.4. `analysis_comparison_screen.dart` (Сравнение двух замеров)
+Экран для сравнения аналитических данных двух замеров.
+*   **Статичные данные**: Вверху отображается общая для обоих замеров информация (Соматотип), т.к. она не меняется.
+*   **Динамичные данные**: Для каждого изменяемого параметра (Тип фигуры, Индекс WHtR) создается отдельная карточка, где построчно сравниваются значения для первого и второго замера.
 
-### 4.5. `body_silhouette_painter.dart`
-Кастомный `painter` для отрисовки 2D-силуэта человека.
-*   Принимает на вход `AnthropometryMeasurement` и `height`.
-*   Строит схематичную, но пропорциональную фигуру человека с головой, торсом, руками и ногами.
-*   Позволяет задавать цвет для отрисовки.
+### 4.5. `system_recommendation_screen.dart`
+Экран для отображения персональных рекомендаций и генерации промпта для ИИ.
+*   На основе **конкретного выбранного замера** запрашивает у бэкенда рекомендацию.
+*   Генерирует промпт для ИИ, используя данные клиента (возраст, пол, рост, цель, уровень), соматотип и данные замера.
 
-## 5. Архитектура и расположение кода
+## 5. Архитектура и Провайдеры
+Логика получения и расчета данных вынесена в гранулярные провайдеры.
 
-### Бэкенд (`/backend/lib/`)
+### 5.1. Провайдеры данных
+Находятся в `frontend/lib/modules/clients/providers/analysis_provider.dart`.
+
+*   `somatotypeStringProvider(userId)`: Асинхронно получает данные пользователя и постоянные замеры, вызывает **локальный калькулятор** и возвращает строку с соматотипом.
+*   `bodyShapeProvider(measurement)`: Синхронно вызывает **локальный калькулятор** и возвращает строку с типом фигуры для конкретного замера.
+*   `whtrProfileProvider(measurement)`: Асинхронно обращается к (`.../whtr`), чтобы получить `WhtrProfile` для конкретного замера. Это обеспечивает единство данных с модулем рекомендаций.
+
+### 5.2. Расположение кода
+
+#### Бэкенд
+*Логика для расчета WHtR и соответствующие эндпоинты.*
 ```
-/lib/
-├── controllers/
-│   └── anthropometry_controller.dart 
+/backend/lib/
 ├── modules/
 │   └── clients/
+│       ├── controllers/
+│       │   └── anthropometry_controller.dart  # Контроллер для обработки запросов по антропометрии.
 │       └── repositories/
-│           └── client_repository.dart 
+│           └── client_repository.dart         # Репозиторий для получения данных клиента, включая замеры.
 └── services/
     └── recommendations/
-        ├── recommendation_service.dart # Основная логика расчетов
-        └── somatotype_helper.dart
+        └── recommendation_service.dart      # Сервис, содержащий бизнес-логику для расчета WHtR.
 ```
 
-### Фронтенд (`/frontend/lib/`)
+#### Фронтенд
+*Основные файлы модуля антропометрии и анализа.*
 ```
-/lib/
-├── modules/
-│   └── clients/
-│       ├── screens/
-│       │   ├── anthropometry_list_screen.dart
-│       │   ├── comparison_screen.dart
-│       │   ├── analysis_screen.dart
-│       │   └── system_recommendation_screen.dart
-│       └── widgets/
-│           └── body_silhouette_painter.dart
-├── providers/
-│   └── auth_provider.dart
-├── services/
-│   ├── api_service.dart
-│   └── api/
-│       ├── client_api.dart
-│       └── admin_api.dart
-└── utils/
-    └── body_shape_helper.dart
+/frontend/lib/
+└── modules/
+    └── clients/
+        ├── providers/
+        │   └── analysis_provider.dart          # Провайдеры для аналитических расчетов (соматотип, тип фигуры, WHtR).
+        ├── screens/
+        │   ├── analysis_comparison_screen.dart # Экран для сравнения аналитики ДВУХ замеров.
+        │   ├── analysis_screen.dart            # Экран для анализа ОДНОГО замера.
+        │   └── system_recommendation_screen.dart # Экран для рекомендаций и генерации промпта для ИИ.
+        └── utils/
+            ├── body_shape_calculator.dart      # Локальный калькулятор для определения типа фигуры.
+            └── somatotype_calculator.dart      # Локальный калькулятор для определения соматотипа.
 ```
+

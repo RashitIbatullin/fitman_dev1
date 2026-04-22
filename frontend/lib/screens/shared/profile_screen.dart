@@ -52,14 +52,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
   Future<void> _saveProfile() async {
     if (!_isDirty()) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Нет изменений для сохранения.'),
-            backgroundColor: Colors.amber,
-          ),
-        );
-      }
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Нет изменений для сохранения.'),
+          backgroundColor: Colors.amber,
+        ),
+      );
       return;
     }
 
@@ -73,7 +72,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
       late User updatedUser;
 
-      // This is the data we want to save for the client profile.
       final clientProfileData = {
         'goal_training_id': _selectedGoalId,
         'level_training_id': _selectedLevelId,
@@ -82,22 +80,19 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       };
 
       if (isSelfEdit) {
-        // A client is editing their own profile.
-        // We anticipate refactoring updateClientProfile to accept a map.
         updatedUser = await ApiService.updateClientProfile(clientProfileData);
-        ref.read(authProvider.notifier).updateUser(updatedUser);
       } else {
-        // An admin/manager is editing a client's profile.
         final request = UpdateUserRequest(
           id: widget.user.id,
-          // We can add other fields here if we want to edit them, e.g., email
-          // email: _emailController.text, 
           clientProfile: clientProfileData,
         );
         updatedUser = await ApiService.updateUser(request);
       }
 
-      // After a successful save, update the local state from the server's response.
+      if (!mounted) return;
+
+      ref.read(authProvider.notifier).updateUser(updatedUser);
+
       setState(() {
         _selectedGoalId = updatedUser.clientProfile?.goalTrainingId;
         _selectedLevelId = updatedUser.clientProfile?.levelTrainingId;
@@ -106,20 +101,17 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         _photoUrl = updatedUser.photoUrl;
       });
 
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Профиль успешно обновлен', style: TextStyle(color: Colors.white)),
-            backgroundColor: Colors.green,
-          ),
-        );
-      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Профиль успешно обновлен', style: TextStyle(color: Colors.white)),
+          backgroundColor: Colors.green,
+        ),
+      );
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Ошибка обновления профиля: $e')),
-        );
-      }
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Ошибка обновления профиля: $e')),
+      );
     } finally {
       if (mounted) {
         setState(() {
@@ -186,9 +178,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildInfoRow(label: 'ID', value: widget.user.id.toString()),
             _buildInfoRow(label: 'ФИО', value: widget.user.fullName),
-            _buildInfoRow(label: 'Email', value: widget.user.email),
             _buildInfoRow(label: 'Телефон', value: widget.user.phone ?? 'не указан'),
             _buildInfoRow(label: 'Пол', value: widget.user.gender ?? 'не указан'),
             _buildInfoRow(
@@ -199,6 +189,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             _buildInfoRow(
                 label: 'Возраст',
                 value: widget.user.age?.toString() ?? 'не указан'),
+            _buildInfoRow(label: 'Email', value: widget.user.email),
             if (widget.user.roles.length > 1 && widget.user.roles.every((r) => r.name != 'client'))
               _buildRolesSection(),
             const Divider(height: 30),
@@ -261,10 +252,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               value: _trackCalories,
               onChanged: canEdit ? (value) => setState(() => _trackCalories = value) : null,
             ),
-            _buildInfoRow(
-              label: 'Коэф. активности',
-              value: _coeffActivity.toString(),
-            ),
+            _buildActivityCoeffRow(canEdit: canEdit),
             const SizedBox(height: 16),
             goalsAsync.when(
               data: (goals) => DropdownButtonFormField<String>(
@@ -302,6 +290,73 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         children: [
           SelectableText(label, style: const TextStyle(fontWeight: FontWeight.bold)),
           SelectableText(value),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActivityCoeffRow({required bool canEdit}) {
+    const helpText = '''Коэффициент физической активности:
+1.2 - Сидячий образ жизни (мало или нет физических нагрузок),
+1.375 - Легкая активность (1-3 тренировки в неделю),
+1.55 - Средняя активность (3-5 тренировок в неделю),
+1.725 - Высокая активность (6-7 тренировок в неделю),
+1.9 - Экстремальная активность (тяжелые тренировки 2 раза в день)''';
+
+    final List<double> coefficients = [1.2, 1.375, 1.55, 1.725, 1.9];
+    final currentCoeff = coefficients.contains(_coeffActivity) ? _coeffActivity : coefficients.first;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          const Text('Коэффициент активности',
+              style: TextStyle(fontWeight: FontWeight.bold)),
+          Expanded(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                if (canEdit)
+                  DropdownButton<double>(
+                    value: currentCoeff,
+                    items: coefficients
+                        .map((coeff) => DropdownMenuItem(
+                            value: coeff, child: Text(coeff.toString())))
+                        .toList(),
+                    onChanged: (newValue) {
+                      if (newValue != null) {
+                        setState(() {
+                          _coeffActivity = newValue;
+                        });
+                      }
+                    },
+                  )
+                else
+                  SelectableText(_coeffActivity.toString()),
+                IconButton(
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                  icon: const Icon(Icons.info_outline, color: Colors.blue),
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text('Коэффициент Активности'),
+                        content: const SelectableText(helpText),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(),
+                            child: const Text('OK'),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
