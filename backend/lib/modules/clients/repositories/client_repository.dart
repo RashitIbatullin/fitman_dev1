@@ -26,9 +26,13 @@ abstract class ClientRepository {
   /// Fetches a single anthropometry measurement by its unique ID.
   Future<AnthropometryMeasurement?> getAnthropometryMeasurementById(
       String measurementId);
-  }
 
-  class ClientRepositoryImpl implements ClientRepository {  ClientRepositoryImpl(this._db);
+  /// Fetches multiple anthropometry measurements by their unique IDs.
+  Future<List<AnthropometryMeasurement>> getMeasurementsByIds(
+      List<String> ids);
+}
+
+class ClientRepositoryImpl implements ClientRepository {  ClientRepositoryImpl(this._db);
 
   final Database _db;
 
@@ -331,5 +335,28 @@ abstract class ClientRepository {
       }
     });
     return newMap;
+  }
+
+  @override
+  Future<List<AnthropometryMeasurement>> getMeasurementsByIds(
+      List<String> ids) async {
+    if (ids.isEmpty) {
+      return [];
+    }
+    try {
+      final conn = await _connection;
+      final result = await conn.execute(
+        Sql.named('SELECT * FROM anthropometry_measurements WHERE id = ANY(@ids)'),
+        parameters: {'ids': ids},
+      );
+
+      return result.map((row) {
+        return AnthropometryMeasurement.fromJson(
+            _convertDateTimeToString(row.toColumnMap()));
+      }).toList();
+    } catch (e) {
+      print('❌ getMeasurementsByIds error: $e');
+      rethrow;
+    }
   }
 }

@@ -83,6 +83,38 @@ class _AnthropometryListScreenState
     });
   }
 
+  // Helper getter for the "Select All" checkbox state
+  bool? _isSelectAll(List<AnthropometryMeasurement> allSelectable) {
+    if (allSelectable.isEmpty || _selectedMeasurementIds.isEmpty) {
+      return false;
+    }
+    // Efficiently check if all selectable IDs are in the selected set.
+    final selectableIds = allSelectable.map((m) => m.id).toSet();
+    if (_selectedMeasurementIds.containsAll(selectableIds)) {
+      return true;
+    }
+    // Check for indeterminate state (at least one common element)
+    if (_selectedMeasurementIds.any((id) => selectableIds.contains(id))) {
+      return null;
+    }
+    return false;
+  }
+
+  // Handler for the "Select All" checkbox
+  void _onSelectAll(
+      bool? newValue, List<AnthropometryMeasurement> allSelectable) {
+    setState(() {
+      if (newValue ?? false) {
+        _selectedMeasurementIds
+            .addAll(allSelectable.map((m) => m.id!));
+      } else {
+        // When deselecting, remove only the currently visible selectable items
+        _selectedMeasurementIds
+            .removeAll(allSelectable.map((m) => m.id));
+      }
+    });
+  }
+
   Future<void> _showArchiveDialog(
       String clientId, AnthropometryMeasurement measurement) async {
     final reasonController = TextEditingController();
@@ -231,8 +263,27 @@ class _AnthropometryListScreenState
                       ? 'Замеры еще не были добавлены.'
                       : 'У вас еще нет ни одного замера.'));
         }
+
+        final selectableMeasurements =
+            measurements.where((m) => m.archivedAt == null).toList();
+
         return Column(
           children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: Row(
+                children: [
+                  Checkbox(
+                    tristate: true,
+                    value: _isSelectAll(selectableMeasurements),
+                    onChanged: (newValue) =>
+                        _onSelectAll(newValue, selectableMeasurements),
+                  ),
+                  const Text('Выбрать все доступные'),
+                ],
+              ),
+            ),
+            const Divider(height: 1),
             Expanded(
               child: ListView.builder(
                 itemCount: measurements.length,
@@ -269,13 +320,12 @@ class _AnthropometryListScreenState
                           ? PopupMenuButton<String>(
                               onSelected: (value) {
                                 if (value == 'edit') {
-                                  Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                          builder: (_) =>
-                                              AnthropometryEditScreen(
-                                                measurement: measurement,
-                                                clientId: targetClientId,
-                                              )));
+                                  Navigator.of(context).push(MaterialPageRoute(
+                                      builder: (_) =>
+                                          AnthropometryEditScreen(
+                                            measurement: measurement,
+                                            clientId: targetClientId,
+                                          )));
                                 } else if (value == 'archive') {
                                   if (measurement.id != null) {
                                     _showArchiveDialog(
@@ -310,8 +360,8 @@ class _AnthropometryListScreenState
                           : null,
                       onTap: () {
                         Navigator.of(context).push(MaterialPageRoute(
-                            builder: (_) =>
-                                AnthropometryDetailScreen(measurement: measurement)));
+                            builder: (_) => AnthropometryDetailScreen(
+                                measurement: measurement)));
                       },
                     ),
                   );
@@ -332,7 +382,8 @@ class _AnthropometryListScreenState
                                 .where((m) =>
                                     _selectedMeasurementIds.contains(m.id))
                                 .toList();
-                            selectedMeasurements.sort((a, b) => a.dateTime.compareTo(b.dateTime));
+                            selectedMeasurements.sort((a, b) =>
+                                a.dateTime.compareTo(b.dateTime));
                             Navigator.of(context).push(MaterialPageRoute(
                               builder: (_) => ComparisonScreen(
                                 first: selectedMeasurements[0],
@@ -344,32 +395,32 @@ class _AnthropometryListScreenState
                     child: const Text('Сравнение'),
                   ),
                   ElevatedButton(
-                    onPressed:
-                        (_selectedMeasurementIds.length == 1 || _selectedMeasurementIds.length == 2)
-                            ? () {
-                                final selectedMeasurements = measurements
-                                    .where((m) => _selectedMeasurementIds
-                                        .contains(m.id))
-                                    .toList();
-                                selectedMeasurements.sort(
-                                    (a, b) => a.dateTime.compareTo(b.dateTime));
+                    onPressed: (_selectedMeasurementIds.length == 1 ||
+                            _selectedMeasurementIds.length == 2)
+                        ? () {
+                            final selectedMeasurements = measurements
+                                .where((m) =>
+                                    _selectedMeasurementIds.contains(m.id))
+                                .toList();
+                            selectedMeasurements.sort((a, b) =>
+                                a.dateTime.compareTo(b.dateTime));
 
-                                if (selectedMeasurements.length == 1) {
-                                  Navigator.of(context).push(MaterialPageRoute(
-                                    builder: (_) => AnalysisScreen(
-                                      measurement: selectedMeasurements[0],
-                                    ),
-                                  ));
-                                } else {
-                                  Navigator.of(context).push(MaterialPageRoute(
-                                    builder: (_) => AnalysisComparisonScreen(
-                                      first: selectedMeasurements[0],
-                                      second: selectedMeasurements[1],
-                                    ),
-                                  ));
-                                }
-                              }
-                            : null,
+                            if (selectedMeasurements.length == 1) {
+                              Navigator.of(context).push(MaterialPageRoute(
+                                builder: (_) => AnalysisScreen(
+                                  measurement: selectedMeasurements[0],
+                                ),
+                              ));
+                            } else {
+                              Navigator.of(context).push(MaterialPageRoute(
+                                builder: (_) => AnalysisComparisonScreen(
+                                  first: selectedMeasurements[0],
+                                  second: selectedMeasurements[1],
+                                ),
+                              ));
+                            }
+                          }
+                        : null,
                     child: const Text('Анализ'),
                   ),
                   ElevatedButton(
@@ -379,10 +430,12 @@ class _AnthropometryListScreenState
                                 .where((m) =>
                                     _selectedMeasurementIds.contains(m.id))
                                 .toList();
-                            selectedMeasurements.sort((a, b) => a.dateTime.compareTo(b.dateTime));
+                            selectedMeasurements.sort((a, b) =>
+                                a.dateTime.compareTo(b.dateTime));
                             Navigator.of(context).push(MaterialPageRoute(
-                              builder: (_) => AnthropometryVisualizationScreen(
-                                measurements: selectedMeasurements,
+                              builder: (_) =>
+                                  AnthropometryVisualizationScreen(
+                                measurementIds: _selectedMeasurementIds.toList(),
                               ),
                             ));
                           }

@@ -106,4 +106,14 @@ class ClientApiService extends BaseApiService {
     final data = await get('/api/client/anthropometry/measurements/$measurementId/whtr');
     return WhtrProfile.fromJson(data);
   }
+
+  Future<List<VisualizationDataPoint>> getVisualizationData(
+      List<String> measurementIds) async {
+    final response = await post(
+      '/api/measurements/visualize',
+      body: {'measurement_ids': measurementIds},
+    );
+    final data = response['data'] as List;
+    return data.map((item) => VisualizationDataPoint.fromJson(item)).toList();
+  }
 }

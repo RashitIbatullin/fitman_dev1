@@ -17,7 +17,6 @@ dependencies:
   freezed_annotation: ^2.4.1
 
   dotenv: ^4.2.0
-  dart_frog: ^1.0.0 # Changed to compatible version
 
   shelf: ^1.4.0
   shelf_router: ^1.1.0

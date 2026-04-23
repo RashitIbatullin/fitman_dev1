@@ -330,6 +330,10 @@ class ApiService {
   static Future<Map<String, dynamic>> getProgressData() =>
       _clientApi.getProgressData();
 
+  static Future<List<VisualizationDataPoint>> getVisualizationData(
+          List<String> measurementIds) =>
+      _clientApi.getVisualizationData(measurementIds);
+
 
   // --- Catalog and Schedule Methods ---
   static Future<List<dynamic>> getTrainingPlans() => _catalogsApi.getTrainingPlans();

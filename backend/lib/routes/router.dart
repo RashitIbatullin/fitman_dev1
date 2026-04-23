@@ -41,6 +41,7 @@ import '../modules/equipment/controllers/repair_time_standard_controller.dart';
 import '../modules/equipment/repositories/repair_time_standard_repository.dart';
 import '../modules/equipment/services/repair_time_standard_service.dart';
 import '../modules/employees/controllers/employee_competency_controller.dart';
+import '../controllers/measurements_controller.dart';
 
 final Database _db = Database();
 
@@ -288,4 +289,5 @@ final Router router = Router()
   })
   ..delete('/api/support-staff/<staffId>/competencies/<compId>', (Request request, String staffId, String compId) {
     return _adminHandler((Request req) => _supportStaffController.deleteCompetency(req, staffId, compId))(request);
-  });
+  })
+  ..post('/api/measurements/visualize', _protectedHandler(MeasurementsController.getVisualizationData));
