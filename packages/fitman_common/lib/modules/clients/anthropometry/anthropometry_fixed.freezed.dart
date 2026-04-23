@@ -20,6 +20,7 @@ AnthropometryFixed _$AnthropometryFixedFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$AnthropometryFixed {
+  String? get id => throw _privateConstructorUsedError;
   String get userId => throw _privateConstructorUsedError;
   int get height => throw _privateConstructorUsedError;
   int get wristCirc => throw _privateConstructorUsedError;
@@ -47,7 +48,8 @@ abstract class $AnthropometryFixedCopyWith<$Res> {
       _$AnthropometryFixedCopyWithImpl<$Res, AnthropometryFixed>;
   @useResult
   $Res call(
-      {String userId,
+      {String? id,
+      String userId,
       int height,
       int wristCirc,
       int ankleCirc,
@@ -73,6 +75,7 @@ class _$AnthropometryFixedCopyWithImpl<$Res, $Val extends AnthropometryFixed>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
+    Object? id = freezed,
     Object? userId = null,
     Object? height = null,
     Object? wristCirc = null,
@@ -84,6 +87,10 @@ class _$AnthropometryFixedCopyWithImpl<$Res, $Val extends AnthropometryFixed>
     Object? updatedBy = freezed,
   }) {
     return _then(_value.copyWith(
+      id: freezed == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String?,
       userId: null == userId
           ? _value.userId
           : userId // ignore: cast_nullable_to_non_nullable
@@ -133,7 +140,8 @@ abstract class _$$AnthropometryFixedImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {String userId,
+      {String? id,
+      String userId,
       int height,
       int wristCirc,
       int ankleCirc,
@@ -157,6 +165,7 @@ class __$$AnthropometryFixedImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
+    Object? id = freezed,
     Object? userId = null,
     Object? height = null,
     Object? wristCirc = null,
@@ -168,6 +177,10 @@ class __$$AnthropometryFixedImplCopyWithImpl<$Res>
     Object? updatedBy = freezed,
   }) {
     return _then(_$AnthropometryFixedImpl(
+      id: freezed == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String?,
       userId: null == userId
           ? _value.userId
           : userId // ignore: cast_nullable_to_non_nullable
@@ -212,7 +225,8 @@ class __$$AnthropometryFixedImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$AnthropometryFixedImpl implements _AnthropometryFixed {
   const _$AnthropometryFixedImpl(
-      {required this.userId,
+      {this.id,
+      required this.userId,
       required this.height,
       required this.wristCirc,
       required this.ankleCirc,
@@ -225,6 +239,8 @@ class _$AnthropometryFixedImpl implements _AnthropometryFixed {
   factory _$AnthropometryFixedImpl.fromJson(Map<String, dynamic> json) =>
       _$$AnthropometryFixedImplFromJson(json);
 
+  @override
+  final String? id;
   @override
   final String userId;
   @override
@@ -246,7 +262,7 @@ class _$AnthropometryFixedImpl implements _AnthropometryFixed {
 
   @override
   String toString() {
-    return 'AnthropometryFixed(userId: $userId, height: $height, wristCirc: $wristCirc, ankleCirc: $ankleCirc, companyId: $companyId, createdAt: $createdAt, updatedAt: $updatedAt, createdBy: $createdBy, updatedBy: $updatedBy)';
+    return 'AnthropometryFixed(id: $id, userId: $userId, height: $height, wristCirc: $wristCirc, ankleCirc: $ankleCirc, companyId: $companyId, createdAt: $createdAt, updatedAt: $updatedAt, createdBy: $createdBy, updatedBy: $updatedBy)';
   }
 
   @override
@@ -254,6 +270,7 @@ class _$AnthropometryFixedImpl implements _AnthropometryFixed {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$AnthropometryFixedImpl &&
+            (identical(other.id, id) || other.id == id) &&
             (identical(other.userId, userId) || other.userId == userId) &&
             (identical(other.height, height) || other.height == height) &&
             (identical(other.wristCirc, wristCirc) ||
@@ -274,7 +291,7 @@ class _$AnthropometryFixedImpl implements _AnthropometryFixed {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, userId, height, wristCirc,
+  int get hashCode => Object.hash(runtimeType, id, userId, height, wristCirc,
       ankleCirc, companyId, createdAt, updatedAt, createdBy, updatedBy);
 
   /// Create a copy of AnthropometryFixed
@@ -296,7 +313,8 @@ class _$AnthropometryFixedImpl implements _AnthropometryFixed {
 
 abstract class _AnthropometryFixed implements AnthropometryFixed {
   const factory _AnthropometryFixed(
-      {required final String userId,
+      {final String? id,
+      required final String userId,
       required final int height,
       required final int wristCirc,
       required final int ankleCirc,
@@ -309,6 +327,8 @@ abstract class _AnthropometryFixed implements AnthropometryFixed {
   factory _AnthropometryFixed.fromJson(Map<String, dynamic> json) =
       _$AnthropometryFixedImpl.fromJson;
 
+  @override
+  String? get id;
   @override
   String get userId;
   @override

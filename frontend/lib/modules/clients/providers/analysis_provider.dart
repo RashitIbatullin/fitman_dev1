@@ -58,7 +58,7 @@ class MetabolicRateParams extends Equatable {
 }
 
 final metabolicRateProvider =
-    FutureProvider.autoDispose.family<Map<String, dynamic>, MetabolicRateParams>(
+    FutureProvider.autoDispose.family<MetabolicProfile, MetabolicRateParams>(
         (ref, params) async {
   return ApiService.getMetabolicRate(params.clientId, params.measurementId);
 });

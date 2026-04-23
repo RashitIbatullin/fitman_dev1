@@ -18,7 +18,8 @@ CASCADE;
 
 -- Таблицы антропометрии
 CREATE TABLE anthropometry_fix (
-    user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
     date_time TIMESTAMPTZ DEFAULT NOW(),
     height INT,
     wrist_circ INT,

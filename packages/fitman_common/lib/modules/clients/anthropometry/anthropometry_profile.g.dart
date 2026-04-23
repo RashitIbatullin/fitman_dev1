@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'whtr.model.dart';
+part of 'anthropometry_profile.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
@@ -28,4 +28,18 @@ Map<String, dynamic> _$$WhtrProfilesImplToJson(_$WhtrProfilesImpl instance) =>
     <String, dynamic>{
       'start': instance.start,
       'finish': instance.finish,
+    };
+
+_$MetabolicProfileImpl _$$MetabolicProfileImplFromJson(
+        Map<String, dynamic> json) =>
+    _$MetabolicProfileImpl(
+      bmr: (json['bmr'] as num).toDouble(),
+      tdee: (json['tdee'] as num).toDouble(),
+    );
+
+Map<String, dynamic> _$$MetabolicProfileImplToJson(
+        _$MetabolicProfileImpl instance) =>
+    <String, dynamic>{
+      'bmr': instance.bmr,
+      'tdee': instance.tdee,
     };

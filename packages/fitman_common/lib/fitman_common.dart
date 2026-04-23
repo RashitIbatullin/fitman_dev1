@@ -17,7 +17,7 @@ export 'modules/equipment/executors/available_executor.model.dart';
 export 'modules/clients/preferences/client_schedule_preference.model.dart';
 export 'modules/clients/dashboard/dashboard_data.model.dart';
 export 'functional/training_catalogs/training_catalogs.model.dart';
-export 'modules/clients/whtr/whtr.model.dart';
+export 'modules/clients/anthropometry/anthropometry_profile.dart';
 export 'functional/work_schedule/work_schedule.model.dart';
 export '/modules/employees/manager_profile.dart';
 export '/modules/employees/trainer_profile.dart';

@@ -3,7 +3,7 @@
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
-part of 'whtr.model.dart';
+part of 'analytical_profiles.dart';
 
 // **************************************************************************
 // FreezedGenerator
@@ -182,197 +182,170 @@ abstract class _WhtrProfile implements WhtrProfile {
       throw _privateConstructorUsedError;
 }
 
-WhtrProfiles _$WhtrProfilesFromJson(Map<String, dynamic> json) {
-  return _WhtrProfiles.fromJson(json);
+MetabolicProfile _$MetabolicProfileFromJson(Map<String, dynamic> json) {
+  return _MetabolicProfile.fromJson(json);
 }
 
 /// @nodoc
-mixin _$WhtrProfiles {
-  WhtrProfile get start => throw _privateConstructorUsedError;
-  WhtrProfile get finish => throw _privateConstructorUsedError;
+mixin _$MetabolicProfile {
+  double get bmr => throw _privateConstructorUsedError;
+  double get tdee => throw _privateConstructorUsedError;
 
-  /// Serializes this WhtrProfiles to a JSON map.
+  /// Serializes this MetabolicProfile to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
 
-  /// Create a copy of WhtrProfiles
+  /// Create a copy of MetabolicProfile
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
-  $WhtrProfilesCopyWith<WhtrProfiles> get copyWith =>
+  $MetabolicProfileCopyWith<MetabolicProfile> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $WhtrProfilesCopyWith<$Res> {
-  factory $WhtrProfilesCopyWith(
-          WhtrProfiles value, $Res Function(WhtrProfiles) then) =
-      _$WhtrProfilesCopyWithImpl<$Res, WhtrProfiles>;
+abstract class $MetabolicProfileCopyWith<$Res> {
+  factory $MetabolicProfileCopyWith(
+          MetabolicProfile value, $Res Function(MetabolicProfile) then) =
+      _$MetabolicProfileCopyWithImpl<$Res, MetabolicProfile>;
   @useResult
-  $Res call({WhtrProfile start, WhtrProfile finish});
-
-  $WhtrProfileCopyWith<$Res> get start;
-  $WhtrProfileCopyWith<$Res> get finish;
+  $Res call({double bmr, double tdee});
 }
 
 /// @nodoc
-class _$WhtrProfilesCopyWithImpl<$Res, $Val extends WhtrProfiles>
-    implements $WhtrProfilesCopyWith<$Res> {
-  _$WhtrProfilesCopyWithImpl(this._value, this._then);
+class _$MetabolicProfileCopyWithImpl<$Res, $Val extends MetabolicProfile>
+    implements $MetabolicProfileCopyWith<$Res> {
+  _$MetabolicProfileCopyWithImpl(this._value, this._then);
 
   // ignore: unused_field
   final $Val _value;
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of WhtrProfiles
+  /// Create a copy of MetabolicProfile
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? start = null,
-    Object? finish = null,
+    Object? bmr = null,
+    Object? tdee = null,
   }) {
     return _then(_value.copyWith(
-      start: null == start
-          ? _value.start
-          : start // ignore: cast_nullable_to_non_nullable
-              as WhtrProfile,
-      finish: null == finish
-          ? _value.finish
-          : finish // ignore: cast_nullable_to_non_nullable
-              as WhtrProfile,
+      bmr: null == bmr
+          ? _value.bmr
+          : bmr // ignore: cast_nullable_to_non_nullable
+              as double,
+      tdee: null == tdee
+          ? _value.tdee
+          : tdee // ignore: cast_nullable_to_non_nullable
+              as double,
     ) as $Val);
   }
-
-  /// Create a copy of WhtrProfiles
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @pragma('vm:prefer-inline')
-  $WhtrProfileCopyWith<$Res> get start {
-    return $WhtrProfileCopyWith<$Res>(_value.start, (value) {
-      return _then(_value.copyWith(start: value) as $Val);
-    });
-  }
-
-  /// Create a copy of WhtrProfiles
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @pragma('vm:prefer-inline')
-  $WhtrProfileCopyWith<$Res> get finish {
-    return $WhtrProfileCopyWith<$Res>(_value.finish, (value) {
-      return _then(_value.copyWith(finish: value) as $Val);
-    });
-  }
 }
 
 /// @nodoc
-abstract class _$$WhtrProfilesImplCopyWith<$Res>
-    implements $WhtrProfilesCopyWith<$Res> {
-  factory _$$WhtrProfilesImplCopyWith(
-          _$WhtrProfilesImpl value, $Res Function(_$WhtrProfilesImpl) then) =
-      __$$WhtrProfilesImplCopyWithImpl<$Res>;
+abstract class _$$MetabolicProfileImplCopyWith<$Res>
+    implements $MetabolicProfileCopyWith<$Res> {
+  factory _$$MetabolicProfileImplCopyWith(_$MetabolicProfileImpl value,
+          $Res Function(_$MetabolicProfileImpl) then) =
+      __$$MetabolicProfileImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({WhtrProfile start, WhtrProfile finish});
-
-  @override
-  $WhtrProfileCopyWith<$Res> get start;
-  @override
-  $WhtrProfileCopyWith<$Res> get finish;
+  $Res call({double bmr, double tdee});
 }
 
 /// @nodoc
-class __$$WhtrProfilesImplCopyWithImpl<$Res>
-    extends _$WhtrProfilesCopyWithImpl<$Res, _$WhtrProfilesImpl>
-    implements _$$WhtrProfilesImplCopyWith<$Res> {
-  __$$WhtrProfilesImplCopyWithImpl(
-      _$WhtrProfilesImpl _value, $Res Function(_$WhtrProfilesImpl) _then)
+class __$$MetabolicProfileImplCopyWithImpl<$Res>
+    extends _$MetabolicProfileCopyWithImpl<$Res, _$MetabolicProfileImpl>
+    implements _$$MetabolicProfileImplCopyWith<$Res> {
+  __$$MetabolicProfileImplCopyWithImpl(_$MetabolicProfileImpl _value,
+      $Res Function(_$MetabolicProfileImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of WhtrProfiles
+  /// Create a copy of MetabolicProfile
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? start = null,
-    Object? finish = null,
+    Object? bmr = null,
+    Object? tdee = null,
   }) {
-    return _then(_$WhtrProfilesImpl(
-      start: null == start
-          ? _value.start
-          : start // ignore: cast_nullable_to_non_nullable
-              as WhtrProfile,
-      finish: null == finish
-          ? _value.finish
-          : finish // ignore: cast_nullable_to_non_nullable
-              as WhtrProfile,
+    return _then(_$MetabolicProfileImpl(
+      bmr: null == bmr
+          ? _value.bmr
+          : bmr // ignore: cast_nullable_to_non_nullable
+              as double,
+      tdee: null == tdee
+          ? _value.tdee
+          : tdee // ignore: cast_nullable_to_non_nullable
+              as double,
     ));
   }
 }
 
 /// @nodoc
 @JsonSerializable()
-class _$WhtrProfilesImpl implements _WhtrProfiles {
-  const _$WhtrProfilesImpl({required this.start, required this.finish});
+class _$MetabolicProfileImpl implements _MetabolicProfile {
+  const _$MetabolicProfileImpl({required this.bmr, required this.tdee});
 
-  factory _$WhtrProfilesImpl.fromJson(Map<String, dynamic> json) =>
-      _$$WhtrProfilesImplFromJson(json);
+  factory _$MetabolicProfileImpl.fromJson(Map<String, dynamic> json) =>
+      _$$MetabolicProfileImplFromJson(json);
 
   @override
-  final WhtrProfile start;
+  final double bmr;
   @override
-  final WhtrProfile finish;
+  final double tdee;
 
   @override
   String toString() {
-    return 'WhtrProfiles(start: $start, finish: $finish)';
+    return 'MetabolicProfile(bmr: $bmr, tdee: $tdee)';
   }
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$WhtrProfilesImpl &&
-            (identical(other.start, start) || other.start == start) &&
-            (identical(other.finish, finish) || other.finish == finish));
+            other is _$MetabolicProfileImpl &&
+            (identical(other.bmr, bmr) || other.bmr == bmr) &&
+            (identical(other.tdee, tdee) || other.tdee == tdee));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, start, finish);
+  int get hashCode => Object.hash(runtimeType, bmr, tdee);
 
-  /// Create a copy of WhtrProfiles
+  /// Create a copy of MetabolicProfile
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
-  _$$WhtrProfilesImplCopyWith<_$WhtrProfilesImpl> get copyWith =>
-      __$$WhtrProfilesImplCopyWithImpl<_$WhtrProfilesImpl>(this, _$identity);
+  _$$MetabolicProfileImplCopyWith<_$MetabolicProfileImpl> get copyWith =>
+      __$$MetabolicProfileImplCopyWithImpl<_$MetabolicProfileImpl>(
+          this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$WhtrProfilesImplToJson(
+    return _$$MetabolicProfileImplToJson(
       this,
     );
   }
 }
 
-abstract class _WhtrProfiles implements WhtrProfiles {
-  const factory _WhtrProfiles(
-      {required final WhtrProfile start,
-      required final WhtrProfile finish}) = _$WhtrProfilesImpl;
+abstract class _MetabolicProfile implements MetabolicProfile {
+  const factory _MetabolicProfile(
+      {required final double bmr,
+      required final double tdee}) = _$MetabolicProfileImpl;
 
-  factory _WhtrProfiles.fromJson(Map<String, dynamic> json) =
-      _$WhtrProfilesImpl.fromJson;
+  factory _MetabolicProfile.fromJson(Map<String, dynamic> json) =
+      _$MetabolicProfileImpl.fromJson;
 
   @override
-  WhtrProfile get start;
+  double get bmr;
   @override
-  WhtrProfile get finish;
+  double get tdee;
 
-  /// Create a copy of WhtrProfiles
+  /// Create a copy of MetabolicProfile
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$WhtrProfilesImplCopyWith<_$WhtrProfilesImpl> get copyWith =>
+  _$$MetabolicProfileImplCopyWith<_$MetabolicProfileImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

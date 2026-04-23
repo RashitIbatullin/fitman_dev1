@@ -9,6 +9,7 @@ part of 'anthropometry_fixed.dart';
 _$AnthropometryFixedImpl _$$AnthropometryFixedImplFromJson(
         Map<String, dynamic> json) =>
     _$AnthropometryFixedImpl(
+      id: json['id'] as String?,
       userId: json['user_id'] as String,
       height: (json['height'] as num).toInt(),
       wristCirc: (json['wrist_circ'] as num).toInt(),
@@ -25,6 +26,7 @@ _$AnthropometryFixedImpl _$$AnthropometryFixedImplFromJson(
 Map<String, dynamic> _$$AnthropometryFixedImplToJson(
         _$AnthropometryFixedImpl instance) =>
     <String, dynamic>{
+      'id': instance.id,
       'user_id': instance.userId,
       'height': instance.height,
       'wrist_circ': instance.wristCirc,

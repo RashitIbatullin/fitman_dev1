@@ -1,7 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-part 'whtr.model.freezed.dart';
-part 'whtr.model.g.dart';
+part 'anthropometry_profile.freezed.dart';
+part 'anthropometry_profile.g.dart';
 
 @freezed
 class WhtrProfile with _$WhtrProfile {
@@ -23,4 +23,15 @@ class WhtrProfiles with _$WhtrProfiles {
 
   factory WhtrProfiles.fromJson(Map<String, dynamic> json) =>
       _$WhtrProfilesFromJson(json);
+}
+
+@freezed
+class MetabolicProfile with _$MetabolicProfile {
+  const factory MetabolicProfile({
+    required double bmr,
+    required double tdee,
+  }) = _MetabolicProfile;
+
+  factory MetabolicProfile.fromJson(Map<String, dynamic> json) =>
+      _$MetabolicProfileFromJson(json);
 }

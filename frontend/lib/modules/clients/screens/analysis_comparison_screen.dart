@@ -202,9 +202,8 @@ class _MetabolicRateComparisonCard extends ConsumerWidget {
             const SizedBox(height: 12),
             async1.when(
               data: (data1) {
-                if (data1.isEmpty) return const Text('Нет данных для замера 1');
-                final bmr1 = (data1['bmr'] as double).toStringAsFixed(0);
-                final tdee1 = (data1['tdee'] as double).toStringAsFixed(0);
+                final bmr1 = data1.bmr.toStringAsFixed(0);
+                final tdee1 = data1.tdee.toStringAsFixed(0);
                 return _buildComparisonRow(
                   context: context,
                   date: first.dateTime,
@@ -219,9 +218,8 @@ class _MetabolicRateComparisonCard extends ConsumerWidget {
             const SizedBox(height: 8),
             async2.when(
               data: (data2) {
-                if (data2.isEmpty) return const Text('Нет данных для замера 2');
-                final bmr2 = (data2['bmr'] as double).toStringAsFixed(0);
-                final tdee2 = (data2['tdee'] as double).toStringAsFixed(0);
+                final bmr2 = data2.bmr.toStringAsFixed(0);
+                final tdee2 = data2.tdee.toStringAsFixed(0);
                 return _buildComparisonRow(
                   context: context,
                   date: second.dateTime,

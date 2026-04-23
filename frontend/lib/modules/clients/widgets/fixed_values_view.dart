@@ -101,6 +101,7 @@ class _FixedValuesViewState extends ConsumerState<FixedValuesView> {
             ref.read(fixedAnthropometryProvider(widget.clientId)).asData?.value;
 
         final dataToSave = AnthropometryFixed(
+          id: existingData?.id,
           userId: widget.clientId,
           height: height,
           wristCirc: wristCirc,

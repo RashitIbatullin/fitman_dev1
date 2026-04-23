@@ -18,43 +18,7 @@ class _ClientData {
   });
 }
 
-class WhtrProfile {
-  final double ratio;
-  final String gradation;
 
-  WhtrProfile({required this.ratio, required this.gradation});
-
-  Map<String, dynamic> toJson() {
-    return {
-      'ratio': ratio,
-      'gradation': gradation,
-    };
-  }
-}
-
-// New class to hold both start and finish profiles
-class WhtrProfiles {
-  final WhtrProfile start;
-  final WhtrProfile finish;
-
-  WhtrProfiles({required this.start, required this.finish});
-
-  Map<String, dynamic> toJson() {
-    return {
-      'start': start.toJson(),
-      'finish': finish.toJson(),
-    };
-  }
-}
-
-class MetabolicProfile {
-  final double bmr;
-  final double tdee;
-
-  MetabolicProfile({required this.bmr, required this.tdee});
-
-  Map<String, dynamic> toJson() => {'bmr': bmr, 'tdee': tdee};
-}
 
 class RecommendationService {
   final db = Database();

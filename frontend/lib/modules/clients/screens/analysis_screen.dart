@@ -190,21 +190,12 @@ class _WhtrCard extends StatelessWidget {
 
 class _MetabolicRateCard extends StatelessWidget {
   const _MetabolicRateCard({required this.data});
-  final Map<String, dynamic> data;
+  final MetabolicProfile data;
 
   @override
   Widget build(BuildContext context) {
-    final bmr = data['bmr'] as double?;
-    final tdee = data['tdee'] as double?;
-    
-    if (bmr == null || tdee == null) {
-      return const Card(
-        child: Padding(
-          padding: EdgeInsets.all(16.0),
-          child: Text('Недостаточно данных для расчета BMR/TDEE (требуется % жира).'),
-        ),
-      );
-    }
+    final bmr = data.bmr;
+    final tdee = data.tdee;
 
     return Card(
       child: Padding(

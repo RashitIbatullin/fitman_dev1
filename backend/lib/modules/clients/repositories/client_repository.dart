@@ -209,8 +209,8 @@ abstract class ClientRepository {
 
       final result = await conn.execute(
         Sql.named('''
-        INSERT INTO anthropometry_fix (user_id, height, wrist_circ, ankle_circ, created_by, updated_by, company_id, updated_at)
-        VALUES (@user_id, @height, @wrist_circ, @ankle_circ, @created_by, @updated_by, @company_id, NOW())
+        INSERT INTO anthropometry_fix (id, user_id, height, wrist_circ, ankle_circ, created_by, updated_by, company_id, updated_at)
+        VALUES (COALESCE(@id, gen_random_uuid()), @user_id, @height, @wrist_circ, @ankle_circ, @created_by, @updated_by, @company_id, NOW())
         ON CONFLICT (user_id) DO UPDATE
         SET 
           height = EXCLUDED.height,
