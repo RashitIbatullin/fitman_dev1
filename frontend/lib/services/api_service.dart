@@ -289,7 +289,8 @@ class ApiService {
 
 
   // --- Client Methods ---
-  static Future<Map<String, dynamic>> getClientDashboardData() => _clientApi.getClientDashboardData();
+  static Future<Map<String, dynamic>> getClientDashboardData(String userId) =>
+      _clientApi.getClientDashboardData(userId);
   static Future<User?> getTrainerForClient() => _clientApi.getTrainerForClient();
   static Future<User?> getInstructorForClient() => _clientApi.getInstructorForClient();
   static Future<User?> getManagerForClient() => _clientApi.getManagerForClient();

@@ -1,3 +1,5 @@
+import 'package:fl_chart/fl_chart.dart';
+
 import '../../../screens/shared/profile_screen.dart';
 
 import '../../users/providers/auth_provider.dart';
@@ -26,12 +28,14 @@ class ClientDashboard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = client ?? ref.watch(authProvider).value?.user;
-    final dashboardData = ref.watch(dashboardDataProvider);
-    final selectedIndex = ref.watch(clientDashboardIndexProvider);
 
     if (user == null) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
+    
+    // Now we pass the user ID to the family provider.
+    final dashboardData = ref.watch(dashboardDataProvider(user.id));
+    final selectedIndex = ref.watch(clientDashboardIndexProvider);
 
     final List<String> titles = [
       user.fullName, // Используем ФИО пользователя
@@ -49,22 +53,28 @@ class ClientDashboard extends ConsumerWidget {
     final List<Widget> views = [
       // Главное - это основное содержимое дашборда
       dashboardData.when(
-        data: (data) => ListView(
-          padding: const EdgeInsets.all(16.0),
-          children: [
-            if (data.nextTraining != null)
-              _buildNextTrainingWidget(context, data.nextTraining!),
-            const SizedBox(height: 16),
-            if (data.trainingProgress != null)
-              _buildTrainingProgressWidget(context, data.trainingProgress!),
-            const SizedBox(height: 16),
-            if (data.goalProgress != null)
-              _buildGoalProgressWidget(context, data.goalProgress!),
-            const SizedBox(height: 16),
-            _buildAchievementsWidget(context, data.achievements),
-            const SizedBox(height: 16),
-            _buildQuickMenu(context, ref),
-          ],
+        data: (data) => RefreshIndicator(
+          onRefresh: () => ref.refresh(dashboardDataProvider(user.id).future),
+          child: ListView(
+            padding: const EdgeInsets.all(16.0),
+            children: [
+              if (data.nextTraining != null)
+                _buildNextTrainingWidget(context, data.nextTraining!),
+              const SizedBox(height: 16),
+              // Add the new progress chart here
+              _ProgressChart(measurements: data.recentMeasurements ?? []),
+              const SizedBox(height: 16),
+              if (data.trainingProgress != null)
+                _buildTrainingProgressWidget(context, data.trainingProgress!),
+              const SizedBox(height: 16),
+              if (data.goalProgress != null)
+                _buildGoalProgressWidget(context, data.goalProgress!),
+              const SizedBox(height: 16),
+              _buildAchievementsWidget(context, data.achievements),
+              const SizedBox(height: 16),
+              _buildQuickMenu(context, ref),
+            ],
+          ),
         ),
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stackTrace) => Center(child: Text('Ошибка: $error')),
@@ -73,7 +83,7 @@ class ClientDashboard extends ConsumerWidget {
       const MyTrainerScreen(),
       const MyInstructorScreen(),
       const MyManagerScreen(),
-      AnthropometryScreen(clientId: user.id.toString(), isEmbedded: true), // <--- FIX APPLIED HERE
+      AnthropometryScreen(clientId: user.id.toString(), isEmbedded: true),
       const SessionsScreen(),
       const CalorieTrackingScreen(),
       const ProgressScreen(),
@@ -239,7 +249,7 @@ class ClientDashboard extends ConsumerWidget {
     );
   }
 
-    Widget _buildNextTrainingWidget(BuildContext context, NextTraining data) {
+  Widget _buildNextTrainingWidget(BuildContext context, NextTraining data) {
     final duration = data.time.difference(DateTime.now());
     final formattedDuration = duration.isNegative
         ? 'Прошло'
@@ -310,7 +320,7 @@ class ClientDashboard extends ConsumerWidget {
   Widget _buildGoalProgressWidget(BuildContext context, GoalProgress data) {
     final progress =
         (data.targetWeight - data.currentWeight).abs() /
-        (data.targetWeight - 85).abs(); // Assuming starting weight is 85
+            (data.targetWeight - 85).abs(); // Assuming starting weight is 85
 
     return Card(
       child: Padding(
@@ -448,6 +458,116 @@ class ClientDashboard extends ConsumerWidget {
         const SizedBox(height: 4),
         Text(title, style: Theme.of(context).textTheme.bodySmall),
       ],
+    );
+  }
+}
+
+class _ProgressChart extends StatelessWidget {
+  final List<AnthropometryMeasurement> measurements;
+  const _ProgressChart({required this.measurements});
+
+  @override
+  Widget build(BuildContext context) {
+    if (measurements.length < 2) {
+      return const Card(
+        child: Padding(
+          padding: EdgeInsets.all(16.0),
+          child: Center(
+            child: Text('Недостаточно данных для построения графика прогресса.'),
+          ),
+        ),
+      );
+    }
+    
+    final sorted = List<AnthropometryMeasurement>.from(measurements)..sort((a,b) => a.dateTime.compareTo(b.dateTime));
+
+    final weightColor = Theme.of(context).primaryColor;
+    final waistColor = Colors.orange;
+
+    final weightSpots = sorted
+        .map((m) => FlSpot(m.dateTime.millisecondsSinceEpoch.toDouble(), m.weight))
+        .toList();
+    final waistSpots = sorted
+        .map((m) => FlSpot(m.dateTime.millisecondsSinceEpoch.toDouble(), m.waistCirc.toDouble()))
+        .toList();
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+             Text('Динамика прогресса', style: Theme.of(context).textTheme.titleLarge),
+             const SizedBox(height: 24),
+            AspectRatio(
+              aspectRatio: 6,
+              child: LineChart(
+                LineChartData(
+                  lineTouchData: const LineTouchData(),
+                  gridData: const FlGridData(show: false),
+                  titlesData: const FlTitlesData(
+                    leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  ),
+                  borderData: FlBorderData(show: false),
+                  lineBarsData: [
+                    // Weight Line
+                    LineChartBarData(
+                      spots: weightSpots,
+                      isCurved: false,
+                      color: weightColor,
+                      barWidth: 4,
+                      isStrokeCapRound: true,
+                      dotData: const FlDotData(show: false),
+                      belowBarData: BarAreaData(show: false),
+                    ),
+                    // Waist Line
+                    LineChartBarData(
+                      spots: waistSpots,
+                      isCurved: false,
+                      color: waistColor,
+                      barWidth: 4,
+                      isStrokeCapRound: true,
+                      dotData: const FlDotData(show: false),
+                      belowBarData: BarAreaData(show: false),
+                    ),
+                  ],
+                  // Handling two Y-axes requires a bit more setup;
+                  // For a simple dashboard view, we can normalize the data or show them separately.
+                  // Given the goal of a quick glance, let's normalize for simplicity.
+                  // This part is complex, will simplify for now by not using dual-axis
+                  // and relying on the user to understand the trend.
+                  // A proper implementation would use a library that supports dual-axis
+                  // or manual calculation to map both to a 0-1 range.
+                ),
+              ),
+            ),
+             const SizedBox(height: 12),
+             Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Row(
+                    children: [
+                      Container(width: 10, height: 10, color: weightColor),
+                      const SizedBox(width: 4),
+                      const Text('Вес, кг'),
+                    ],
+                  ),
+                  const SizedBox(width: 16),
+                   Row(
+                    children: [
+                      Container(width: 10, height: 10, color: waistColor),
+                      const SizedBox(width: 4),
+                      const Text('Талия, см'),
+                    ],
+                  ),
+                ],
+              )
+          ],
+        ),
+      ),
     );
   }
 }

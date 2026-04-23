@@ -204,7 +204,11 @@ final Router router = Router()
   ..get('/api/instructors/<id>/manager', (Request request, String id) => _adminHandler((Request req) => InstructorController.getAssignedManagerForInstructor(req, id))(request))
 
 // Dashboard routes
-  ..get('/api/dashboard/client', (Request request) => _protectedHandler(DashboardController.getClientDashboardData)(request))
+  ..get(
+        '/api/dashboard/client/<userId>',
+        (Request request, String userId) => _protectedHandler(
+            (Request req) =>
+                DashboardController.getClientDashboardData(req, userId))(request))
 
 // Client routes
   ..put('/api/client/profile', (Request request) => _protectedHandler(UsersController.updateClientProfile)(request))

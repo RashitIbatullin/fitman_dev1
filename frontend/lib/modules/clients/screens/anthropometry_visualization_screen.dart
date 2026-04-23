@@ -147,7 +147,7 @@ class _WeightChart extends _BaseChart {
               lineBarsData: [
                 LineChartBarData(
                   spots: spots,
-                  isCurved: true,
+                  isCurved: false,
                   color: Theme.of(context).primaryColor,
                   barWidth: 4,
                   isStrokeCapRound: true,
@@ -197,7 +197,7 @@ class _CircumferencesChart extends _BaseChart {
               lineBarsData: lines.entries
                   .map((entry) => LineChartBarData(
                         spots: entry.value,
-                        isCurved: true,
+                        isCurved: false,
                         color: chartColors[lines.keys.toList().indexOf(entry.key)],
                         barWidth: 3,
                         dotData: const FlDotData(show: false),
@@ -247,7 +247,7 @@ class _WhtrChart extends _BaseChart {
               lineBarsData: [
                 LineChartBarData(
                   spots: spots,
-                  isCurved: true,
+                  isCurved: false,
                   color: Colors.deepOrange,
                   barWidth: 4,
                   dotData: const FlDotData(show: true),
@@ -288,8 +288,8 @@ class _MetabolismChart extends _BaseChart {
               titlesData: _titlesData,
               borderData: FlBorderData(show: true),
               lineBarsData: [
-                LineChartBarData(spots: bmrSpots, isCurved: true, color: Colors.cyan, barWidth: 3),
-                LineChartBarData(spots: tdeeSpots, isCurved: true, color: Colors.amber, barWidth: 3),
+                LineChartBarData(spots: bmrSpots, isCurved: false, color: Colors.cyan, barWidth: 3),
+                LineChartBarData(spots: tdeeSpots, isCurved: false, color: Colors.amber, barWidth: 3),
               ],
             ),
           ),

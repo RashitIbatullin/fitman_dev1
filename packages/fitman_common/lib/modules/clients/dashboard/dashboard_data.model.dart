@@ -1,3 +1,4 @@
+import 'package:fitman_common/modules/clients/anthropometry/anthropometry_measurement.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'dashboard_data.model.freezed.dart';
@@ -10,6 +11,7 @@ class DashboardData with _$DashboardData {
     TrainingProgress? trainingProgress,
     GoalProgress? goalProgress,
     required List<Achievement> achievements,
+    List<AnthropometryMeasurement>? recentMeasurements,
   }) = _DashboardData;
 
   factory DashboardData.fromJson(Map<String, dynamic> json) =>

@@ -23,6 +23,10 @@ _$DashboardDataImpl _$$DashboardDataImplFromJson(Map<String, dynamic> json) =>
       achievements: (json['achievements'] as List<dynamic>)
           .map((e) => Achievement.fromJson(e as Map<String, dynamic>))
           .toList(),
+      recentMeasurements: (json['recent_measurements'] as List<dynamic>?)
+          ?.map((e) =>
+              AnthropometryMeasurement.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
 
 Map<String, dynamic> _$$DashboardDataImplToJson(_$DashboardDataImpl instance) =>
@@ -31,6 +35,7 @@ Map<String, dynamic> _$$DashboardDataImplToJson(_$DashboardDataImpl instance) =>
       'training_progress': instance.trainingProgress,
       'goal_progress': instance.goalProgress,
       'achievements': instance.achievements,
+      'recent_measurements': instance.recentMeasurements,
     };
 
 _$NextTrainingImpl _$$NextTrainingImplFromJson(Map<String, dynamic> json) =>

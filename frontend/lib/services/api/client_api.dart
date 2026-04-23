@@ -7,8 +7,8 @@ import 'base_api.dart';
 class ClientApiService extends BaseApiService {
   ClientApiService({super.client});
 
-  Future<Map<String, dynamic>> getClientDashboardData() async {
-    return await get('/api/dashboard/client');
+  Future<Map<String, dynamic>> getClientDashboardData(String userId) async {
+    return await get('/api/dashboard/client/$userId');
   }
 
   Future<User?> getTrainerForClient() async {

@@ -8,6 +8,7 @@ abstract class ClientRepository {
   Future<List<AnthropometryMeasurement>> getAnthropometryMeasurements(
     String clientId, {
     bool includeArchived,
+    int? limit,
   });
   Future<AnthropometryMeasurement> saveAnthropometryMeasurement(
     AnthropometryMeasurement measurement,
@@ -85,9 +86,11 @@ class ClientRepositoryImpl implements ClientRepository {  ClientRepositoryImpl(t
   Future<List<AnthropometryMeasurement>> getAnthropometryMeasurements(
     String clientId, {
     bool includeArchived = false,
+    int? limit,
   }) async {
     try {
       final conn = await _connection;
+      final params = <String, dynamic>{'clientId': clientId};
       var query = '''
           SELECT id, user_id, date_time, 
                  weight, shoulders_circ, breast_circ, waist_circ, hips_circ,
@@ -106,9 +109,14 @@ class ClientRepositoryImpl implements ClientRepository {  ClientRepositoryImpl(t
 
       query += ' ORDER BY date_time DESC';
 
+      if (limit != null) {
+        query += ' LIMIT @limit';
+        params['limit'] = limit;
+      }
+
       final result = await conn.execute(
         Sql.named(query),
-        parameters: {'clientId': clientId},
+        parameters: params,
       );
 
       return result.map((row) {

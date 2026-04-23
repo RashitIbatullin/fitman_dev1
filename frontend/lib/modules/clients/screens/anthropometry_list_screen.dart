@@ -370,95 +370,92 @@ class _AnthropometryListScreenState
             ),
             Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Wrap(
-                spacing: 8.0,
-                runSpacing: 8.0,
-                alignment: WrapAlignment.center,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  ElevatedButton(
-                    onPressed: _selectedMeasurementIds.length == 2
-                        ? () {
-                            final selectedMeasurements = measurements
-                                .where((m) =>
-                                    _selectedMeasurementIds.contains(m.id))
-                                .toList();
-                            selectedMeasurements.sort((a, b) =>
-                                a.dateTime.compareTo(b.dateTime));
+                  PopupMenuButton<String>(
+                    enabled: _selectedMeasurementIds.isNotEmpty,
+                    onSelected: (value) {
+                      final selectedMeasurements = measurements
+                          .where(
+                              (m) => _selectedMeasurementIds.contains(m.id))
+                          .toList()
+                        ..sort((a, b) => a.dateTime.compareTo(b.dateTime));
+
+                      switch (value) {
+                        case 'compare':
+                          Navigator.of(context).push(MaterialPageRoute(
+                            builder: (_) => ComparisonScreen(
+                              first: selectedMeasurements[0],
+                              second: selectedMeasurements[1],
+                            ),
+                          ));
+                          break;
+                        case 'analyze':
+                          if (selectedMeasurements.length == 1) {
                             Navigator.of(context).push(MaterialPageRoute(
-                              builder: (_) => ComparisonScreen(
+                              builder: (_) => AnalysisScreen(
+                                measurement: selectedMeasurements[0],
+                              ),
+                            ));
+                          } else {
+                            Navigator.of(context).push(MaterialPageRoute(
+                              builder: (_) => AnalysisComparisonScreen(
                                 first: selectedMeasurements[0],
                                 second: selectedMeasurements[1],
                               ),
                             ));
                           }
-                        : null,
-                    child: const Text('Сравнение'),
-                  ),
-                  ElevatedButton(
-                    onPressed: (_selectedMeasurementIds.length == 1 ||
-                            _selectedMeasurementIds.length == 2)
-                        ? () {
-                            final selectedMeasurements = measurements
-                                .where((m) =>
-                                    _selectedMeasurementIds.contains(m.id))
-                                .toList();
-                            selectedMeasurements.sort((a, b) =>
-                                a.dateTime.compareTo(b.dateTime));
-
-                            if (selectedMeasurements.length == 1) {
-                              Navigator.of(context).push(MaterialPageRoute(
-                                builder: (_) => AnalysisScreen(
-                                  measurement: selectedMeasurements[0],
-                                ),
-                              ));
-                            } else {
-                              Navigator.of(context).push(MaterialPageRoute(
-                                builder: (_) => AnalysisComparisonScreen(
-                                  first: selectedMeasurements[0],
-                                  second: selectedMeasurements[1],
-                                ),
-                              ));
-                            }
-                          }
-                        : null,
-                    child: const Text('Анализ'),
-                  ),
-                  ElevatedButton(
-                    onPressed: _selectedMeasurementIds.isNotEmpty
-                        ? () {
-                            final selectedMeasurements = measurements
-                                .where((m) =>
-                                    _selectedMeasurementIds.contains(m.id))
-                                .toList();
-                            selectedMeasurements.sort((a, b) =>
-                                a.dateTime.compareTo(b.dateTime));
-                            Navigator.of(context).push(MaterialPageRoute(
-                              builder: (_) =>
-                                  AnthropometryVisualizationScreen(
-                                measurementIds: _selectedMeasurementIds.toList(),
-                              ),
-                            ));
-                          }
-                        : null,
-                    child: const Text('Визуализация'),
-                  ),
-                  ElevatedButton(
-                    onPressed: _selectedMeasurementIds.isNotEmpty
-                        ? () {
-                            final latestMeasurement = measurements
-                                .where((m) =>
-                                    _selectedMeasurementIds.contains(m.id))
-                                .reduce((a, b) =>
-                                    a.dateTime.isAfter(b.dateTime) ? a : b);
-                            Navigator.of(context).push(MaterialPageRoute(
-                              builder: (_) => SystemRecommendationScreen(
-                                measurement: latestMeasurement,
-                                clientId: targetClientId,
-                              ),
-                            ));
-                          }
-                        : null,
-                    child: const Text('Рекомендации'),
+                          break;
+                        case 'visualize':
+                          Navigator.of(context).push(MaterialPageRoute(
+                            builder: (_) => AnthropometryVisualizationScreen(
+                              measurementIds: _selectedMeasurementIds.toList(),
+                            ),
+                          ));
+                          break;
+                        case 'recommend':
+                          final latestMeasurement = selectedMeasurements.reduce(
+                              (a, b) => a.dateTime.isAfter(b.dateTime) ? a : b);
+                          Navigator.of(context).push(MaterialPageRoute(
+                            builder: (_) => SystemRecommendationScreen(
+                              measurement: latestMeasurement,
+                              clientId: targetClientId,
+                            ),
+                          ));
+                          break;
+                      }
+                    },
+                    itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                      PopupMenuItem<String>(
+                        value: 'compare',
+                        enabled: _selectedMeasurementIds.length == 2,
+                        child: const Text('Сравнение'),
+                      ),
+                      PopupMenuItem<String>(
+                        value: 'analyze',
+                        enabled: _selectedMeasurementIds.length == 1 ||
+                            _selectedMeasurementIds.length == 2,
+                        child: const Text('Анализ'),
+                      ),
+                      PopupMenuItem<String>(
+                        value: 'visualize',
+                        enabled: _selectedMeasurementIds.isNotEmpty,
+                        child: const Text('Визуализация'),
+                      ),
+                      PopupMenuItem<String>(
+                        value: 'recommend',
+                        enabled: _selectedMeasurementIds.isNotEmpty,
+                        child: const Text('Рекомендации'),
+                      ),
+                    ],
+                    child: const Tooltip(
+                      message: 'Действия с выбранными замерами',
+                      child: Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Icon(Icons.more_vert),
+                      ),
+                    ),
                   ),
                 ],
               ),

@@ -24,6 +24,8 @@ mixin _$DashboardData {
   TrainingProgress? get trainingProgress => throw _privateConstructorUsedError;
   GoalProgress? get goalProgress => throw _privateConstructorUsedError;
   List<Achievement> get achievements => throw _privateConstructorUsedError;
+  List<AnthropometryMeasurement>? get recentMeasurements =>
+      throw _privateConstructorUsedError;
 
   /// Serializes this DashboardData to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -45,7 +47,8 @@ abstract class $DashboardDataCopyWith<$Res> {
       {NextTraining? nextTraining,
       TrainingProgress? trainingProgress,
       GoalProgress? goalProgress,
-      List<Achievement> achievements});
+      List<Achievement> achievements,
+      List<AnthropometryMeasurement>? recentMeasurements});
 
   $NextTrainingCopyWith<$Res>? get nextTraining;
   $TrainingProgressCopyWith<$Res>? get trainingProgress;
@@ -71,6 +74,7 @@ class _$DashboardDataCopyWithImpl<$Res, $Val extends DashboardData>
     Object? trainingProgress = freezed,
     Object? goalProgress = freezed,
     Object? achievements = null,
+    Object? recentMeasurements = freezed,
   }) {
     return _then(_value.copyWith(
       nextTraining: freezed == nextTraining
@@ -89,6 +93,10 @@ class _$DashboardDataCopyWithImpl<$Res, $Val extends DashboardData>
           ? _value.achievements
           : achievements // ignore: cast_nullable_to_non_nullable
               as List<Achievement>,
+      recentMeasurements: freezed == recentMeasurements
+          ? _value.recentMeasurements
+          : recentMeasurements // ignore: cast_nullable_to_non_nullable
+              as List<AnthropometryMeasurement>?,
     ) as $Val);
   }
 
@@ -147,7 +155,8 @@ abstract class _$$DashboardDataImplCopyWith<$Res>
       {NextTraining? nextTraining,
       TrainingProgress? trainingProgress,
       GoalProgress? goalProgress,
-      List<Achievement> achievements});
+      List<Achievement> achievements,
+      List<AnthropometryMeasurement>? recentMeasurements});
 
   @override
   $NextTrainingCopyWith<$Res>? get nextTraining;
@@ -174,6 +183,7 @@ class __$$DashboardDataImplCopyWithImpl<$Res>
     Object? trainingProgress = freezed,
     Object? goalProgress = freezed,
     Object? achievements = null,
+    Object? recentMeasurements = freezed,
   }) {
     return _then(_$DashboardDataImpl(
       nextTraining: freezed == nextTraining
@@ -192,6 +202,10 @@ class __$$DashboardDataImplCopyWithImpl<$Res>
           ? _value._achievements
           : achievements // ignore: cast_nullable_to_non_nullable
               as List<Achievement>,
+      recentMeasurements: freezed == recentMeasurements
+          ? _value._recentMeasurements
+          : recentMeasurements // ignore: cast_nullable_to_non_nullable
+              as List<AnthropometryMeasurement>?,
     ));
   }
 }
@@ -203,8 +217,10 @@ class _$DashboardDataImpl implements _DashboardData {
       {this.nextTraining,
       this.trainingProgress,
       this.goalProgress,
-      required final List<Achievement> achievements})
-      : _achievements = achievements;
+      required final List<Achievement> achievements,
+      final List<AnthropometryMeasurement>? recentMeasurements})
+      : _achievements = achievements,
+        _recentMeasurements = recentMeasurements;
 
   factory _$DashboardDataImpl.fromJson(Map<String, dynamic> json) =>
       _$$DashboardDataImplFromJson(json);
@@ -223,9 +239,20 @@ class _$DashboardDataImpl implements _DashboardData {
     return EqualUnmodifiableListView(_achievements);
   }
 
+  final List<AnthropometryMeasurement>? _recentMeasurements;
+  @override
+  List<AnthropometryMeasurement>? get recentMeasurements {
+    final value = _recentMeasurements;
+    if (value == null) return null;
+    if (_recentMeasurements is EqualUnmodifiableListView)
+      return _recentMeasurements;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(value);
+  }
+
   @override
   String toString() {
-    return 'DashboardData(nextTraining: $nextTraining, trainingProgress: $trainingProgress, goalProgress: $goalProgress, achievements: $achievements)';
+    return 'DashboardData(nextTraining: $nextTraining, trainingProgress: $trainingProgress, goalProgress: $goalProgress, achievements: $achievements, recentMeasurements: $recentMeasurements)';
   }
 
   @override
@@ -240,13 +267,20 @@ class _$DashboardDataImpl implements _DashboardData {
             (identical(other.goalProgress, goalProgress) ||
                 other.goalProgress == goalProgress) &&
             const DeepCollectionEquality()
-                .equals(other._achievements, _achievements));
+                .equals(other._achievements, _achievements) &&
+            const DeepCollectionEquality()
+                .equals(other._recentMeasurements, _recentMeasurements));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, nextTraining, trainingProgress,
-      goalProgress, const DeepCollectionEquality().hash(_achievements));
+  int get hashCode => Object.hash(
+      runtimeType,
+      nextTraining,
+      trainingProgress,
+      goalProgress,
+      const DeepCollectionEquality().hash(_achievements),
+      const DeepCollectionEquality().hash(_recentMeasurements));
 
   /// Create a copy of DashboardData
   /// with the given fields replaced by the non-null parameter values.
@@ -266,10 +300,12 @@ class _$DashboardDataImpl implements _DashboardData {
 
 abstract class _DashboardData implements DashboardData {
   const factory _DashboardData(
-      {final NextTraining? nextTraining,
-      final TrainingProgress? trainingProgress,
-      final GoalProgress? goalProgress,
-      required final List<Achievement> achievements}) = _$DashboardDataImpl;
+          {final NextTraining? nextTraining,
+          final TrainingProgress? trainingProgress,
+          final GoalProgress? goalProgress,
+          required final List<Achievement> achievements,
+          final List<AnthropometryMeasurement>? recentMeasurements}) =
+      _$DashboardDataImpl;
 
   factory _DashboardData.fromJson(Map<String, dynamic> json) =
       _$DashboardDataImpl.fromJson;
@@ -282,6 +318,8 @@ abstract class _DashboardData implements DashboardData {
   GoalProgress? get goalProgress;
   @override
   List<Achievement> get achievements;
+  @override
+  List<AnthropometryMeasurement>? get recentMeasurements;
 
   /// Create a copy of DashboardData
   /// with the given fields replaced by the non-null parameter values.
