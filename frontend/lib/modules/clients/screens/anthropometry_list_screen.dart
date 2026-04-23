@@ -5,6 +5,7 @@ import 'package:fitman_app/modules/clients/screens/comparison_screen.dart';
 import 'package:fitman_app/modules/clients/screens/analysis_screen.dart';
 import 'package:fitman_app/modules/clients/screens/analysis_comparison_screen.dart';
 import 'package:fitman_app/modules/clients/screens/system_recommendation_screen.dart';
+import 'package:fitman_app/modules/clients/screens/anthropometry_visualization_screen.dart';
 import 'package:fitman_common/fitman_common.dart';
 import 'package:fitman_app/services/api_service.dart';
 import 'package:flutter/material.dart';
@@ -75,19 +76,7 @@ class _AnthropometryListScreenState
   void _onMeasurementSelected(bool? selected, String measurementId) {
     setState(() {
       if (selected == true) {
-        if (_selectedMeasurementIds.length < 2) {
-          _selectedMeasurementIds.add(measurementId);
-        } else {
-          _selectedMeasurementIds.remove(_selectedMeasurementIds.first);
-          _selectedMeasurementIds.add(measurementId);
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text(
-                  'Можно выбрать только два замера. Самый старый выбор был заменен.'),
-              duration: Duration(seconds: 2),
-            ),
-          );
-        }
+        _selectedMeasurementIds.add(measurementId);
       } else {
         _selectedMeasurementIds.remove(measurementId);
       }
@@ -331,10 +320,11 @@ class _AnthropometryListScreenState
             ),
             Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              child: Wrap(
+                spacing: 8.0,
+                runSpacing: 8.0,
+                alignment: WrapAlignment.center,
                 children: [
-                  // Comparison Button
                   ElevatedButton(
                     onPressed: _selectedMeasurementIds.length == 2
                         ? () {
@@ -353,7 +343,6 @@ class _AnthropometryListScreenState
                         : null,
                     child: const Text('Сравнение'),
                   ),
-                  // Analysis Button
                   ElevatedButton(
                     onPressed:
                         (_selectedMeasurementIds.length == 1 || _selectedMeasurementIds.length == 2)
@@ -383,7 +372,23 @@ class _AnthropometryListScreenState
                             : null,
                     child: const Text('Анализ'),
                   ),
-                  // Recommendation Button
+                  ElevatedButton(
+                    onPressed: _selectedMeasurementIds.isNotEmpty
+                        ? () {
+                            final selectedMeasurements = measurements
+                                .where((m) =>
+                                    _selectedMeasurementIds.contains(m.id))
+                                .toList();
+                            selectedMeasurements.sort((a, b) => a.dateTime.compareTo(b.dateTime));
+                            Navigator.of(context).push(MaterialPageRoute(
+                              builder: (_) => AnthropometryVisualizationScreen(
+                                measurements: selectedMeasurements,
+                              ),
+                            ));
+                          }
+                        : null,
+                    child: const Text('Визуализация'),
+                  ),
                   ElevatedButton(
                     onPressed: _selectedMeasurementIds.isNotEmpty
                         ? () {
