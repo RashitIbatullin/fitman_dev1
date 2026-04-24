@@ -30,7 +30,7 @@ class AnalysisScreen extends ConsumerWidget {
 
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Анализ фигуры')),
+      appBar: AppBar(title: const Text('Анализ замера')),
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [

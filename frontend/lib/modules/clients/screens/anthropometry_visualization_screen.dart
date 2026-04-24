@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:fitman_common/fitman_common.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -103,6 +105,7 @@ abstract class _BaseChart extends StatelessWidget {
     return SideTitleWidget(
       axisSide: meta.axisSide,
       space: 4,
+      angle: -pi / 4,
       child: Text(DateFormat('dd.MM').format(date)),
     );
   }
@@ -114,7 +117,7 @@ abstract class _BaseChart extends StatelessWidget {
         bottomTitles: AxisTitles(
           sideTitles: SideTitles(
             showTitles: true,
-            reservedSize: 30,
+            reservedSize: 40,
             interval: _calculateDateInterval(),
             getTitlesWidget: _bottomTitleWidgets,
           ),
@@ -138,7 +141,7 @@ class _WeightChart extends _BaseChart {
         Text('Динамика веса, кг', style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: 16),
         AspectRatio(
-          aspectRatio: 1.7,
+          aspectRatio: 3,
           child: LineChart(
             LineChartData(
               gridData: const FlGridData(show: true),
@@ -188,7 +191,7 @@ class _CircumferencesChart extends _BaseChart {
         Text('Динамика обхватов, см', style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: 16),
         AspectRatio(
-          aspectRatio: 1.7,
+          aspectRatio: 3,
           child: LineChart(
             LineChartData(
               gridData: const FlGridData(show: true),
@@ -238,7 +241,7 @@ class _WhtrChart extends _BaseChart {
         Text('Динамика WHtR', style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: 16),
         AspectRatio(
-          aspectRatio: 1.7,
+          aspectRatio: 3,
           child: LineChart(
             LineChartData(
               gridData: const FlGridData(show: true),
@@ -281,7 +284,7 @@ class _MetabolismChart extends _BaseChart {
         Text('Динамика метаболизма, ккал', style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: 16),
         AspectRatio(
-          aspectRatio: 1.7,
+          aspectRatio: 3,
           child: LineChart(
             LineChartData(
               gridData: const FlGridData(show: true),
@@ -335,7 +338,7 @@ class _BodyCompositionChart extends _BaseChart {
         Text('Состав тела', style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: 16),
         AspectRatio(
-          aspectRatio: 1.7,
+          aspectRatio: 3,
           child: LineChart(
             LineChartData(
               gridData: const FlGridData(show: true),

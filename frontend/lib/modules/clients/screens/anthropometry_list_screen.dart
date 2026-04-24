@@ -284,101 +284,28 @@ class _AnthropometryListScreenState
               ),
             ),
             const Divider(height: 1),
-            Expanded(
-              child: ListView.builder(
-                itemCount: measurements.length,
-                itemBuilder: (context, index) {
-                  final measurement = measurements[index];
-                  final isArchived = measurement.archivedAt != null;
-                  return Card(
-                    color: isArchived ? Colors.grey.shade200 : null,
-                    margin: const EdgeInsets.symmetric(
-                        horizontal: 16.0, vertical: 8.0),
-                    child: ListTile(
-                      leading: Checkbox(
-                        value:
-                            _selectedMeasurementIds.contains(measurement.id),
-                        onChanged: isArchived
-                            ? null
-                            : (selected) {
-                                if (measurement.id != null) {
-                                  _onMeasurementSelected(
-                                      selected, measurement.id!);
-                                }
-                              },
-                      ),
-                      title: Text(
-                        'Замер от ${DateFormat.yMMMd('ru').add_jm().format(measurement.dateTime.toLocal())}',
-                        style: TextStyle(
-                            decoration: isArchived
-                                ? TextDecoration.lineThrough
-                                : null),
-                      ),
-                      subtitle: Text(
-                          'Вес: ${measurement.weight.toStringAsFixed(1)} кг'),
-                      trailing: canEdit
-                          ? PopupMenuButton<String>(
-                              onSelected: (value) {
-                                if (value == 'edit') {
-                                  Navigator.of(context).push(MaterialPageRoute(
-                                      builder: (_) =>
-                                          AnthropometryEditScreen(
-                                            measurement: measurement,
-                                            clientId: targetClientId,
-                                          )));
-                                } else if (value == 'archive') {
-                                  if (measurement.id != null) {
-                                    _showArchiveDialog(
-                                        targetClientId, measurement);
-                                  }
-                                } else if (value == 'unarchive') {
-                                  if (measurement.id != null) {
-                                    _unarchiveMeasurement(
-                                        targetClientId, measurement.id!);
-                                  }
-                                }
-                              },
-                              itemBuilder: (BuildContext context) =>
-                                  <PopupMenuEntry<String>>[
-                                if (!isArchived)
-                                  const PopupMenuItem<String>(
-                                    value: 'edit',
-                                    child: Text('Редактировать'),
-                                  ),
-                                if (!isArchived)
-                                  const PopupMenuItem<String>(
-                                    value: 'archive',
-                                    child: Text('Архивировать'),
-                                  ),
-                                if (isArchived)
-                                  const PopupMenuItem<String>(
-                                    value: 'unarchive',
-                                    child: Text('Деархивировать'),
-                                  ),
-                              ],
-                            )
-                          : null,
-                      onTap: () {
-                        Navigator.of(context).push(MaterialPageRoute(
-                            builder: (_) => AnthropometryDetailScreen(
-                                measurement: measurement)));
-                      },
-                    ),
-                  );
-                },
-              ),
-            ),
             Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   PopupMenuButton<String>(
+                    tooltip: 'Действия с выбранными',
                     enabled: _selectedMeasurementIds.isNotEmpty,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: const [
+                          Text('Действия'),
+                          SizedBox(width: 4),
+                          Icon(Icons.arrow_drop_down),
+                        ],
+                      ),
+                    ),
                     onSelected: (value) {
                       final selectedMeasurements = measurements
-                          .where(
-                              (m) => _selectedMeasurementIds.contains(m.id))
+                          .where((m) => _selectedMeasurementIds.contains(m.id))
                           .toList()
                         ..sort((a, b) => a.dateTime.compareTo(b.dateTime));
 
@@ -449,15 +376,93 @@ class _AnthropometryListScreenState
                         child: const Text('Рекомендации'),
                       ),
                     ],
-                    child: const Tooltip(
-                      message: 'Действия с выбранными замерами',
-                      child: Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Icon(Icons.more_vert),
-                      ),
-                    ),
                   ),
                 ],
+              ),
+            ),
+            const Divider(height: 1),
+            Expanded(
+              child: ListView.builder(
+                itemCount: measurements.length,
+                itemBuilder: (context, index) {
+                  final measurement = measurements[index];
+                  final isArchived = measurement.archivedAt != null;
+                  return Card(
+                    color: isArchived ? Colors.grey.shade200 : null,
+                    margin: const EdgeInsets.symmetric(
+                        horizontal: 16.0, vertical: 8.0),
+                    child: ListTile(
+                      leading: Checkbox(
+                        value:
+                            _selectedMeasurementIds.contains(measurement.id),
+                        onChanged: isArchived
+                            ? null
+                            : (selected) {
+                                if (measurement.id != null) {
+                                  _onMeasurementSelected(
+                                      selected, measurement.id!);
+                                }
+                              },
+                      ),
+                      title: Text(
+                        DateFormat.yMMMd('ru').add_jm().format(measurement.dateTime.toLocal()),
+                        style: TextStyle(
+                            decoration: isArchived
+                                ? TextDecoration.lineThrough
+                                : null),
+                      ),
+                      subtitle: Text(
+                          'Вес: ${measurement.weight.toStringAsFixed(1)} кг'),
+                      trailing: canEdit
+                          ? PopupMenuButton<String>(
+                              onSelected: (value) {
+                                if (value == 'edit') {
+                                  Navigator.of(context).push(MaterialPageRoute(
+                                      builder: (_) =>
+                                          AnthropometryEditScreen(
+                                            measurement: measurement,
+                                            clientId: targetClientId,
+                                          )));
+                                } else if (value == 'archive') {
+                                  if (measurement.id != null) {
+                                    _showArchiveDialog(
+                                        targetClientId, measurement);
+                                  }
+                                } else if (value == 'unarchive') {
+                                  if (measurement.id != null) {
+                                    _unarchiveMeasurement(
+                                        targetClientId, measurement.id!);
+                                  }
+                                }
+                              },
+                              itemBuilder: (BuildContext context) =>
+                                  <PopupMenuEntry<String>>[
+                                if (!isArchived)
+                                  const PopupMenuItem<String>(
+                                    value: 'edit',
+                                    child: Text('Редактировать'),
+                                  ),
+                                if (!isArchived)
+                                  const PopupMenuItem<String>(
+                                    value: 'archive',
+                                    child: Text('Архивировать'),
+                                  ),
+                                if (isArchived)
+                                  const PopupMenuItem<String>(
+                                    value: 'unarchive',
+                                    child: Text('Деархивировать'),
+                                  ),
+                              ],
+                            )
+                          : null,
+                      onTap: () {
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (_) => AnthropometryDetailScreen(
+                                measurement: measurement)));
+                      },
+                    ),
+                  );
+                },
               ),
             ),
           ],

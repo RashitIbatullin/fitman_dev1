@@ -500,7 +500,7 @@ class _ProgressChart extends StatelessWidget {
              Text('Динамика прогресса', style: Theme.of(context).textTheme.titleLarge),
              const SizedBox(height: 24),
             AspectRatio(
-              aspectRatio: 6,
+              aspectRatio: 20,
               child: LineChart(
                 LineChartData(
                   lineTouchData: const LineTouchData(),

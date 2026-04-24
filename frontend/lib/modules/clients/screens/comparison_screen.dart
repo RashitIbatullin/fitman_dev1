@@ -17,12 +17,13 @@ class ComparisonScreen extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+            child: Wrap(
+              alignment: WrapAlignment.center,
+              spacing: 20.0, // Horizontal space
+              runSpacing: 8.0, // Vertical space between lines
               children: [
                 _buildLegendItem(context, Colors.blue.shade300,
                     'Замер 1: ${DateFormat.yMMMd('ru').add_jm().format(first.dateTime.toLocal())}'),
-                const SizedBox(width: 20),
                 _buildLegendItem(context, Colors.red.shade300,
                     'Замер 2: ${DateFormat.yMMMd('ru').add_jm().format(second.dateTime.toLocal())}'),
               ],

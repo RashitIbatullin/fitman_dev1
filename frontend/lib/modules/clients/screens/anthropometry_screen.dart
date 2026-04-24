@@ -28,12 +28,12 @@ class _AnthropometryScreenState extends ConsumerState<AnthropometryScreen>
     _tabController.addListener(() {
       if (mounted) {
         setState(() {
-          _showFab = _tabController.index == 1;
+          _showFab = _tabController.index == 0;
         });
       }
     });
-     // Set initial state
-    _showFab = _tabController.index == 1;
+    // Set initial state
+    _showFab = _tabController.index == 0;
   }
 
   @override
@@ -67,8 +67,8 @@ class _AnthropometryScreenState extends ConsumerState<AnthropometryScreen>
     final tabBar = TabBar(
       controller: _tabController,
       tabs: const [
+        Tab(text: 'Замеры'),
         Tab(text: 'Постоянные данные'),
-        Tab(text: 'Периодические замеры'),
       ],
     );
 
@@ -101,8 +101,8 @@ class _AnthropometryScreenState extends ConsumerState<AnthropometryScreen>
       body: TabBarView(
         controller: _tabController,
         children: [
-          FixedValuesView(clientId: targetClientId),
           AnthropometryListScreen(clientId: targetClientId),
+          FixedValuesView(clientId: targetClientId),
         ],
       ),
       floatingActionButton: _showFab && canEdit

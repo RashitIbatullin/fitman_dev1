@@ -3,7 +3,6 @@ import 'package:shelf/shelf.dart';
 Middleware corsMiddleware() {
   return (Handler innerHandler) {
     return (Request request) async {
-      print('>>> [REQUEST START] ${request.method} ${request.url}');
 
       const corsHeaders = {
         'Access-Control-Allow-Origin': '*',
