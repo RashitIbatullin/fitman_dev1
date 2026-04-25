@@ -193,35 +193,24 @@ class _RoomEditScreenState extends ConsumerState<RoomEditScreen> {
                 },
               ),
               const SizedBox(height: 16.0),
-              // 9. Status Box
-              Container(
-                padding: const EdgeInsets.all(12.0),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Theme.of(context).dividerColor),
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                child: Column(
-                  children: [
-                    SwitchListTile(
-                      title: const Text('Активно'),
-                      value: _isActive,
-                      onChanged: (value) {
-                        _handleActivityChange(value);
-                      },
-                    ),
-                    if (!_isActive)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                        child: TextFormField(
-                          controller: _deactivationReasonController,
-                          decoration:
-                              const InputDecoration(labelText: 'Причина деактивации'),
-                          enabled: false,
-                        ),
-                      ),
-                  ],
-                ),
+              SwitchListTile(
+                title: const Text('Активно'),
+                value: _isActive,
+                onChanged: (value) {
+                  _handleActivityChange(value);
+                },
+                contentPadding: const EdgeInsets.symmetric(horizontal: 4.0),
               ),
+              if (!_isActive)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                  child: TextFormField(
+                    controller: _deactivationReasonController,
+                    decoration:
+                        const InputDecoration(labelText: 'Причина деактивации'),
+                    enabled: false,
+                  ),
+                ),
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _updateRoom,
@@ -325,7 +314,11 @@ class _RoomEditScreenState extends ConsumerState<RoomEditScreen> {
       try {
         await ApiService.updateRoom(updatedRoom.id, updatedRoom);
         ref.invalidate(allRoomsProvider); // Invalidate provider to refetch updated rooms
+        ref.invalidate(roomByIdProvider(widget.room.id));
         if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Помещение успешно обновлено')),
+          );
           Navigator.of(context).pop();
         }
       } catch (e) {

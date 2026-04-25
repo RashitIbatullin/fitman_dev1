@@ -279,7 +279,7 @@ class _AnthropometryListScreenState
                     onChanged: (newValue) =>
                         _onSelectAll(newValue, selectableMeasurements),
                   ),
-                  const Text('Выбрать все доступные'),
+                  const Text('Выбрать все'),
                 ],
               ),
             ),

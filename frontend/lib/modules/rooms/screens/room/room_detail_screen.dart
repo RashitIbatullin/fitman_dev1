@@ -55,7 +55,7 @@ class RoomDetailScreen extends ConsumerWidget {
 
   Widget _buildRoomDetails(BuildContext context, WidgetRef ref, Room room) {
     return DefaultTabController(
-      length: 5, // Number of tabs
+      length: 4, // Number of tabs
       child: Column(
         children: [
           const TabBar(
@@ -63,7 +63,6 @@ class RoomDetailScreen extends ConsumerWidget {
             tabs: [
               Tab(text: 'Основное'),
               Tab(text: 'Расписание'),
-              Tab(text: 'Состояние'),
               Tab(text: 'Оборудование'),
               Tab(text: 'Статистика'),
             ],
@@ -75,11 +74,9 @@ class RoomDetailScreen extends ConsumerWidget {
                 _buildMainInfoTab(context, room),
                 // 2. Расписание (Placeholder)
                 const Center(child: Text('Информация о расписании')),
-                // 3. Состояние (Placeholder)
-                const Center(child: Text('Информация о состоянии')),
-                // 4. Оборудование (Implemented)
+                // 3. Оборудование (Implemented)
                 _buildEquipmentTab(context, ref, room.id),
-                // 5. Статистика (Placeholder)
+                // 4. Статистика (Placeholder)
                 const Center(child: Text('Информация о статистике')),
               ],
             ),
@@ -165,30 +162,18 @@ class RoomDetailScreen extends ConsumerWidget {
             _buildInfoRow(context, 'Номер комнаты:', room.roomNumber!),
           _buildInfoRow(context, 'Площадь:', '${room.area ?? 'N/A'} м²'),
           const SizedBox(height: 16.0),
-          Container(
-            padding: const EdgeInsets.all(12.0),
-            decoration: BoxDecoration(
-              border: Border.all(color: Theme.of(context).dividerColor),
-              borderRadius: BorderRadius.circular(8.0),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildInfoRow(context, 'Статус:', room.isActive ? 'Активно' : 'Неактивно'),
-                
-                // Дата, Кто (from archive)
-                if (room.archivedAt != null) ...[
-                  _buildInfoRow(context, 'Архивировано:', DateFormat('dd.MM.yyyy HH:mm').format(room.archivedAt!.toLocal())),
-                  if (room.archivedByName?.isNotEmpty == true)
-                    _buildInfoRow(context, 'Кем архивировано:', room.archivedByName!),
-                ],
+          _buildInfoRow(context, 'Статус:', room.isActive ? 'Активно' : 'Неактивно'),
+          
+          // Дата, Кто (from archive)
+          if (room.archivedAt != null) ...[
+            _buildInfoRow(context, 'Архивировано:', DateFormat('dd.MM.yyyy HH:mm').format(room.archivedAt!.toLocal())),
+            if (room.archivedByName?.isNotEmpty == true)
+              _buildInfoRow(context, 'Кем архивировано:', room.archivedByName!),
+          ],
 
-                // Причина (from deactivation)
-                if (!room.isActive && room.deactivateReason?.isNotEmpty == true)
-                  _buildInfoRow(context, 'Причина деактивации:', room.deactivateReason!),
-              ],
-            ),
-          ),
+          // Причина (from deactivation)
+          if (!room.isActive && room.deactivateReason?.isNotEmpty == true)
+            _buildInfoRow(context, 'Причина деактивации:', room.deactivateReason!),
         ],
       ),
     );

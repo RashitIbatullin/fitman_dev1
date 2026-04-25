@@ -65,8 +65,12 @@ class _RoomsListViewScreenState extends ConsumerState<RoomsListViewScreen> {
       }
     } catch (e) {
       if (mounted) {
+        final errorMessage = e.toString().replaceFirst('Exception: ', '');
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Ошибка архивации: $e')),
+          SnackBar(
+            content: Text(errorMessage),
+            backgroundColor: Colors.amber,
+          ),
         );
       }
     }
@@ -141,8 +145,12 @@ class _RoomsListViewScreenState extends ConsumerState<RoomsListViewScreen> {
       }
     } catch (e) {
       if (mounted) {
+        final errorMessage = e.toString().replaceFirst('Exception: ', '');
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Ошибка восстановления: $e')),
+          SnackBar(
+            content: Text(errorMessage),
+            backgroundColor: Colors.amber,
+          ),
         );
       }
     }
@@ -209,19 +217,13 @@ class _RoomsListViewScreenState extends ConsumerState<RoomsListViewScreen> {
                       showAllOption: true,
                     ),
                     const SizedBox(width: 8),
-                    FilterPopupMenuButton<bool?>(
-                      tooltip: 'Фильтр по архивации',
-                      allOptionText: 'Архив: Все',
-                      initialValue: ref.watch(roomIsArchivedFilterProvider),
-                      avatar: const Icon(Icons.archive_outlined),
-                      onSelected: (value) {
+                    const Spacer(),
+                    const Text('Показать архив'),
+                    Switch(
+                      value: ref.watch(roomIsArchivedFilterProvider),
+                      onChanged: (value) {
                         ref.read(roomIsArchivedFilterProvider.notifier).state = value;
                       },
-                      options: const [
-                        FilterOption(label: 'В архиве', value: true),
-                        FilterOption(label: 'Не в архиве', value: false),
-                      ],
-                      showAllOption: true,
                     ),
                   ],
                 ),

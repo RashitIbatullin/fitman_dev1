@@ -4,7 +4,7 @@ import 'package:fitman_common/fitman_common.dart';
 
 // --- Filters for Rooms ---
 final roomIsActiveFilterProvider = StateProvider<bool?>((ref) => null);
-final roomIsArchivedFilterProvider = StateProvider<bool?>((ref) => null);
+final roomIsArchivedFilterProvider = StateProvider<bool>((ref) => false);
 final roomTypeFilterProvider = StateProvider<RoomType?>((ref) => null);
 
 // --- Room Providers ---
@@ -20,6 +20,8 @@ final allRoomsProvider = FutureProvider<List<Room>>((ref) async {
     isArchived: isArchived,
     roomType: roomType?.value,
   );
+  // Sort the list by name before returning
+  rooms.sort((a, b) => a.name.compareTo(b.name));
   return rooms;
 });
 

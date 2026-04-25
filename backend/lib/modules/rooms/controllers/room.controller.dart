@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:fitman_backend/config/database.dart';
+import 'package:fitman_backend/modules/equipment/repositories/equipment_item.repository.dart';
 import 'package:fitman_backend/modules/rooms/repositories/room.repository.dart';
 import 'package:fitman_backend/modules/rooms/services/room.service.dart';
 import 'package:fitman_common/modules/rooms/room.model.dart';
@@ -9,8 +10,10 @@ import 'package:shelf_router/shelf_router.dart';
 
 class RoomController {
   RoomController(Database db)
-      : _roomService =
-            RoomService(RoomRepositoryImpl(db));
+      : _roomService = RoomService(
+          RoomRepositoryImpl(db),
+          EquipmentItemRepositoryImpl(db),
+        );
 
   final RoomService _roomService;
 
@@ -41,13 +44,14 @@ class RoomController {
 
   Future<Response> _getRoomById(Request request, String id) async {
     try {
-      final room = await _roomService.getRoomById(id);
+      final room = await _roomService.getById(id);
       if (room == null) {
         return Response.notFound('{"error": "Room not found"}');
       }
       return Response.ok(jsonEncode(room.toJson()));
     } on Exception catch (e) {
-      return Response.internalServerError(body: '{"error": "Error fetching room: $e"}');
+      final errorMessage = e.toString().replaceFirst('Exception: ', '');
+      return Response.internalServerError(body: '{"error": "Error fetching room: $errorMessage"}');
     }
   }
 
@@ -62,7 +66,8 @@ class RoomController {
         headers: {'Content-Type': 'application/json'},
       );
     } on Exception catch (e) {
-      return Response.internalServerError(body: '{"error": "$e"}');
+      final errorMessage = e.toString().replaceFirst('Exception: ', '');
+      return Response.internalServerError(body: '{"error": "$errorMessage"}');
     }
   }
 
@@ -70,107 +75,44 @@ class RoomController {
     try {
       // 1. Get user ID from context
       final userPayload = request.context['user'] as Map<String, dynamic>?;
-      if (userPayload == null) {
-        return Response.forbidden('{"error": "Authorization required. User payload missing."}');
+      if (userPayload == null || userPayload['userId'] == null) {
+        return Response.forbidden(
+            '{"error": "Authorization required. User payload missing."}');
       }
-      final userId = userPayload['userId']?.toString();
-      if (userId == null) {
-        return Response.forbidden('{"error": "Authorization required. User ID missing."}');
-      }
+      final userId = userPayload['userId'].toString();
 
-      // 2. Get initial Room object from request body
+      // 2. Decode the incoming room data
       final body = await request.readAsString();
-      final initialRoom = Room.fromJson(jsonDecode(body));
+      final incomingRoom = Room.fromJson(jsonDecode(body));
 
-      // 3. Create the final Room object with updated logic
-      final Room finalRoom;
-      final isArchiving = initialRoom.archivedAt != null;
+      // 3. Use copyWith to add server-side data (e.g., who updated it)
+      final roomToUpdate = incomingRoom.copyWith(updatedBy: userId);
 
-      if (isArchiving) {
-        // If archiving, set isActive to false and record who archived it
-        finalRoom = Room(
-          id: initialRoom.id,
-          name: initialRoom.name,
-          description: initialRoom.description,
-          roomNumber: initialRoom.roomNumber,
-          type: initialRoom.type,
-          floor: initialRoom.floor,
-          buildingId: initialRoom.buildingId,
-          buildingName: initialRoom.buildingName,
-          maxCapacity: initialRoom.maxCapacity,
-          area: initialRoom.area,
-          openTime: initialRoom.openTime,
-          closeTime: initialRoom.closeTime,
-          workingDays: initialRoom.workingDays,
-          isActive: false, // Explicitly set to false on archive
-          deactivateReason: initialRoom.deactivateReason,
-          deactivateAt: initialRoom.deactivateAt,
-          deactivateBy: initialRoom.deactivateBy,
-          photoUrls: initialRoom.photoUrls,
-          floorPlanUrl: initialRoom.floorPlanUrl,
-          note: initialRoom.note,
-          archivedAt: initialRoom.archivedAt,
-          archivedReason: initialRoom.archivedReason,
-          updatedBy: userId, // Record who updated
-          archivedBy: userId, // Record who archived
-        );
-      } else {
-        // If not archiving, just record who updated
-        finalRoom = Room(
-          id: initialRoom.id,
-          name: initialRoom.name,
-          description: initialRoom.description,
-          roomNumber: initialRoom.roomNumber,
-          type: initialRoom.type,
-          floor: initialRoom.floor,
-          buildingId: initialRoom.buildingId,
-          buildingName: initialRoom.buildingName,
-          maxCapacity: initialRoom.maxCapacity,
-          area: initialRoom.area,
-          openTime: initialRoom.openTime,
-          closeTime: initialRoom.closeTime,
-          workingDays: initialRoom.workingDays,
-          isActive: initialRoom.isActive,
-          deactivateReason: initialRoom.deactivateReason,
-          deactivateAt: initialRoom.deactivateAt,
-          deactivateBy: initialRoom.deactivateBy,
-          photoUrls: initialRoom.photoUrls,
-          floorPlanUrl: initialRoom.floorPlanUrl,
-          note: initialRoom.note,
-          archivedAt: initialRoom.archivedAt,
-          archivedReason: initialRoom.archivedReason,
-          updatedBy: userId, // Record who updated
-          archivedBy: initialRoom.archivedBy, // Keep original value
-        );
-      }
-      
-      // 4. Call the service with the final Room object
-      final updatedRoom = await _roomService.updateRoom(id, finalRoom);
-      
+      // 4. Call the service with the robustly created object
+      final updatedRoom = await _roomService.updateRoom(id, roomToUpdate);
+
       return Response.ok(
         jsonEncode(updatedRoom.toJson()),
         headers: {'Content-Type': 'application/json'},
       );
     } on Exception catch (e) {
-      return Response.internalServerError(body: '{"error": "$e"}');
+      final errorMessage = e.toString().replaceFirst('Exception: ', '');
+      return Response.internalServerError(body: '{"error": "$errorMessage"}');
     }
   }
 
   Future<Response> _archiveRoom(Request request, String id) async {
     try {
       final userPayload = request.context['user'] as Map<String, dynamic>?;
-      if (userPayload == null) {
-        return Response.forbidden('{"error": "Authorization required. User payload missing."}');
-      }
-      final userId = userPayload['userId']?.toString();
-       if (userId == null) {
+      if (userPayload == null || userPayload['userId'] == null) {
         return Response.forbidden('{"error": "Authorization required. User ID missing."}');
       }
-      
+      final userId = userPayload['userId'].toString();
+
       await _roomService.archiveRoom(id, userId);
       return Response(204);
     } on Exception catch (e) {
-      return Response.internalServerError(body: '{"error": "$e"}');
+      final errorMessage = e.toString().replaceFirst('Exception: ', '');
+      return Response.internalServerError(body: '{"error": "$errorMessage"}');
     }
-  }
-}
+  }}

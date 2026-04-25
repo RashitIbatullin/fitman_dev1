@@ -15,6 +15,31 @@ class RoomRepositoryImpl implements RoomRepository {
   RoomRepositoryImpl(this._db);
 
   final Database _db;
+Room _roomFromRow(Map<String, dynamic> row) {
+  final sanitizedRow = Map<String, dynamic>.from(row);
+
+  // Convert DateTime objects to ISO 8601 strings
+  const dateFields = ['deactivate_at', 'archived_at', 'updated_at', 'created_at'];
+  for (final field in dateFields) {
+    if (sanitizedRow[field] is DateTime) {
+      sanitizedRow[field] = (sanitizedRow[field] as DateTime).toIso8601String();
+    }
+  }
+
+  // Convert numeric fields that might be returned as strings from the DB
+  const numericFields = ['area', 'max_capacity', 'floor'];
+  for (final field in numericFields) {
+    if (sanitizedRow[field] is String) {
+      if (field == 'area') {
+        sanitizedRow[field] = double.tryParse(sanitizedRow[field] as String);
+      } else {
+        sanitizedRow[field] = int.tryParse(sanitizedRow[field] as String);
+      }
+    }
+  }
+
+  return Room.fromMap(sanitizedRow);
+}
 
   @override
   Future<Room> create(Room room) async {
@@ -39,8 +64,8 @@ class RoomRepositoryImpl implements RoomRepository {
         'building_id': room.buildingId,
         'max_capacity': room.maxCapacity,
         'area': room.area,
-        'open_time': room.openTime,
-        'close_time': room.closeTime,
+        'open_time': room.openTime?.toString(),
+        'close_time': room.closeTime?.toString(),
         'working_days': jsonEncode(room.workingDays),
         'is_active': room.isActive,
         'deactivate_reason': room.deactivateReason,
@@ -51,7 +76,7 @@ class RoomRepositoryImpl implements RoomRepository {
         'archived_reason': room.archivedReason,
       },
     );
-    return Room.fromMap(result.first.toColumnMap());
+    return _roomFromRow(result.first.toColumnMap());
   }
 
   @override
@@ -103,7 +128,7 @@ class RoomRepositoryImpl implements RoomRepository {
 
       return result
           .map(
-            (row) => Room.fromMap(row.toColumnMap()),
+            (row) => _roomFromRow(row.toColumnMap()),
           )
           .toList();
     } catch (e) {
@@ -137,7 +162,7 @@ class RoomRepositoryImpl implements RoomRepository {
         return null;
       }
 
-      return Room.fromMap(result.first.toColumnMap());
+      return _roomFromRow(result.first.toColumnMap());
     } catch (e) {
       print('Error fetching room by ID $id: $e');
       rethrow;
@@ -147,38 +172,34 @@ class RoomRepositoryImpl implements RoomRepository {
   @override
   Future<Room> update(String id, Room room) async {
     final conn = await _db.connection;
-    final result = await conn.execute(
+    await conn.execute(
       Sql.named('''
-        WITH updated AS (
-          UPDATE rooms 
-          SET 
-            name = @name, 
-            description = @description, 
-            room_number = @room_number, 
-            type = @type, 
-            floor = @floor, 
-            building_id = @building_id, 
-            max_capacity = @max_capacity, 
-            area = @area, 
-            open_time = @open_time, 
-            close_time = @close_time, 
-            working_days = @working_days, 
-            photo_urls = @photo_urls, 
-            is_active = @is_active, 
-            deactivate_reason = @deactivate_reason, 
-            deactivate_at = @deactivate_at, 
-            deactivate_by = @deactivate_by, 
-            archived_at = @archived_at, 
-            archived_reason = @archived_reason,
-            updated_at = NOW(),
-            updated_by = @updated_by,
-            archived_by = @archived_by
-          WHERE id = @id 
-          RETURNING *
-        )
-        SELECT u.id, u.name, u.description, u.room_number, u.type, u.floor, u.building_id, b.name as building_name, u.max_capacity, u.area, u.open_time, u.close_time, u.working_days, u.is_active, u.deactivate_reason, u.deactivate_at, u.deactivate_by, u.photo_urls, u.floor_plan_url, u.note, u.created_at, u.updated_at, u.created_by, u.updated_by, u.archived_at, u.archived_by, u.archived_reason 
-        FROM updated u
-        LEFT JOIN buildings b ON u.building_id = b.id
+        UPDATE rooms 
+        SET 
+          name = @name, 
+          description = @description, 
+          room_number = @room_number, 
+          type = @type, 
+          floor = @floor, 
+          building_id = @building_id, 
+          max_capacity = @max_capacity, 
+          area = @area, 
+          open_time = @open_time, 
+          close_time = @close_time, 
+          working_days = @working_days, 
+          photo_urls = @photo_urls, 
+          floor_plan_url = @floor_plan_url,
+          note = @note,
+          is_active = @is_active, 
+          deactivate_reason = @deactivate_reason, 
+          deactivate_at = @deactivate_at, 
+          deactivate_by = @deactivate_by, 
+          archived_at = @archived_at, 
+          archived_reason = @archived_reason,
+          updated_at = NOW(),
+          updated_by = @updated_by,
+          archived_by = @archived_by
+        WHERE id = @id 
       '''),
       parameters: {
         'id': id,
@@ -190,10 +211,12 @@ class RoomRepositoryImpl implements RoomRepository {
         'building_id': room.buildingId,
         'max_capacity': room.maxCapacity,
         'area': room.area,
-        'open_time': room.openTime,
-        'close_time': room.closeTime,
+        'open_time': room.openTime?.toString(),
+        'close_time': room.closeTime?.toString(),
         'working_days': jsonEncode(room.workingDays),
         'photo_urls': jsonEncode(room.photoUrls),
+        'floor_plan_url': room.floorPlanUrl,
+        'note': room.note,
         'is_active': room.isActive,
         'deactivate_reason': room.deactivateReason,
         'deactivate_at': room.deactivateAt,
@@ -204,6 +227,11 @@ class RoomRepositoryImpl implements RoomRepository {
         'archived_reason': room.archivedReason,
       },
     );
-    return Room.fromMap(result.first.toColumnMap());
+    
+    final updatedRoom = await getById(id);
+    if (updatedRoom == null) {
+      throw Exception('Room not found after update');
+    }
+    return updatedRoom;
   }
 }

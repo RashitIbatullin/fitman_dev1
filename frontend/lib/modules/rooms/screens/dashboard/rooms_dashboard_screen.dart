@@ -139,19 +139,16 @@ class RoomsDashboardScreen extends ConsumerWidget {
                       showAllOption: true,
                     ),
                     const SizedBox(width: 8),
-                    FilterPopupMenuButton<bool?>(
-                      tooltip: 'Фильтр по архивации',
-                      allOptionText: 'Архив: Все',
-                      initialValue: ref.watch(roomIsArchivedFilterProvider),
-                      avatar: const Icon(Icons.archive_outlined),
-                      onSelected: (value) {
-                        ref.read(roomIsArchivedFilterProvider.notifier).state = value;
-                      },
-                      options: const [
-                        FilterOption(label: 'В архиве', value: true),
-                        FilterOption(label: 'Не в архиве', value: false),
+                    Row(
+                      children: [
+                        const Text('Архив'),
+                        Switch(
+                          value: ref.watch(roomIsArchivedFilterProvider),
+                          onChanged: (value) {
+                            ref.read(roomIsArchivedFilterProvider.notifier).state = value;
+                          },
+                        ),
                       ],
-                      showAllOption: true,
                     ),
                   ],
                 ),
