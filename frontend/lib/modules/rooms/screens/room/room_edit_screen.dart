@@ -4,8 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fitman_app/modules/rooms/providers/room/building_provider.dart';
 import 'package:fitman_app/modules/rooms/providers/room/room_provider.dart';
-import 'package:fitman_common/fitman_common.dart';
+import 'package:fitman_common/modules/rooms/room.model.dart';
+import 'package:fitman_common/modules/rooms/room_type.enum.dart';
 
+import 'package:fitman_common/modules/rooms/room_schedule.model.dart';
+import 'package:fitman_common/custom/time_of_day_custom.dart';
+
+import 'package:fitman_app/providers/room_schedule_provider.dart';
 import '../../../users/providers/auth_provider.dart';
 
 class RoomEditScreen extends ConsumerStatefulWidget {
@@ -25,6 +30,7 @@ class _RoomEditScreenState extends ConsumerState<RoomEditScreen> {
   late TextEditingController _maxCapacityController;
   late TextEditingController _areaController;
   late TextEditingController _deactivationReasonController;
+  List<RoomSchedule> _editedSchedules = [];
 
   String? _selectedBuildingId;
   late RoomType _selectedRoomType;
@@ -36,7 +42,7 @@ class _RoomEditScreenState extends ConsumerState<RoomEditScreen> {
     _nameController = TextEditingController(text: widget.room.name);
     _descriptionController = TextEditingController(text: widget.room.description);
     _roomNumberController = TextEditingController(text: widget.room.roomNumber);
-    _floorController = TextEditingController(text: widget.room.floor?.toString()); // Changed
+    _floorController = TextEditingController(text: widget.room.floor?.toString());
     _maxCapacityController = TextEditingController(text: widget.room.maxCapacity.toString());
     _areaController = TextEditingController(text: widget.room.area?.toString());
     _deactivationReasonController = TextEditingController(text: widget.room.deactivateReason);
@@ -44,6 +50,45 @@ class _RoomEditScreenState extends ConsumerState<RoomEditScreen> {
     _selectedBuildingId = widget.room.buildingId;
     _selectedRoomType = widget.room.type;
     _isActive = widget.room.isActive;
+
+    // Fetch initial schedules after widget is built, ref is available
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(roomScheduleProvider(widget.room.id)).when(
+            data: (schedules) {
+              setState(() {
+                _editedSchedules = schedules.map((s) => s.copyWith()).toList();
+              });
+            },
+            loading: () {
+              // Optionally show a loading indicator or use default schedules
+              setState(() {
+                _editedSchedules = _createDefaultEditedSchedules(widget.room.id);
+              });
+            },
+            error: (err, st) {
+              // Handle error, maybe show a snackbar or use default schedules
+              setState(() {
+                _editedSchedules = _createDefaultEditedSchedules(widget.room.id);
+              });
+            },
+          );
+    });
+  }
+
+  // Helper to create default schedules for editing if none loaded or on error
+  List<RoomSchedule> _createDefaultEditedSchedules(String roomId) {
+    return List.generate(7, (index) {
+      final day = index + 1; // 1 = Monday, ..., 7 = Sunday
+      final isWorking = day < 6; // Mon-Fri default to working
+      return RoomSchedule(
+        id: '', // Placeholder ID for new schedules (will be assigned by backend)
+        roomId: roomId,
+        dayOfWeek: day,
+        isWorkingDay: isWorking,
+        openTime: isWorking ? TimeOfDayCustom.parse('09:00:00') : null, // Default working hours
+        closeTime: isWorking ? TimeOfDayCustom.parse('21:00:00') : null,
+      );
+    });
   }
 
   @override
@@ -56,6 +101,27 @@ class _RoomEditScreenState extends ConsumerState<RoomEditScreen> {
     _areaController.dispose();
     _deactivationReasonController.dispose();
     super.dispose();
+  }
+
+  String _getWeekdayName(int day) {
+    switch (day) {
+      case 1:
+        return 'Понедельник';
+      case 2:
+        return 'Вторник';
+      case 3:
+        return 'Среда';
+      case 4:
+        return 'Четверг';
+      case 5:
+        return 'Пятница';
+      case 6:
+        return 'Суббота';
+      case 7:
+        return 'Воскресенье';
+      default:
+        return '';
+    }
   }
 
   @override
@@ -212,6 +278,10 @@ class _RoomEditScreenState extends ConsumerState<RoomEditScreen> {
                   ),
                 ),
               const SizedBox(height: 20),
+              const Divider(),
+              const Text('Расписание помещения', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 10),
+              _buildScheduleEditor(), // New schedule editing widget
               ElevatedButton(
                 onPressed: _updateRoom,
                 child: const Text('Сохранить'),
@@ -221,6 +291,98 @@ class _RoomEditScreenState extends ConsumerState<RoomEditScreen> {
         ),
       ),
     );
+  }
+
+  Widget _buildScheduleEditor() {
+    return Column(
+      children: List.generate(_editedSchedules.length, (index) {
+        final schedule = _editedSchedules[index];
+        final isWorkingDay = schedule.isWorkingDay;
+
+        return Card(
+          margin: const EdgeInsets.symmetric(vertical: 8.0),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                SwitchListTile(
+                  title: Text(_getWeekdayName(schedule.dayOfWeek)),
+                  value: isWorkingDay,
+                  onChanged: (value) {
+                    setState(() {
+                      _editedSchedules[index] = schedule.copyWith(isWorkingDay: value);
+                    });
+                  },
+                ),
+                if (isWorkingDay) ...[
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: InkWell(
+                          onTap: () => _pickTime(context, index, true),
+                          child: InputDecorator(
+                            decoration: const InputDecoration(
+                              labelText: 'Время открытия',
+                              border: OutlineInputBorder(),
+                            ),
+                            child: Text(
+                              schedule.openTime?.toJson() ?? 'Выбрать время',
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: InkWell(
+                          onTap: () => _pickTime(context, index, false),
+                          child: InputDecorator(
+                            decoration: const InputDecoration(
+                              labelText: 'Время закрытия',
+                              border: OutlineInputBorder(),
+                            ),
+                            child: Text(
+                              schedule.openTime?.toJson() ?? 'Выбрать время',
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ],
+            ),
+          ),
+        );
+      }),
+    );
+  }
+
+  Future<void> _pickTime(BuildContext context, int index, bool isOpeningTime) async {
+    final initialTime = isOpeningTime
+        ? _editedSchedules[index].openTime
+        : _editedSchedules[index].closeTime;
+
+    final pickedTime = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay(
+        hour: initialTime?.hour ?? 9,
+        minute: initialTime?.minute ?? 0,
+      ),
+    );
+
+    if (pickedTime != null) {
+      setState(() {
+        final updatedSchedule = isOpeningTime
+            ? _editedSchedules[index].copyWith(
+                openTime: TimeOfDayCustom(hour: pickedTime.hour, minute: pickedTime.minute),
+              )
+            : _editedSchedules[index].copyWith(
+                closeTime: TimeOfDayCustom(hour: pickedTime.hour, minute: pickedTime.minute),
+              );
+        _editedSchedules[index] = updatedSchedule;
+      });
+    }
   }
 
   void _handleActivityChange(bool value) {
@@ -313,8 +475,10 @@ class _RoomEditScreenState extends ConsumerState<RoomEditScreen> {
 
       try {
         await ApiService.updateRoom(updatedRoom.id, updatedRoom);
+        await ApiService.updateRoomSchedules(widget.room.id, _editedSchedules);
         ref.invalidate(allRoomsProvider); // Invalidate provider to refetch updated rooms
         ref.invalidate(roomByIdProvider(widget.room.id));
+        ref.invalidate(roomScheduleProvider(widget.room.id));
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Помещение успешно обновлено')),

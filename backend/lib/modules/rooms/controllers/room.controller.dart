@@ -1,19 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:fitman_backend/config/database.dart';
-import 'package:fitman_backend/modules/equipment/repositories/equipment_item.repository.dart';
-import 'package:fitman_backend/modules/rooms/repositories/room_repository.dart';
+import 'package:fitman_backend/modules/rooms/room_providers.dart';
 import 'package:fitman_backend/modules/rooms/services/room_service.dart';
 import 'package:fitman_common/modules/rooms/room.model.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 
 class RoomController {
-  RoomController(Database db)
-      : _roomService = RoomService(
-          RoomRepositoryImpl(db),
-          EquipmentItemRepositoryImpl(db),
-        );
+  RoomController() : _roomService = RoomProviders().roomService;
 
   final RoomService _roomService;
 

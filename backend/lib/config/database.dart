@@ -4,7 +4,6 @@ import 'package:postgres/postgres.dart';
 import 'app_config.dart';
 
 import '../modules/groups/repositories/group_repository.dart';
-import '../modules/rooms/repositories/room_repository.dart';
 import '../modules/equipment/repositories/equipment_item.repository.dart';
 import '../modules/equipment/repositories/equipment_type.repository.dart';
 import '../modules/users/repositories/user_repository.dart';
@@ -23,7 +22,6 @@ class Database {
   Completer<void>? _connectionCompleter;
   
   late final GroupRepository groups = GroupRepository(_instance);
-  late final RoomRepository rooms = RoomRepositoryImpl(_instance);
   late final EquipmentItemRepository equipmentItems = EquipmentItemRepositoryImpl(_instance);
   late final EquipmentTypeRepository equipmentTypes = EquipmentTypeRepositoryImpl(_instance);
   late final UserRepository users = UserRepositoryImpl(_instance);

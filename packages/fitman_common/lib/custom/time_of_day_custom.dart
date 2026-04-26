@@ -13,6 +13,13 @@ class TimeOfDayCustom extends Equatable {
         hour: int.parse(parts[0]), minute: int.parse(parts[1]));
   }
 
+  factory TimeOfDayCustom.parse(String timeString) {
+    final parts = timeString.split(':');
+    return TimeOfDayCustom(
+      hour: int.parse(parts[0]), minute: int.parse(parts[1]),
+    );
+  }
+
   String toJson() =>
       '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
 

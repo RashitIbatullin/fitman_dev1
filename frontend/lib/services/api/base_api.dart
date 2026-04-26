@@ -71,6 +71,15 @@ class BaseApiService {
     return _handleResponse(response);
   }
 
+  Future<dynamic> putList(String endpoint, {required List<Map<String, dynamic>> body}) async {
+    final response = await client.put(
+      Uri.parse('$baseUrl$endpoint'),
+      headers: BaseApiService.headers,
+      body: jsonEncode(body),
+    );
+    return _handleResponse(response);
+  }
+
   Future<void> delete(String endpoint, {Map<String, dynamic>? body}) async {
     final response = await client.delete(
       Uri.parse('$baseUrl$endpoint'),

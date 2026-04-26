@@ -2,53 +2,61 @@ import 'dart:convert';
 import 'package:fitman_backend/config/database.dart';
 import 'package:fitman_common/modules/rooms/room.model.dart';
 import 'package:postgres/postgres.dart';
+import 'room_schedule_repository.dart';
 
 abstract class RoomRepository {
   Future<Room?> getById(String id);
   Future<List<Room>> getAll({bool? isArchived, bool? isActive});
-  Future<Room> create(Room room);
+  Future<Room> create(Room room, {String? createdBy});
   Future<Room> update(String id, Room room);
   Future<void> archive(String id, String userId);
 }
 
 class RoomRepositoryImpl implements RoomRepository {
-  RoomRepositoryImpl(this._db);
+  RoomRepositoryImpl(this._db, this._scheduleRepository);
 
   final Database _db;
-Room _roomFromRow(Map<String, dynamic> row) {
-  final sanitizedRow = Map<String, dynamic>.from(row);
+  final RoomScheduleRepository _scheduleRepository;
 
-  // Convert DateTime objects to ISO 8601 strings
-  const dateFields = ['deactivate_at', 'archived_at', 'updated_at', 'created_at'];
-  for (final field in dateFields) {
-    if (sanitizedRow[field] is DateTime) {
-      sanitizedRow[field] = (sanitizedRow[field] as DateTime).toIso8601String();
-    }
-  }
+  Room _roomFromRow(Map<String, dynamic> row) {
+    final sanitizedRow = Map<String, dynamic>.from(row);
 
-  // Convert numeric fields that might be returned as strings from the DB
-  const numericFields = ['area', 'max_capacity', 'floor'];
-  for (final field in numericFields) {
-    if (sanitizedRow[field] is String) {
-      if (field == 'area') {
-        sanitizedRow[field] = double.tryParse(sanitizedRow[field] as String);
-      } else {
-        sanitizedRow[field] = int.tryParse(sanitizedRow[field] as String);
+    // Convert DateTime objects to ISO 8601 strings
+    const dateFields = [
+      'deactivate_at',
+      'archived_at',
+      'updated_at',
+      'created_at'
+    ];
+    for (final field in dateFields) {
+      if (sanitizedRow[field] is DateTime) {
+        sanitizedRow[field] = (sanitizedRow[field] as DateTime).toIso8601String();
       }
     }
+
+    // Convert numeric fields that might be returned as strings from the DB
+    const numericFields = ['area', 'max_capacity', 'floor'];
+    for (final field in numericFields) {
+      if (sanitizedRow[field] is String) {
+        if (field == 'area') {
+          sanitizedRow[field] = double.tryParse(sanitizedRow[field] as String);
+        } else {
+          sanitizedRow[field] = int.tryParse(sanitizedRow[field] as String);
+        }
+      }
+    }
+
+    return Room.fromMap(sanitizedRow);
   }
 
-  return Room.fromMap(sanitizedRow);
-}
-
   @override
-  Future<Room> create(Room room) async {
+  Future<Room> create(Room room, {String? createdBy}) async {
     final conn = await _db.connection;
     final result = await conn.execute(
       Sql.named('''
         WITH new_row AS (
-          INSERT INTO rooms (name, description, room_number, type, floor, building_id, max_capacity, area, is_active, deactivate_reason, deactivate_at, deactivate_by, archived_at, archived_by, archived_reason) 
-          VALUES (@name, @description, @room_number, @type, @floor, @building_id, @max_capacity, @area, @is_active, @deactivate_reason, @deactivate_at, @deactivate_by, @archived_at, @archived_by, @archived_reason) 
+          INSERT INTO rooms (name, description, room_number, type, floor, building_id, max_capacity, area, is_active, deactivate_reason, deactivate_at, deactivate_by, archived_at, archived_by, archived_reason, created_by, updated_by) 
+          VALUES (@name, @description, @room_number, @type, @floor, @building_id, @max_capacity, @area, @is_active, @deactivate_reason, @deactivate_at, @deactivate_by, @archived_at, @archived_by, @archived_reason, @user, @user) 
           RETURNING *
         )
         SELECT nr.id, nr.name, nr.description, nr.room_number, nr.type, nr.floor, nr.building_id, b.name as building_name, nr.max_capacity, nr.area, nr.is_active, nr.deactivate_reason, nr.deactivate_at, nr.deactivate_by, nr.photo_urls, nr.floor_plan_url, nr.note, nr.created_at, nr.updated_at, nr.created_by, nr.updated_by, nr.archived_at, nr.archived_by, nr.archived_reason
@@ -71,9 +79,15 @@ Room _roomFromRow(Map<String, dynamic> row) {
         'archived_at': room.archivedAt,
         'archived_by': room.archivedBy,
         'archived_reason': room.archivedReason,
+        'user': createdBy,
       },
     );
-    return _roomFromRow(result.first.toColumnMap());
+
+    final newRoom = _roomFromRow(result.first.toColumnMap());
+
+    await _scheduleRepository.createDefaultSchedules(newRoom.id, createdBy: createdBy);
+
+    return newRoom;
   }
 
   @override

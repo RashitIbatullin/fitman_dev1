@@ -3,6 +3,7 @@
 -- для системы "Фитнес-менеджер" (FitMan)
 -- ============================================
 
+DROP TABLE IF EXISTS room_schedules CASCADE;
 DROP TABLE IF EXISTS support_staff CASCADE;
 DROP TABLE IF EXISTS rooms CASCADE;
 DROP TABLE IF EXISTS buildings CASCADE;
@@ -339,6 +340,20 @@ CREATE TABLE rooms (
   archived_by UUID REFERENCES users(id),
   archived_reason TEXT,
   note VARCHAR(100)
+);
+
+CREATE TABLE room_schedules (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  room_id UUID NOT NULL REFERENCES rooms(id) ON DELETE CASCADE,
+  day_of_week SMALLINT NOT NULL CHECK (day_of_week >= 1 AND day_of_week <= 7),
+  is_working_day BOOLEAN NOT NULL DEFAULT true,
+  open_time TIME,
+  close_time TIME,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  created_by UUID REFERENCES users(id),
+  updated_by UUID REFERENCES users(id),
+  UNIQUE(room_id, day_of_week)
 );
 
 DO $$

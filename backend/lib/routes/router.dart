@@ -24,6 +24,8 @@ import '../modules/equipment/controllers/equipment_item.controller.dart';
 import '../modules/equipment/controllers/equipment_type.controller.dart';
 import '../modules/equipment/controllers/maintenance_controller.dart';
 import '../modules/rooms/controllers/building_controller.dart';
+import '../modules/rooms/room_providers.dart';
+import '../modules/rooms/controllers/room_schedule_controller.dart';
 import '../config/database.dart';
 import '../modules/equipment/services/equipment.service.dart';
 import '../modules/equipment/repositories/equipment_type.repository.dart';
@@ -67,12 +69,13 @@ final _trainingGroupsController = TrainingGroupsController(_db);
 final _analyticGroupsController = AnalyticGroupsController(_db);
 final _groupScheduleController = GroupScheduleController(_db);
 final _trainingGroupTypesController = TrainingGroupTypesController(_db);
-final _roomController = RoomController(_db);
+final _roomController = RoomController();
 final _equipmentItemController = EquipmentItemController(_db);
 final _equipmentTypeController = EquipmentTypeController(_db, _equipmentService);
 final _maintenanceController = MaintenanceController(_maintenanceService);
 final _repairTimeStandardController = RepairTimeStandardController(_repairTimeStandardService);
 final _buildingController = BuildingController(_db);
+final _roomScheduleController = RoomScheduleController(RoomProviders().roomScheduleService);
 
 Handler _protectedHandler(Handler handler) {
   return requireAuth()(handler);
@@ -263,7 +266,12 @@ final Router router = Router()
   ..mount('/api/group_schedules', _adminHandler(_groupScheduleController.router.call))
 
 // Infrastructure routes
-  ..mount('/api/rooms', _adminHandler(_roomController.router.call))
+  ..mount('/api/rooms', (Request request) {
+    final router = Router();
+    router.mount('/', _roomController.router.call);
+    router.mount('/', _roomScheduleController.router.call);
+    return _adminHandler(router.call)(request);
+  })
   ..mount('/api/equipment/items', _adminHandler(_equipmentItemController.handler))
   ..mount('/api/equipment/types', _adminHandler(_equipmentTypeController.handler))
   ..mount('/api/maintenance', _adminHandler(_maintenanceController.handler))

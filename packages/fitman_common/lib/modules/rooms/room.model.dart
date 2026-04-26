@@ -1,7 +1,7 @@
 // ignore_for_file: invalid_annotation_target
 
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:fitman_common/custom/time_of_day_custom.dart';
+
 import 'room_type.enum.dart';
 
 part 'room.model.freezed.dart';

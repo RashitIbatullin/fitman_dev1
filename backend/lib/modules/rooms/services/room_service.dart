@@ -16,8 +16,8 @@ class RoomService {
     return _roomRepository.getById(id);
   }
 
-  Future<Room> createRoom(Room room) {
-    return _roomRepository.create(room);
+  Future<Room> createRoom(Room room, {String? createdBy}) {
+    return _roomRepository.create(room, createdBy: createdBy);
   }
 
   Future<Room> updateRoom(String id, Room room) async {

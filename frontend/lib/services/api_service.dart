@@ -13,6 +13,7 @@ import 'api/maintenance_api.dart';
 import 'api/instructor_api.dart';
 import 'api/manager_api.dart';
 import 'api/recommendation_api.dart';
+import 'api/room_schedule_api.dart';
 import 'api/schedule_api.dart';
 import 'api/support_staff_api.dart';
 import 'api/employee_api.dart';
@@ -22,6 +23,7 @@ import 'package:fitman_common/modules/groups/training_group.model.dart';
 import 'package:fitman_common/modules/groups/analytic_group.model.dart';
 import 'package:fitman_common/modules/groups/group_schedule.model.dart';
 import 'package:fitman_common/modules/groups/training_group_type.model.dart';
+import 'package:fitman_common/modules/rooms/room_schedule.model.dart';
 
 
 class ApiService {
@@ -39,6 +41,7 @@ class ApiService {
   static final AdminApiService _adminApi = AdminApiService();
   static final RecommendationApiService _recommendationApi = RecommendationApiService();
   static final SupportStaffApi _supportStaffApi = SupportStaffApi();
+  static final RoomScheduleApiService _roomScheduleApi = RoomScheduleApiService();
   static final EmployeeApiService _employeeApi = EmployeeApiService();
 
 
@@ -150,6 +153,12 @@ class ApiService {
       _infrastructureApi.archiveEquipmentType(id, reason);
   static Future<void> unarchiveEquipmentType(String id) =>
       _infrastructureApi.unarchiveEquipmentType(id);
+
+  // --- Room Schedule Methods ---
+  static Future<List<RoomSchedule>> getRoomSchedules(String roomId) =>
+      _roomScheduleApi.getRoomSchedules(roomId);
+  static Future<void> updateRoomSchedules(String roomId, List<RoomSchedule> schedules) =>
+      _roomScheduleApi.updateRoomSchedules(roomId, schedules);
 
   // --- Maintenance History Methods ---
   static Future<List<EquipmentMaintenanceHistory>> getAllMaintenanceHistory() =>

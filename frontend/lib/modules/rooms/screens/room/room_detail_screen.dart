@@ -1,4 +1,4 @@
-import 'package:fitman_app/modules/clients/providers/work_schedule_provider.dart';
+
 import 'package:fitman_app/modules/equipment/screens/item/equipment_item_detail_screen.dart';
 import 'package:fitman_app/modules/equipment/screens/item/equipment_item_edit_screen.dart';
 import 'package:fitman_app/modules/equipment/providers/equipment/equipment_provider.dart';
@@ -8,8 +8,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fitman_app/modules/rooms/providers/room/room_provider.dart';
 import 'package:intl/intl.dart'; // Added for DateFormat
 import 'package:fitman_common/fitman_common.dart';
+
 import 'package:fitman_app/extensions/equipment_ui_extensions.dart';
 import 'room_edit_screen.dart'; // Import the edit screen
+import 'package:fitman_app/providers/room_schedule_provider.dart';
 
 class RoomDetailScreen extends ConsumerWidget {
   const RoomDetailScreen({super.key, required this.roomId});
@@ -112,9 +114,9 @@ class RoomDetailScreen extends ConsumerWidget {
   }
 
   Widget _buildScheduleTab(BuildContext context, WidgetRef ref, Room room) {
-    // Use default center schedule
-    final defaultScheduleAsync = ref.watch(workScheduleProvider);
-    return defaultScheduleAsync.when(
+    // Use room specific schedule
+    final roomScheduleAsync = ref.watch(roomScheduleProvider(room.id));
+    return roomScheduleAsync.when(
       data: (schedules) {
         // Sort schedules by day of the week to ensure correct order
         schedules.sort((a, b) => a.dayOfWeek.compareTo(b.dayOfWeek));
@@ -125,12 +127,12 @@ class RoomDetailScreen extends ConsumerWidget {
             return ListTile(
               title: Text(_getWeekdayName(schedule.dayOfWeek)),
               trailing: Text(
-                schedule.isDayOff
+                !schedule.isWorkingDay
                     ? 'Выходной'
-                    : '${schedule.startTime} - ${schedule.endTime}',
+                    : '${schedule.openTime?.toJson() ?? ''} - ${schedule.closeTime?.toJson() ?? ''}',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  color: schedule.isDayOff ? Colors.red : Colors.green,
+                  color: !schedule.isWorkingDay ? Colors.red : Colors.green,
                 ),
               ),
             );
