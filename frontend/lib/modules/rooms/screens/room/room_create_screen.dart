@@ -208,7 +208,6 @@ class _RoomCreateScreenState extends ConsumerState<RoomCreateScreen> {
         maxCapacity: int.tryParse(_maxCapacityController.text) ?? 0,
         area: double.tryParse(_areaController.text),
         photoUrls: [],
-        workingDays: [], // Default to empty
       );
 
       try {

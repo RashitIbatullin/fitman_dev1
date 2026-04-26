@@ -31,9 +31,6 @@ mixin _$Room {
   String? get buildingName => throw _privateConstructorUsedError;
   int get maxCapacity => throw _privateConstructorUsedError;
   double? get area => throw _privateConstructorUsedError;
-  TimeOfDayCustom? get openTime => throw _privateConstructorUsedError;
-  TimeOfDayCustom? get closeTime => throw _privateConstructorUsedError;
-  List<int> get workingDays => throw _privateConstructorUsedError;
   bool get isActive => throw _privateConstructorUsedError;
   String? get deactivateReason => throw _privateConstructorUsedError;
   DateTime? get deactivateAt => throw _privateConstructorUsedError;
@@ -72,9 +69,6 @@ abstract class $RoomCopyWith<$Res> {
       String? buildingName,
       int maxCapacity,
       double? area,
-      TimeOfDayCustom? openTime,
-      TimeOfDayCustom? closeTime,
-      List<int> workingDays,
       bool isActive,
       String? deactivateReason,
       DateTime? deactivateAt,
@@ -114,9 +108,6 @@ class _$RoomCopyWithImpl<$Res, $Val extends Room>
     Object? buildingName = freezed,
     Object? maxCapacity = null,
     Object? area = freezed,
-    Object? openTime = freezed,
-    Object? closeTime = freezed,
-    Object? workingDays = null,
     Object? isActive = null,
     Object? deactivateReason = freezed,
     Object? deactivateAt = freezed,
@@ -171,18 +162,6 @@ class _$RoomCopyWithImpl<$Res, $Val extends Room>
           ? _value.area
           : area // ignore: cast_nullable_to_non_nullable
               as double?,
-      openTime: freezed == openTime
-          ? _value.openTime
-          : openTime // ignore: cast_nullable_to_non_nullable
-              as TimeOfDayCustom?,
-      closeTime: freezed == closeTime
-          ? _value.closeTime
-          : closeTime // ignore: cast_nullable_to_non_nullable
-              as TimeOfDayCustom?,
-      workingDays: null == workingDays
-          ? _value.workingDays
-          : workingDays // ignore: cast_nullable_to_non_nullable
-              as List<int>,
       isActive: null == isActive
           ? _value.isActive
           : isActive // ignore: cast_nullable_to_non_nullable
@@ -253,9 +232,6 @@ abstract class _$$RoomImplCopyWith<$Res> implements $RoomCopyWith<$Res> {
       String? buildingName,
       int maxCapacity,
       double? area,
-      TimeOfDayCustom? openTime,
-      TimeOfDayCustom? closeTime,
-      List<int> workingDays,
       bool isActive,
       String? deactivateReason,
       DateTime? deactivateAt,
@@ -292,9 +268,6 @@ class __$$RoomImplCopyWithImpl<$Res>
     Object? buildingName = freezed,
     Object? maxCapacity = null,
     Object? area = freezed,
-    Object? openTime = freezed,
-    Object? closeTime = freezed,
-    Object? workingDays = null,
     Object? isActive = null,
     Object? deactivateReason = freezed,
     Object? deactivateAt = freezed,
@@ -349,18 +322,6 @@ class __$$RoomImplCopyWithImpl<$Res>
           ? _value.area
           : area // ignore: cast_nullable_to_non_nullable
               as double?,
-      openTime: freezed == openTime
-          ? _value.openTime
-          : openTime // ignore: cast_nullable_to_non_nullable
-              as TimeOfDayCustom?,
-      closeTime: freezed == closeTime
-          ? _value.closeTime
-          : closeTime // ignore: cast_nullable_to_non_nullable
-              as TimeOfDayCustom?,
-      workingDays: null == workingDays
-          ? _value._workingDays
-          : workingDays // ignore: cast_nullable_to_non_nullable
-              as List<int>,
       isActive: null == isActive
           ? _value.isActive
           : isActive // ignore: cast_nullable_to_non_nullable
@@ -427,9 +388,6 @@ class _$RoomImpl implements _Room {
       this.buildingName,
       this.maxCapacity = 30,
       this.area,
-      this.openTime,
-      this.closeTime,
-      final List<int> workingDays = const [],
       this.isActive = true,
       this.deactivateReason,
       this.deactivateAt,
@@ -442,8 +400,7 @@ class _$RoomImpl implements _Room {
       this.updatedBy,
       this.archivedBy,
       this.archivedByName})
-      : _workingDays = workingDays,
-        _photoUrls = photoUrls;
+      : _photoUrls = photoUrls;
 
   factory _$RoomImpl.fromJson(Map<String, dynamic> json) =>
       _$$RoomImplFromJson(json);
@@ -470,19 +427,6 @@ class _$RoomImpl implements _Room {
   final int maxCapacity;
   @override
   final double? area;
-  @override
-  final TimeOfDayCustom? openTime;
-  @override
-  final TimeOfDayCustom? closeTime;
-  final List<int> _workingDays;
-  @override
-  @JsonKey()
-  List<int> get workingDays {
-    if (_workingDays is EqualUnmodifiableListView) return _workingDays;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_workingDays);
-  }
-
   @override
   @JsonKey()
   final bool isActive;
@@ -518,7 +462,7 @@ class _$RoomImpl implements _Room {
 
   @override
   String toString() {
-    return 'Room(id: $id, name: $name, description: $description, roomNumber: $roomNumber, type: $type, floor: $floor, buildingId: $buildingId, buildingName: $buildingName, maxCapacity: $maxCapacity, area: $area, openTime: $openTime, closeTime: $closeTime, workingDays: $workingDays, isActive: $isActive, deactivateReason: $deactivateReason, deactivateAt: $deactivateAt, deactivateBy: $deactivateBy, photoUrls: $photoUrls, floorPlanUrl: $floorPlanUrl, note: $note, archivedAt: $archivedAt, archivedReason: $archivedReason, updatedBy: $updatedBy, archivedBy: $archivedBy, archivedByName: $archivedByName)';
+    return 'Room(id: $id, name: $name, description: $description, roomNumber: $roomNumber, type: $type, floor: $floor, buildingId: $buildingId, buildingName: $buildingName, maxCapacity: $maxCapacity, area: $area, isActive: $isActive, deactivateReason: $deactivateReason, deactivateAt: $deactivateAt, deactivateBy: $deactivateBy, photoUrls: $photoUrls, floorPlanUrl: $floorPlanUrl, note: $note, archivedAt: $archivedAt, archivedReason: $archivedReason, updatedBy: $updatedBy, archivedBy: $archivedBy, archivedByName: $archivedByName)';
   }
 
   @override
@@ -541,12 +485,6 @@ class _$RoomImpl implements _Room {
             (identical(other.maxCapacity, maxCapacity) ||
                 other.maxCapacity == maxCapacity) &&
             (identical(other.area, area) || other.area == area) &&
-            (identical(other.openTime, openTime) ||
-                other.openTime == openTime) &&
-            (identical(other.closeTime, closeTime) ||
-                other.closeTime == closeTime) &&
-            const DeepCollectionEquality()
-                .equals(other._workingDays, _workingDays) &&
             (identical(other.isActive, isActive) ||
                 other.isActive == isActive) &&
             (identical(other.deactivateReason, deactivateReason) ||
@@ -586,9 +524,6 @@ class _$RoomImpl implements _Room {
         buildingName,
         maxCapacity,
         area,
-        openTime,
-        closeTime,
-        const DeepCollectionEquality().hash(_workingDays),
         isActive,
         deactivateReason,
         deactivateAt,
@@ -631,9 +566,6 @@ abstract class _Room implements Room {
       final String? buildingName,
       final int maxCapacity,
       final double? area,
-      final TimeOfDayCustom? openTime,
-      final TimeOfDayCustom? closeTime,
-      final List<int> workingDays,
       final bool isActive,
       final String? deactivateReason,
       final DateTime? deactivateAt,
@@ -670,12 +602,6 @@ abstract class _Room implements Room {
   int get maxCapacity;
   @override
   double? get area;
-  @override
-  TimeOfDayCustom? get openTime;
-  @override
-  TimeOfDayCustom? get closeTime;
-  @override
-  List<int> get workingDays;
   @override
   bool get isActive;
   @override

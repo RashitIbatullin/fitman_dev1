@@ -47,11 +47,11 @@ Room _roomFromRow(Map<String, dynamic> row) {
     final result = await conn.execute(
       Sql.named('''
         WITH new_row AS (
-          INSERT INTO rooms (name, description, room_number, type, floor, building_id, max_capacity, area, open_time, close_time, working_days, is_active, deactivate_reason, deactivate_at, deactivate_by, archived_at, archived_by, archived_reason) 
-          VALUES (@name, @description, @room_number, @type, @floor, @building_id, @max_capacity, @area, @open_time, @close_time, @working_days, @is_active, @deactivate_reason, @deactivate_at, @deactivate_by, @archived_at, @archived_by, @archived_reason) 
+          INSERT INTO rooms (name, description, room_number, type, floor, building_id, max_capacity, area, is_active, deactivate_reason, deactivate_at, deactivate_by, archived_at, archived_by, archived_reason) 
+          VALUES (@name, @description, @room_number, @type, @floor, @building_id, @max_capacity, @area, @is_active, @deactivate_reason, @deactivate_at, @deactivate_by, @archived_at, @archived_by, @archived_reason) 
           RETURNING *
         )
-        SELECT nr.id, nr.name, nr.description, nr.room_number, nr.type, nr.floor, nr.building_id, b.name as building_name, nr.max_capacity, nr.area, nr.open_time, nr.close_time, nr.working_days, nr.is_active, nr.deactivate_reason, nr.deactivate_at, nr.deactivate_by, nr.photo_urls, nr.floor_plan_url, nr.note, nr.created_at, nr.updated_at, nr.created_by, nr.updated_by, nr.archived_at, nr.archived_by, nr.archived_reason
+        SELECT nr.id, nr.name, nr.description, nr.room_number, nr.type, nr.floor, nr.building_id, b.name as building_name, nr.max_capacity, nr.area, nr.is_active, nr.deactivate_reason, nr.deactivate_at, nr.deactivate_by, nr.photo_urls, nr.floor_plan_url, nr.note, nr.created_at, nr.updated_at, nr.created_by, nr.updated_by, nr.archived_at, nr.archived_by, nr.archived_reason
         FROM new_row nr
         LEFT JOIN buildings b ON nr.building_id = b.id
       '''),
@@ -64,9 +64,6 @@ Room _roomFromRow(Map<String, dynamic> row) {
         'building_id': room.buildingId,
         'max_capacity': room.maxCapacity,
         'area': room.area,
-        'open_time': room.openTime?.toString(),
-        'close_time': room.closeTime?.toString(),
-        'working_days': jsonEncode(room.workingDays),
         'is_active': room.isActive,
         'deactivate_reason': room.deactivateReason,
         'deactivate_at': room.deactivateAt,
@@ -95,12 +92,12 @@ Room _roomFromRow(Map<String, dynamic> row) {
       final conn = await _db.connection;
       var query = '''
           SELECT 
-            r.id, r.name, r.description, r.room_number, r.type, r.floor, r.building_id, b.name as building_name, 
-            r.max_capacity, r.area, r.open_time, r.close_time, r.working_days, r.is_active, r.deactivate_reason, 
-            r.deactivate_at, r.deactivate_by, r.photo_urls, r.floor_plan_url, r.note, r.created_at, r.updated_at, 
-            r.created_by, r.updated_by, r.archived_at, r.archived_by, r.archived_reason,
-            (archiver.last_name || ' ' || archiver.first_name) AS archived_by_name
-          FROM rooms r 
+                          r.id, r.name, r.description, r.room_number, r.type, r.floor, r.building_id, b.name as building_name, 
+                          r.max_capacity, r.area, r.is_active, r.deactivate_reason, 
+                          r.deactivate_at, r.deactivate_by, r.photo_urls, r.floor_plan_url, r.note, r.created_at, r.updated_at, 
+                          r.created_by, r.updated_by, r.archived_at, r.archived_by, r.archived_reason,
+                          (archiver.last_name || ' ' || archiver.first_name) AS archived_by_name
+                        FROM rooms r
           LEFT JOIN buildings b ON r.building_id = b.id
           LEFT JOIN users archiver ON r.archived_by = archiver.id
       ''';
@@ -146,12 +143,11 @@ Room _roomFromRow(Map<String, dynamic> row) {
             '''
               SELECT 
                 r.id, r.name, r.description, r.room_number, r.type, r.floor, r.building_id, b.name as building_name, 
-                r.max_capacity, r.area, r.open_time, r.close_time, r.working_days, r.is_active, r.deactivate_reason, 
+                r.max_capacity, r.area, r.is_active, r.deactivate_reason, 
                 r.deactivate_at, r.deactivate_by, r.photo_urls, r.floor_plan_url, r.note, r.created_at, r.updated_at, 
                 r.created_by, r.updated_by, r.archived_at, r.archived_by, r.archived_reason,
                 (archiver.last_name || ' ' || archiver.first_name) AS archived_by_name
-              FROM rooms r 
-              LEFT JOIN buildings b ON r.building_id = b.id
+              FROM rooms r              LEFT JOIN buildings b ON r.building_id = b.id
               LEFT JOIN users archiver ON r.archived_by = archiver.id
               WHERE r.id = @id
             '''),
@@ -184,9 +180,6 @@ Room _roomFromRow(Map<String, dynamic> row) {
           building_id = @building_id, 
           max_capacity = @max_capacity, 
           area = @area, 
-          open_time = @open_time, 
-          close_time = @close_time, 
-          working_days = @working_days, 
           photo_urls = @photo_urls, 
           floor_plan_url = @floor_plan_url,
           note = @note,
@@ -211,9 +204,6 @@ Room _roomFromRow(Map<String, dynamic> row) {
         'building_id': room.buildingId,
         'max_capacity': room.maxCapacity,
         'area': room.area,
-        'open_time': room.openTime?.toString(),
-        'close_time': room.closeTime?.toString(),
-        'working_days': jsonEncode(room.workingDays),
         'photo_urls': jsonEncode(room.photoUrls),
         'floor_plan_url': room.floorPlanUrl,
         'note': room.note,

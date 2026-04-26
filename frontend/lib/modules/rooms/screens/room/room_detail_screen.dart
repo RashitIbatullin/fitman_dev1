@@ -112,32 +112,7 @@ class RoomDetailScreen extends ConsumerWidget {
   }
 
   Widget _buildScheduleTab(BuildContext context, WidgetRef ref, Room room) {
-    // If room has its own schedule
-    if (room.workingDays.isNotEmpty &&
-        room.openTime != null &&
-        room.closeTime != null) {
-      return ListView.builder(
-        itemCount: 7,
-        itemBuilder: (context, index) {
-          final day = index + 1;
-          final isWorkingDay = room.workingDays.contains(day);
-          return ListTile(
-            title: Text(_getWeekdayName(day)),
-            trailing: Text(
-              isWorkingDay
-                  ? '${room.openTime!.toJson()} - ${room.closeTime!.toJson()}'
-                  : 'Выходной',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: isWorkingDay ? Colors.green : Colors.red,
-              ),
-            ),
-          );
-        },
-      );
-    }
-
-    // Otherwise, use default center schedule
+    // Use default center schedule
     final defaultScheduleAsync = ref.watch(workScheduleProvider);
     return defaultScheduleAsync.when(
       data: (schedules) {
