@@ -4,7 +4,7 @@ import 'package:postgres/postgres.dart';
 import 'app_config.dart';
 
 import '../modules/groups/repositories/group_repository.dart';
-import '../modules/rooms/repositories/room.repository.dart';
+import '../modules/rooms/repositories/room_repository.dart';
 import '../modules/equipment/repositories/equipment_item.repository.dart';
 import '../modules/equipment/repositories/equipment_type.repository.dart';
 import '../modules/users/repositories/user_repository.dart';

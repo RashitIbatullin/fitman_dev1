@@ -1,5 +1,5 @@
 import 'package:fitman_backend/modules/equipment/repositories/equipment_item.repository.dart';
-import 'package:fitman_backend/modules/rooms/repositories/room.repository.dart';
+import 'package:fitman_backend/modules/rooms/repositories/room_repository.dart';
 import 'package:fitman_common/modules/rooms/room.model.dart';
 
 class RoomService {
