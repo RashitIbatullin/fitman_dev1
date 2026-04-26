@@ -32,16 +32,21 @@ mixin _$EquipmentItem {
   EquipmentStatus get status => throw _privateConstructorUsedError;
   int get conditionRating => throw _privateConstructorUsedError;
   String? get conditionNotes => throw _privateConstructorUsedError;
+  @NullableDateTimeConverter()
   DateTime? get lastMaintenanceDate => throw _privateConstructorUsedError;
+  @NullableDateTimeConverter()
   DateTime? get nextMaintenanceDate => throw _privateConstructorUsedError;
   String? get maintenanceNotes => throw _privateConstructorUsedError;
+  @NullableDateTimeConverter()
   DateTime? get purchaseDate => throw _privateConstructorUsedError;
   double? get purchasePrice => throw _privateConstructorUsedError;
   String? get supplier => throw _privateConstructorUsedError;
   int? get warrantyMonths => throw _privateConstructorUsedError;
   int get usageHours => throw _privateConstructorUsedError;
+  @NullableDateTimeConverter()
   DateTime? get lastUsedDate => throw _privateConstructorUsedError;
   List<String> get photoUrls => throw _privateConstructorUsedError;
+  @NullableDateTimeConverter()
   DateTime? get archivedAt => throw _privateConstructorUsedError;
   String? get archivedBy => throw _privateConstructorUsedError;
   String? get archivedReason => throw _privateConstructorUsedError;
@@ -74,17 +79,17 @@ abstract class $EquipmentItemCopyWith<$Res> {
       @EquipmentStatusConverter() EquipmentStatus status,
       int conditionRating,
       String? conditionNotes,
-      DateTime? lastMaintenanceDate,
-      DateTime? nextMaintenanceDate,
+      @NullableDateTimeConverter() DateTime? lastMaintenanceDate,
+      @NullableDateTimeConverter() DateTime? nextMaintenanceDate,
       String? maintenanceNotes,
-      DateTime? purchaseDate,
+      @NullableDateTimeConverter() DateTime? purchaseDate,
       double? purchasePrice,
       String? supplier,
       int? warrantyMonths,
       int usageHours,
-      DateTime? lastUsedDate,
+      @NullableDateTimeConverter() DateTime? lastUsedDate,
       List<String> photoUrls,
-      DateTime? archivedAt,
+      @NullableDateTimeConverter() DateTime? archivedAt,
       String? archivedBy,
       String? archivedReason});
 }
@@ -250,17 +255,17 @@ abstract class _$$EquipmentItemImplCopyWith<$Res>
       @EquipmentStatusConverter() EquipmentStatus status,
       int conditionRating,
       String? conditionNotes,
-      DateTime? lastMaintenanceDate,
-      DateTime? nextMaintenanceDate,
+      @NullableDateTimeConverter() DateTime? lastMaintenanceDate,
+      @NullableDateTimeConverter() DateTime? nextMaintenanceDate,
       String? maintenanceNotes,
-      DateTime? purchaseDate,
+      @NullableDateTimeConverter() DateTime? purchaseDate,
       double? purchasePrice,
       String? supplier,
       int? warrantyMonths,
       int usageHours,
-      DateTime? lastUsedDate,
+      @NullableDateTimeConverter() DateTime? lastUsedDate,
       List<String> photoUrls,
-      DateTime? archivedAt,
+      @NullableDateTimeConverter() DateTime? archivedAt,
       String? archivedBy,
       String? archivedReason});
 }
@@ -419,17 +424,17 @@ class _$EquipmentItemImpl implements _EquipmentItem {
       @EquipmentStatusConverter() required this.status,
       this.conditionRating = 3,
       this.conditionNotes,
-      this.lastMaintenanceDate,
-      this.nextMaintenanceDate,
+      @NullableDateTimeConverter() this.lastMaintenanceDate,
+      @NullableDateTimeConverter() this.nextMaintenanceDate,
       this.maintenanceNotes,
-      this.purchaseDate,
+      @NullableDateTimeConverter() this.purchaseDate,
       this.purchasePrice,
       this.supplier,
       this.warrantyMonths,
       this.usageHours = 0,
-      this.lastUsedDate,
+      @NullableDateTimeConverter() this.lastUsedDate,
       final List<String> photoUrls = const [],
-      this.archivedAt,
+      @NullableDateTimeConverter() this.archivedAt,
       this.archivedBy,
       this.archivedReason})
       : _photoUrls = photoUrls;
@@ -462,12 +467,15 @@ class _$EquipmentItemImpl implements _EquipmentItem {
   @override
   final String? conditionNotes;
   @override
+  @NullableDateTimeConverter()
   final DateTime? lastMaintenanceDate;
   @override
+  @NullableDateTimeConverter()
   final DateTime? nextMaintenanceDate;
   @override
   final String? maintenanceNotes;
   @override
+  @NullableDateTimeConverter()
   final DateTime? purchaseDate;
   @override
   final double? purchasePrice;
@@ -479,6 +487,7 @@ class _$EquipmentItemImpl implements _EquipmentItem {
   @JsonKey()
   final int usageHours;
   @override
+  @NullableDateTimeConverter()
   final DateTime? lastUsedDate;
   final List<String> _photoUrls;
   @override
@@ -490,6 +499,7 @@ class _$EquipmentItemImpl implements _EquipmentItem {
   }
 
   @override
+  @NullableDateTimeConverter()
   final DateTime? archivedAt;
   @override
   final String? archivedBy;
@@ -610,17 +620,17 @@ abstract class _EquipmentItem implements EquipmentItem {
       @EquipmentStatusConverter() required final EquipmentStatus status,
       final int conditionRating,
       final String? conditionNotes,
-      final DateTime? lastMaintenanceDate,
-      final DateTime? nextMaintenanceDate,
+      @NullableDateTimeConverter() final DateTime? lastMaintenanceDate,
+      @NullableDateTimeConverter() final DateTime? nextMaintenanceDate,
       final String? maintenanceNotes,
-      final DateTime? purchaseDate,
+      @NullableDateTimeConverter() final DateTime? purchaseDate,
       final double? purchasePrice,
       final String? supplier,
       final int? warrantyMonths,
       final int usageHours,
-      final DateTime? lastUsedDate,
+      @NullableDateTimeConverter() final DateTime? lastUsedDate,
       final List<String> photoUrls,
-      final DateTime? archivedAt,
+      @NullableDateTimeConverter() final DateTime? archivedAt,
       final String? archivedBy,
       final String? archivedReason}) = _$EquipmentItemImpl;
 
@@ -651,12 +661,15 @@ abstract class _EquipmentItem implements EquipmentItem {
   @override
   String? get conditionNotes;
   @override
+  @NullableDateTimeConverter()
   DateTime? get lastMaintenanceDate;
   @override
+  @NullableDateTimeConverter()
   DateTime? get nextMaintenanceDate;
   @override
   String? get maintenanceNotes;
   @override
+  @NullableDateTimeConverter()
   DateTime? get purchaseDate;
   @override
   double? get purchasePrice;
@@ -667,10 +680,12 @@ abstract class _EquipmentItem implements EquipmentItem {
   @override
   int get usageHours;
   @override
+  @NullableDateTimeConverter()
   DateTime? get lastUsedDate;
   @override
   List<String> get photoUrls;
   @override
+  @NullableDateTimeConverter()
   DateTime? get archivedAt;
   @override
   String? get archivedBy;

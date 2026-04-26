@@ -20,30 +20,25 @@ _$EquipmentItemImpl _$$EquipmentItemImplFromJson(Map<String, dynamic> json) =>
           .fromJson((json['status'] as num).toInt()),
       conditionRating: (json['condition_rating'] as num?)?.toInt() ?? 3,
       conditionNotes: json['condition_notes'] as String?,
-      lastMaintenanceDate: json['last_maintenance_date'] == null
-          ? null
-          : DateTime.parse(json['last_maintenance_date'] as String),
-      nextMaintenanceDate: json['next_maintenance_date'] == null
-          ? null
-          : DateTime.parse(json['next_maintenance_date'] as String),
+      lastMaintenanceDate: const NullableDateTimeConverter()
+          .fromJson(json['last_maintenance_date']),
+      nextMaintenanceDate: const NullableDateTimeConverter()
+          .fromJson(json['next_maintenance_date']),
       maintenanceNotes: json['maintenance_notes'] as String?,
-      purchaseDate: json['purchase_date'] == null
-          ? null
-          : DateTime.parse(json['purchase_date'] as String),
+      purchaseDate:
+          const NullableDateTimeConverter().fromJson(json['purchase_date']),
       purchasePrice: (json['purchase_price'] as num?)?.toDouble(),
       supplier: json['supplier'] as String?,
       warrantyMonths: (json['warranty_months'] as num?)?.toInt(),
       usageHours: (json['usage_hours'] as num?)?.toInt() ?? 0,
-      lastUsedDate: json['last_used_date'] == null
-          ? null
-          : DateTime.parse(json['last_used_date'] as String),
+      lastUsedDate:
+          const NullableDateTimeConverter().fromJson(json['last_used_date']),
       photoUrls: (json['photo_urls'] as List<dynamic>?)
               ?.map((e) => e as String)
               .toList() ??
           const [],
-      archivedAt: json['archived_at'] == null
-          ? null
-          : DateTime.parse(json['archived_at'] as String),
+      archivedAt:
+          const NullableDateTimeConverter().fromJson(json['archived_at']),
       archivedBy: json['archived_by'] as String?,
       archivedReason: json['archived_reason'] as String?,
     );
@@ -61,17 +56,22 @@ Map<String, dynamic> _$$EquipmentItemImplToJson(_$EquipmentItemImpl instance) =>
       'status': const EquipmentStatusConverter().toJson(instance.status),
       'condition_rating': instance.conditionRating,
       'condition_notes': instance.conditionNotes,
-      'last_maintenance_date': instance.lastMaintenanceDate?.toIso8601String(),
-      'next_maintenance_date': instance.nextMaintenanceDate?.toIso8601String(),
+      'last_maintenance_date': const NullableDateTimeConverter()
+          .toJson(instance.lastMaintenanceDate),
+      'next_maintenance_date': const NullableDateTimeConverter()
+          .toJson(instance.nextMaintenanceDate),
       'maintenance_notes': instance.maintenanceNotes,
-      'purchase_date': instance.purchaseDate?.toIso8601String(),
+      'purchase_date':
+          const NullableDateTimeConverter().toJson(instance.purchaseDate),
       'purchase_price': instance.purchasePrice,
       'supplier': instance.supplier,
       'warranty_months': instance.warrantyMonths,
       'usage_hours': instance.usageHours,
-      'last_used_date': instance.lastUsedDate?.toIso8601String(),
+      'last_used_date':
+          const NullableDateTimeConverter().toJson(instance.lastUsedDate),
       'photo_urls': instance.photoUrls,
-      'archived_at': instance.archivedAt?.toIso8601String(),
+      'archived_at':
+          const NullableDateTimeConverter().toJson(instance.archivedAt),
       'archived_by': instance.archivedBy,
       'archived_reason': instance.archivedReason,
     };

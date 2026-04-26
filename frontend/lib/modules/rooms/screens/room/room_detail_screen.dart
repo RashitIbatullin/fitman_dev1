@@ -1,3 +1,7 @@
+import 'package:fitman_app/modules/clients/providers/work_schedule_provider.dart';
+import 'package:fitman_app/modules/equipment/screens/item/equipment_item_detail_screen.dart';
+import 'package:fitman_app/modules/equipment/screens/item/equipment_item_edit_screen.dart';
+import 'package:fitman_app/modules/equipment/providers/equipment/equipment_provider.dart';
 import 'package:fitman_app/modules/rooms/room_type_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -72,8 +76,8 @@ class RoomDetailScreen extends ConsumerWidget {
               children: [
                 // 1. Основное
                 _buildMainInfoTab(context, room),
-                // 2. Расписание (Placeholder)
-                const Center(child: Text('Информация о расписании')),
+                // 2. Расписание (Implemented)
+                _buildScheduleTab(context, ref, room),
                 // 3. Оборудование (Implemented)
                 _buildEquipmentTab(context, ref, room.id),
                 // 4. Статистика (Placeholder)
@@ -86,7 +90,138 @@ class RoomDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildEquipmentTab(BuildContext context, WidgetRef ref, String roomId) {
+  String _getWeekdayName(int day) {
+    switch (day) {
+      case 1:
+        return 'Понедельник';
+      case 2:
+        return 'Вторник';
+      case 3:
+        return 'Среда';
+      case 4:
+        return 'Четверг';
+      case 5:
+        return 'Пятница';
+      case 6:
+        return 'Суббота';
+      case 7:
+        return 'Воскресенье';
+      default:
+        return '';
+    }
+  }
+
+  Widget _buildScheduleTab(BuildContext context, WidgetRef ref, Room room) {
+    // If room has its own schedule
+    if (room.workingDays.isNotEmpty &&
+        room.openTime != null &&
+        room.closeTime != null) {
+      return ListView.builder(
+        itemCount: 7,
+        itemBuilder: (context, index) {
+          final day = index + 1;
+          final isWorkingDay = room.workingDays.contains(day);
+          return ListTile(
+            title: Text(_getWeekdayName(day)),
+            trailing: Text(
+              isWorkingDay
+                  ? '${room.openTime!.toJson()} - ${room.closeTime!.toJson()}'
+                  : 'Выходной',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: isWorkingDay ? Colors.green : Colors.red,
+              ),
+            ),
+          );
+        },
+      );
+    }
+
+    // Otherwise, use default center schedule
+    final defaultScheduleAsync = ref.watch(workScheduleProvider);
+    return defaultScheduleAsync.when(
+      data: (schedules) {
+        // Sort schedules by day of the week to ensure correct order
+        schedules.sort((a, b) => a.dayOfWeek.compareTo(b.dayOfWeek));
+        return ListView.builder(
+          itemCount: schedules.length,
+          itemBuilder: (context, index) {
+            final schedule = schedules[index];
+            return ListTile(
+              title: Text(_getWeekdayName(schedule.dayOfWeek)),
+              trailing: Text(
+                schedule.isDayOff
+                    ? 'Выходной'
+                    : '${schedule.startTime} - ${schedule.endTime}',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: schedule.isDayOff ? Colors.red : Colors.green,
+                ),
+              ),
+            );
+          },
+        );
+      },
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (err, stack) =>
+          Center(child: Text('Ошибка загрузки расписания: $err')),
+    );
+  }
+
+  void _showArchiveDialog(
+      BuildContext context, WidgetRef ref, EquipmentItem item) {
+    final reasonController = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Архивировать оборудование'),
+          content: Form(
+            key: formKey,
+            child: TextFormField(
+              controller: reasonController,
+              autofocus: true,
+              decoration: const InputDecoration(
+                labelText: 'Причина архивации',
+                hintText: 'Укажите причину',
+              ),
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return 'Причина не может быть пустой.';
+                }
+                return null;
+              },
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Отмена'),
+            ),
+            TextButton(
+              onPressed: () {
+                if (formKey.currentState!.validate()) {
+                  ref.read(equipmentProvider.notifier).archiveItem(
+                        item.id,
+                        reasonController.text.trim(),
+                      );
+                  Navigator.of(context).pop();
+                  // Invalidate provider to refresh the list
+                  ref.invalidate(equipmentInRoomProvider(roomId));
+                }
+              },
+              child: const Text('Архивировать'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildEquipmentTab(
+      BuildContext context, WidgetRef ref, String roomId) {
     final equipmentAsync = ref.watch(equipmentInRoomProvider(roomId));
 
     return equipmentAsync.when(
@@ -107,7 +242,7 @@ class RoomDetailScreen extends ConsumerWidget {
             return Card(
               margin: const EdgeInsets.symmetric(vertical: 4.0),
               child: ListTile(
-                leading: const Icon(Icons.fitness_center, color: Colors.blue),
+                leading: Icon(item.status.icon, color: item.status.color),
                 title: Text(item.model ?? 'Оборудование без модели'),
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -117,13 +252,45 @@ class RoomDetailScreen extends ConsumerWidget {
                       Text('Производитель: ${item.manufacturer}'),
                   ],
                 ),
-                trailing: Text(
-                  item.status.displayName,
-                  style: TextStyle(
-                    color: item.status.color,
-                    fontWeight: FontWeight.bold,
-                  ),
+                trailing: PopupMenuButton<String>(
+                  onSelected: (value) {
+                    if (value == 'edit') {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              EquipmentItemEditScreen(itemId: item.id, equipmentItem: item),
+                        ),
+                      );
+                    } else if (value == 'archive') {
+                      _showArchiveDialog(context, ref, item);
+                    }
+                  },
+                  itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                    const PopupMenuItem<String>(
+                      value: 'edit',
+                      child: ListTile(
+                        leading: Icon(Icons.edit_outlined),
+                        title: Text('Редактировать'),
+                      ),
+                    ),
+                    const PopupMenuItem<String>(
+                      value: 'archive',
+                      child: ListTile(
+                        leading: Icon(Icons.archive_outlined),
+                        title: Text('Архивировать'),
+                      ),
+                    ),
+                  ],
                 ),
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          EquipmentItemDetailScreen(itemId: item.id),
+                    ),
+                  );
+                },
               ),
             );
           },

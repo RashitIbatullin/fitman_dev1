@@ -1,3 +1,4 @@
+import 'package:fitman_common/custom/datetime_converter.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'equipment_status.enum.dart';
 
@@ -31,17 +32,17 @@ class EquipmentItem with _$EquipmentItem {
     required EquipmentStatus status,
     @Default(3) int conditionRating,
     String? conditionNotes,
-    DateTime? lastMaintenanceDate,
-    DateTime? nextMaintenanceDate,
+    @NullableDateTimeConverter() DateTime? lastMaintenanceDate,
+    @NullableDateTimeConverter() DateTime? nextMaintenanceDate,
     String? maintenanceNotes,
-    DateTime? purchaseDate,
+    @NullableDateTimeConverter() DateTime? purchaseDate,
     double? purchasePrice,
     String? supplier,
     int? warrantyMonths,
     @Default(0) int usageHours,
-    DateTime? lastUsedDate,
+    @NullableDateTimeConverter() DateTime? lastUsedDate,
     @Default([]) List<String> photoUrls,
-    DateTime? archivedAt,
+    @NullableDateTimeConverter() DateTime? archivedAt,
     String? archivedBy,
     String? archivedReason,
   }) = _EquipmentItem;
