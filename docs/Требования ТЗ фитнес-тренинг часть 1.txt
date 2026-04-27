@@ -1158,23 +1158,23 @@ o Настройка скидок при покупке пакета
 8.1.1 Модель здания
 Хранит основную информацию о корпусах фитнес-центра.
 Модель данных:
-  class Building {
-    String id;
-    String name;      // Название, e.g., "Главный корпус"
-    String address;   // Адрес
-    String? note;     // Примечание
-    DateTime? archivedAt; // Дата архивации
-  }
+class Building {
+  String id;
+  String name;           // Название, e.g., "Главный корпус"
+  String address;        // Адрес
+  String? note;          // Примечание
+  DateTime? archivedAt;  // Дата архивации
+  …Служебные поля
+}
+
 Таблица buildings в БД:
   CREATE TABLE buildings (
-    id UUID PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    address TEXT NOT NULL,
-    note TEXT,
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW(),
-    archived_at TIMESTAMPTZ
-  );
+  id UUID PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  address TEXT NOT NULL,
+  note TEXT,
+    …Служебные поля
+);
 
 
 8.1.2 Модель помещения
@@ -1182,39 +1182,47 @@ o Настройка скидок при покупке пакета
 
 • Модель данных
   class Room {
-    String id;
-    String name;              // "Зал групповых программ", "Кардио-зона"
-    String buildingId;        // Ссылка на здание (обязательно)
-    String? buildingName;     // Денормализованное имя здания для удобства отображения
-    RoomType type;            // Тип помещения (enum)
-    int? floor;               // Этаж (число, не строка)
-    int maxCapacity;          // Максимальная вместимость (чел.)
-    double? area;             // Площадь (м²)
-    bool isActive;            // Статус активности
-    DateTime? archivedAt;     // Дата архивации
-    String? archivedReason;   // Причина архивации
-    DateTime? deactivateAt;   // Дата деактивации (используется для архивации)
-    String? deactivateReason; // Причина деактивации (используется для архивации)
-    List<String> photoUrls;   // Фотографии
+  String id;
+  String name;              // "Зал групповых программ", "Кардио-зона"
+  String buildingId;        // Ссылка на здание (обязательно, не может быть null)
+  String? buildingName;     // Денормализованное имя здания для удобства отображения
+  RoomType type;            // Тип помещения (enum)
+  int? floor;               // Этаж (число, не строка)
+  int maxCapacity;          // Максимальная вместимость (чел.)
+  double? area;             // Площадь (м²)
+  bool isActive;            // Статус активности
+  DateTime? archivedAt;     // Дата архивации
+  String? archivedReason;   // Причина архивации
+  DateTime? deactivateAt;   // Дата деактивации
+  String? deactivateReason; // Причина деактивации
+  List<String> photoUrls;   // Фотографии (URL)
+
+  // Дополнительные поля для расширенной информации и аудита
+  String? description;      // Описание помещения
+  String? roomNumber;       // Номер помещения
+  String? floorPlanUrl;     // URL плана этажа
+  String? note;             // Примечание
+  String? deactivateBy;     // ID пользователя, деактивировавшего запись
+    …Служебные поля
   }
 
 • Таблица `rooms` в БД:
   CREATE TABLE rooms (
-    id UUID PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    building_id UUID NOT NULL REFERENCES buildings(id), -- Связь со зданием
-    type SMALLINT NOT NULL,
-    floor INT, 
-    max_capacity INT NOT NULL DEFAULT 30,
-    area DECIMAL(5,2),
-    is_active BOOLEAN DEFAULT true,
-    photo_urls JSONB,
-    -- ... системные поля ...
-    archived_at TIMESTAMPTZ,
-    archived_reason TEXT, -- Новое поле
-    deactivate_at TIMESTAMPTZ,
-    deactivate_reason TEXT
-  );
+  id UUID PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  building_id UUID NOT NULL REFERENCES buildings(id), -- Связь со зданием (обязательно)
+  type SMALLINT NOT NULL,
+  floor INT, 
+  max_capacity INT NOT NULL DEFAULT 30,
+  area DECIMAL(5,2),
+  is_active BOOLEAN DEFAULT true,
+  photo_urls JSONB,
+  description TEXT,
+  room_number VARCHAR(50),
+  floor_plan_url TEXT,
+  note TEXT,
+     …Служебные поля
+ );
 
 8.1.3 Типы помещений
 
@@ -1233,7 +1241,32 @@ office(10),        // Офис
 other(11);         // Прочее
 }
 
-
+8.1.4 Модель расписания помещения
+Для гибкого управления графиком работы каждого помещения имеется отдельная сущность `RoomSchedule`.
+Модель данных:
+class RoomSchedule {
+  String id;
+  String roomId;
+  int dayOfWeek;
+  bool isWorkingDay;
+  TimeOfDayCustom? openTime;
+  TimeOfDayCustom? closeTime;
+}
+```
+Таблица `room_schedules` в БД
+CREATE TABLE room_schedules (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  room_id UUID NOT NULL REFERENCES rooms(id) ON DELETE CASCADE,
+  day_of_week SMALLINT NOT NULL CHECK (day_of_week >= 1 AND day_of_week <= 7),
+  is_working_day BOOLEAN NOT NULL DEFAULT true,
+  open_time TIME,
+  close_time TIME,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  created_by UUID REFERENCES users(id),
+  updated_by UUID REFERENCES users(id),
+  UNIQUE(room_id, day_of_week)
+);
 8.2 Пользовательские интерфейсы
 
 8.2 
@@ -1241,6 +1274,7 @@ other(11);         // Прочее
 8.2.1 Меню и правила
 
 • Меню вызова пользовательских интерфейсов находится в дашбордах сотрудников, в меню->Каталоги->Помещения. Действия по добавлению, редактированию, активированию, архивированию, доступны только админу.
+• 
 8.2.2 Дашборд управления помещениями
 (Rooms Dashboard)
 
@@ -1277,7 +1311,7 @@ other(11);         // Прочее
   - Статус: Все / Активные / На ремонте
 
 Отображаемые колонки:
-1. Фото (первое фото из photo_urls, миниатюра)
+1. Иконка помещения
 2. Название (кликабельно - открывает карточку)
 3. Тип (иконка + название типа)
 4. Вместимость (max_capacity чел.)
@@ -1292,43 +1326,41 @@ other(11);         // Прочее
    - 📋 Бронировать
    - 🗑️ Архивировать
 
+
 8.2.4 Карточка помещения 
 (Room Detail Card)
 Открывается при клике на помещение в списке
 
-1. Верхняя часть:
+1. Верхняя часть.
    • Карусель фотографий (photo_urls)
    • Кнопка "Добавить фото"
    • Схема расстановки (floor_plan_url, если есть)
 
 2. Основная информация (табы):
-   Таб "Основное":
+   Таб "Основное".
    • Название (редактируемое)
    • Тип (выпадающий список)
    • Описание (textarea)
    • Этаж, Корпус (текстовые поля)
    • Вместимость, Площадь (числовые поля)
    • Чекбоксы: Зеркала, Аудиосистема
-
-   Таб "Расписание":
-   • Время работы: open_time - close_time
-   • Рабочие дни: чекбоксы дней недели
-   • Календарь бронирований на текущую неделю
-
-   Таб "Состояние":
    • Статус: Активно / На ремонте (переключатель)
    • При ремонте: причина (textarea), дата окончания (date picker)
 
-   Таб "Оборудование":
-   • Список оборудования в этом помещении
-   • Кнопка "Добавить оборудование" - выбор из списка свободного оборудования
-
-   Таб "Статистика":
+3. Таб "Фото".
+        -   Карусель для просмотра загруженных фотографий.
+        -   Кнопка "Добавить фото" для загрузки новых изображений.
+        -   **Добавлена функциональность удаления фото:** Каждая фотография в карусели имеет значок удаления. При нажатии на значок отображается диалоговое окно подтверждения. После подтверждения фото удаляется из базы данных и с сервера.
+4. Таб "Расписание".
+        -   Отображает список из 7 дней недели.
+        -   Для каждого дня можно установить статус "Рабочий/Выходной" с помощью переключателя.
+        -   Для рабочих дней можно задать время открытия и закрытия.
+5. Таб "Статистика":
    • График загрузки зала по дням недели
    • Количество проведенных занятий за месяц
    • Средняя заполняемость (%)
 
-3. Кнопки действий внизу:
+6. Кнопки действий внизу:
    • Сохранить
    • Отменить
    • Архивировать
@@ -1337,55 +1369,68 @@ other(11);         // Прочее
 
 8.3 Архитектура и расположение кода
 
-• Бэкенд (`/backend/lib/modules/rooms/`)
-/rooms/
-├── controllers/
-│   ├── building_controller.dart  # API для зданий
-│   └── room_controller.dart      # Обновлен для работы с фильтрами
-├── models/
-│   ├── building/
-│   │   └── building.model.dart   # Модель здания
-│   └── room/
-│       └── room.model.dart       # Обновленная модель помещения
-├── repositories/
-│   ├── building_repository.dart  # Репозиторий для зданий
-│   └── room_repository.dart      # Репозиторий для помещений
-└── services/
-    ├── building_service.dart     # Сервис для зданий
-    └── room_service.dart         # Сервис для помещений
-
-• Фронтенд (`/frontend/lib/modules/rooms/`)
-/rooms/
-├── models/
-│   ├── building/                 # Модель для зданий
-│   │   └── building.model.dart
-│   └── room/
-│       └── room.model.dart       # Модель помещения
-├── providers/
-│   ├── building_provider.dart    # Провайдеры для зданий
-│   └── room_provider.dart        # Провайдеры для помещений
-├── screens/
-│   ├── building/                 # Экраны для управления зданиями
-│   │   ├── buildings_list_screen.dart
-│   │   ├── building_create_screen.dart
-│   │   └── ...
-│   └── room/                     # Экраны для управления помещениями
-│       ├── rooms_list_screen.dart
-│       ├── room_create_screen.dart
-│       └── ...
- 
+Бэкенд (`/backend/lib/modules/rooms/`)
+    ```
+    /rooms/
+    ├── controllers/
+    │   ├── building_controller.dart  # API для зданий
+    │   ├── room_controller.dart      # API для помещений (добавлены методы загрузки/удаления фото)
+    │   └── room_schedule_controller.dart # API для расписаний помещений
+    ├── models/                       # Модели удалены, используются общие из fitman_common
+    ├── providers/
+    │   └── room_providers.dart       # Провайдеры зависимостей для модуля
+    ├── repositories/
+    │   ├── building_repository.dart  # Репозиторий для зданий
+    │   ├── room_repository.dart      # Репозиторий для помещений (добавлены методы управления фото)
+    │   └── room_schedule_repository.dart # Репозиторий для расписаний
+    └── services/
+        ├── building_service.dart     # Сервис для зданий
+        ├── room_service.dart         # Сервис для помещений (добавлены методы управления фото, включая удаление физических файлов)
+        └── room_schedule_service.dart  # Сервис для расписаний
+    ```
+Фронтенд (`/frontend/lib/modules/rooms/`)
+    ```
+    /rooms/
+    ├── models/                       # Модели удалены, используются общие из fitman_common
+    ├── providers/
+    │   ├── building_provider.dart    # Провайдеры для зданий
+    │   ├── room_provider.dart        # Провайдеры для помещений
+    │   └── room_schedule_provider.dart # Провайдер для расписаний
+    ├── screens/
+    │   ├── building/                 # Экраны для управления зданиями
+    │   │   ├── buildings_list_screen.dart
+    │   │   ├── building_create_screen.dart
+    │   │   └── ...
+    │   └── room/                     # Экраны для управления помещениями (обновлен RoomDetailScreen для удаления фото)
+    │       ├── rooms_list_screen.dart
+    │       ├── room_create_screen.dart
+    │       └── room_detail_screen.dart # Обновлен UI для удаления фото
+    └── services/
+        └── room_schedule_api.dart      # Клиентский сервис для API расписаний
+    ```
+Общие сервисы фронтенда (`frontend/lib/services/`)
+    ```
+    /services/
+    ├── api_service.dart                # Фасад для API (добавлены методы uploadRoomPhoto/removeRoomPhoto)
+    └── api/
+        └── infrastructure_api.dart     # API для инфраструктуры (добавлены методы uploadRoomPhoto/removeRoomPhoto)
+    ```
+Хранение файлов
+    Загруженные фотографии помещений хранятся в директории \uploads\room_photos` на сервере бэкенда. Доступ к ним осуществляется по URL `http://<backend_host>:<backend_port>/uploads/room_photos/<filename>`. Фронтенд использует `ApiService.baseUrl` для корректного формирования полного URL. 
 8.4 API endpoints
-text
 GET    /api/rooms                    # Список помещений
 GET    /api/rooms/:id               # Детали помещения
 POST   /api/rooms                   # Создать помещение
 PUT    /api/rooms/:id               # Обновить помещение
 GET    /api/rooms/availability      # Проверить доступность
 GET    /api/rooms/:id/equipment     # Оборудование в помещении
-
+GET    /api/rooms/:id/schedules     # Получить расписание для помещения
+PUT    /api/rooms/:id/schedules     # Обновить расписание для помещения
+POST   /api/rooms/:id/photos      # Загрузить фотографию для помещения (MultipartForm, поле 'photo')
+DELETE /api/rooms/:id/photos      # Удалить фотографию для помещения (Body: {"photoUrl": "url_фото"})
 8.5 Интеграция с существующими модулями
 8.5.1 С тренировочными группами (TrainingGroup)
-dart
+
 class TrainingGroup {
   // ... существующие поля
 
@@ -1393,7 +1438,6 @@ class TrainingGroup {
   List<String> requiredEquipmentTypeIds; // Типы необходимого оборудования
 }
 8.5.2 С расписанием занятий
-sql
 ALTER TABLE lessons ADD COLUMN room_id UUID REFERENCES rooms(id);
 
 9 Модуль управления оборудованием
