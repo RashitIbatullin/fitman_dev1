@@ -84,15 +84,6 @@ class DatabaseSeeder {
     };
     print('🏡 Created ${rooms.length} rooms in 2 buildings.');
 
-    print('🔩 Seeding equipment...');
-    final equipmentTypes = await _seedEquipmentTypes();
-    final item1Id = await _createEquipmentItem(typeId: equipmentTypes['treadmill']!, inventoryNumber: 'ТРЕД-001', roomId: rooms['cardio']!);
-    final item2Id = await _createEquipmentItem(typeId: equipmentTypes['treadmill']!, inventoryNumber: 'ТРЕД-002', roomId: rooms['cardio']!);
-    await _createEquipmentItem(typeId: equipmentTypes['elliptical']!, inventoryNumber: 'ЭЛЛ-001', roomId: rooms['cardio']!);
-    await _createEquipmentItem(typeId: equipmentTypes['dumbbell']!, inventoryNumber: 'ГАН-001', roomId: rooms['strength']!);
-    await _createEquipmentItem(typeId: equipmentTypes['barbell']!, inventoryNumber: 'ШТАН-001', roomId: rooms['strength']!);
-    print('🔧 Created equipment items.');
-
     print('👥 Seeding users and profiles...');
     final roles = await _getIdsForTable('roles', keyColumn: 'name');
     final levels = await _getIdsForTable('levels_training', keyColumn: 'name');
@@ -100,6 +91,7 @@ class DatabaseSeeder {
 
     // Create users with correct passwords from login_screen.dart
     final adminId = await _createUser(login: 'admin@fitman.ru', firstName: 'Админ', lastName: 'Администраторов', phone: '+70000000000', password: 'admin123');
+
     await _assignRole(adminId, roles['admin']!);
     await _connection.execute(Sql.named('INSERT INTO admin_profiles (user_id) VALUES (@user_id)'), parameters: {'user_id': adminId});
     print('   👤 Created Admin');
@@ -129,6 +121,50 @@ class DatabaseSeeder {
       VALUES (@user_id, @goal, @level, @created_by)
       '''), parameters: {'user_id': clientId, 'goal': goals['Набор мышечной массы и силы'], 'level': levels['Новичок'], 'created_by': adminId});
     print('   👤 Created Client');
+
+    print('📅 Fetching center work schedules...');
+    final workSchedulesResult = await _connection.execute('SELECT day_of_week, start_time, end_time, is_day_off FROM work_schedules ORDER BY day_of_week');
+    final List<Map<String, dynamic>> workSchedules = workSchedulesResult.map((row) {
+      final openTime = row[1];
+      final closeTime = row[2];
+      return {
+        'day_of_week': row[0] as int,
+        'open_time': openTime is Time ? '${openTime.hour.toString().padLeft(2, '0')}:${openTime.minute.toString().padLeft(2, '0')}:${openTime.second.toString().padLeft(2, '0')}' : null,
+        'close_time': closeTime is Time ? '${closeTime.hour.toString().padLeft(2, '0')}:${closeTime.minute.toString().padLeft(2, '0')}:${closeTime.second.toString().padLeft(2, '0')}' : null,
+        'is_day_off': row[3] as bool,
+      };
+    }).toList();
+    print('   Fetched ${workSchedules.length} work schedules.');
+
+    print('🛌 Populating room schedules...');
+    final allRoomIdsResult = await _connection.execute('SELECT id FROM rooms');
+    final List<String> allRoomIds = allRoomIdsResult.map((row) => row[0].toString()).toList();
+
+    for (final roomId in allRoomIds) {
+      for (final ws in workSchedules) {
+        await _connection.execute(Sql.named('''
+          INSERT INTO room_schedules (room_id, day_of_week, is_working_day, open_time, close_time, created_by)
+          VALUES (@roomId, @dayOfWeek, @isWorkingDay, @openTime, @closeTime, @createdBy)
+        '''), parameters: {
+          'roomId': roomId,
+          'dayOfWeek': ws['day_of_week'],
+          'isWorkingDay': !ws['is_day_off'],
+          'openTime': ws['open_time'],
+          'closeTime': ws['close_time'],
+          'createdBy': adminId, // Assuming adminId is available and valid
+        });
+      }
+    }
+    print('   ✅ Room schedules populated for ${allRoomIds.length} rooms.');
+
+    print('🔩 Seeding equipment...');
+    final equipmentTypes = await _seedEquipmentTypes();
+    final item1Id = await _createEquipmentItem(typeId: equipmentTypes['treadmill']!, inventoryNumber: 'ТРЕД-001', roomId: rooms['cardio']!);
+    final item2Id = await _createEquipmentItem(typeId: equipmentTypes['treadmill']!, inventoryNumber: 'ТРЕД-002', roomId: rooms['cardio']!);
+    await _createEquipmentItem(typeId: equipmentTypes['elliptical']!, inventoryNumber: 'ЭЛЛ-001', roomId: rooms['cardio']!);
+    await _createEquipmentItem(typeId: equipmentTypes['dumbbell']!, inventoryNumber: 'ГАН-001', roomId: rooms['strength']!);
+    await _createEquipmentItem(typeId: equipmentTypes['barbell']!, inventoryNumber: 'ШТАН-001', roomId: rooms['strength']!);
+    print('🔧 Created equipment items.');
 
     print('   📏 Seeding measurements for demo client...');
     // Fixed measurement

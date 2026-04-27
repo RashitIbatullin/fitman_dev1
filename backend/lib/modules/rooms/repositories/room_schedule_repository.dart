@@ -14,8 +14,24 @@ class RoomScheduleRepositoryImpl implements RoomScheduleRepository {
   final Database _db;
 
   RoomSchedule _fromRow(Map<String, dynamic> row) {
-    // Basic conversion, can be improved with json sanitizing like in RoomRepository
-    return RoomSchedule.fromJson(row);
+    final sanitizedRow = Map<String, dynamic>.from(row);
+
+    const timeFields = ['open_time', 'close_time'];
+    for (final field in timeFields) {
+      if (sanitizedRow[field] is Time) {
+        final time = sanitizedRow[field] as Time;
+        sanitizedRow[field] = '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}:${time.second.toString().padLeft(2, '0')}';
+      }
+    }
+
+    const dateFields = ['created_at', 'updated_at'];
+    for (final field in dateFields) {
+      if (sanitizedRow[field] is DateTime) {
+        sanitizedRow[field] = (sanitizedRow[field] as DateTime).toIso8601String();
+      }
+    }
+    
+    return RoomSchedule.fromJson(sanitizedRow);
   }
 
   @override
@@ -60,21 +76,21 @@ class RoomScheduleRepositoryImpl implements RoomScheduleRepository {
       for (final schedule in schedules) {
         await session.execute(
           Sql.named('''
-            UPDATE room_schedules 
-            SET 
-              is_working_day = @isWorkingDay,
-              open_time = @openTime,
-              close_time = @closeTime,
+            INSERT INTO room_schedules (room_id, day_of_week, is_working_day, open_time, close_time, created_by, updated_by)
+            VALUES (@roomId, @dayOfWeek, @isWorkingDay, @openTime, @closeTime, @updatedBy, @updatedBy)
+            ON CONFLICT (room_id, day_of_week) DO UPDATE SET
+              is_working_day = EXCLUDED.is_working_day,
+              open_time = EXCLUDED.open_time,
+              close_time = EXCLUDED.close_time,
               updated_at = NOW(),
-              updated_by = @updatedBy
-            WHERE id = @id AND room_id = @roomId
+              updated_by = EXCLUDED.updated_by;
           '''),
           parameters: {
-            'id': schedule.id,
             'roomId': roomId,
+            'dayOfWeek': schedule.dayOfWeek,
             'isWorkingDay': schedule.isWorkingDay,
-            'openTime': schedule.openTime?.toString(),
-            'closeTime': schedule.closeTime?.toString(),
+            'openTime': schedule.openTime?.toJson(),
+            'closeTime': schedule.closeTime?.toJson(),
             'updatedBy': schedule.updatedBy,
           },
         );

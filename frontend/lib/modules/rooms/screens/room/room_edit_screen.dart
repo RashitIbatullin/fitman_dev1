@@ -6,6 +6,7 @@ import 'package:fitman_app/modules/rooms/providers/room/building_provider.dart';
 import 'package:fitman_app/modules/rooms/providers/room/room_provider.dart';
 import 'package:fitman_common/modules/rooms/room.model.dart';
 import 'package:fitman_common/modules/rooms/room_type.enum.dart';
+import 'package:fitman_common/modules/rooms/building.model.dart';
 
 import 'package:fitman_common/modules/rooms/room_schedule.model.dart';
 import 'package:fitman_common/custom/time_of_day_custom.dart';
@@ -128,241 +129,259 @@ class _RoomEditScreenState extends ConsumerState<RoomEditScreen> {
   Widget build(BuildContext context) {
     final buildingsAsync = ref.watch(allBuildingsProvider);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Редактировать помещение'),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // 1. Название
-              TextFormField(
-                controller: _nameController,
-                decoration: const InputDecoration(labelText: 'Название *'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Пожалуйста, введите название';
-                  }
-                  return null;
-                },
-              ),
-              // 2. Тип
-              DropdownButtonFormField<RoomType>(
-                initialValue: _selectedRoomType,
-                decoration: const InputDecoration(labelText: 'Тип помещения *'),
-                items: RoomType.values.map((type) {
-                  return DropdownMenuItem(
-                    value: type,
-                    child: Row(
-                      children: [
-                        Icon(type.icon, size: 24),
-                        const SizedBox(width: 10),
-                        Text(type.displayName),
-                      ],
-                    ),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  if (value != null) {
-                    setState(() {
-                      _selectedRoomType = value;
-                    });
-                  }
-                },
-                validator: (value) =>
-                    value == null ? 'Пожалуйста, выберите тип помещения' : null,
-              ),
-              // 3. Описание
-              TextFormField(
-                controller: _descriptionController,
-                decoration: const InputDecoration(labelText: 'Описание'),
-              ),
-              // 4. Вместимость
-              TextFormField(
-                controller: _maxCapacityController,
-                decoration:
-                    const InputDecoration(labelText: 'Макс. вместимость *'),
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Пожалуйста, введите вместимость';
-                  }
-                  final capacity = int.tryParse(value);
-                  if (capacity == null) {
-                    return 'Введите корректное число';
-                  }
-                  if (capacity <= 0) {
-                    return 'Вместимость должна быть больше 0';
-                  }
-                  return null;
-                },
-              ),
-              // 5. Корпус
-              buildingsAsync.when(
-                data: (buildings) => DropdownButtonFormField<String>(
-                  initialValue: _selectedBuildingId,
-                  decoration: const InputDecoration(labelText: 'Здание *'),
-                  items: buildings
-                      .where((b) => b.archivedAt == null)
-                      .map((building) {
-                    return DropdownMenuItem<String>(
-                      value: building.id,
-                      child: Text(building.name),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedBuildingId = value;
-                    });
-                  },
-                  validator: (value) =>
-                      value == null ? 'Пожалуйста, выберите здание' : null,
-                ),
-                loading: () => const Center(child: CircularProgressIndicator()),
-                error: (err, stack) =>
-                    Text('Не удалось загрузить здания: $err'),
-              ),
-              // 6. Этаж
-              TextFormField(
-                controller: _floorController,
-                decoration: const InputDecoration(labelText: 'Этаж'),
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value != null && value.isNotEmpty && int.tryParse(value) == null) {
-                    return 'Введите корректное число';
-                  }
-                  return null;
-                },
-              ),
-              // 7. Номер комнаты
-              TextFormField(
-                controller: _roomNumberController,
-                decoration: const InputDecoration(labelText: 'Номер комнаты'),
-              ),
-              // 8. Площадь
-              TextFormField(
-                controller: _areaController,
-                decoration: const InputDecoration(labelText: 'Площадь (м²)'),
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
-                validator: (value) {
-                  if (value != null &&
-                      value.isNotEmpty &&
-                      double.tryParse(value) == null) {
-                    return 'Введите корректное число';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16.0),
-              SwitchListTile(
-                title: const Text('Активно'),
-                value: _isActive,
-                onChanged: (value) {
-                  _handleActivityChange(value);
-                },
-                contentPadding: const EdgeInsets.symmetric(horizontal: 4.0),
-              ),
-              if (!_isActive)
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                  child: TextFormField(
-                    controller: _deactivationReasonController,
-                    decoration:
-                        const InputDecoration(labelText: 'Причина деактивации'),
-                    enabled: false,
-                  ),
-                ),
-              const SizedBox(height: 20),
-              const Divider(),
-              const Text('Расписание помещения', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 10),
-              _buildScheduleEditor(), // New schedule editing widget
-              ElevatedButton(
-                onPressed: _updateRoom,
-                child: const Text('Сохранить'),
-              ),
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('Редактировать: ${widget.room.name}'),
+          bottom: const TabBar(
+            tabs: [
+              Tab(text: 'Основное'),
+              Tab(text: 'Расписание'),
             ],
           ),
+        ),
+        body: Form(
+          key: _formKey,
+          child: TabBarView(
+            children: [
+              // 1. Основное
+              _buildMainInfoEditor(buildingsAsync),
+              // 2. Расписание
+              _buildScheduleEditor(),
+            ],
+          ),
+        ),
+        floatingActionButton: FloatingActionButton.extended(
+          onPressed: _updateRoom,
+          label: const Text('Сохранить'),
+          icon: const Icon(Icons.save),
         ),
       ),
     );
   }
 
-  Widget _buildScheduleEditor() {
-    return Column(
-      children: List.generate(_editedSchedules.length, (index) {
-        final schedule = _editedSchedules[index];
-        final isWorkingDay = schedule.isWorkingDay;
-
-        return Card(
-          margin: const EdgeInsets.symmetric(vertical: 8.0),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              children: [
-                SwitchListTile(
-                  title: Text(_getWeekdayName(schedule.dayOfWeek)),
-                  value: isWorkingDay,
-                  onChanged: (value) {
-                    setState(() {
-                      _editedSchedules[index] = schedule.copyWith(isWorkingDay: value);
-                    });
-                  },
-                ),
-                if (isWorkingDay) ...[
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: InkWell(
-                          onTap: () => _pickTime(context, index, true),
-                          child: InputDecorator(
-                            decoration: const InputDecoration(
-                              labelText: 'Время открытия',
-                              border: OutlineInputBorder(),
-                            ),
-                            child: Text(
-                              schedule.openTime?.toJson() ?? 'Выбрать время',
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: InkWell(
-                          onTap: () => _pickTime(context, index, false),
-                          child: InputDecorator(
-                            decoration: const InputDecoration(
-                              labelText: 'Время закрытия',
-                              border: OutlineInputBorder(),
-                            ),
-                            child: Text(
-                              schedule.openTime?.toJson() ?? 'Выбрать время',
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ],
-            ),
+  Widget _buildMainInfoEditor(AsyncValue<List<Building>> buildingsAsync) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 1. Название
+          TextFormField(
+            controller: _nameController,
+            decoration: const InputDecoration(labelText: 'Название *'),
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Пожалуйста, введите название';
+              }
+              return null;
+            },
           ),
-        );
-      }),
+          // 2. Тип
+          DropdownButtonFormField<RoomType>(
+            initialValue: _selectedRoomType,
+            decoration: const InputDecoration(labelText: 'Тип помещения *'),
+            items: RoomType.values.map((type) {
+              return DropdownMenuItem(
+                value: type,
+                child: Row(
+                  children: [
+                    Icon(type.icon, size: 24),
+                    const SizedBox(width: 10),
+                    Text(type.displayName),
+                  ],
+                ),
+              );
+            }).toList(),
+            onChanged: (value) {
+              if (value != null) {
+                setState(() {
+                  _selectedRoomType = value;
+                });
+              }
+            },
+            validator: (value) =>
+                value == null ? 'Пожалуйста, выберите тип помещения' : null,
+          ),
+          // 3. Описание
+          TextFormField(
+            controller: _descriptionController,
+            decoration: const InputDecoration(labelText: 'Описание'),
+          ),
+          // 4. Вместимость
+          TextFormField(
+            controller: _maxCapacityController,
+            decoration:
+                const InputDecoration(labelText: 'Макс. вместимость *'),
+            keyboardType: TextInputType.number,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Пожалуйста, введите вместимость';
+              }
+              final capacity = int.tryParse(value);
+              if (capacity == null) {
+                return 'Введите корректное число';
+              }
+              if (capacity <= 0) {
+                return 'Вместимость должна быть больше 0';
+              }
+              return null;
+            },
+          ),
+          // 5. Корпус
+          buildingsAsync.when(
+            data: (buildings) {
+              final activeBuildings = buildings.where((b) => b.archivedAt == null).toList();
+              return DropdownButtonFormField<String>(
+                initialValue: _selectedBuildingId,
+                decoration: const InputDecoration(labelText: 'Здание *'),
+                items: activeBuildings.map((building) {
+                  return DropdownMenuItem<String>(
+                    value: building.id,
+                    child: Text(building.name),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    _selectedBuildingId = value;
+                  });
+                },
+                validator: (value) =>
+                    value == null ? 'Пожалуйста, выберите здание' : null,
+              );
+            },
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (err, stack) =>
+                Text('Не удалось загрузить здания: $err'),
+          ),
+          // 6. Этаж
+          TextFormField(
+            controller: _floorController,
+            decoration: const InputDecoration(labelText: 'Этаж'),
+            keyboardType: TextInputType.number,
+            validator: (value) {
+              if (value != null && value.isNotEmpty && int.tryParse(value) == null) {
+                return 'Введите корректное число';
+              }
+              return null;
+            },
+          ),
+          // 7. Номер комнаты
+          TextFormField(
+            controller: _roomNumberController,
+            decoration: const InputDecoration(labelText: 'Номер комнаты'),
+          ),
+          // 8. Площадь
+          TextFormField(
+            controller: _areaController,
+            decoration: const InputDecoration(labelText: 'Площадь (м²)'),
+            keyboardType:
+                const TextInputType.numberWithOptions(decimal: true),
+            validator: (value) {
+              if (value != null &&
+                  value.isNotEmpty &&
+                  double.tryParse(value) == null) {
+                return 'Введите корректное число';
+              }
+              return null;
+            },
+          ),
+          const SizedBox(height: 16.0),
+          SwitchListTile(
+            title: const Text('Активно'),
+            value: _isActive,
+            onChanged: (value) {
+              _handleActivityChange(value);
+            },
+            contentPadding: const EdgeInsets.symmetric(horizontal: 4.0),
+          ),
+          if (!_isActive)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4.0),
+              child: TextFormField(
+                controller: _deactivationReasonController,
+                decoration:
+                    const InputDecoration(labelText: 'Причина деактивации'),
+                enabled: false,
+              ),
+            ),
+          const SizedBox(height: 80), // Space for FAB
+        ],
+      ),
     );
   }
 
-  Future<void> _pickTime(BuildContext context, int index, bool isOpeningTime) async {
-    final initialTime = isOpeningTime
-        ? _editedSchedules[index].openTime
-        : _editedSchedules[index].closeTime;
+  Widget _buildScheduleEditor() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        children: List.generate(_editedSchedules.length, (index) {
+          final schedule = _editedSchedules[index];
+          final isWorkingDay = schedule.isWorkingDay;
 
+          return Card(
+            margin: const EdgeInsets.symmetric(vertical: 8.0),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [
+                  SwitchListTile(
+                    title: Text(_getWeekdayName(schedule.dayOfWeek)),
+                    value: isWorkingDay,
+                    onChanged: (value) {
+                      setState(() {
+                        _editedSchedules[index] = schedule.copyWith(isWorkingDay: value);
+                      });
+                    },
+                  ),
+                  if (isWorkingDay) ...[
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: InkWell(
+                            onTap: () => _pickOpenTime(context, index),
+                            child: InputDecorator(
+                              decoration: const InputDecoration(
+                                labelText: 'Время открытия',
+                                border: OutlineInputBorder(),
+                              ),
+                              child: Text(
+                                schedule.openTime?.toJson() ?? 'Выбрать время',
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: InkWell(
+                            onTap: () => _pickCloseTime(context, index),
+                            child: InputDecorator(
+                              decoration: const InputDecoration(
+                                labelText: 'Время закрытия',
+                                border: OutlineInputBorder(),
+                              ),
+                              child: Text(
+                                schedule.closeTime?.toJson() ?? 'Выбрать время',
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          );
+        }),
+      ),
+    );
+  }
+
+  Future<void> _pickOpenTime(BuildContext context, int index) async {
+    final initialTime = _editedSchedules[index].openTime;
     final pickedTime = await showTimePicker(
       context: context,
       initialTime: TimeOfDay(
@@ -373,36 +392,54 @@ class _RoomEditScreenState extends ConsumerState<RoomEditScreen> {
 
     if (pickedTime != null) {
       setState(() {
-        final updatedSchedule = isOpeningTime
-            ? _editedSchedules[index].copyWith(
-                openTime: TimeOfDayCustom(hour: pickedTime.hour, minute: pickedTime.minute),
-              )
-            : _editedSchedules[index].copyWith(
-                closeTime: TimeOfDayCustom(hour: pickedTime.hour, minute: pickedTime.minute),
-              );
-        _editedSchedules[index] = updatedSchedule;
+        _editedSchedules[index] = _editedSchedules[index].copyWith(
+          openTime: TimeOfDayCustom(hour: pickedTime.hour, minute: pickedTime.minute),
+        );
       });
     }
   }
 
-  void _handleActivityChange(bool value) {
+  Future<void> _pickCloseTime(BuildContext context, int index) async {
+    final initialTime = _editedSchedules[index].closeTime;
+    final pickedTime = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay(
+        hour: initialTime?.hour ?? 21,
+        minute: initialTime?.minute ?? 0,
+      ),
+    );
+
+    if (pickedTime != null) {
+      setState(() {
+        _editedSchedules[index] = _editedSchedules[index].copyWith(
+          closeTime: TimeOfDayCustom(hour: pickedTime.hour, minute: pickedTime.minute),
+        );
+      });
+    }
+  }
+
+  Future<void> _handleActivityChange(bool value) async {
     if (value) {
-      // If activating, just update the state
       setState(() {
         _isActive = true;
         _deactivationReasonController.clear();
       });
     } else {
-      // If deactivating, show the dialog
-      _showDeactivationDialog();
+      final reason = await _showDeactivationDialog();
+      if (reason != null && reason.isNotEmpty) {
+        setState(() {
+          _isActive = false;
+          _deactivationReasonController.text = reason;
+        });
+      }
     }
   }
 
-  void _showDeactivationDialog() {
+  Future<String?> _showDeactivationDialog() {
     final reasonController = TextEditingController();
     final formKey = GlobalKey<FormState>();
 
-    showDialog(
+    return showDialog<String>(
       context: context,
       builder: (context) {
         return AlertDialog(
@@ -424,7 +461,7 @@ class _RoomEditScreenState extends ConsumerState<RoomEditScreen> {
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => Navigator.of(context).pop(null),
               child: const Text('Отмена'),
             ),
             ValueListenableBuilder<TextEditingValue>(
@@ -434,12 +471,7 @@ class _RoomEditScreenState extends ConsumerState<RoomEditScreen> {
                   onPressed: value.text.trim().length >= 5
                       ? () {
                           if (formKey.currentState!.validate()) {
-                            setState(() {
-                              _isActive = false;
-                              _deactivationReasonController.text =
-                                  reasonController.text;
-                            });
-                            Navigator.of(context).pop();
+                            Navigator.of(context).pop(reasonController.text.trim());
                           }
                         }
                       : null,
@@ -483,7 +515,7 @@ class _RoomEditScreenState extends ConsumerState<RoomEditScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Помещение успешно обновлено')),
           );
-          Navigator.of(context).pop();
+          Navigator.of(context).pop(true);
         }
       } catch (e) {
         if (mounted) {

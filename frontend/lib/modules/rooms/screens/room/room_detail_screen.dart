@@ -33,16 +33,17 @@ class RoomDetailScreen extends ConsumerWidget {
           roomAsync.when(
             data: (room) => IconButton(
               icon: const Icon(Icons.edit),
-              onPressed: () {
-                Navigator.push(
+              onPressed: () async {
+                final result = await Navigator.push<bool>(
                   context,
                   MaterialPageRoute(
                     builder: (context) => RoomEditScreen(room: room),
                   ),
-                ).then((_) {
-                  // Refresh room data when returning from edit screen
+                );
+                if (result == true) {
                   ref.invalidate(roomByIdProvider(roomId));
-                });
+                  await ref.read(roomScheduleProvider(roomId).notifier).refresh();
+                }
               },
               tooltip: 'Редактировать',
             ),

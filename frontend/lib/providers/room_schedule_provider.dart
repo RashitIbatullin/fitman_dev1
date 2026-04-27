@@ -19,6 +19,10 @@ class RoomScheduleNotifier extends StateNotifier<AsyncValue<List<RoomSchedule>>>
     }
   }
 
+  Future<void> refresh() async {
+    return _fetchRoomSchedules();
+  }
+
   Future<void> updateRoomSchedules(List<RoomSchedule> updatedSchedules) async {
     state = const AsyncValue.loading();
     try {

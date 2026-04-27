@@ -21,7 +21,7 @@ class TimeOfDayCustom extends Equatable {
   }
 
   String toJson() =>
-      '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
+      '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}:00';
 
   bool isBefore(TimeOfDayCustom other) {
     if (hour < other.hour) {
