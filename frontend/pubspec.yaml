@@ -33,6 +33,7 @@ dependencies:
   equatable: ^2.0.5
   collection: ^1.19.1
   dio: ^5.5.0+1
+  carousel_slider: ^5.1.2
 
 dev_dependencies:
   flutter_test:

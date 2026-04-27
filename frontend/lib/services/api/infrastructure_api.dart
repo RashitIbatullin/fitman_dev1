@@ -1,4 +1,5 @@
 
+import 'package:http/http.dart' as http;
 import 'package:fitman_common/fitman_common.dart';
 import 'base_api.dart';
 
@@ -156,4 +157,17 @@ class InfrastructureApiService extends BaseApiService {
     await put('/api/equipment/types/$id/unarchive', body: {});
   }
 
-}
+  Future<String> uploadRoomPhoto({
+    required String roomId,
+    required List<int> photoBytes,
+    required String fileName,
+  }) async {
+    final file = http.MultipartFile.fromBytes('photo', photoBytes, filename: fileName);
+    final response = await multipartPost(
+      '/api/rooms/$roomId/photos',
+      fields: {},
+      file: file,
+    );
+    return response['url'] as String;
+  }
+  }

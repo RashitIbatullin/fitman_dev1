@@ -154,6 +154,16 @@ class ApiService {
   static Future<void> unarchiveEquipmentType(String id) =>
       _infrastructureApi.unarchiveEquipmentType(id);
 
+  static Future<String> uploadRoomPhoto({
+    required String roomId,
+    required List<int> photoBytes,
+    required String fileName,
+  }) => _infrastructureApi.uploadRoomPhoto(
+    roomId: roomId,
+    photoBytes: photoBytes,
+    fileName: fileName,
+  );
+
   // --- Room Schedule Methods ---
   static Future<List<RoomSchedule>> getRoomSchedules(String roomId) =>
       _roomScheduleApi.getRoomSchedules(roomId);

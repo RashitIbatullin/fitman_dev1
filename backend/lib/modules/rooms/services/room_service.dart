@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:fitman_backend/modules/equipment/repositories/equipment_item.repository.dart';
 import 'package:fitman_backend/modules/rooms/repositories/room_repository.dart';
 import 'package:fitman_common/modules/rooms/room.model.dart';
@@ -38,6 +40,28 @@ class RoomService {
     // Note: This specific method is not used by the frontend, which uses updateRoom.
     // The core logic is now in updateRoom. This is kept for API completeness.
     return _roomRepository.archive(id, userId);
+  }
+
+  Future<String> uploadPhoto({
+    required String roomId,
+    required String fileName,
+    required List<int> fileBytes,
+  }) async {
+    // 1. Create a unique filename
+    final fileExtension = fileName.split('.').last;
+    final uniqueFileName = '${DateTime.now().millisecondsSinceEpoch}_${roomId}.$fileExtension';
+    final uploadPath = 'uploads/room_photos/$uniqueFileName';
+
+    // 2. Save the file
+    final file = File(uploadPath);
+    await file.parent.create(recursive: true); // Ensure directory exists
+    await file.writeAsBytes(fileBytes);
+
+    // 3. Update the database
+    final publicUrl = 'uploads/room_photos/$uniqueFileName';
+    await _roomRepository.addPhotoUrl(roomId, publicUrl);
+
+    return publicUrl;
   }
 }
 

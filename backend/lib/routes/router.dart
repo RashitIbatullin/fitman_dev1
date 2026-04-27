@@ -19,7 +19,7 @@ import '../modules/groups/controllers/training_group_controller.dart';
 import '../modules/groups/controllers/analytic_group_controller.dart';
 import '../modules/groups/controllers/group_schedule_controller.dart';
 import '../modules/groups/controllers/training_group_types_controller.dart';
-import '../modules/rooms/controllers/room.controller.dart';
+import '../modules/rooms/controllers/room_controller.dart';
 import '../modules/equipment/controllers/equipment_item.controller.dart';
 import '../modules/equipment/controllers/equipment_type.controller.dart';
 import '../modules/equipment/controllers/maintenance_controller.dart';

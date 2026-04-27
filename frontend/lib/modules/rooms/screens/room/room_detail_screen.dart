@@ -1,4 +1,8 @@
 
+import 'package:file_picker/file_picker.dart';
+import 'package:carousel_slider/carousel_slider.dart';
+import 'package:fitman_app/services/api_service.dart';
+
 import 'package:fitman_app/modules/equipment/screens/item/equipment_item_detail_screen.dart';
 import 'package:fitman_app/modules/equipment/screens/item/equipment_item_edit_screen.dart';
 import 'package:fitman_app/modules/equipment/providers/equipment/equipment_provider.dart';
@@ -62,13 +66,14 @@ class RoomDetailScreen extends ConsumerWidget {
 
   Widget _buildRoomDetails(BuildContext context, WidgetRef ref, Room room) {
     return DefaultTabController(
-      length: 4, // Number of tabs
+      length: 5, // Number of tabs
       child: Column(
         children: [
           const TabBar(
             isScrollable: true,
             tabs: [
               Tab(text: 'Основное'),
+              Tab(text: 'Фото'),
               Tab(text: 'Расписание'),
               Tab(text: 'Оборудование'),
               Tab(text: 'Статистика'),
@@ -77,13 +82,10 @@ class RoomDetailScreen extends ConsumerWidget {
           Expanded(
             child: TabBarView(
               children: [
-                // 1. Основное
                 _buildMainInfoTab(context, room),
-                // 2. Расписание (Implemented)
+                _buildPhotosTab(context, ref, room),
                 _buildScheduleTab(context, ref, room),
-                // 3. Оборудование (Implemented)
                 _buildEquipmentTab(context, ref, room.id),
-                // 4. Статистика (Placeholder)
                 const Center(child: Text('Информация о статистике')),
               ],
             ),
@@ -111,6 +113,112 @@ class RoomDetailScreen extends ConsumerWidget {
         return 'Воскресенье';
       default:
         return '';
+    }
+  }
+
+  Widget _buildPhotosTab(BuildContext context, WidgetRef ref, Room room) {
+    if (room.photoUrls.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              'Нет фотографий',
+              style: TextStyle(fontSize: 16, color: Colors.grey),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton.icon(
+              onPressed: () => _pickAndUploadPhoto(context, ref, room.id),
+              icon: const Icon(Icons.add_a_photo),
+              label: const Text('Добавить фото'),
+            ),
+          ],
+        ),
+      );
+    }
+    final baseUrl = ApiService.baseUrl;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 16.0),
+      child: Column(
+        children: [
+          CarouselSlider.builder(
+            itemCount: room.photoUrls.length,
+            itemBuilder: (context, index, realIndex) {
+              final photoUrl = room.photoUrls[index];
+              final fullUrl = photoUrl.startsWith('http') ? photoUrl : '$baseUrl/$photoUrl';
+              return Container(
+                margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                child: ClipRRect(
+                  borderRadius: const BorderRadius.all(Radius.circular(8.0)),
+                  child: Image.network(
+                    fullUrl,
+                    fit: BoxFit.cover,
+                    width: 1000,
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      return Center(
+                        child: CircularProgressIndicator(
+                          value: loadingProgress.expectedTotalBytes != null
+                              ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                              : null,
+                        ),
+                      );
+                    },
+                    errorBuilder: (context, error, stackTrace) =>
+                        const Icon(Icons.error, color: Colors.red, size: 48),
+                  ),
+                ),
+              );
+            },
+            options: CarouselOptions(
+              height: 400.0,
+              enlargeCenterPage: true,
+              autoPlay: room.photoUrls.length > 1,
+              aspectRatio: 16 / 9,
+              autoPlayCurve: Curves.fastOutSlowIn,
+              enableInfiniteScroll: room.photoUrls.length > 1,
+              autoPlayAnimationDuration: const Duration(milliseconds: 800),
+              viewportFraction: 0.8,
+            ),
+          ),
+          const SizedBox(height: 20),
+          ElevatedButton.icon(
+            onPressed: () => _pickAndUploadPhoto(context, ref, room.id),
+            icon: const Icon(Icons.add_a_photo),
+            label: const Text('Добавить фото'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _pickAndUploadPhoto(BuildContext context, WidgetRef ref, String roomId) async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+    );
+
+    if (result != null && result.files.single.bytes != null) {
+      final fileBytes = result.files.single.bytes!;
+      final fileName = result.files.single.name;
+
+      try {
+        await ApiService.uploadRoomPhoto(
+          roomId: roomId,
+          photoBytes: fileBytes,
+          fileName: fileName,
+        );
+        ref.invalidate(roomByIdProvider(roomId));
+        if (!context.mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Фото успешно загружено')),
+        );
+      } catch (e) {
+        if (!context.mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Ошибка загрузки фото: $e')),
+        );
+      }
     }
   }
 
