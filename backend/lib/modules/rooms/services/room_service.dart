@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:path/path.dart' as p; // Add this import
 
 import 'package:fitman_backend/modules/equipment/repositories/equipment_item.repository.dart';
 import 'package:fitman_backend/modules/rooms/repositories/room_repository.dart';
@@ -50,15 +51,27 @@ class RoomService {
     // 1. Create a unique filename
     final fileExtension = fileName.split('.').last;
     final uniqueFileName = '${DateTime.now().millisecondsSinceEpoch}_$roomId.$fileExtension';
-    final uploadPath = 'uploads/room_photos/$uniqueFileName';
+    
+    // The actual directory where files are served from, as configured in server.dart
+    // Directory.current.path is 'C:\Android\PROJ\fitman_dev1\backend' when server runs from backend
+    final absoluteUploadBaseDir = p.normalize(p.join(Directory.current.path, '..', 'uploads'));
+    final absoluteRoomPhotosDir = p.join(absoluteUploadBaseDir, 'room_photos');
+    final absoluteFilePath = p.join(absoluteRoomPhotosDir, uniqueFileName);
+
+    print('RoomService: uniqueFileName: $uniqueFileName'); // LOG
+    print('RoomService: absoluteUploadBaseDir: $absoluteUploadBaseDir'); // LOG
+    print('RoomService: absoluteRoomPhotosDir: $absoluteRoomPhotosDir'); // LOG
+    print('RoomService: absoluteFilePath: $absoluteFilePath'); // LOG
 
     // 2. Save the file
-    final file = File(uploadPath);
+    final file = File(absoluteFilePath);
     await file.parent.create(recursive: true); // Ensure directory exists
     await file.writeAsBytes(fileBytes);
+    print('RoomService: File successfully written to: $absoluteFilePath'); // LOG
 
-    // 3. Update the database
+    // 3. Update the database and return public URL
     final publicUrl = '/uploads/room_photos/$uniqueFileName';
+    print('RoomService: publicUrl (returned to frontend): $publicUrl'); // LOG
     await _roomRepository.addPhotoUrl(roomId, publicUrl);
 
     return publicUrl;

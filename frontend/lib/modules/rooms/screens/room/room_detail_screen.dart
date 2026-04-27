@@ -146,7 +146,9 @@ class RoomDetailScreen extends ConsumerWidget {
             itemCount: room.photoUrls.length,
             itemBuilder: (context, index, realIndex) {
               final photoUrl = room.photoUrls[index];
-              final fullUrl = photoUrl.startsWith('http') ? photoUrl : '$baseUrl/$photoUrl';
+              final fullUrl = photoUrl.startsWith('http')
+                  ? photoUrl
+                  : '$baseUrl/${photoUrl.startsWith('/') ? photoUrl.substring(1) : photoUrl}';
               return Container(
                 margin: const EdgeInsets.symmetric(horizontal: 5.0),
                 child: ClipRRect(
