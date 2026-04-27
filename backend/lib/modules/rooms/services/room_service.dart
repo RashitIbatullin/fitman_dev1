@@ -76,5 +76,30 @@ class RoomService {
 
     return publicUrl;
   }
-}
 
+  // ADDED METHOD
+  Future<void> removeRoomPhoto(String roomId, String photoUrl) async {
+    // Remove from DB
+    await _roomRepository.removePhotoUrl(roomId, photoUrl);
+    
+    // Attempt to delete the physical file from the file system
+    final absoluteUploadBaseDir = p.normalize(p.join(Directory.current.path, '..', 'uploads'));
+    // photoUrl is like /uploads/room_photos/filename.jpg
+    // need to convert it to room_photos/filename.jpg
+    final relativeFilePath = photoUrl.replaceFirst('/uploads/', ''); 
+    final absoluteFilePath = p.join(absoluteUploadBaseDir, relativeFilePath);
+    
+    final file = File(absoluteFilePath);
+    if (await file.exists()) {
+      try {
+        await file.delete();
+        print('RoomService: Physical file deleted: $absoluteFilePath');
+      } catch (e) {
+        print('RoomService: Error deleting physical file $absoluteFilePath: $e');
+        // Log the error but don't rethrow, as DB record is already gone.
+      }
+    } else {
+      print('RoomService: Physical file not found at $absoluteFilePath');
+    }
+  }
+}

@@ -164,6 +164,15 @@ class ApiService {
     fileName: fileName,
   );
 
+  // ADDED METHOD
+  static Future<void> removeRoomPhoto({
+    required String roomId,
+    required String photoUrl,
+  }) => _infrastructureApi.removeRoomPhoto(
+    roomId: roomId,
+    photoUrl: photoUrl,
+  );
+
   // --- Room Schedule Methods ---
   static Future<List<RoomSchedule>> getRoomSchedules(String roomId) =>
       _roomScheduleApi.getRoomSchedules(roomId);

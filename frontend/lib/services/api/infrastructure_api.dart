@@ -170,4 +170,16 @@ class InfrastructureApiService extends BaseApiService {
     );
     return response['url'] as String;
   }
+
+  // ADDED METHOD
+  Future<void> removeRoomPhoto({
+    required String roomId,
+    required String photoUrl,
+  }) async {
+    await delete(
+      '/api/rooms/$roomId/photos',
+      body: {'photoUrl': photoUrl},
+    );
   }
+}
+

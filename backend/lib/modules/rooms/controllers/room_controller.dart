@@ -21,7 +21,8 @@ class RoomController {
       ..get('/<id>', _getRoomById)
       ..put('/<id>', _updateRoom)
       ..delete('/<id>', _archiveRoom)
-      ..post('/<id>/photos', _uploadPhoto);
+      ..post('/<id>/photos', _uploadPhoto)
+      ..delete('/<id>/photos', _deletePhoto); // ADDED ROUTE
     return router;
   }
 
@@ -44,7 +45,7 @@ class RoomController {
 
       if (fileName == null || fileBytes == null) {
         return shelf.Response(400,
-            body: '{"error": "Missing "photo" part in multipart request."}');
+            body: jsonEncode(const <String, String>{'error': 'Missing "photo" part in multipart request.'}));
       }
 
       final newPhotoUrl = await _roomService.uploadPhoto(
@@ -57,7 +58,7 @@ class RoomController {
     } catch (e) {
       final errorMessage = e.toString().replaceFirst('Exception: ', '');
       return shelf.Response.internalServerError(
-          body: '{"error": "$errorMessage"}');
+          body: jsonEncode({'error': '$errorMessage'}));
     }
   }
 
@@ -149,4 +150,27 @@ class RoomController {
       final errorMessage = e.toString().replaceFirst('Exception: ', '');
       return shelf.Response.internalServerError(body: '{"error": "$errorMessage"}');
     }
-  }}
+  }
+
+  // ADDED METHOD
+  Future<shelf.Response> _deletePhoto(shelf.Request request, String id) async {
+    try {
+      final body = await request.readAsString();
+      final jsonData = jsonDecode(body) as Map<String, dynamic>;
+      final photoUrl = jsonData['photoUrl'] as String?;
+
+      if (photoUrl == null || photoUrl.isEmpty) {
+        return shelf.Response.badRequest(
+            body: jsonEncode(const <String, String>{'error': 'photoUrl is required in the request body.'}));
+      }
+
+      await _roomService.removeRoomPhoto(id, photoUrl);
+
+      return shelf.Response.ok(jsonEncode({'message': 'Photo deleted successfully.'}));
+    } catch (e) {
+      final errorMessage = e.toString().replaceFirst('Exception: ', '');
+      return shelf.Response.internalServerError(
+          body: jsonEncode({'error': '$errorMessage'}));
+    }
+  }
+}

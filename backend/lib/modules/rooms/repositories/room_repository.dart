@@ -11,6 +11,7 @@ abstract class RoomRepository {
   Future<Room> update(String id, Room room);
   Future<void> archive(String id, String userId);
   Future<void> addPhotoUrl(String roomId, String photoUrl);
+  Future<void> removePhotoUrl(String roomId, String photoUrl);
 }
 
 class RoomRepositoryImpl implements RoomRepository {
@@ -250,6 +251,19 @@ class RoomRepositoryImpl implements RoomRepository {
     '''), parameters: {
       'id': roomId,
       'photoUrl': jsonEncode([photoUrl]), // Append to JSONB array
+    });
+  }
+
+  @override
+  Future<void> removePhotoUrl(String roomId, String photoUrl) async {
+    final conn = await _db.connection;
+    await conn.execute(Sql.named(r'''
+      UPDATE rooms
+      SET photo_urls = photo_urls - @photoUrl::text
+      WHERE id = @id
+    '''), parameters: {
+      'id': roomId,
+      'photoUrl': photoUrl,
     });
   }
 }

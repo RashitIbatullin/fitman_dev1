@@ -149,28 +149,65 @@ class RoomDetailScreen extends ConsumerWidget {
               final fullUrl = photoUrl.startsWith('http')
                   ? photoUrl
                   : '$baseUrl/${photoUrl.startsWith('/') ? photoUrl.substring(1) : photoUrl}';
-              return Container(
-                margin: const EdgeInsets.symmetric(horizontal: 5.0),
-                child: ClipRRect(
-                  borderRadius: const BorderRadius.all(Radius.circular(8.0)),
-                  child: Image.network(
-                    fullUrl,
-                    fit: BoxFit.cover,
-                    width: 1000,
-                    loadingBuilder: (context, child, loadingProgress) {
-                      if (loadingProgress == null) return child;
-                      return Center(
-                        child: CircularProgressIndicator(
-                          value: loadingProgress.expectedTotalBytes != null
-                              ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
-                              : null,
-                        ),
-                      );
-                    },
-                    errorBuilder: (context, error, stackTrace) =>
-                        const Icon(Icons.error, color: Colors.red, size: 48),
+              return Stack( // ADDED STACK FOR OVERLAY ICON
+                children: [
+                  Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                    child: ClipRRect(
+                      borderRadius: const BorderRadius.all(Radius.circular(8.0)),
+                      child: Image.network(
+                        fullUrl,
+                        fit: BoxFit.cover,
+                        width: 1000,
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return Center(
+                            child: CircularProgressIndicator(
+                              value: loadingProgress.expectedTotalBytes != null
+                                  ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                                  : null,
+                            ),
+                          );
+                        },
+                        errorBuilder: (context, error, stackTrace) =>
+                            const Icon(Icons.error, color: Colors.red, size: 48),
+                      ),
+                    ),
                   ),
-                ),
+                  Positioned( // ADDED DELETE ICON
+                    top: 8.0,
+                    right: 8.0,
+                    child: GestureDetector(
+                      onTap: () async {
+                        final confirm = await _showDeleteConfirmationDialog(context);
+                        if (confirm == true) {
+                          try {
+                            await ApiService.removeRoomPhoto(
+                                roomId: room.id, photoUrl: photoUrl);
+                            ref.invalidate(roomByIdProvider(room.id)); // Refresh UI
+                            if (!context.mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Фото успешно удалено')),
+                            );
+                          } catch (e) {
+                            if (!context.mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Ошибка удаления фото: $e')),
+                            );
+                          }
+                        }
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(4.0),
+                        decoration: BoxDecoration(
+                          color: Colors.red.withAlpha((0.7 * 255).round()),
+                          borderRadius: BorderRadius.circular(12.0),
+                        ),
+                        child: const Icon(Icons.delete, color: Colors.white, size: 20),
+                      ),
+                    ),
+                  ),
+                ],
               );
             },
             options: CarouselOptions(
@@ -192,6 +229,29 @@ class RoomDetailScreen extends ConsumerWidget {
           ),
         ],
       ),
+    );
+  }
+
+  // ADDED CONFIRMATION DIALOG METHOD
+  Future<bool?> _showDeleteConfirmationDialog(BuildContext context) async {
+    return showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Удалить фото?'),
+          content: const Text('Вы уверены, что хотите удалить это фото?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Отмена'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Удалить'),
+            ),
+          ],
+        );
+      },
     );
   }
 
