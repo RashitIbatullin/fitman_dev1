@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'building.model.dart';
+part of 'building_model.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator

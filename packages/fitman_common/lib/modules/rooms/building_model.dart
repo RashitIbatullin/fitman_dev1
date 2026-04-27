@@ -1,8 +1,8 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'nullable_date_time_converter.dart';
 
-part 'building.model.freezed.dart';
-part 'building.model.g.dart';
+part 'building_model.freezed.dart';
+part 'building_model.g.dart';
 
 @freezed
 class Building with _$Building {

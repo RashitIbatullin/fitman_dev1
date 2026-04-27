@@ -3,7 +3,7 @@
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
-part of 'room.model.dart';
+part of 'room_model.dart';
 
 // **************************************************************************
 // FreezedGenerator
@@ -27,7 +27,7 @@ mixin _$Room {
   @RoomTypeConverter()
   RoomType get type => throw _privateConstructorUsedError;
   int? get floor => throw _privateConstructorUsedError;
-  String? get buildingId => throw _privateConstructorUsedError;
+  String get buildingId => throw _privateConstructorUsedError;
   String? get buildingName => throw _privateConstructorUsedError;
   int get maxCapacity => throw _privateConstructorUsedError;
   double? get area => throw _privateConstructorUsedError;
@@ -65,7 +65,7 @@ abstract class $RoomCopyWith<$Res> {
       String? roomNumber,
       @RoomTypeConverter() RoomType type,
       int? floor,
-      String? buildingId,
+      String buildingId,
       String? buildingName,
       int maxCapacity,
       double? area,
@@ -104,7 +104,7 @@ class _$RoomCopyWithImpl<$Res, $Val extends Room>
     Object? roomNumber = freezed,
     Object? type = null,
     Object? floor = freezed,
-    Object? buildingId = freezed,
+    Object? buildingId = null,
     Object? buildingName = freezed,
     Object? maxCapacity = null,
     Object? area = freezed,
@@ -146,10 +146,10 @@ class _$RoomCopyWithImpl<$Res, $Val extends Room>
           ? _value.floor
           : floor // ignore: cast_nullable_to_non_nullable
               as int?,
-      buildingId: freezed == buildingId
+      buildingId: null == buildingId
           ? _value.buildingId
           : buildingId // ignore: cast_nullable_to_non_nullable
-              as String?,
+              as String,
       buildingName: freezed == buildingName
           ? _value.buildingName
           : buildingName // ignore: cast_nullable_to_non_nullable
@@ -228,7 +228,7 @@ abstract class _$$RoomImplCopyWith<$Res> implements $RoomCopyWith<$Res> {
       String? roomNumber,
       @RoomTypeConverter() RoomType type,
       int? floor,
-      String? buildingId,
+      String buildingId,
       String? buildingName,
       int maxCapacity,
       double? area,
@@ -264,7 +264,7 @@ class __$$RoomImplCopyWithImpl<$Res>
     Object? roomNumber = freezed,
     Object? type = null,
     Object? floor = freezed,
-    Object? buildingId = freezed,
+    Object? buildingId = null,
     Object? buildingName = freezed,
     Object? maxCapacity = null,
     Object? area = freezed,
@@ -306,10 +306,10 @@ class __$$RoomImplCopyWithImpl<$Res>
           ? _value.floor
           : floor // ignore: cast_nullable_to_non_nullable
               as int?,
-      buildingId: freezed == buildingId
+      buildingId: null == buildingId
           ? _value.buildingId
           : buildingId // ignore: cast_nullable_to_non_nullable
-              as String?,
+              as String,
       buildingName: freezed == buildingName
           ? _value.buildingName
           : buildingName // ignore: cast_nullable_to_non_nullable
@@ -384,7 +384,7 @@ class _$RoomImpl implements _Room {
       this.roomNumber,
       @RoomTypeConverter() required this.type,
       this.floor,
-      this.buildingId,
+      required this.buildingId,
       this.buildingName,
       this.maxCapacity = 30,
       this.area,
@@ -419,7 +419,7 @@ class _$RoomImpl implements _Room {
   @override
   final int? floor;
   @override
-  final String? buildingId;
+  final String buildingId;
   @override
   final String? buildingName;
   @override
@@ -562,7 +562,7 @@ abstract class _Room implements Room {
       final String? roomNumber,
       @RoomTypeConverter() required final RoomType type,
       final int? floor,
-      final String? buildingId,
+      required final String buildingId,
       final String? buildingName,
       final int maxCapacity,
       final double? area,
@@ -595,7 +595,7 @@ abstract class _Room implements Room {
   @override
   int? get floor;
   @override
-  String? get buildingId;
+  String get buildingId;
   @override
   String? get buildingName;
   @override

@@ -204,7 +204,7 @@ class _RoomCreateScreenState extends ConsumerState<RoomCreateScreen> {
         roomNumber: _roomNumberController.text, // New field
         type: _selectedRoomType!, // Ensure type is not null
         floor: int.tryParse(_floorController.text), // Changed to parse int
-        buildingId: _selectedBuildingId,
+        buildingId: _selectedBuildingId!,
         maxCapacity: int.tryParse(_maxCapacityController.text) ?? 0,
         area: double.tryParse(_areaController.text),
         photoUrls: [],

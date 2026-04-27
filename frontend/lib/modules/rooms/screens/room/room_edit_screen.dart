@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fitman_app/modules/rooms/providers/room/building_provider.dart';
 import 'package:fitman_app/modules/rooms/providers/room/room_provider.dart';
-import 'package:fitman_common/modules/rooms/room.model.dart';
+import 'package:fitman_common/modules/rooms/room_model.dart';
 import 'package:fitman_common/modules/rooms/room_type.enum.dart';
-import 'package:fitman_common/modules/rooms/building.model.dart';
+import 'package:fitman_common/modules/rooms/building_model.dart';
 
 import 'package:fitman_common/modules/rooms/room_schedule.model.dart';
 import 'package:fitman_common/custom/time_of_day_custom.dart';
@@ -496,7 +496,7 @@ class _RoomEditScreenState extends ConsumerState<RoomEditScreen> {
         roomNumber: _roomNumberController.text,
         type: _selectedRoomType,
         floor: int.tryParse(_floorController.text), // Changed
-        buildingId: _selectedBuildingId,
+        buildingId: _selectedBuildingId!,
         maxCapacity: int.tryParse(_maxCapacityController.text) ?? 0,
         area: double.tryParse(_areaController.text),
         isActive: _isActive,

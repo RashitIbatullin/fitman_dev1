@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:fitman_backend/config/database.dart';
-import 'package:fitman_common/modules/rooms/room.model.dart';
+import 'package:fitman_common/modules/rooms/room_model.dart';
 import 'package:postgres/postgres.dart';
 import 'room_schedule_repository.dart';
 

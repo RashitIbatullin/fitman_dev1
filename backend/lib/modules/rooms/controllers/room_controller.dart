@@ -3,9 +3,10 @@ import 'dart:convert';
 
 import 'package:fitman_backend/modules/rooms/room_providers.dart';
 import 'package:fitman_backend/modules/rooms/services/room_service.dart';
-import 'package:fitman_common/modules/rooms/room.model.dart';
+import 'package:fitman_common/modules/rooms/room_model.dart';
 import 'package:shelf/shelf.dart' as shelf;
 import 'package:shelf_router/shelf_router.dart';
+import 'package:shelf_multipart/shelf_multipart.dart';
 
 
 class RoomController {
@@ -26,22 +27,24 @@ class RoomController {
 
   Future<shelf.Response> _uploadPhoto(shelf.Request request, String id) async {
     try {
-      if (!request.isMultipart) {
-        return shelf.Response(400, body: '{"error": "Expected a multipart request."}');
-      }
-
       String? fileName;
       List<int>? fileBytes;
 
-      await for (final part in request.parts) {
-        if (part.name == 'photo') {
-          fileBytes = await part.readBytes();
-          fileName = part.filename;
+      if (request.formData() case final form?) {
+        await for (final formData in form.formData) {
+          if (formData.name == 'photo') {
+            fileName = formData.filename;
+            fileBytes = await formData.part.readBytes();
+          }
         }
+      } else {
+        return shelf.Response(400,
+            body: jsonEncode({'error': 'Not a multipart/form-data request'}));
       }
 
       if (fileName == null || fileBytes == null) {
-        return shelf.Response(400, body: '{"error": "Missing "photo" part in multipart request."}');
+        return shelf.Response(400,
+            body: '{"error": "Missing "photo" part in multipart request."}');
       }
 
       final newPhotoUrl = await _roomService.uploadPhoto(
@@ -53,7 +56,8 @@ class RoomController {
       return shelf.Response.ok(jsonEncode({'url': newPhotoUrl}));
     } catch (e) {
       final errorMessage = e.toString().replaceFirst('Exception: ', '');
-      return shelf.Response.internalServerError(body: '{"error": "$errorMessage"}');
+      return shelf.Response.internalServerError(
+          body: '{"error": "$errorMessage"}');
     }
   }
 

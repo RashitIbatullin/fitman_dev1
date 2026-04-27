@@ -4,8 +4,8 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'room_type.enum.dart';
 
-part 'room.model.freezed.dart';
-part 'room.model.g.dart';
+part 'room_model.freezed.dart';
+part 'room_model.g.dart';
 
 // Custom converter for RoomType enum to/from int
 class RoomTypeConverter implements JsonConverter<RoomType, int> {
@@ -31,7 +31,7 @@ class Room with _$Room {
     String? roomNumber,
     @RoomTypeConverter() required RoomType type,
     int? floor,
-    String? buildingId,
+    required String buildingId,
     String? buildingName,
     @Default(30) int maxCapacity,
     double? area,

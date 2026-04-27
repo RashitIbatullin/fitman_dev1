@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:fitman_backend/modules/equipment/repositories/equipment_item.repository.dart';
 import 'package:fitman_backend/modules/rooms/repositories/room_repository.dart';
-import 'package:fitman_common/modules/rooms/room.model.dart';
+import 'package:fitman_common/modules/rooms/room_model.dart';
 
 class RoomService {
   const RoomService(this._roomRepository, this._equipmentItemRepository);
@@ -49,7 +49,7 @@ class RoomService {
   }) async {
     // 1. Create a unique filename
     final fileExtension = fileName.split('.').last;
-    final uniqueFileName = '${DateTime.now().millisecondsSinceEpoch}_${roomId}.$fileExtension';
+    final uniqueFileName = '${DateTime.now().millisecondsSinceEpoch}_$roomId.$fileExtension';
     final uploadPath = 'uploads/room_photos/$uniqueFileName';
 
     // 2. Save the file
@@ -58,7 +58,7 @@ class RoomService {
     await file.writeAsBytes(fileBytes);
 
     // 3. Update the database
-    final publicUrl = 'uploads/room_photos/$uniqueFileName';
+    final publicUrl = '/uploads/room_photos/$uniqueFileName';
     await _roomRepository.addPhotoUrl(roomId, publicUrl);
 
     return publicUrl;

@@ -1,5 +1,5 @@
 import 'package:fitman_backend/modules/rooms/repositories/building_repository.dart';
-import 'package:fitman_common/modules/rooms/building.model.dart';
+import 'package:fitman_common/modules/rooms/building_model.dart';
 
 class BuildingService {
   const BuildingService(this._buildingRepository);

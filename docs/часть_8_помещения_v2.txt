@@ -226,7 +226,7 @@ CREATE TABLE room_schedules (
   │   ├── building/
   │   │   └── building.model.dart   # Модель здания
   │   └── room/
-  │       └── room.model.dart       # Обновленная модель помещения
+  │       └── room_model.dart       # Обновленная модель помещения
   ├── providers/
   │   └── room_providers.dart       # Провайдеры зависимостей для модуля
   ├── repositories/
@@ -245,7 +245,7 @@ CREATE TABLE room_schedules (
   │   ├── building/                 # Модель для зданий
   │   │   └── building.model.dart
   │   ├── room/
-  │   │   └── room.model.dart       # Модель помещения
+  │   │   └── room_model.dart       # Модель помещения
   │   └── room_schedule.model.dart  # Модель расписания помещения
   ├── providers/
   │   ├── building_provider.dart    # Провайдеры для зданий
