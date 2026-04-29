@@ -15,6 +15,8 @@ _$EquipmentItemImpl _$$EquipmentItemImplFromJson(Map<String, dynamic> json) =>
       model: json['model'] as String?,
       manufacturer: json['manufacturer'] as String?,
       roomId: json['room_id'] as String?,
+      roomName: json['room_name'] as String?,
+      typeName: json['type_name'] as String?,
       placementNote: json['placement_note'] as String?,
       status: const EquipmentStatusConverter()
           .fromJson((json['status'] as num).toInt()),
@@ -52,6 +54,8 @@ Map<String, dynamic> _$$EquipmentItemImplToJson(_$EquipmentItemImpl instance) =>
       'model': instance.model,
       'manufacturer': instance.manufacturer,
       'room_id': instance.roomId,
+      'room_name': instance.roomName,
+      'type_name': instance.typeName,
       'placement_note': instance.placementNote,
       'status': const EquipmentStatusConverter().toJson(instance.status),
       'condition_rating': instance.conditionRating,

@@ -27,6 +27,8 @@ mixin _$EquipmentItem {
   String? get model => throw _privateConstructorUsedError;
   String? get manufacturer => throw _privateConstructorUsedError;
   String? get roomId => throw _privateConstructorUsedError;
+  String? get roomName => throw _privateConstructorUsedError;
+  String? get typeName => throw _privateConstructorUsedError;
   String? get placementNote => throw _privateConstructorUsedError;
   @EquipmentStatusConverter()
   EquipmentStatus get status => throw _privateConstructorUsedError;
@@ -75,6 +77,8 @@ abstract class $EquipmentItemCopyWith<$Res> {
       String? model,
       String? manufacturer,
       String? roomId,
+      String? roomName,
+      String? typeName,
       String? placementNote,
       @EquipmentStatusConverter() EquipmentStatus status,
       int conditionRating,
@@ -116,6 +120,8 @@ class _$EquipmentItemCopyWithImpl<$Res, $Val extends EquipmentItem>
     Object? model = freezed,
     Object? manufacturer = freezed,
     Object? roomId = freezed,
+    Object? roomName = freezed,
+    Object? typeName = freezed,
     Object? placementNote = freezed,
     Object? status = null,
     Object? conditionRating = null,
@@ -162,6 +168,14 @@ class _$EquipmentItemCopyWithImpl<$Res, $Val extends EquipmentItem>
       roomId: freezed == roomId
           ? _value.roomId
           : roomId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      roomName: freezed == roomName
+          ? _value.roomName
+          : roomName // ignore: cast_nullable_to_non_nullable
+              as String?,
+      typeName: freezed == typeName
+          ? _value.typeName
+          : typeName // ignore: cast_nullable_to_non_nullable
               as String?,
       placementNote: freezed == placementNote
           ? _value.placementNote
@@ -251,6 +265,8 @@ abstract class _$$EquipmentItemImplCopyWith<$Res>
       String? model,
       String? manufacturer,
       String? roomId,
+      String? roomName,
+      String? typeName,
       String? placementNote,
       @EquipmentStatusConverter() EquipmentStatus status,
       int conditionRating,
@@ -290,6 +306,8 @@ class __$$EquipmentItemImplCopyWithImpl<$Res>
     Object? model = freezed,
     Object? manufacturer = freezed,
     Object? roomId = freezed,
+    Object? roomName = freezed,
+    Object? typeName = freezed,
     Object? placementNote = freezed,
     Object? status = null,
     Object? conditionRating = null,
@@ -336,6 +354,14 @@ class __$$EquipmentItemImplCopyWithImpl<$Res>
       roomId: freezed == roomId
           ? _value.roomId
           : roomId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      roomName: freezed == roomName
+          ? _value.roomName
+          : roomName // ignore: cast_nullable_to_non_nullable
+              as String?,
+      typeName: freezed == typeName
+          ? _value.typeName
+          : typeName // ignore: cast_nullable_to_non_nullable
               as String?,
       placementNote: freezed == placementNote
           ? _value.placementNote
@@ -420,6 +446,8 @@ class _$EquipmentItemImpl implements _EquipmentItem {
       this.model,
       this.manufacturer,
       this.roomId,
+      this.roomName,
+      this.typeName,
       this.placementNote,
       @EquipmentStatusConverter() required this.status,
       this.conditionRating = 3,
@@ -456,6 +484,10 @@ class _$EquipmentItemImpl implements _EquipmentItem {
   final String? manufacturer;
   @override
   final String? roomId;
+  @override
+  final String? roomName;
+  @override
+  final String? typeName;
   @override
   final String? placementNote;
   @override
@@ -508,7 +540,7 @@ class _$EquipmentItemImpl implements _EquipmentItem {
 
   @override
   String toString() {
-    return 'EquipmentItem(id: $id, typeId: $typeId, inventoryNumber: $inventoryNumber, serialNumber: $serialNumber, model: $model, manufacturer: $manufacturer, roomId: $roomId, placementNote: $placementNote, status: $status, conditionRating: $conditionRating, conditionNotes: $conditionNotes, lastMaintenanceDate: $lastMaintenanceDate, nextMaintenanceDate: $nextMaintenanceDate, maintenanceNotes: $maintenanceNotes, purchaseDate: $purchaseDate, purchasePrice: $purchasePrice, supplier: $supplier, warrantyMonths: $warrantyMonths, usageHours: $usageHours, lastUsedDate: $lastUsedDate, photoUrls: $photoUrls, archivedAt: $archivedAt, archivedBy: $archivedBy, archivedReason: $archivedReason)';
+    return 'EquipmentItem(id: $id, typeId: $typeId, inventoryNumber: $inventoryNumber, serialNumber: $serialNumber, model: $model, manufacturer: $manufacturer, roomId: $roomId, roomName: $roomName, typeName: $typeName, placementNote: $placementNote, status: $status, conditionRating: $conditionRating, conditionNotes: $conditionNotes, lastMaintenanceDate: $lastMaintenanceDate, nextMaintenanceDate: $nextMaintenanceDate, maintenanceNotes: $maintenanceNotes, purchaseDate: $purchaseDate, purchasePrice: $purchasePrice, supplier: $supplier, warrantyMonths: $warrantyMonths, usageHours: $usageHours, lastUsedDate: $lastUsedDate, photoUrls: $photoUrls, archivedAt: $archivedAt, archivedBy: $archivedBy, archivedReason: $archivedReason)';
   }
 
   @override
@@ -526,6 +558,10 @@ class _$EquipmentItemImpl implements _EquipmentItem {
             (identical(other.manufacturer, manufacturer) ||
                 other.manufacturer == manufacturer) &&
             (identical(other.roomId, roomId) || other.roomId == roomId) &&
+            (identical(other.roomName, roomName) ||
+                other.roomName == roomName) &&
+            (identical(other.typeName, typeName) ||
+                other.typeName == typeName) &&
             (identical(other.placementNote, placementNote) ||
                 other.placementNote == placementNote) &&
             (identical(other.status, status) || other.status == status) &&
@@ -572,6 +608,8 @@ class _$EquipmentItemImpl implements _EquipmentItem {
         model,
         manufacturer,
         roomId,
+        roomName,
+        typeName,
         placementNote,
         status,
         conditionRating,
@@ -616,6 +654,8 @@ abstract class _EquipmentItem implements EquipmentItem {
       final String? model,
       final String? manufacturer,
       final String? roomId,
+      final String? roomName,
+      final String? typeName,
       final String? placementNote,
       @EquipmentStatusConverter() required final EquipmentStatus status,
       final int conditionRating,
@@ -651,6 +691,10 @@ abstract class _EquipmentItem implements EquipmentItem {
   String? get manufacturer;
   @override
   String? get roomId;
+  @override
+  String? get roomName;
+  @override
+  String? get typeName;
   @override
   String? get placementNote;
   @override

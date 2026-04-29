@@ -159,11 +159,11 @@ class DatabaseSeeder {
 
     print('🔩 Seeding equipment...');
     final equipmentTypes = await _seedEquipmentTypes();
-    final item1Id = await _createEquipmentItem(typeId: equipmentTypes['treadmill']!, inventoryNumber: 'ТРЕД-001', roomId: rooms['cardio']!);
-    final item2Id = await _createEquipmentItem(typeId: equipmentTypes['treadmill']!, inventoryNumber: 'ТРЕД-002', roomId: rooms['cardio']!);
-    await _createEquipmentItem(typeId: equipmentTypes['elliptical']!, inventoryNumber: 'ЭЛЛ-001', roomId: rooms['cardio']!);
-    await _createEquipmentItem(typeId: equipmentTypes['dumbbell']!, inventoryNumber: 'ГАН-001', roomId: rooms['strength']!);
-    await _createEquipmentItem(typeId: equipmentTypes['barbell']!, inventoryNumber: 'ШТАН-001', roomId: rooms['strength']!);
+    final item1Id = await _createEquipmentItem(typeId: equipmentTypes['treadmill']!, inventoryNumber: 'ТРЕД-001', roomId: rooms['cardio']!, model: 'Matrix T7xi', manufacturer: 'Johnson Health Tech');
+    final item2Id = await _createEquipmentItem(typeId: equipmentTypes['treadmill']!, inventoryNumber: 'ТРЕД-002', roomId: rooms['cardio']!, model: 'Precor TRM 885', manufacturer: 'Precor');
+    await _createEquipmentItem(typeId: equipmentTypes['elliptical']!, inventoryNumber: 'ЭЛЛ-001', roomId: rooms['cardio']!, model: 'Life Fitness Platinum Club', manufacturer: 'Life Fitness');
+    await _createEquipmentItem(typeId: equipmentTypes['dumbbell']!, inventoryNumber: 'ГАН-001', roomId: rooms['strength']!, model: 'Ziva ZVO', manufacturer: 'Ziva');
+    await _createEquipmentItem(typeId: equipmentTypes['barbell']!, inventoryNumber: 'ШТАН-001', roomId: rooms['strength']!, model: 'Eleiko IWF', manufacturer: 'Eleiko');
     print('🔧 Created equipment items.');
 
     print('   📏 Seeding measurements for demo client...');
@@ -363,11 +363,17 @@ class DatabaseSeeder {
     return await _getIdsForTable('equipment_types', keyColumn: 'schematic_icon');
   }
 
-  Future<String> _createEquipmentItem({required String typeId, required String inventoryNumber, required String roomId}) async {
+  Future<String> _createEquipmentItem({required String typeId, required String inventoryNumber, required String roomId, String? model, String? manufacturer}) async {
      final result = await _connection.execute(Sql.named('''
-      INSERT INTO equipment_items (type_id, inventory_number, room_id, status)
-      VALUES (@type_id, @inventory_number, @room_id, 0) RETURNING id;
-    '''), parameters: {'type_id': typeId, 'inventory_number': inventoryNumber, 'room_id': roomId});
+      INSERT INTO equipment_items (type_id, inventory_number, room_id, status, model, manufacturer, condition_rating)
+      VALUES (@type_id, @inventory_number, @room_id, 0, @model, @manufacturer, 5) RETURNING id;
+    '''), parameters: {
+      'type_id': typeId, 
+      'inventory_number': inventoryNumber, 
+      'room_id': roomId,
+      'model': model,
+      'manufacturer': manufacturer,
+      });
     return result.first[0].toString();
   }
 
@@ -440,11 +446,6 @@ class DatabaseSeeder {
   // Existing methods
   Future<String> _createUser({required String login, required String firstName, required String lastName, String? phone, int gender = 0, required String password}) async {
     final passwordHash = BCrypt.hashpw(password, BCrypt.gensalt());
-    if (phone == '+70000000000' || phone == '+70000000001' || phone == '+70000000002' || phone == '+70000000003' || phone == '+70000000004') {
-      print('--- DEBUG SEEDER ---');
-      print('Generated hash for $phone (password: "$password"): "$passwordHash"');
-      print('--------------------');
-    }
     final result = await _connection.execute(Sql.named('''
       INSERT INTO users (login, password_hash, email, first_name, last_name, gender, date_of_birth, phone)
       VALUES (@login, @hash, @email, @first, @last, @gender, @dob, @phone)

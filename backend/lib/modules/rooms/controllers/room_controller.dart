@@ -58,7 +58,7 @@ class RoomController {
     } catch (e) {
       final errorMessage = e.toString().replaceFirst('Exception: ', '');
       return shelf.Response.internalServerError(
-          body: jsonEncode({'error': '$errorMessage'}));
+          body: jsonEncode({'error': errorMessage}));
     }
   }
 
@@ -81,12 +81,12 @@ class RoomController {
     try {
       final room = await _roomService.getById(id);
       if (room == null) {
-        return shelf.Response.notFound('{"error": "Room not found"}');
+        return shelf.Response.notFound(jsonEncode({'error': 'Room not found'}));
       }
       return shelf.Response.ok(jsonEncode(room.toJson()));
     } on Exception catch (e) {
       final errorMessage = e.toString().replaceFirst('Exception: ', '');
-      return shelf.Response.internalServerError(body: '{"error": "Error fetching room: $errorMessage"}');
+      return shelf.Response.internalServerError(body: jsonEncode({'error': 'Error fetching room: $errorMessage'}));
     }
   }
 
@@ -102,7 +102,7 @@ class RoomController {
       );
     } on Exception catch (e) {
       final errorMessage = e.toString().replaceFirst('Exception: ', '');
-      return shelf.Response.internalServerError(body: '{"error": "$errorMessage"}');
+      return shelf.Response.internalServerError(body: jsonEncode({'error': errorMessage}));
     }
   }
 
@@ -112,7 +112,7 @@ class RoomController {
       final userPayload = request.context['user'] as Map<String, dynamic>?;
       if (userPayload == null || userPayload['userId'] == null) {
         return shelf.Response.forbidden(
-            '{"error": "Authorization required. User payload missing."}');
+            jsonEncode({'error': 'Authorization required. User payload missing.'}));
       }
       final userId = userPayload['userId'].toString();
 
@@ -132,7 +132,7 @@ class RoomController {
       );
     } on Exception catch (e) {
       final errorMessage = e.toString().replaceFirst('Exception: ', '');
-      return shelf.Response.internalServerError(body: '{"error": "$errorMessage"}');
+      return shelf.Response.internalServerError(body: jsonEncode({'error': errorMessage}));
     }
   }
 
@@ -140,7 +140,7 @@ class RoomController {
     try {
       final userPayload = request.context['user'] as Map<String, dynamic>?;
       if (userPayload == null || userPayload['userId'] == null) {
-        return shelf.Response.forbidden('{"error": "Authorization required. User ID missing."}');
+        return shelf.Response.forbidden(jsonEncode({'error': 'Authorization required. User ID missing.'}));
       }
       final userId = userPayload['userId'].toString();
 
@@ -148,7 +148,7 @@ class RoomController {
       return shelf.Response(204);
     } on Exception catch (e) {
       final errorMessage = e.toString().replaceFirst('Exception: ', '');
-      return shelf.Response.internalServerError(body: '{"error": "$errorMessage"}');
+      return shelf.Response.internalServerError(body: jsonEncode({'error': errorMessage}));
     }
   }
 
@@ -170,7 +170,7 @@ class RoomController {
     } catch (e) {
       final errorMessage = e.toString().replaceFirst('Exception: ', '');
       return shelf.Response.internalServerError(
-          body: jsonEncode({'error': '$errorMessage'}));
+          body: jsonEncode({'error': errorMessage}));
     }
   }
 }

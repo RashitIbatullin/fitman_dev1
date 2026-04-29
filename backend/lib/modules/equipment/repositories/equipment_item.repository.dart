@@ -104,8 +104,13 @@ class EquipmentItemRepositoryImpl implements EquipmentItemRepository {
       final conn = await _db.connection;
       final whereClause = includeArchived ? 'ei.archived_at IS NOT NULL' : 'ei.archived_at IS NULL';
       final result = await conn.execute(Sql.named('''
-        SELECT ei.* FROM equipment_items ei
+        SELECT 
+          ei.*,
+          r.name as room_name,
+          et.name as type_name
+        FROM equipment_items ei
         JOIN equipment_types et ON ei.type_id = et.id
+        LEFT JOIN rooms r ON ei.room_id = r.id
         WHERE $whereClause
         ORDER BY et.name ASC, ei.inventory_number ASC
       '''));
@@ -128,13 +133,22 @@ class EquipmentItemRepositoryImpl implements EquipmentItemRepository {
       
       String whereClause;
       if (includeArchived) {
-        whereClause = 'WHERE room_id = @roomId AND archived_at IS NOT NULL';
+        whereClause = 'WHERE ei.room_id = @roomId AND ei.archived_at IS NOT NULL';
       } else {
-        whereClause = 'WHERE room_id = @roomId AND archived_at IS NULL';
+        whereClause = 'WHERE ei.room_id = @roomId AND ei.archived_at IS NULL';
       }
 
       final result = await conn.execute(
-        Sql.named('SELECT * FROM equipment_items $whereClause'),
+        Sql.named('''
+          SELECT 
+            ei.*,
+            r.name as room_name,
+            et.name as type_name
+          FROM equipment_items ei
+          JOIN equipment_types et ON ei.type_id = et.id
+          LEFT JOIN rooms r ON ei.room_id = r.id
+          $whereClause
+        '''),
         parameters: {
           'roomId': roomId,
         },
@@ -155,7 +169,16 @@ class EquipmentItemRepositoryImpl implements EquipmentItemRepository {
   Future<EquipmentItem> getById(String id) async {
     final conn = await _db.connection;
     final result = await conn.execute(
-      Sql.named('SELECT * FROM equipment_items WHERE id = @id'),
+      Sql.named('''
+        SELECT 
+          ei.*,
+          r.name as room_name,
+          et.name as type_name
+        FROM equipment_items ei
+        JOIN equipment_types et ON ei.type_id = et.id
+        LEFT JOIN rooms r ON ei.room_id = r.id
+        WHERE ei.id = @id
+      '''),
       parameters: {'id': id},
     );
 

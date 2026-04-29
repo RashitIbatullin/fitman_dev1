@@ -27,6 +27,8 @@ class EquipmentItem with _$EquipmentItem {
     String? model,
     String? manufacturer,
     String? roomId,
+    String? roomName,
+    String? typeName,
     String? placementNote,
     @EquipmentStatusConverter()
     required EquipmentStatus status,

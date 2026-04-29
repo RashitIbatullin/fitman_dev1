@@ -161,64 +161,6 @@ class _EquipmentDashboardScreenState
                     ),
                   ],
                 ),
-                const SizedBox(height: 8.0),
-                Row(
-                  children: [
-                    Expanded(
-                      child: roomsAsync.when(
-                        data: (rooms) => DropdownButtonFormField<String>(
-                          decoration: const InputDecoration(
-                              labelText: 'Помещение',
-                              border: OutlineInputBorder()),
-                          initialValue: selectedRoomId,
-                          items: [
-                            const DropdownMenuItem(
-                                value: null, child: Text('Все')),
-                            ...rooms.map((room) => DropdownMenuItem(
-                                  value: room.id,
-                                  child: Row(
-                                    children: [
-                                      Icon(room.type.icon, size: 20),
-                                      const SizedBox(width: 8.0),
-                                      Text(room.name),
-                                    ],
-                                  ),
-                                )),
-                          ],
-                          onChanged: (value) => ref
-                              .read(equipmentFilterRoomIdProvider.notifier)
-                              .state = value,
-                        ),
-                        loading: () => const SizedBox.shrink(),
-                        error: (err, stack) =>
-                            Text('Ошибка: ${err.toString()}'),
-                      ),
-                    ),
-                    const SizedBox(width: 8.0),
-                    Expanded(
-                      child: DropdownButtonFormField<int>(
-                        decoration: const InputDecoration(
-                            labelText: 'Состояние',
-                            border: OutlineInputBorder()),
-                        initialValue: selectedCondition,
-                        items: const [
-                          DropdownMenuItem(value: null, child: Text('Все')),
-                          DropdownMenuItem(value: 5, child: Text('5 - Отличное')),
-                          DropdownMenuItem(value: 4, child: Text('4 - Хорошее')),
-                          DropdownMenuItem(
-                              value: 3, child: Text('3 - Удовлетвор.')),
-                          DropdownMenuItem(value: 2, child: Text('2 - Плохое')),
-                          DropdownMenuItem(
-                              value: 1, child: Text('1 - Очень плохое')),
-                        ],
-                        onChanged: (value) => ref
-                            .read(
-                                equipmentFilterConditionRatingProvider.notifier)
-                            .state = value,
-                      ),
-                    ),
-                  ],
-                ),
                  Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
@@ -319,24 +261,6 @@ class EquipmentItemCard extends ConsumerWidget {
   final EquipmentItem item;
   final VoidCallback? onTap;
 
-  String? _getRoomName(List<Room>? rooms, String? roomId) {
-    if (rooms == null || roomId == null) return 'Не назначено';
-    try {
-      return rooms.firstWhere((room) => room.id == roomId).name;
-    } catch (e) {
-      return 'Неизвестно';
-    }
-  }
-
-  String? _getEquipmentTypeName(List<EquipmentType>? types, String typeId) {
-    if (types == null) return 'N/A';
-    try {
-      return types.firstWhere((type) => type.id == typeId).name;
-    } catch (e) {
-      return 'N/A';
-    }
-  }
-
   void _showArchiveDialog(
       BuildContext context, WidgetRef ref, EquipmentItem item) {
     final reasonController = TextEditingController();
@@ -406,10 +330,6 @@ class EquipmentItemCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final roomName =
-        _getRoomName(ref.watch(allRoomsProvider).value, item.roomId);
-    final equipmentTypeName = _getEquipmentTypeName(
-        ref.watch(allEquipmentTypesProvider).value, item.typeId);
     final isArchived = item.archivedAt != null;
 
     return Card(
@@ -440,14 +360,14 @@ class EquipmentItemCard extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildInfoRow(context, 'Тип:', equipmentTypeName ?? 'N/A'),
+                  _buildInfoRow(context, 'Тип:', item.typeName ?? 'N/A'),
                   _buildInfoRow(
                     context,
                     'Модель/Производитель:',
                     '${item.model ?? 'N/A'}${item.manufacturer != null && item.manufacturer!.isNotEmpty ? ' (${item.manufacturer})' : ''}',
                   ),
                   _buildInfoRow(
-                      context, 'Помещение:', roomName ?? 'Не назначено'),
+                      context, 'Помещение:', item.roomName ?? 'Не назначено'),
                 ],
               ),
             ),
