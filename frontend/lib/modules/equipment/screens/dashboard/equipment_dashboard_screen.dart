@@ -1,16 +1,16 @@
-import 'package:fitman_app/modules/rooms/room_type_extensions.dart';
 import 'package:fitman_app/modules/users/providers/users_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fitman_app/extensions/equipment_ui_extensions.dart';
 // ... (rest of the imports)
 import 'package:fitman_app/modules/equipment/providers/equipment/equipment_provider.dart';
-import 'package:fitman_app/modules/rooms/providers/room/room_provider.dart';
 import 'package:fitman_common/fitman_common.dart';
 import '../item/equipment_item_detail_screen.dart';
 import '../item/equipment_item_edit_screen.dart';
 import 'package:fitman_app/modules/equipment/screens/standards/repair_time_standards_screen.dart';
 import '../type/equipment_types_list_screen.dart';
+import 'package:collection/collection.dart';
+
 
 class EquipmentDashboardScreen extends ConsumerStatefulWidget {
   const EquipmentDashboardScreen({super.key});
@@ -43,10 +43,6 @@ class _EquipmentDashboardScreenState
   @override
   Widget build(BuildContext context) {
     final equipmentItemsAsync = ref.watch(allEquipmentItemsProvider);
-    final equipmentTypesAsync = ref.watch(allEquipmentTypesProvider);
-    final roomsAsync = ref.watch(allRoomsProvider);
-
-    final selectedType = ref.watch(equipmentFilterEquipmentTypeProvider);
     final selectedStatus = ref.watch(equipmentFilterStatusProvider);
     final selectedRoomId = ref.watch(equipmentFilterRoomIdProvider);
     final selectedCondition = ref.watch(equipmentFilterConditionRatingProvider);
@@ -102,35 +98,7 @@ class _EquipmentDashboardScreenState
                 Row(
                   children: [
                     Expanded(
-                      child: equipmentTypesAsync.when(
-                        data: (types) => DropdownButtonFormField<EquipmentType>(
-                          decoration: const InputDecoration(
-                              labelText: 'Тип оборудования',
-                              border: OutlineInputBorder()),
-                          initialValue: selectedType,
-                          items: [
-                            const DropdownMenuItem(
-                                value: null, child: Text('Все')),
-                            ...types.map((type) => DropdownMenuItem(
-                                  value: type,
-                                  child: Row(
-                                    children: [
-                                      Icon(type.category.icon, size: 20),
-                                      const SizedBox(width: 8),
-                                      Text(type.name),
-                                    ],
-                                  ),
-                                )),
-                          ],
-                          onChanged: (value) => ref
-                              .read(
-                                  equipmentFilterEquipmentTypeProvider.notifier)
-                              .state = value,
-                        ),
-                        loading: () => const SizedBox.shrink(),
-                        error: (err, stack) =>
-                            Text('Ошибка: ${err.toString()}'),
-                      ),
+                      child: _TypePicker(),
                     ),
                     const SizedBox(width: 8.0),
                     Expanded(
@@ -179,6 +147,7 @@ class _EquipmentDashboardScreenState
           Expanded(
             child: equipmentItemsAsync.when(
               data: (items) {
+                final selectedType = ref.watch(equipmentFilterEquipmentTypeProvider);
                 final filteredItems = items.where((item) {
                   final searchQuery = ref.watch(equipmentFilterSearchQueryProvider);
                   final matchesSearch = searchQuery.isEmpty ||
@@ -250,6 +219,64 @@ class _EquipmentDashboardScreenState
     );
   }
 }
+
+class _TypePicker extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final typesAsync = ref.watch(allEquipmentTypesProvider);
+    final selectedType = ref.watch(equipmentFilterEquipmentTypeProvider);
+
+    return typesAsync.when(
+      data: (types) {
+        final grouped = groupBy(types, (EquipmentType type) => type.category);
+
+        return OutlinedButton(
+          style: OutlinedButton.styleFrom(
+            padding: const EdgeInsets.all(16),
+            side: BorderSide(color: Theme.of(context).colorScheme.outline),
+          ),
+          onPressed: () {
+            showModalBottomSheet(
+              context: context,
+              builder: (context) {
+                return ListView(
+                  children: [
+                    ListTile(
+                      title: const Text('Все типы', style: TextStyle(fontWeight: FontWeight.bold)),
+                      onTap: () {
+                        ref.read(equipmentFilterEquipmentTypeProvider.notifier).state = null;
+                        Navigator.pop(context);
+                      },
+                    ),
+                    ...grouped.entries.map((entry) {
+                      return ExpansionTile(
+                        leading: Icon(entry.key.icon, size: 24),
+                        title: Text(entry.key.displayName, style: const TextStyle(fontWeight: FontWeight.bold)),
+                        children: entry.value.map((type) {
+                          return ListTile(
+                            title: Text(type.name),
+                            onTap: () {
+                              ref.read(equipmentFilterEquipmentTypeProvider.notifier).state = type;
+                              Navigator.pop(context);
+                            },
+                          );
+                        }).toList(),
+                      );
+                    }),
+                  ],
+                );
+              },
+            );
+          },
+          child: Text(selectedType?.name ?? 'Все типы'),
+        );
+      },
+      loading: () => const OutlinedButton(onPressed: null, child: Text('Загрузка...')),
+      error: (e, s) => OutlinedButton(onPressed: null, child: Text('Ошибка')),
+    );
+  }
+}
+
 
 class EquipmentItemCard extends ConsumerWidget {
   const EquipmentItemCard({

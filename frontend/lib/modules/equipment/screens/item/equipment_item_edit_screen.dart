@@ -51,6 +51,7 @@ class _EquipmentItemEditScreenState
   Room? _selectedRoom;
 
   bool _isLoading = false;
+  String? _inventoryNumberError;
 
   @override
   void initState() {
@@ -149,36 +150,62 @@ class _EquipmentItemEditScreenState
   Future<void> _saveForm() async {
     if (!_formKey.currentState!.validate()) return;
     if (_selectedEquipmentType == null) {
-       if (!mounted) return;
-       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Пожалуйста, выберите тип оборудования.'), backgroundColor: Colors.red));
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Пожалуйста, выберите тип оборудования.'),
+          backgroundColor: Colors.red));
       return;
     }
 
     setState(() => _isLoading = true);
 
-    final isCreating = widget.itemId == null;
+    final isCreating = widget.itemId == null && widget.equipmentItem == null;
+    final id = widget.itemId ?? widget.equipmentItem?.id;
 
     final equipmentItem = EquipmentItem(
-      id: isCreating ? '' : widget.itemId!,
+      id: id ?? '',
       typeId: _selectedEquipmentType!.id,
       inventoryNumber: _inventoryNumberController.text,
-      serialNumber: _serialNumberController.text.isEmpty ? null : _serialNumberController.text,
+      serialNumber: _serialNumberController.text.isEmpty
+          ? null
+          : _serialNumberController.text,
       model: _modelController.text.isEmpty ? null : _modelController.text,
-      manufacturer: _manufacturerController.text.isEmpty ? null : _manufacturerController.text,
+      manufacturer: _manufacturerController.text.isEmpty
+          ? null
+          : _manufacturerController.text,
       roomId: _selectedRoom?.id,
-      placementNote: _placementNoteController.text.isEmpty ? null : _placementNoteController.text,
+      placementNote: _placementNoteController.text.isEmpty
+          ? null
+          : _placementNoteController.text,
       status: _selectedStatus,
       conditionRating: _conditionRating,
-      conditionNotes: _conditionNotesController.text.isEmpty ? null : _conditionNotesController.text,
-      lastMaintenanceDate: _lastMaintenanceDateController.text.isEmpty ? null : DateTime.parse(_lastMaintenanceDateController.text),
-      nextMaintenanceDate: _nextMaintenanceDateController.text.isEmpty ? null : DateTime.parse(_nextMaintenanceDateController.text),
-      maintenanceNotes: _maintenanceNotesController.text.isEmpty ? null : _maintenanceNotesController.text,
-      purchaseDate: _purchaseDateController.text.isEmpty ? null : DateTime.parse(_purchaseDateController.text),
-      purchasePrice: _purchasePriceController.text.isEmpty ? null : double.tryParse(_purchasePriceController.text),
-      supplier: _supplierController.text.isEmpty ? null : _supplierController.text,
-      warrantyMonths: _warrantyMonthsController.text.isEmpty ? null : int.tryParse(_warrantyMonthsController.text),
+      conditionNotes: _conditionNotesController.text.isEmpty
+          ? null
+          : _conditionNotesController.text,
+      lastMaintenanceDate: _lastMaintenanceDateController.text.isEmpty
+          ? null
+          : DateTime.parse(_lastMaintenanceDateController.text),
+      nextMaintenanceDate: _nextMaintenanceDateController.text.isEmpty
+          ? null
+          : DateTime.parse(_nextMaintenanceDateController.text),
+      maintenanceNotes: _maintenanceNotesController.text.isEmpty
+          ? null
+          : _maintenanceNotesController.text,
+      purchaseDate: _purchaseDateController.text.isEmpty
+          ? null
+          : DateTime.parse(_purchaseDateController.text),
+      purchasePrice: _purchasePriceController.text.isEmpty
+          ? null
+          : double.tryParse(_purchasePriceController.text),
+      supplier:
+          _supplierController.text.isEmpty ? null : _supplierController.text,
+      warrantyMonths: _warrantyMonthsController.text.isEmpty
+          ? null
+          : int.tryParse(_warrantyMonthsController.text),
       usageHours: int.tryParse(_usageHoursController.text) ?? 0,
-      lastUsedDate: _lastUsedDateController.text.isEmpty ? null : DateTime.parse(_lastUsedDateController.text),
+      lastUsedDate: _lastUsedDateController.text.isEmpty
+          ? null
+          : DateTime.parse(_lastUsedDateController.text),
       photoUrls: widget.equipmentItem?.photoUrls ?? const [],
       archivedAt: widget.equipmentItem?.archivedAt,
       archivedBy: widget.equipmentItem?.archivedBy,
@@ -189,17 +216,33 @@ class _EquipmentItemEditScreenState
       if (isCreating) {
         await ApiService.createEquipmentItem(equipmentItem);
       } else {
-        await ApiService.updateEquipmentItem(widget.itemId!, equipmentItem);
+        if (id == null) {
+          throw Exception("ID элемента оборудования не найдено для обновления.");
+        }
+        await ApiService.updateEquipmentItem(id, equipmentItem);
       }
       ref.invalidate(allEquipmentItemsProvider);
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(isCreating ? 'Элемент создан' : 'Элемент обновлен'), backgroundColor: Colors.green,));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(isCreating ? 'Элемент создан' : 'Элемент обновлен'),
+        backgroundColor: Colors.green,
+      ));
       Navigator.of(context).pop(true);
     } catch (e) {
       if (!mounted) return;
-       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Ошибка: $e'), backgroundColor: Colors.red));
+      final errorMessage = e.toString();
+      if (errorMessage.contains('Инвентарный номер уже существует')) {
+        setState(() {
+          _inventoryNumberError = 'Этот номер уже используется';
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text('Ошибка: $errorMessage'), backgroundColor: Colors.red));
+      }
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
   
@@ -258,8 +301,19 @@ class _EquipmentItemEditScreenState
           const SizedBox(height: 16),
           TextFormField(
             controller: _inventoryNumberController,
-            decoration: const InputDecoration(labelText: 'Инвентарный номер', border: OutlineInputBorder()),
+            decoration: InputDecoration(
+              labelText: 'Инвентарный номер',
+              border: const OutlineInputBorder(),
+              errorText: _inventoryNumberError,
+            ),
             validator: (v) => v == null || v.isEmpty ? 'Обязательное поле' : null,
+            onChanged: (value) {
+              if (_inventoryNumberError != null) {
+                setState(() {
+                  _inventoryNumberError = null;
+                });
+              }
+            },
           ),
           const SizedBox(height: 16),
           TextFormField(controller: _serialNumberController, decoration: const InputDecoration(labelText: 'Серийный номер', border: OutlineInputBorder())),
@@ -393,9 +447,10 @@ class _EquipmentItemEditScreenState
 
   @override
   Widget build(BuildContext context) {
+    final isCreating = widget.itemId == null && widget.equipmentItem == null;
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.itemId == null ? 'Создать элемент' : 'Редактировать элемент'),
+        title: Text(isCreating ? 'Создать элемент' : 'Редактировать элемент'),
         actions: [
           IconButton(
             icon: const Icon(Icons.save),

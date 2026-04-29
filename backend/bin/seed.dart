@@ -348,11 +348,39 @@ class DatabaseSeeder {
 
   Future<Map<String, String>> _seedEquipmentTypes() async {
     final types = [
+      // Кардиотренажеры (category 0)
       {'name': 'Беговая дорожка', 'category': 0, 'schematic_icon': 'treadmill'},
       {'name': 'Эллиптический тренажер', 'category': 0, 'schematic_icon': 'elliptical'},
       {'name': 'Велотренажер', 'category': 0, 'schematic_icon': 'bike'},
+      {'name': 'Степпер', 'category': 0, 'schematic_icon': 'stepper'},
+      {'name': 'Гребной тренажер', 'category': 0, 'schematic_icon': 'rower'},
+      
+      // Силовые тренажеры (category 1)
+      {'name': 'Кроссовер', 'category': 1, 'schematic_icon': 'crossover'},
+      {'name': 'Тренажер для жима ногами', 'category': 1, 'schematic_icon': 'leg_press'},
+      {'name': 'Блок для тяги', 'category': 1, 'schematic_icon': 'pull_block'},
+      {'name': 'Хаммер для груди', 'category': 1, 'schematic_icon': 'hammer_chest'},
+      {'name': 'Силовая рама', 'category': 1, 'schematic_icon': 'power_rack'},
+      {'name': 'Машина Смита', 'category': 1, 'schematic_icon': 'smith_machine'},
+      
+      // Свободные веса (category 2)
       {'name': 'Гантели', 'category': 2, 'schematic_icon': 'dumbbell'},
       {'name': 'Штанга', 'category': 2, 'schematic_icon': 'barbell'},
+      {'name': 'Диски (блины)', 'category': 2, 'schematic_icon': 'plates'},
+      {'name': 'Гири', 'category': 2, 'schematic_icon': 'kettlebell'},
+      
+      // Функциональное оборудование (category 3)
+      {'name': 'Петли TRX', 'category': 3, 'schematic_icon': 'trx'},
+      {'name': 'Медбол', 'category': 3, 'schematic_icon': 'med_ball'},
+      {'name': 'Плиобокс', 'category': 3, 'schematic_icon': 'plyo_box'},
+      {'name': 'Скакалка', 'category': 3, 'schematic_icon': 'jump_rope'},
+      {'name': 'Боксерский мешок', 'category': 3, 'schematic_icon': 'punching_bag'},
+
+      // Инвентарь для фитнеса и растяжки (category 4)
+      {'name': 'Коврик (мат)', 'category': 4, 'schematic_icon': 'mat'},
+      {'name': 'Фитбол', 'category': 4, 'schematic_icon': 'fitball'},
+      {'name': 'МФР-ролл', 'category': 4, 'schematic_icon': 'foam_roller'},
+      {'name': 'Степ для аэробики', 'category': 4, 'schematic_icon': 'aerobic_step'},
     ];
     for (final type in types) {
       await _connection.execute(Sql.named('''
