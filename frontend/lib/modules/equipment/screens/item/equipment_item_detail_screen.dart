@@ -60,6 +60,7 @@ class _EquipmentItemDetailScreenState
           fileName: fileName,
         );
         ref.invalidate(equipmentItemByIdProvider(equipmentId));
+        ref.invalidate(allEquipmentItemsProvider);
         if (!context.mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Фото успешно загружено')),
@@ -165,16 +166,14 @@ class _EquipmentItemDetailScreenState
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (item.photoUrls.isNotEmpty)
-            Center(
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 16.0),
-                child: Image.network(
-                  item.photoUrls.first.startsWith('http')
-                      ? item.photoUrls.first
-                      : '${ApiService.baseUrl}${item.photoUrls.first}',
-                  height: 200,
-                  fit: BoxFit.cover,
-                ),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 16.0),
+              child: Image.network(
+                item.photoUrls.first.startsWith('http')
+                    ? item.photoUrls.first
+                    : '${ApiService.baseUrl}${item.photoUrls.first}',
+                height: 200,
+                fit: BoxFit.cover,
               ),
             ),
           _buildDetailRow(label: 'Инв. номер:', value: item.inventoryNumber),
@@ -291,6 +290,7 @@ class _EquipmentItemDetailScreenState
                             await ApiService.removeEquipmentPhoto(
                                 equipmentId: item.id, photoUrl: photoUrl);
                             ref.invalidate(equipmentItemByIdProvider(item.id));
+                            ref.invalidate(allEquipmentItemsProvider);
                             if (!context.mounted) return;
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(content: Text('Фото успешно удалено')),
