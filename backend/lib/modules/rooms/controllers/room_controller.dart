@@ -33,7 +33,7 @@ class RoomController {
 
       if (request.formData() case final form?) {
         await for (final formData in form.formData) {
-          if (formData.name == 'photo') {
+          if (formData.name == 'photo' && fileBytes == null) {
             fileName = formData.filename;
             fileBytes = await formData.part.readBytes();
           }
