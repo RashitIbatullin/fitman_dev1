@@ -29,7 +29,7 @@ class _EquipmentItemDetailScreenState extends ConsumerState<EquipmentItemDetailS
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this); // 4 tabs: Main, Condition, Accounting, Maintenance History
+    _tabController = TabController(length: 4, vsync: this); // 4 tabs: Main, Photos, Accounting, Maintenance History
   }
 
   @override
@@ -73,7 +73,7 @@ class _EquipmentItemDetailScreenState extends ConsumerState<EquipmentItemDetailS
           controller: _tabController,
           tabs: const [
             Tab(text: 'Основное'),
-            Tab(text: 'Состояние'),
+            Tab(text: 'Фото'),
             Tab(text: 'Учет'),
             Tab(text: 'История ТО'),
           ],
@@ -85,7 +85,7 @@ class _EquipmentItemDetailScreenState extends ConsumerState<EquipmentItemDetailS
             controller: _tabController,
             children: [
               _buildMainInfoTab(item),
-              _buildConditionTab(item),
+              _buildPhotosTab(item),
               _buildAccountingTab(item),
               _buildMaintenanceHistoryTab(item.id),
             ],
@@ -138,46 +138,54 @@ class _EquipmentItemDetailScreenState extends ConsumerState<EquipmentItemDetailS
               : _buildDetailRow(label: 'Помещение:', value: 'Не назначено'),
           if (item.placementNote != null && item.placementNote!.isNotEmpty)
             _buildDetailRow(label: 'Расположение:', value: item.placementNote!),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildConditionTab(EquipmentItem item) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+          const Divider(height: 32),
           _buildDetailRow(
             label: 'Статус:',
             value: item.status.displayName,
             valueColor: item.status.color,
           ),
           _buildConditionRating(item.conditionRating),
-          if (item.conditionNotes != null && item.conditionNotes!.isNotEmpty)
+           if (item.conditionNotes != null && item.conditionNotes!.isNotEmpty)
             _buildDetailRow(label: 'Заметки о состоянии:', value: item.conditionNotes!),
-          if (item.lastMaintenanceDate != null)
-            _buildDetailRow(
-                label: 'Последнее ТО:',
-                value: item.lastMaintenanceDate!.toLocal().toIso8601String().substring(0, 10)),
-          if (item.nextMaintenanceDate != null)
-            _buildDetailRow(
-                label: 'След. ТО:',
-                value: item.nextMaintenanceDate!.toLocal().toIso8601String().substring(0, 10)),
-          if (item.maintenanceNotes != null && item.maintenanceNotes!.isNotEmpty)
-            _buildDetailRow(label: 'Заметки о ТО:', value: item.maintenanceNotes!),
-          if (item.archivedAt != null) ...[
-            const Divider(),
-            _buildDetailRow(
-                label: 'Архивировано:',
-                value: item.archivedAt!.toLocal().toIso8601String().substring(0, 10)),
-            ArchivedByInfo(userId: item.archivedBy),
-            if (item.archivedReason != null && item.archivedReason!.isNotEmpty)
-              _buildDetailRow(label: 'Причина:', value: item.archivedReason!),
-          ],
         ],
       ),
+    );
+  }
+
+  Widget _buildPhotosTab(EquipmentItem item) {
+    if (item.photoUrls.isEmpty) {
+      return const Center(
+        child: Text('Нет фотографий.'),
+      );
+    }
+
+    return PageView.builder(
+      itemCount: item.photoUrls.length,
+      itemBuilder: (context, index) {
+        return Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Image.network(
+            item.photoUrls[index],
+            fit: BoxFit.contain,
+            loadingBuilder: (context, child, loadingProgress) {
+              if (loadingProgress == null) return child;
+              return Center(
+                child: CircularProgressIndicator(
+                  value: loadingProgress.expectedTotalBytes != null
+                      ? loadingProgress.cumulativeBytesLoaded /
+                          loadingProgress.expectedTotalBytes!
+                      : null,
+                ),
+              );
+            },
+            errorBuilder: (context, error, stackTrace) {
+              return const Center(
+                child: Icon(Icons.error_outline, color: Colors.red, size: 48),
+              );
+            },
+          ),
+        );
+      },
     );
   }
 

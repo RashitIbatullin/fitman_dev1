@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:fitman_backend/config/database.dart';
 import 'package:fitman_common/modules/equipment/equipment/equipment_item.model.dart';
 import 'package:postgres/postgres.dart';
@@ -12,6 +13,7 @@ abstract class EquipmentItemRepository {
   Future<void> archive(String id, String reason, String userId);
   Future<void> unarchive(String id);
 }
+
 class EquipmentItemRepositoryImpl implements EquipmentItemRepository {
   EquipmentItemRepositoryImpl(this._db);
 
@@ -59,7 +61,7 @@ class EquipmentItemRepositoryImpl implements EquipmentItemRepository {
           @status, @conditionRating, @conditionNotes, @lastMaintenanceDate, @nextMaintenanceDate,
           @maintenanceNotes, @purchaseDate, @purchasePrice, @supplier, @warrantyMonths, @usageHours,
           @lastUsedDate, @photoUrls,
-          -1, NOW(), NOW(), @createdBy, @updatedBy
+          '00000000-0000-0000-0000-000000000000', NOW(), NOW(), @createdBy, @updatedBy
         ) RETURNING id;
       '''),
       parameters: {
@@ -70,7 +72,7 @@ class EquipmentItemRepositoryImpl implements EquipmentItemRepository {
         'manufacturer': equipmentItem.manufacturer,
         'roomId': equipmentItem.roomId,
         'placementNote': equipmentItem.placementNote,
-        'status': equipmentItem.status.name,
+        'status': equipmentItem.status.index,
         'conditionRating': equipmentItem.conditionRating,
         'conditionNotes': equipmentItem.conditionNotes,
         'lastMaintenanceDate': equipmentItem.lastMaintenanceDate,
@@ -82,7 +84,7 @@ class EquipmentItemRepositoryImpl implements EquipmentItemRepository {
         'warrantyMonths': equipmentItem.warrantyMonths,
         'usageHours': equipmentItem.usageHours,
         'lastUsedDate': equipmentItem.lastUsedDate,
-        'photoUrls': equipmentItem.photoUrls,
+        'photoUrls': jsonEncode(equipmentItem.photoUrls),
         'createdBy': userId,
         'updatedBy': userId,
       },
@@ -98,28 +100,60 @@ class EquipmentItemRepositoryImpl implements EquipmentItemRepository {
     throw UnimplementedError();
   }
 
+  // Helper method to safely parse photo_urls
+  void _handlePhotoUrls(Map<String, dynamic> itemMap) {
+    final photoUrlsData = itemMap['photo_urls'];
+    if (photoUrlsData is String) {
+      itemMap['photo_urls'] = jsonDecode(photoUrlsData);
+    } else if (photoUrlsData is Map) {
+      itemMap['photo_urls'] = []; // Treat empty JSON object as empty list
+    }
+    else if (photoUrlsData == null) {
+      itemMap['photo_urls'] = [];
+    }
+    // If it's already a List, do nothing.
+  }
+
   @override
   Future<List<EquipmentItem>> getAll({bool includeArchived = false}) async {
+    final conn = await _db.connection;
     try {
-      final conn = await _db.connection;
-      final whereClause = includeArchived ? 'ei.archived_at IS NOT NULL' : 'ei.archived_at IS NULL';
+      final whereClause =
+          includeArchived ? 'ei.archived_at IS NOT NULL' : 'ei.archived_at IS NULL';
       final result = await conn.execute(Sql.named('''
         SELECT 
           ei.*,
           r.name as room_name,
           et.name as type_name
         FROM equipment_items ei
-        JOIN equipment_types et ON ei.type_id = et.id
+        LEFT JOIN equipment_types et ON ei.type_id = et.id
         LEFT JOIN rooms r ON ei.room_id = r.id
         WHERE $whereClause
         ORDER BY et.name ASC, ei.inventory_number ASC
       '''));
 
-      return result
-          .map(
-            (row) => EquipmentItem.fromJson(row.toColumnMap()),
-          )
-          .toList();
+      final items = <EquipmentItem>[];
+      for (final row in result) {
+        final itemMap = row.toColumnMap();
+        try {
+          _handlePhotoUrls(itemMap);
+
+          // Ensure status is int
+          if (itemMap['status'] is num) {
+            itemMap['status'] = (itemMap['status'] as num).toInt();
+          }
+
+          items.add(EquipmentItem.fromJson(itemMap));
+        } catch (e, s) {
+          print('====== FAILED TO PARSE EQUIPMENT ITEM ======');
+          print('ERROR: $e');
+          print('STACK TRACE: $s');
+          print('RAW DATA: $itemMap');
+          print('============================================');
+          rethrow;
+        }
+      }
+      return items;
     } catch (e) {
       print('Error fetching all equipment items: $e');
       rethrow;
@@ -127,10 +161,10 @@ class EquipmentItemRepositoryImpl implements EquipmentItemRepository {
   }
 
   @override
-  Future<List<EquipmentItem>> getByRoomId(String roomId, {bool includeArchived = false}) async {
+  Future<List<EquipmentItem>> getByRoomId(String roomId,
+      {bool includeArchived = false}) async {
+    final conn = await _db.connection;
     try {
-      final conn = await _db.connection;
-      
       String whereClause;
       if (includeArchived) {
         whereClause = 'WHERE ei.room_id = @roomId AND ei.archived_at IS NOT NULL';
@@ -145,7 +179,7 @@ class EquipmentItemRepositoryImpl implements EquipmentItemRepository {
             r.name as room_name,
             et.name as type_name
           FROM equipment_items ei
-          JOIN equipment_types et ON ei.type_id = et.id
+          LEFT JOIN equipment_types et ON ei.type_id = et.id
           LEFT JOIN rooms r ON ei.room_id = r.id
           $whereClause
         '''),
@@ -154,11 +188,28 @@ class EquipmentItemRepositoryImpl implements EquipmentItemRepository {
         },
       );
 
-      return result
-          .map(
-            (row) => EquipmentItem.fromJson(row.toColumnMap()),
-          )
-          .toList();
+      final items = <EquipmentItem>[];
+      for (final row in result) {
+        final itemMap = row.toColumnMap();
+        try {
+          _handlePhotoUrls(itemMap);
+
+          // Ensure status is int
+          if (itemMap['status'] is num) {
+            itemMap['status'] = (itemMap['status'] as num).toInt();
+          }
+
+          items.add(EquipmentItem.fromJson(itemMap));
+        } catch (e, s) {
+          print('====== FAILED TO PARSE EQUIPMENT ITEM (by Room ID) ======');
+          print('ERROR: $e');
+          print('STACK TRACE: $s');
+          print('RAW DATA: $itemMap');
+          print('======================================================');
+          rethrow;
+        }
+      }
+      return items;
     } catch (e) {
       print('Error fetching equipment items by room ID: $e');
       rethrow;
@@ -175,7 +226,7 @@ class EquipmentItemRepositoryImpl implements EquipmentItemRepository {
           r.name as room_name,
           et.name as type_name
         FROM equipment_items ei
-        JOIN equipment_types et ON ei.type_id = et.id
+        LEFT JOIN equipment_types et ON ei.type_id = et.id
         LEFT JOIN rooms r ON ei.room_id = r.id
         WHERE ei.id = @id
       '''),
@@ -186,7 +237,24 @@ class EquipmentItemRepositoryImpl implements EquipmentItemRepository {
       throw Exception('EquipmentItem with id $id not found');
     }
 
-    return EquipmentItem.fromJson(result.first.toColumnMap());
+    final itemMap = result.first.toColumnMap();
+    try {
+      _handlePhotoUrls(itemMap);
+
+      // Ensure status is int
+      if (itemMap['status'] is num) {
+        itemMap['status'] = (itemMap['status'] as num).toInt();
+      }
+
+      return EquipmentItem.fromJson(itemMap);
+    } catch (e, s) {
+      print('====== FAILED TO PARSE EQUIPMENT ITEM (by ID) ======');
+      print('ERROR: $e');
+      print('STACK TRACE: $s');
+      print('RAW DATA: $itemMap');
+      print('==================================================');
+      rethrow;
+    }
   }
 
   @override
@@ -231,19 +299,19 @@ class EquipmentItemRepositoryImpl implements EquipmentItemRepository {
         'manufacturer': equipmentItem.manufacturer,
         'roomId': equipmentItem.roomId,
         'placementNote': equipmentItem.placementNote,
-        'status': equipmentItem.status.name,
+        'status': equipmentItem.status.index,
         'conditionRating': equipmentItem.conditionRating,
         'conditionNotes': equipmentItem.conditionNotes,
         'lastMaintenanceDate': equipmentItem.lastMaintenanceDate,
         'nextMaintenanceDate': equipmentItem.nextMaintenanceDate,
-        'maintenanceNotes': equipmentItem.maintenanceNotes,
+        'maintenance_notes': equipmentItem.maintenanceNotes,
         'purchaseDate': equipmentItem.purchaseDate,
         'purchasePrice': equipmentItem.purchasePrice,
         'supplier': equipmentItem.supplier,
         'warrantyMonths': equipmentItem.warrantyMonths,
         'usageHours': equipmentItem.usageHours,
         'lastUsedDate': equipmentItem.lastUsedDate,
-        'photoUrls': equipmentItem.photoUrls,
+        'photoUrls': jsonEncode(equipmentItem.photoUrls),
         'updatedBy': userId,
         'archivedAt': equipmentItem.archivedAt,
         'archivedBy': equipmentItem.archivedBy,
