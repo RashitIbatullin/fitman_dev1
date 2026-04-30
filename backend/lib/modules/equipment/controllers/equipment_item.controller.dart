@@ -1,12 +1,10 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:fitman_backend/config/database.dart';
 import 'package:fitman_common/fitman_common.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 import 'package:shelf_multipart/shelf_multipart.dart';
-import 'package:uuid/uuid.dart';
-import 'package:path/path.dart' as path;
+import '../../../services/photo_service.dart';
 
 class EquipmentItemController {
   EquipmentItemController(this._db) {
@@ -23,6 +21,8 @@ class EquipmentItemController {
 
   final Database _db;
   final _router = Router();
+  final _photoService = PhotoService();
+
 
   Handler get handler => _router.call;
 
@@ -154,7 +154,7 @@ class EquipmentItemController {
           if (formData.name == 'photo') {
             fileName = formData.filename;
             fileBytes = await formData.part.readBytes();
-            break; // process first file
+            break; 
           }
         }
       } else {
@@ -167,23 +167,11 @@ class EquipmentItemController {
             body: jsonEncode(const <String, String>{'error': 'Missing "photo" part in multipart request.'}));
       }
       
-      final extension = path.extension(fileName);
-      final newFilename = '${const Uuid().v4()}$extension';
-      
-      final scriptPath = Platform.script.toFilePath(windows: Platform.isWindows);
-      final projectRoot = path.normalize(path.join(path.dirname(scriptPath), '..', '..'));
-      final absoluteUploadBaseDir = path.join(projectRoot, 'uploads');
-      final absoluteEquipmentPhotosDir = path.join(absoluteUploadBaseDir, 'equipment_photos');
-      final filePath = path.join(absoluteEquipmentPhotosDir, newFilename);
-
-      print('EquipmentItemController: Attempting to save file to: $filePath');
-
-      // Save the file
-      final file = File(filePath);
-      await file.parent.create(recursive: true); // Ensure directory exists
-      await file.writeAsBytes(fileBytes);
-
-      final publicUrl = '/uploads/equipment_photos/$newFilename';
+      final publicUrl = await _photoService.savePhoto(
+        subDirectory: 'equipment_photos',
+        fileName: fileName,
+        fileBytes: fileBytes,
+      );
 
       await _db.equipmentItems.addPhotoUrl(id, publicUrl);
 
@@ -206,21 +194,7 @@ class EquipmentItemController {
       }
 
       await _db.equipmentItems.removePhotoUrl(id, photoUrl);
-
-      try {
-        final scriptPath = Platform.script.toFilePath(windows: Platform.isWindows);
-        final projectRoot = path.normalize(path.join(path.dirname(scriptPath), '..', '..'));
-        final absoluteUploadBaseDir = path.join(projectRoot, 'uploads');
-        final relativeFilePath = photoUrl.replaceFirst('/uploads/', ''); 
-        final absoluteFilePath = path.join(absoluteUploadBaseDir, relativeFilePath);
-        
-        final file = File(absoluteFilePath);
-        if (await file.exists()) {
-          await file.delete();
-        }
-      } catch (e) {
-        print('Error deleting photo file: $e');
-      }
+      await _photoService.deletePhotoFile(photoUrl);
 
       return Response.ok('{"status": "success"}');
     } catch (e, s) {
