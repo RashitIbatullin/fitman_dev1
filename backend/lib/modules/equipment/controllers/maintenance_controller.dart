@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:path/path.dart' as p;
+import 'package:path/path.dart' as path;
 import 'package:shelf/shelf.dart';
 import 'package:shelf_multipart/shelf_multipart.dart';
 import 'package:shelf_router/shelf_router.dart';
@@ -48,11 +48,13 @@ class MaintenanceController {
         return Response.forbidden(jsonEncode({'error': 'User not authenticated or userId is missing in token.'}));
       }
 
-      final fileExtension = p.extension(fileName);
+      final fileExtension = path.extension(fileName);
       final newFileName = '${const Uuid().v4()}$fileExtension';
       
-      final uploadPath = p.normalize(p.join(Directory.current.path, '..', 'uploads', 'maintenance_photos'));
-      final filePath = p.join(uploadPath, newFileName);
+      final scriptPath = Platform.script.toFilePath(windows: Platform.isWindows);
+      final projectRoot = path.normalize(path.join(path.dirname(scriptPath), '..', '..'));
+      final uploadPath = path.join(projectRoot, 'uploads', 'maintenance_photos');
+      final filePath = path.join(uploadPath, newFileName);
 
       final uploadDir = Directory(uploadPath);
       if (!await uploadDir.exists()) {

@@ -8,14 +8,16 @@ import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart' as io;
 import 'package:shelf_helmet/shelf_helmet.dart';
 import 'package:shelf_static/shelf_static.dart';
-import 'package:path/path.dart' as p;
+import 'package:path/path.dart' as path;
 import 'package:shelf_router/shelf_router.dart';
 
 void main(List<String> args) async {
   // Конфигурация теперь загружается лениво при первом вызове AppConfig.instance
   
   // Формируем абсолютный путь к директории uploads
-  final uploadPath = p.normalize(p.join(Directory.current.path, '..', 'uploads'));
+  final scriptPath = Platform.script.toFilePath(windows: Platform.isWindows);
+  final projectRoot = path.normalize(path.join(path.dirname(scriptPath), '..', '..'));
+  final uploadPath = path.join(projectRoot, 'uploads');
 
 
   // Создаем директорию для загрузок, если она не существует

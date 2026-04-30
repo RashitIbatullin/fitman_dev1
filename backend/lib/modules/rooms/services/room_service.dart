@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:path/path.dart' as p; // Add this import
+import 'package:path/path.dart' as path; // Add this import
 
 import 'package:fitman_backend/modules/equipment/repositories/equipment_item.repository.dart';
 import 'package:fitman_backend/modules/rooms/repositories/room_repository.dart';
@@ -54,9 +54,11 @@ class RoomService {
     
     // The actual directory where files are served from, as configured in server.dart
     // Directory.current.path is 'C:\Android\PROJ\fitman_dev1\backend' when server runs from backend
-    final absoluteUploadBaseDir = p.normalize(p.join(Directory.current.path, '..', 'uploads'));
-    final absoluteRoomPhotosDir = p.join(absoluteUploadBaseDir, 'room_photos');
-    final absoluteFilePath = p.join(absoluteRoomPhotosDir, uniqueFileName);
+    final scriptPath = Platform.script.toFilePath(windows: Platform.isWindows);
+    final projectRoot = path.normalize(path.join(path.dirname(scriptPath), '..', '..'));
+    final absoluteUploadBaseDir = path.join(projectRoot, 'uploads');
+    final absoluteRoomPhotosDir = path.join(absoluteUploadBaseDir, 'room_photos');
+    final absoluteFilePath = path.join(absoluteRoomPhotosDir, uniqueFileName);
 
     print('RoomService: uniqueFileName: $uniqueFileName'); // LOG
     print('RoomService: absoluteUploadBaseDir: $absoluteUploadBaseDir'); // LOG
@@ -83,11 +85,13 @@ class RoomService {
     await _roomRepository.removePhotoUrl(roomId, photoUrl);
     
     // Attempt to delete the physical file from the file system
-    final absoluteUploadBaseDir = p.normalize(p.join(Directory.current.path, '..', 'uploads'));
+    final scriptPath = Platform.script.toFilePath(windows: Platform.isWindows);
+    final projectRoot = path.normalize(path.join(path.dirname(scriptPath), '..', '..'));
+    final absoluteUploadBaseDir = path.join(projectRoot, 'uploads');
     // photoUrl is like /uploads/room_photos/filename.jpg
     // need to convert it to room_photos/filename.jpg
     final relativeFilePath = photoUrl.replaceFirst('/uploads/', ''); 
-    final absoluteFilePath = p.join(absoluteUploadBaseDir, relativeFilePath);
+    final absoluteFilePath = path.join(absoluteUploadBaseDir, relativeFilePath);
     
     final file = File(absoluteFilePath);
     if (await file.exists()) {

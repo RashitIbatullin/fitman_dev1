@@ -12,6 +12,8 @@ abstract class EquipmentItemRepository {
   Future<void> delete(String id);
   Future<void> archive(String id, String reason, String userId);
   Future<void> unarchive(String id);
+  Future<String> addPhotoUrl(String id, String photoUrl);
+  Future<void> removePhotoUrl(String id, String photoUrl);
 }
 
 class EquipmentItemRepositoryImpl implements EquipmentItemRepository {
@@ -319,5 +321,40 @@ class EquipmentItemRepositoryImpl implements EquipmentItemRepository {
       },
     );
     return await getById(id);
+  }
+
+  @override
+  Future<String> addPhotoUrl(String id, String photoUrl) async {
+    final conn = await _db.connection;
+    // Ensure the photo_urls is not null
+    await conn.execute(
+      Sql.named(
+        'UPDATE equipment_items SET photo_urls = \'[]\'::jsonb WHERE id = @id AND photo_urls IS NULL'),
+      parameters: {'id': id},
+    );
+
+    await conn.execute(
+      Sql.named(
+          'UPDATE equipment_items SET photo_urls = photo_urls || @photoUrl::jsonb WHERE id = @id'),
+      parameters: {
+        'id': id,
+        'photoUrl': '"$photoUrl"', // Wrap in quotes to make it a valid JSON string
+      },
+    );
+    return photoUrl;
+  }
+
+  @override
+  Future<void> removePhotoUrl(String id, String photoUrl) async {
+    final conn = await _db.connection;
+    await conn.execute(
+      Sql.named(
+        'UPDATE equipment_items SET photo_urls = photo_urls - @photoUrl WHERE id = @id',
+      ),
+      parameters: {
+        'id': id,
+        'photoUrl': photoUrl,
+      },
+    );
   }
 }

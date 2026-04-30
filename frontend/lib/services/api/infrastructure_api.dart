@@ -181,5 +181,29 @@ class InfrastructureApiService extends BaseApiService {
       body: {'photoUrl': photoUrl},
     );
   }
+
+  Future<String> uploadEquipmentPhoto({
+    required String equipmentId,
+    required List<int> photoBytes,
+    required String fileName,
+  }) async {
+    final file = http.MultipartFile.fromBytes('photo', photoBytes, filename: fileName);
+    final response = await multipartPost(
+      '/api/equipment/items/$equipmentId/photos',
+      fields: {},
+      file: file,
+    );
+    return response['url'] as String;
+  }
+
+  Future<void> removeEquipmentPhoto({
+    required String equipmentId,
+    required String photoUrl,
+  }) async {
+    await delete(
+      '/api/equipment/items/$equipmentId/photos',
+      body: {'photoUrl': photoUrl},
+    );
+  }
 }
 

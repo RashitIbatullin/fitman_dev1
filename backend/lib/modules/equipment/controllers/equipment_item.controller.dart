@@ -1,18 +1,24 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:fitman_backend/config/database.dart';
-import 'package:fitman_common/modules/equipment/equipment/equipment_item.model.dart';
+import 'package:fitman_common/fitman_common.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
+import 'package:shelf_multipart/shelf_multipart.dart';
+import 'package:uuid/uuid.dart';
+import 'package:path/path.dart' as path;
 
 class EquipmentItemController {
   EquipmentItemController(this._db) {
     _router
       ..get('/', _getAllEquipmentItems)
       ..post('/', _createEquipmentItem)
-      ..get('/<id>', _getById) // Adding a GET by ID route for consistency
+      ..get('/<id>', _getById)
       ..put('/<id>', _updateEquipmentItem)
       ..put('/<id>/archive', _archive)
-      ..put('/<id>/unarchive', _unarchive);
+      ..put('/<id>/unarchive', _unarchive)
+      ..post('/<id>/photos', _uploadPhoto)
+      ..delete('/<id>/photos', _deletePhoto);
   }
 
   final Database _db;
@@ -46,12 +52,6 @@ class EquipmentItemController {
             await _db.equipmentItems.getAll(includeArchived: includeArchived);
       }
 
-      // --- START LOGGING ---
-      print('--- Equipment Item Status Logging (Backend) ---');
-      for (var item in equipmentItems) {
-        print('Item ID: ${item.id}, Inventory: ${item.inventoryNumber}, Status: ${item.status}, Status Index: ${item.status.index}');
-      }
-      print('--- END LOGGING ---');
       final equipmentItemsJson =
           equipmentItems.map((item) => item.toJson()).toList();
       return Response.ok(jsonEncode(equipmentItemsJson));
@@ -65,23 +65,24 @@ class EquipmentItemController {
     try {
       final body = await request.readAsString();
       final Map<String, dynamic> jsonBody = jsonDecode(body) as Map<String, dynamic>;
-      
-      // Get userId from request context
-      final userPayload = request.context['user'] as Map<String, dynamic>?;
-      if (userPayload == null) {
-        return Response.unauthorized('{"error": "Authentication required"}');
-      }
-      final userId = userPayload['userId']?.toString();
-      if (userId == null) {
-        return Response.internalServerError(body: '{"error": "User ID not found in token payload"}');
-      }
+
+      final user = request.context['user'] as User;
 
       final equipmentItem = EquipmentItem.fromJson(jsonBody);
-      final createdEquipmentItem = await _db.equipmentItems.create(equipmentItem, userId);
+      final createdEquipmentItem =
+          await _db.equipmentItems.create(equipmentItem, user.id);
 
-      return Response.ok(jsonEncode(createdEquipmentItem.toJson()), headers: {'Content-Type': 'application/json'});
+      return Response.ok(jsonEncode(createdEquipmentItem.toJson()),
+          headers: {'Content-Type': 'application/json'});
     } catch (e) {
-      return Response.internalServerError(body: '{"error": "Error creating equipment item: $e"}');
+      if (e
+          .toString()
+          .contains('duplicate key value violates unique constraint')) {
+        return Response.badRequest(
+            body: '{"error": "Инвентарный номер уже существует"}');
+      }
+      return Response.internalServerError(
+          body: '{"error": "Error creating equipment item: $e"}');
     }
   }
 
@@ -90,22 +91,23 @@ class EquipmentItemController {
       final body = await request.readAsString();
       final Map<String, dynamic> jsonBody = jsonDecode(body) as Map<String, dynamic>;
 
-      // Get userId from request context
-      final userPayload = request.context['user'] as Map<String, dynamic>?;
-      if (userPayload == null) {
-        return Response.unauthorized('{"error": "Authentication required"}');
-      }
-      final userId = userPayload['userId']?.toString();
-      if (userId == null) {
-        return Response.internalServerError(body: '{"error": "User ID not found in token payload"}');
-      }
-      
-      final equipmentItem = EquipmentItem.fromJson(jsonBody);
-      final updatedEquipmentItem = await _db.equipmentItems.update(id, equipmentItem, userId);
+      final user = request.context['user'] as User;
 
-      return Response.ok(jsonEncode(updatedEquipmentItem.toJson()), headers: {'Content-Type': 'application/json'});
+      final equipmentItem = EquipmentItem.fromJson(jsonBody);
+      final updatedEquipmentItem =
+          await _db.equipmentItems.update(id, equipmentItem, user.id);
+
+      return Response.ok(jsonEncode(updatedEquipmentItem.toJson()),
+          headers: {'Content-Type': 'application/json'});
     } catch (e) {
-      return Response.internalServerError(body: '{"error": "Error updating equipment item: $e"}');
+      if (e
+          .toString()
+          .contains('duplicate key value violates unique constraint')) {
+        return Response.badRequest(
+            body: '{"error": "Инвентарный номер уже существует"}');
+      }
+      return Response.internalServerError(
+          body: '{"error": "Error updating equipment item: $e"}');
     }
   }
 
@@ -114,22 +116,16 @@ class EquipmentItemController {
       final body = await request.readAsString();
       final params = jsonDecode(body) as Map<String, dynamic>;
       final reason = params['reason'] as String?;
-      final userPayload = request.context['user'] as Map<String, dynamic>?;
-      if (userPayload == null) {
-        return Response.unauthorized('{"error": "Authentication required"}');
-      }
-      final userId = userPayload['userId']?.toString();
-      if (userId == null) {
-        return Response.internalServerError(body: '{"error": "User ID not found in token payload"}');
-      }
+      final user = request.context['user'] as User;
 
       if (reason == null || reason.length < 5) {
         return Response.badRequest(
-          body: '{"error": "Archival reason must be at least 5 characters long."}',
+          body:
+              '{"error": "Archival reason must be at least 5 characters long."}',
         );
       }
 
-      await _db.equipmentItems.archive(id, reason, userId);
+      await _db.equipmentItems.archive(id, reason, user.id);
 
       return Response.ok('{"status": "success"}');
     } catch (e) {
@@ -145,6 +141,90 @@ class EquipmentItemController {
     } catch (e) {
       return Response.internalServerError(
           body: '{"error": "Error unarchiving equipment item: $e"}');
+    }
+  }
+
+  Future<Response> _uploadPhoto(Request request, String id) async {
+    try {
+      String? fileName;
+      List<int>? fileBytes;
+
+      if (request.formData() case final form?) {
+        await for (final formData in form.formData) {
+          if (formData.name == 'photo') {
+            fileName = formData.filename;
+            fileBytes = await formData.part.readBytes();
+            break; // process first file
+          }
+        }
+      } else {
+        return Response(400,
+            body: jsonEncode({'error': 'Not a multipart/form-data request'}));
+      }
+
+      if (fileName == null || fileBytes == null) {
+        return Response(400,
+            body: jsonEncode(const <String, String>{'error': 'Missing "photo" part in multipart request.'}));
+      }
+      
+      final extension = path.extension(fileName);
+      final newFilename = '${const Uuid().v4()}$extension';
+      
+      final scriptPath = Platform.script.toFilePath(windows: Platform.isWindows);
+      final projectRoot = path.normalize(path.join(path.dirname(scriptPath), '..', '..'));
+      final absoluteUploadBaseDir = path.join(projectRoot, 'uploads');
+      final absoluteEquipmentPhotosDir = path.join(absoluteUploadBaseDir, 'equipment_photos');
+      final absoluteFilePath = path.join(absoluteEquipmentPhotosDir, newFilename);
+
+      // Save the file
+      final file = File(absoluteFilePath);
+      await file.parent.create(recursive: true); // Ensure directory exists
+      await file.writeAsBytes(fileBytes);
+
+      final publicUrl = '/uploads/equipment_photos/$newFilename';
+
+      await _db.equipmentItems.addPhotoUrl(id, publicUrl);
+
+      return Response.ok(jsonEncode({'url': publicUrl}));
+    } catch (e, s) {
+      print('Error uploading equipment photo: $e, $s');
+      return Response.internalServerError(
+          body: '{"error": "Error uploading photo: $e"}');
+    }
+  }
+
+  Future<Response> _deletePhoto(Request request, String id) async {
+    try {
+      final body = await request.readAsString();
+      final jsonBody = jsonDecode(body);
+      final photoUrl = jsonBody['photoUrl'] as String?;
+
+      if (photoUrl == null) {
+        return Response.badRequest(body: '{"error": "photoUrl is required."}');
+      }
+
+      await _db.equipmentItems.removePhotoUrl(id, photoUrl);
+
+      try {
+        final scriptPath = Platform.script.toFilePath(windows: Platform.isWindows);
+        final projectRoot = path.normalize(path.join(path.dirname(scriptPath), '..', '..'));
+        final absoluteUploadBaseDir = path.join(projectRoot, 'uploads');
+        final relativeFilePath = photoUrl.replaceFirst('/uploads/', ''); 
+        final absoluteFilePath = path.join(absoluteUploadBaseDir, relativeFilePath);
+        
+        final file = File(absoluteFilePath);
+        if (await file.exists()) {
+          await file.delete();
+        }
+      } catch (e) {
+        print('Error deleting photo file: $e');
+      }
+
+      return Response.ok('{"status": "success"}');
+    } catch (e, s) {
+      print('Error deleting equipment photo: $e, $s');
+      return Response.internalServerError(
+          body: '{"error": "Error deleting photo: $e"}');
     }
   }
 }

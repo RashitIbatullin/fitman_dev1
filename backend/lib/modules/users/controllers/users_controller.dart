@@ -5,6 +5,7 @@ import 'package:shelf_multipart/shelf_multipart.dart';
 import 'package:bcrypt/bcrypt.dart';
 import '../../../config/database.dart';
 import 'package:fitman_common/fitman_common.dart';
+import 'package:path/path.dart' as path;
 
 class UsersController {
   static final Database _db = Database();
@@ -512,8 +513,9 @@ class UsersController {
         return Response.badRequest(body: jsonEncode({'error': 'Missing photo file in form-data'}));
       }
 
-      // Создаем директорию, если ее нет
-      final uploadDir = Directory('C:/Android/PROJ/fitman_dev1/uploads/avatars');
+      final scriptPath = Platform.script.toFilePath(windows: Platform.isWindows);
+      final projectRoot = path.normalize(path.join(path.dirname(scriptPath), '..', '..'));
+      final uploadDir = Directory(path.join(projectRoot, 'uploads', 'avatars'));
       if (!await uploadDir.exists()) {
         await uploadDir.create(recursive: true);
       }

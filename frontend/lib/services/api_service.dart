@@ -173,6 +173,24 @@ class ApiService {
     photoUrl: photoUrl,
   );
 
+  static Future<String> uploadEquipmentPhoto({
+    required String equipmentId,
+    required List<int> photoBytes,
+    required String fileName,
+  }) => _infrastructureApi.uploadEquipmentPhoto(
+    equipmentId: equipmentId,
+    photoBytes: photoBytes,
+    fileName: fileName,
+  );
+
+  static Future<void> removeEquipmentPhoto({
+    required String equipmentId,
+    required String photoUrl,
+  }) => _infrastructureApi.removeEquipmentPhoto(
+    equipmentId: equipmentId,
+    photoUrl: photoUrl,
+  );
+
   // --- Room Schedule Methods ---
   static Future<List<RoomSchedule>> getRoomSchedules(String roomId) =>
       _roomScheduleApi.getRoomSchedules(roomId);

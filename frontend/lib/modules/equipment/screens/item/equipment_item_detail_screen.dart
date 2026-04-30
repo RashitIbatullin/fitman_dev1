@@ -1,4 +1,6 @@
-
+import 'package:carousel_slider/carousel_slider.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:fitman_app/services/api_service.dart';
 import 'package:fitman_app/modules/equipment/widgets/maintenance_list_tile.dart';
 import 'package:fitman_common/fitman_common.dart';
 import 'equipment_item_edit_screen.dart';
@@ -9,10 +11,7 @@ import 'package:fitman_app/extensions/equipment_ui_extensions.dart';
 import 'package:fitman_app/modules/equipment/providers/equipment/equipment_provider.dart';
 import 'package:fitman_app/modules/equipment/providers/maintenance_provider.dart';
 import 'package:fitman_app/modules/rooms/providers/room/room_provider.dart';
-import 'package:fitman_app/modules/users/providers/users_provider.dart';  
-
-// import 'package:fitman_app/modules/equipment/screens/item/maintenance_details_screen.dart'; // No longer used
-
+import 'package:fitman_app/modules/users/providers/users_provider.dart';
 
 class EquipmentItemDetailScreen extends ConsumerStatefulWidget {
   const EquipmentItemDetailScreen({super.key, required this.itemId});
@@ -20,22 +19,80 @@ class EquipmentItemDetailScreen extends ConsumerStatefulWidget {
   final String itemId;
 
   @override
-  ConsumerState<EquipmentItemDetailScreen> createState() => _EquipmentItemDetailScreenState();
+  ConsumerState<EquipmentItemDetailScreen> createState() =>
+      _EquipmentItemDetailScreenState();
 }
 
-class _EquipmentItemDetailScreenState extends ConsumerState<EquipmentItemDetailScreen> with SingleTickerProviderStateMixin {
+class _EquipmentItemDetailScreenState
+    extends ConsumerState<EquipmentItemDetailScreen>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this); // 4 tabs: Main, Photos, Accounting, Maintenance History
+    _tabController = TabController(
+        length: 4,
+        vsync:
+            this);
   }
 
   @override
   void dispose() {
     _tabController.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickAndUploadPhoto(
+      BuildContext context, WidgetRef ref, String equipmentId) async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+    );
+
+    if (result != null && result.files.single.bytes != null) {
+      final fileBytes = result.files.single.bytes!;
+      final fileName = result.files.single.name;
+
+      try {
+        await ApiService.uploadEquipmentPhoto(
+          equipmentId: equipmentId,
+          photoBytes: fileBytes,
+          fileName: fileName,
+        );
+        ref.invalidate(equipmentItemByIdProvider(equipmentId));
+        if (!context.mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Фото успешно загружено')),
+        );
+      } catch (e) {
+        if (!context.mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Ошибка загрузки фото: $e')),
+        );
+      }
+    }
+  }
+
+  Future<bool?> _showDeleteConfirmationDialog(BuildContext context) async {
+    return showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Удалить фото?'),
+          content: const Text('Вы уверены, что хотите удалить это фото?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Отмена'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Удалить'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -59,7 +116,7 @@ class _EquipmentItemDetailScreenState extends ConsumerState<EquipmentItemDetailS
                   MaterialPageRoute(
                     builder: (context) => EquipmentItemEditScreen(
                       itemId: item.id,
-                      equipmentItem: item, // Pass item to pre-fill form
+                      equipmentItem: item,
                     ),
                   ),
                 );
@@ -85,7 +142,7 @@ class _EquipmentItemDetailScreenState extends ConsumerState<EquipmentItemDetailS
             controller: _tabController,
             children: [
               _buildMainInfoTab(item),
-              _buildPhotosTab(item),
+              _buildPhotosTab(context, ref, item),
               _buildAccountingTab(item),
               _buildMaintenanceHistoryTab(item.id),
             ],
@@ -99,8 +156,9 @@ class _EquipmentItemDetailScreenState extends ConsumerState<EquipmentItemDetailS
 
   Widget _buildMainInfoTab(EquipmentItem item) {
     final typeAsync = ref.watch(equipmentTypeByIdProvider(item.typeId));
-    final roomAsync = item.roomId != null ? ref.watch(roomByIdProvider(item.roomId!)) : null;
-    
+    final roomAsync =
+        item.roomId != null ? ref.watch(roomByIdProvider(item.roomId!)) : null;
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -111,7 +169,9 @@ class _EquipmentItemDetailScreenState extends ConsumerState<EquipmentItemDetailS
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 16.0),
                 child: Image.network(
-                  item.photoUrls.first, // Display first photo
+                  item.photoUrls.first.startsWith('http')
+                      ? item.photoUrls.first
+                      : '${ApiService.baseUrl}${item.photoUrls.first}',
                   height: 200,
                   fit: BoxFit.cover,
                 ),
@@ -121,19 +181,24 @@ class _EquipmentItemDetailScreenState extends ConsumerState<EquipmentItemDetailS
           typeAsync.when(
             data: (type) => _buildDetailRow(label: 'Тип:', value: type.name),
             loading: () => _buildDetailRow(label: 'Тип:', value: 'Загрузка...'),
-            error: (err, stack) => _buildDetailRow(label: 'Тип:', value: 'Ошибка'),
+            error: (err, stack) =>
+                _buildDetailRow(label: 'Тип:', value: 'Ошибка'),
           ),
           if (item.serialNumber != null && item.serialNumber!.isNotEmpty)
             _buildDetailRow(label: 'Сер. номер:', value: item.serialNumber!),
           if (item.model != null && item.model!.isNotEmpty)
             _buildDetailRow(label: 'Модель:', value: item.model!),
           if (item.manufacturer != null && item.manufacturer!.isNotEmpty)
-            _buildDetailRow(label: 'Производитель:', value: item.manufacturer!),
+            _buildDetailRow(
+                label: 'Производитель:', value: item.manufacturer!),
           roomAsync != null
               ? roomAsync.when(
-                  data: (room) => _buildDetailRow(label: 'Помещение:', value: room.name),
-                  loading: () => _buildDetailRow(label: 'Помещение:', value: 'Загрузка...'),
-                  error: (err, stack) => _buildDetailRow(label: 'Помещение:', value: 'Ошибка'),
+                  data: (room) =>
+                      _buildDetailRow(label: 'Помещение:', value: room.name),
+                  loading: () =>
+                      _buildDetailRow(label: 'Помещение:', value: 'Загрузка...'),
+                  error: (err, stack) =>
+                      _buildDetailRow(label: 'Помещение:', value: 'Ошибка'),
                 )
               : _buildDetailRow(label: 'Помещение:', value: 'Не назначено'),
           if (item.placementNote != null && item.placementNote!.isNotEmpty)
@@ -145,47 +210,122 @@ class _EquipmentItemDetailScreenState extends ConsumerState<EquipmentItemDetailS
             valueColor: item.status.color,
           ),
           _buildConditionRating(item.conditionRating),
-           if (item.conditionNotes != null && item.conditionNotes!.isNotEmpty)
-            _buildDetailRow(label: 'Заметки о состоянии:', value: item.conditionNotes!),
+          if (item.conditionNotes != null && item.conditionNotes!.isNotEmpty)
+            _buildDetailRow(
+                label: 'Заметки о состоянии:', value: item.conditionNotes!),
         ],
       ),
     );
   }
 
-  Widget _buildPhotosTab(EquipmentItem item) {
+  Widget _buildPhotosTab(
+      BuildContext context, WidgetRef ref, EquipmentItem item) {
     if (item.photoUrls.isEmpty) {
-      return const Center(
-        child: Text('Нет фотографий.'),
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              'Нет фотографий',
+              style: TextStyle(fontSize: 16, color: Colors.grey),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton.icon(
+              onPressed: () => _pickAndUploadPhoto(context, ref, item.id),
+              icon: const Icon(Icons.add_a_photo),
+              label: const Text('Добавить фото'),
+            ),
+          ],
+        ),
       );
     }
+    final baseUrl = ApiService.baseUrl;
 
-    return PageView.builder(
-      itemCount: item.photoUrls.length,
-      itemBuilder: (context, index) {
-        return Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Image.network(
-            item.photoUrls[index],
-            fit: BoxFit.contain,
-            loadingBuilder: (context, child, loadingProgress) {
-              if (loadingProgress == null) return child;
-              return Center(
-                child: CircularProgressIndicator(
-                  value: loadingProgress.expectedTotalBytes != null
-                      ? loadingProgress.cumulativeBytesLoaded /
-                          loadingProgress.expectedTotalBytes!
-                      : null,
-                ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 16.0),
+      child: Column(
+        children: [
+          CarouselSlider.builder(
+            itemCount: item.photoUrls.length,
+            itemBuilder: (context, index, realIndex) {
+              final photoUrl = item.photoUrls[index];
+              final fullUrl = photoUrl.startsWith('http')
+                  ? photoUrl
+                  : '$baseUrl${photoUrl.startsWith('/') ? photoUrl : '/$photoUrl'}';
+              return Stack(
+                children: [
+                  Center(
+                    child: ClipRRect(
+                      borderRadius:
+                          const BorderRadius.all(Radius.circular(8.0)),
+                      child: Image.network(
+                        fullUrl,
+                        fit: BoxFit.contain,
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return const Center(child: CircularProgressIndicator());
+                        },
+                        errorBuilder: (context, error, stackTrace) =>
+                            const Icon(Icons.error,
+                                color: Colors.red, size: 48),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    top: 8.0,
+                    right: 8.0,
+                    child: GestureDetector(
+                      onTap: () async {
+                        final confirm =
+                            await _showDeleteConfirmationDialog(context);
+                        if (confirm == true) {
+                          try {
+                            await ApiService.removeEquipmentPhoto(
+                                equipmentId: item.id, photoUrl: photoUrl);
+                            ref.invalidate(equipmentItemByIdProvider(item.id));
+                            if (!context.mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text('Фото успешно удалено')),
+                            );
+                          } catch (e) {
+                            if (!context.mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                  content: Text('Ошибка удаления фото: $e')),
+                            );
+                          }
+                        }
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(4.0),
+                        decoration: BoxDecoration(
+                          color: Colors.red.withAlpha((0.7 * 255).round()),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.delete,
+                            color: Colors.white, size: 20),
+                      ),
+                    ),
+                  ),
+                ],
               );
             },
-            errorBuilder: (context, error, stackTrace) {
-              return const Center(
-                child: Icon(Icons.error_outline, color: Colors.red, size: 48),
-              );
-            },
+            options: CarouselOptions(
+              height: 400.0,
+              enlargeCenterPage: true,
+              autoPlay: item.photoUrls.length > 1,
+              enableInfiniteScroll: item.photoUrls.length > 1,
+            ),
           ),
-        );
-      },
+          const SizedBox(height: 20),
+          ElevatedButton.icon(
+            onPressed: () => _pickAndUploadPhoto(context, ref, item.id),
+            icon: const Icon(Icons.add_a_photo),
+            label: const Text('Добавить фото'),
+          ),
+        ],
+      ),
     );
   }
 
@@ -325,7 +465,6 @@ class _EquipmentItemDetailScreenState extends ConsumerState<EquipmentItemDetailS
                 if (history.isEmpty) {
                   return const Center(child: Text('Нет записей в истории обслуживания.'));
                 }
-                // Sort the history list
                 history.sort((a, b) {
                   if (a.createdAt == null && b.createdAt == null) return 0;
                   if (a.createdAt == null) return 1;
@@ -418,7 +557,6 @@ class _EquipmentItemDetailScreenState extends ConsumerState<EquipmentItemDetailS
   }
 }
 
-// Helper function for building detail rows
 Widget _buildDetailRow({
   required String label,
   required String value,
@@ -453,7 +591,6 @@ Widget _buildDetailRow({
   );
 }
 
-// Helper function for building condition rating stars
 Widget _buildConditionRating(int rating) {
   return Padding(
     padding: const EdgeInsets.symmetric(vertical: 8.0),
