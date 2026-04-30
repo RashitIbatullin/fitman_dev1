@@ -108,7 +108,10 @@ Middleware _requireManagerOrAdmin() {
 }
 
 Handler _adminHandler(Handler handler) {
-  return requireAuth()(requireRole('admin')(handler));
+  return requireAuth()(requireRole('admin')((Request request) {
+    print('ADMIN_HANDLER: Received request for ${request.method} ${request.url}');
+    return handler(request);
+  }));
 }
 
 Handler _trainerHandler(Handler handler) {
@@ -272,7 +275,11 @@ final Router router = Router()
     router.mount('/', _roomScheduleController.router.call);
     return _adminHandler(router.call)(request);
   })
-  ..mount('/api/equipment/items', _adminHandler(_equipmentItemController.handler))
+  ..mount('/api/equipment/items', (Request request) {
+    final router = Router();
+    router.mount('/', _equipmentItemController.handler);
+    return _adminHandler(router.call)(request);
+  })
   ..mount('/api/equipment/types', _adminHandler(_equipmentTypeController.handler))
   ..mount('/api/maintenance', _adminHandler(_maintenanceController.handler))
   ..mount('/api/maintenance/standards', _adminHandler(_repairTimeStandardController.router.call))

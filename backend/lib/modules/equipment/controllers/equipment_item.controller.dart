@@ -174,10 +174,12 @@ class EquipmentItemController {
       final projectRoot = path.normalize(path.join(path.dirname(scriptPath), '..', '..'));
       final absoluteUploadBaseDir = path.join(projectRoot, 'uploads');
       final absoluteEquipmentPhotosDir = path.join(absoluteUploadBaseDir, 'equipment_photos');
-      final absoluteFilePath = path.join(absoluteEquipmentPhotosDir, newFilename);
+      final filePath = path.join(absoluteEquipmentPhotosDir, newFilename);
+
+      print('EquipmentItemController: Attempting to save file to: $filePath');
 
       // Save the file
-      final file = File(absoluteFilePath);
+      final file = File(filePath);
       await file.parent.create(recursive: true); // Ensure directory exists
       await file.writeAsBytes(fileBytes);
 

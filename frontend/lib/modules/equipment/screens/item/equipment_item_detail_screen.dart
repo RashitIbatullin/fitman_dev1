@@ -231,7 +231,10 @@ class _EquipmentItemDetailScreenState
             ),
             const SizedBox(height: 20),
             ElevatedButton.icon(
-              onPressed: () => _pickAndUploadPhoto(context, ref, item.id),
+              onPressed: () {
+                print('Add photo button pressed!');
+                _pickAndUploadPhoto(context, ref, item.id);
+              },
               icon: const Icon(Icons.add_a_photo),
               label: const Text('Добавить фото'),
             ),
@@ -251,23 +254,29 @@ class _EquipmentItemDetailScreenState
               final photoUrl = item.photoUrls[index];
               final fullUrl = photoUrl.startsWith('http')
                   ? photoUrl
-                  : '$baseUrl${photoUrl.startsWith('/') ? photoUrl : '/$photoUrl'}';
-              return Stack(
+                  : '$baseUrl/${photoUrl.startsWith('/') ? photoUrl.substring(1) : photoUrl}';
+              return Stack( 
                 children: [
-                  Center(
+                  Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 5.0),
                     child: ClipRRect(
-                      borderRadius:
-                          const BorderRadius.all(Radius.circular(8.0)),
+                      borderRadius: const BorderRadius.all(Radius.circular(8.0)),
                       child: Image.network(
                         fullUrl,
-                        fit: BoxFit.contain,
+                        fit: BoxFit.cover,
+                        width: 1000,
                         loadingBuilder: (context, child, loadingProgress) {
                           if (loadingProgress == null) return child;
-                          return const Center(child: CircularProgressIndicator());
+                          return Center(
+                            child: CircularProgressIndicator(
+                              value: loadingProgress.expectedTotalBytes != null
+                                  ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                                  : null,
+                            ),
+                          );
                         },
                         errorBuilder: (context, error, stackTrace) =>
-                            const Icon(Icons.error,
-                                color: Colors.red, size: 48),
+                            const Icon(Icons.error, color: Colors.red, size: 48),
                       ),
                     ),
                   ),
@@ -276,8 +285,7 @@ class _EquipmentItemDetailScreenState
                     right: 8.0,
                     child: GestureDetector(
                       onTap: () async {
-                        final confirm =
-                            await _showDeleteConfirmationDialog(context);
+                        final confirm = await _showDeleteConfirmationDialog(context);
                         if (confirm == true) {
                           try {
                             await ApiService.removeEquipmentPhoto(
@@ -285,14 +293,12 @@ class _EquipmentItemDetailScreenState
                             ref.invalidate(equipmentItemByIdProvider(item.id));
                             if (!context.mounted) return;
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text('Фото успешно удалено')),
+                              const SnackBar(content: Text('Фото успешно удалено')),
                             );
                           } catch (e) {
                             if (!context.mounted) return;
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                  content: Text('Ошибка удаления фото: $e')),
+                              SnackBar(content: Text('Ошибка удаления фото: $e')),
                             );
                           }
                         }
@@ -301,10 +307,9 @@ class _EquipmentItemDetailScreenState
                         padding: const EdgeInsets.all(4.0),
                         decoration: BoxDecoration(
                           color: Colors.red.withAlpha((0.7 * 255).round()),
-                          shape: BoxShape.circle,
+                          borderRadius: BorderRadius.circular(12.0),
                         ),
-                        child: const Icon(Icons.delete,
-                            color: Colors.white, size: 20),
+                        child: const Icon(Icons.delete, color: Colors.white, size: 20),
                       ),
                     ),
                   ),
@@ -315,12 +320,19 @@ class _EquipmentItemDetailScreenState
               height: 400.0,
               enlargeCenterPage: true,
               autoPlay: item.photoUrls.length > 1,
+              aspectRatio: 16 / 9,
+              autoPlayCurve: Curves.fastOutSlowIn,
               enableInfiniteScroll: item.photoUrls.length > 1,
+              autoPlayAnimationDuration: const Duration(milliseconds: 800),
+              viewportFraction: 0.8,
             ),
           ),
           const SizedBox(height: 20),
           ElevatedButton.icon(
-            onPressed: () => _pickAndUploadPhoto(context, ref, item.id),
+            onPressed: () {
+              print('Add photo button pressed!');
+              _pickAndUploadPhoto(context, ref, item.id);
+            },
             icon: const Icon(Icons.add_a_photo),
             label: const Text('Добавить фото'),
           ),

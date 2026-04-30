@@ -187,6 +187,7 @@ class InfrastructureApiService extends BaseApiService {
     required List<int> photoBytes,
     required String fileName,
   }) async {
+    print('ApiService: Calling uploadEquipmentPhoto for $equipmentId');
     final file = http.MultipartFile.fromBytes('photo', photoBytes, filename: fileName);
     final response = await multipartPost(
       '/api/equipment/items/$equipmentId/photos',
