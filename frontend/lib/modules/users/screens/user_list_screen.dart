@@ -111,13 +111,13 @@ final newlyCreatedUserProvider = StateProvider<User?>((ref) => null);
 
 class UserListScreen extends ConsumerStatefulWidget {
   final String? initialFilter;
-  final ScrollController scrollController;
+  final ScrollController? scrollController;
   final bool showToolbar;
 
   const UserListScreen({
     super.key,
     this.initialFilter,
-    required this.scrollController,
+    this.scrollController,
     required this.showToolbar,
   });
 
@@ -130,28 +130,36 @@ class _UserListScreenState extends ConsumerState<UserListScreen> {
   final TextEditingController _archiveReasonController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
+  late final ScrollController _scrollController;
+
   @override
   void initState() {
     super.initState();
+    _scrollController = widget.scrollController ?? ScrollController();
+    _scrollController.addListener(_scrollListener);
+    
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.initialFilter != null) {
         ref.read(userRoleFilterProvider.notifier).state = widget.initialFilter;
       }
     });
     _searchController.addListener(() => setState(() {}));
-    widget.scrollController.addListener(_scrollListener);
   }
 
   @override
   void dispose() {
+    // Only dispose the controller if it was created locally.
+    if (widget.scrollController == null) {
+      _scrollController.dispose();
+    }
     _searchController.dispose();
     _archiveReasonController.dispose();
     super.dispose();
   }
 
   void _scrollListener() {
-    if (widget.scrollController.position.pixels >=
-            widget.scrollController.position.maxScrollExtent * 0.8 &&
+    if (_scrollController.position.pixels >=
+            _scrollController.position.maxScrollExtent * 0.8 &&
         !ref.read(employeesProvider.notifier).isLoadingMore &&
         ref.read(employeesProvider.notifier).hasMore) {
       ref.read(employeesProvider.notifier).loadMoreUsers();
@@ -427,7 +435,7 @@ class _UserListScreenState extends ConsumerState<UserListScreen> {
                 return const Center(child: Text('Пользователи не найдены'));
               }
               return ListView.builder(
-                controller: widget.scrollController,
+                controller: _scrollController,
                 itemCount: filteredUsers.length + (employeesNotifier.isLoadingMore ? 1 : 0),
                 itemBuilder: (context, index) {
                   if (index == filteredUsers.length) {

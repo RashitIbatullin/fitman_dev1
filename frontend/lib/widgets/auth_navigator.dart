@@ -91,7 +91,7 @@ class AuthNavigator extends ConsumerWidget {
 
   void _navigateToDashboard(Role role) {
     final dashboard = _getDashboard(role, showBackButton: false);
-    navigatorKey.currentState!.push(
+    navigatorKey.currentState!.pushReplacement(
       MaterialPageRoute(builder: (ctx) => dashboard),
     );
   }

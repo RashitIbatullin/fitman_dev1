@@ -20,7 +20,7 @@ class RoomsDashboardScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Управление помещениями'),
+        title: const Text('Помещения'),
         actions: [
           TextButton.icon(
             icon: const Icon(Icons.business, color: Colors.black),
@@ -76,17 +76,23 @@ class RoomsDashboardScreen extends ConsumerWidget {
           style: Theme.of(context).textTheme.titleLarge,
         ),
         const SizedBox(height: 12.0),
-        Wrap(
-          spacing: 8.0,
-          runSpacing: 8.0,
-          children: [
-            _buildKpiChip(context, 'Всего помещений', totalRooms.toString(), roomsAsync),
-            _buildKpiChip(context, 'Всего оборудования', totalEquipmentItems.toString(), equipmentItemsAsync),
-            _buildKpiChip(context, 'Залы в работе', activeRooms.toString(), roomsAsync),
-            _buildKpiChip(context, 'Оборудование доступно', availableEquipment.toString(), equipmentItemsAsync),
-            _buildKpiChip(context, 'Неактивные', inactiveRooms.toString(), roomsAsync),
-            _buildKpiChip(context, 'Требует ТО', equipmentNeedsMaintenance.toString(), equipmentItemsAsync),
-          ],
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              _buildKpiChip(context, 'Всего помещений', totalRooms.toString(), roomsAsync),
+              const SizedBox(width: 8),
+              _buildKpiChip(context, 'Всего оборудования', totalEquipmentItems.toString(), equipmentItemsAsync),
+              const SizedBox(width: 8),
+              _buildKpiChip(context, 'Залы в работе', activeRooms.toString(), roomsAsync),
+              const SizedBox(width: 8),
+              _buildKpiChip(context, 'Оборудование доступно', availableEquipment.toString(), equipmentItemsAsync),
+              const SizedBox(width: 8),
+              _buildKpiChip(context, 'Неактивные', inactiveRooms.toString(), roomsAsync),
+              const SizedBox(width: 8),
+              _buildKpiChip(context, 'Требует ТО', equipmentNeedsMaintenance.toString(), equipmentItemsAsync),
+            ],
+          ),
         ),
       ],
     );
@@ -115,14 +121,17 @@ class RoomsDashboardScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            Wrap(
+              alignment: WrapAlignment.spaceBetween,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              runSpacing: 10,
               children: [
                 Text(
                   'Карта залов',
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     FilterPopupMenuButton<bool?>(
                       tooltip: 'Статус',

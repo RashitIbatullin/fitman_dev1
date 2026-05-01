@@ -164,6 +164,7 @@ class _RoomsListViewScreenState extends ConsumerState<RoomsListViewScreen> {
 
     return Scaffold(
       appBar: AppBar(
+        leading: const BackButton(),
         title: const Text('Помещения'),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(kToolbarHeight + 56.0), // Extra height for search and filters
@@ -187,37 +188,38 @@ class _RoomsListViewScreenState extends ConsumerState<RoomsListViewScreen> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    const SizedBox(width: 8),
-                    FilterPopupMenuButton<RoomType?>(
-                      tooltip: 'Тип помещения',
-                      allOptionText: 'Тип: Все',
-                      initialValue: roomTypeFilter,
-                      avatar: const Icon(Icons.category_outlined),
-                      onSelected: (RoomType? value) {
-                        ref.read(roomTypeFilterProvider.notifier).state = value;
-                      },
-                      options: RoomType.values.map((type) => FilterOption(label: type.displayName, value: type, avatar: Icon(type.icon))).toList(),
-                      showAllOption: true,
+                    Flexible(
+                      child: FilterPopupMenuButton<RoomType?>(
+                        tooltip: 'Тип помещения',
+                        allOptionText: 'Тип: Все',
+                        initialValue: roomTypeFilter,
+                        avatar: const Icon(Icons.category_outlined),
+                        onSelected: (RoomType? value) {
+                          ref.read(roomTypeFilterProvider.notifier).state = value;
+                        },
+                        options: RoomType.values.map((type) => FilterOption(label: type.displayName, value: type, avatar: Icon(type.icon))).toList(),
+                        showAllOption: true,
+                      ),
                     ),
                     const SizedBox(width: 8),
-                    FilterPopupMenuButton<bool?>(
-                      tooltip: 'Статус',
-                      allOptionText: 'Статус: Все',
-                      initialValue: ref.watch(roomIsActiveFilterProvider),
-                      avatar: const Icon(Icons.power_settings_new_outlined),
-                      onSelected: (value) {
-                        ref.read(roomIsActiveFilterProvider.notifier).state = value;
-                      },
-                      options: const [
-                        FilterOption(label: 'Активные', value: true),
-                        FilterOption(label: 'Неактивные', value: false),
-                      ],
-                      showAllOption: true,
+                    Flexible(
+                      child: FilterPopupMenuButton<bool?>(
+                        tooltip: 'Статус',
+                        allOptionText: 'Статус: Все',
+                        initialValue: ref.watch(roomIsActiveFilterProvider),
+                        avatar: const Icon(Icons.power_settings_new_outlined),
+                        onSelected: (value) {
+                          ref.read(roomIsActiveFilterProvider.notifier).state = value;
+                        },
+                        options: const [
+                          FilterOption(label: 'Активные', value: true),
+                          FilterOption(label: 'Неактивные', value: false),
+                        ],
+                        showAllOption: true,
+                      ),
                     ),
                     const SizedBox(width: 8),
-                    const Spacer(),
                     const Text('Архив'),
                     Switch(
                       value: ref.watch(roomIsArchivedFilterProvider),
@@ -261,8 +263,15 @@ class _RoomsListViewScreenState extends ConsumerState<RoomsListViewScreen> {
                         children: [
                           Text('Статус: '),
                           Chip(
-                            label: Text(room.isActive ? 'Активно' : 'Неактивно'),
-                            backgroundColor: room.isActive ? Colors.greenAccent : Colors.orangeAccent,
+                            label: Text(
+                              room.isActive ? 'Активно' : 'Неактивно',
+                              style: TextStyle(
+                                color: room.isActive ? Colors.green.shade900 : Colors.orange.shade900,
+                              ),
+                            ),
+                            backgroundColor: room.isActive ? Colors.green.shade100 : Colors.orange.shade100,
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+                            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                           ),
                           if (room.archivedAt != null)
                             const Padding(

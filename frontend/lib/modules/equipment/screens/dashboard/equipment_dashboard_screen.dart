@@ -50,7 +50,7 @@ class _EquipmentDashboardScreenState
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Управление оборудованием'),
+        title: const Text('Оборудование'),
         actions: [
           TextButton(
             onPressed: () {
@@ -92,54 +92,48 @@ class _EquipmentDashboardScreenState
             ),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: Column(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: _TypePicker(),
-                    ),
-                    const SizedBox(width: 8.0),
-                    Expanded(
-                      child: DropdownButtonFormField<EquipmentStatus>(
-                        decoration: const InputDecoration(
-                            labelText: 'Статус', border: OutlineInputBorder()),
-                        initialValue: selectedStatus,
-                        items: [
-                          const DropdownMenuItem(
-                              value: null, child: Text('Все')),
-                          ...EquipmentStatus.values.map((status) =>
-                              DropdownMenuItem(
-                                value: status,
-                                child: Row(
-                                  children: [
-                                    Icon(status.icon,
-                                        size: 20, color: status.color),
-                                    const SizedBox(width: 8.0),
-                                    Text(status.displayName),
-                                  ],
-                                ),
-                              )),
-                        ],
-                        onChanged: (value) => ref
-                            .read(equipmentFilterStatusProvider.notifier)
-                            .state = value,
-                      ),
-                    ),
-                  ],
+                Flexible(
+                  child: _TypePicker(),
                 ),
-                 Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    const Text('Архив'), // Renamed label
-                    Switch(
-                      value: showArchived,
-                      onChanged: (value) {
-                        ref.read(equipmentItemFilterIncludeArchivedProvider.notifier).state = value; // Use item-specific filter
-                      },
-                    ),
-                  ],
+                const SizedBox(width: 8.0),
+                Flexible(
+                  child: DropdownButtonFormField<EquipmentStatus>(
+                    isExpanded: true,
+                    decoration: const InputDecoration(
+                        labelText: 'Статус', border: OutlineInputBorder()),
+                    initialValue: selectedStatus,
+                    items: [
+                      const DropdownMenuItem(
+                          value: null, child: Text('Все')),
+                      ...EquipmentStatus.values.map((status) =>
+                          DropdownMenuItem(
+                            value: status,
+                            child: Row(
+                              children: [
+                                Icon(status.icon,
+                                    size: 20, color: status.color),
+                                const SizedBox(width: 8.0),
+                                Flexible(child: Text(status.displayName, overflow: TextOverflow.ellipsis)),
+                              ],
+                            ),
+                          )),
+                    ],
+                    onChanged: (value) => ref
+                        .read(equipmentFilterStatusProvider.notifier)
+                        .state = value,
+                  ),
+                ),
+                const SizedBox(width: 8.0),
+                const Text('Архив'),
+                Switch(
+                  value: showArchived,
+                  onChanged: (value) {
+                    ref.read(equipmentItemFilterIncludeArchivedProvider.notifier).state = value;
+                  },
                 ),
               ],
             ),
@@ -516,18 +510,19 @@ class EquipmentItemCard extends ConsumerWidget {
 
   Widget _buildInfoRow(BuildContext context, String label, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2.0),
-      child: Row(
+      padding: const EdgeInsets.symmetric(vertical: 1.0),
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('$label ',
+          Text(label,
               style: Theme.of(context)
                   .textTheme
                   .bodySmall
-                  ?.copyWith(fontWeight: FontWeight.bold)),
-          Expanded(
-              child:
-                  Text(value, style: Theme.of(context).textTheme.bodySmall)),
+                  ?.copyWith(fontWeight: FontWeight.bold, color: Colors.grey.shade600)),
+          Padding(
+            padding: const EdgeInsets.only(left: 4.0),
+            child: Text(value, style: Theme.of(context).textTheme.bodySmall),
+          ),
         ],
       ),
     );
@@ -556,18 +551,19 @@ class ArchivedByInfo extends ConsumerWidget {
 
     Widget _buildInfoRow(BuildContext context, String label, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2.0),
-      child: Row(
+      padding: const EdgeInsets.symmetric(vertical: 1.0),
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('$label ',
+          Text(label,
               style: Theme.of(context)
                   .textTheme
                   .bodySmall
-                  ?.copyWith(fontWeight: FontWeight.bold)),
-          Expanded(
-              child:
-                  Text(value, style: Theme.of(context).textTheme.bodySmall)),
+                  ?.copyWith(fontWeight: FontWeight.bold, color: Colors.grey.shade600)),
+          Padding(
+            padding: const EdgeInsets.only(left: 4.0),
+            child: Text(value, style: Theme.of(context).textTheme.bodySmall),
+          ),
         ],
       ),
     );
