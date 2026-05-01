@@ -246,23 +246,24 @@ class _EquipmentMaintenanceHistoryEditScreenState
       ref.invalidate(allMaintenanceHistoryProvider);
       ref.invalidate(maintenanceHistoryProvider(widget.equipmentItemId));
 
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Запись сохранена'), backgroundColor: Colors.green),
-      );
-      Navigator.of(context).pop(true);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('Запись сохранена'), backgroundColor: Colors.green),
+        );
+        Navigator.of(context).pop(true);
+      }
     } catch (e, st) {
-      if (!mounted) return;
-
       print('--- SAVE FAILED ---');
       print('ERROR: $e');
       print('STACK TRACE: $st');
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text('Ошибка сохранения: $e'), backgroundColor: Colors.red),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text('Ошибка сохранения: $e'), backgroundColor: Colors.red),
+        );
+      }
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);

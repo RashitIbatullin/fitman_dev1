@@ -311,7 +311,7 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
       'maintenance_id': maintenanceId,
       'url': photoUrl,
       'comment': comment,
-      'timing': PhotoTiming.values.byName(timing).name,
+      'timing': PhotoTiming.values.byName(timing).index,
       'taken_by': takenBy,
     };
 
@@ -357,6 +357,19 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
       if (map['actual_duration_hours'] != null && map['actual_duration_hours'] is String) {
         map['actual_duration_hours'] = double.tryParse(map['actual_duration_hours'] as String);
       }
+      
+      // --- NEW LOGIC FOR PHOTO TIMING ---
+      if (map['photos'] != null && map['photos'] is List) {
+        final photos = List<Map<String, dynamic>>.from(map['photos'] as List);
+        for (final photo in photos) {
+          final timing = photo['timing'];
+          if (timing is int && timing >= 0 && timing < PhotoTiming.values.length) {
+            photo['timing'] = PhotoTiming.values[timing].name;
+          }
+        }
+        map['photos'] = photos;
+      }
+      // --- END OF NEW LOGIC ---
 
       for (final field in dateFields) {
         if (map[field] != null && map[field] is DateTime) {

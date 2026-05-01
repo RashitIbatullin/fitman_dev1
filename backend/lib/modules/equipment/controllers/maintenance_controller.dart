@@ -1,14 +1,12 @@
 import 'dart:convert';
-import 'dart:io';
 
-import 'package:path/path.dart' as path;
 import 'package:shelf/shelf.dart';
 import 'package:shelf_multipart/shelf_multipart.dart';
 import 'package:shelf_router/shelf_router.dart';
-import 'package:uuid/uuid.dart';
 
 import 'package:fitman_common/modules/equipment/equipment_maintenance_history.model.dart';
 import 'package:fitman_backend/modules/equipment/services/maintenance_service.dart';
+import '../../../services/photo_service.dart';
 
 class MaintenanceController {
   MaintenanceController(this._maintenanceService);
@@ -48,22 +46,12 @@ class MaintenanceController {
         return Response.forbidden(jsonEncode({'error': 'User not authenticated or userId is missing in token.'}));
       }
 
-      final fileExtension = path.extension(fileName);
-      final newFileName = '${const Uuid().v4()}$fileExtension';
-      
-      final scriptPath = Platform.script.toFilePath(windows: Platform.isWindows);
-      final projectRoot = path.normalize(path.join(path.dirname(scriptPath), '..', '..'));
-      final uploadPath = path.join(projectRoot, 'uploads', 'maintenance_photos');
-      final filePath = path.join(uploadPath, newFileName);
-
-      final uploadDir = Directory(uploadPath);
-      if (!await uploadDir.exists()) {
-        await uploadDir.create(recursive: true);
-      }
-
-      await File(filePath).writeAsBytes(fileBytes);
-
-      final photoUrl = '/uploads/maintenance_photos/$newFileName';
+      final photoService = PhotoService();
+      final photoUrl = await photoService.savePhoto(
+        subDirectory: 'maintenance_photos',
+        fileName: fileName,
+        fileBytes: fileBytes,
+      );
 
       await _maintenanceService.addPhoto(maintenanceId, photoUrl, comment ?? '', timing, userId);
 

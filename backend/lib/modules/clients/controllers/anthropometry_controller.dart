@@ -1,10 +1,10 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:fitman_common/fitman_common.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_multipart/shelf_multipart.dart';
 import '../../../config/database.dart';
 import '../../../services/recommendations/recommendation_service.dart';
+import '../../../services/photo_service.dart';
 
 class AnthropometryController {
   static Future<Response> getSomatotype(Request request, [String? id]) async {
@@ -187,13 +187,13 @@ class AnthropometryController {
     }
   }
 
-  // Unchanged methods
   static Future<Response> uploadPhoto(Request request) async {
     try {
       final user = request.context['user'] as Map<String, dynamic>?;
       if (user == null) {
         return Response.unauthorized(jsonEncode({'error': 'Not authenticated'}));
       }
+
       String? fileName;
       List<int>? fileBytes;
       if (request.formData() case final form?) {
@@ -201,26 +201,24 @@ class AnthropometryController {
           if (formData.name == 'photo') {
             fileName = formData.filename;
             fileBytes = await formData.part.readBytes();
-            break; 
+            break;
           }
         }
       } else {
         return Response.badRequest(body: jsonEncode({'error': 'Not a multipart/form-data request'}));
       }
+
       if (fileName == null || fileBytes == null) {
-        return Response.badRequest(
-            body: jsonEncode({'error': 'Missing photo file'}));
+        return Response.badRequest(body: jsonEncode({'error': 'Missing photo file'}));
       }
-      final uploadDir = Directory('../uploads/avatars');
-      if (!await uploadDir.exists()) {
-        await uploadDir.create(recursive: true);
-      }
-      final extension = fileName.split('.').last;
-      final uniqueFileName = '${DateTime.now().millisecondsSinceEpoch}_${user['userId']}.$extension';
-      final filePath = '${uploadDir.path}/$uniqueFileName';
-      final file = File(filePath);
-      await file.writeAsBytes(fileBytes);
-      final photoUrl = '/uploads/avatars/$uniqueFileName';
+
+      final photoService = PhotoService();
+      final photoUrl = await photoService.savePhoto(
+        subDirectory: 'anthropometry_photos',
+        fileName: fileName,
+        fileBytes: fileBytes,
+      );
+
       return Response.ok(jsonEncode({
         'url': photoUrl,
       }));

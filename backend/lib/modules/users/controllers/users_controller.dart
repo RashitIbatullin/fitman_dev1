@@ -1,11 +1,10 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_multipart/shelf_multipart.dart';
 import 'package:bcrypt/bcrypt.dart';
 import '../../../config/database.dart';
 import 'package:fitman_common/fitman_common.dart';
-import 'package:path/path.dart' as path;
+import '../../../services/photo_service.dart';
 
 class UsersController {
   static final Database _db = Database();
@@ -513,23 +512,12 @@ class UsersController {
         return Response.badRequest(body: jsonEncode({'error': 'Missing photo file in form-data'}));
       }
 
-      final scriptPath = Platform.script.toFilePath(windows: Platform.isWindows);
-      final projectRoot = path.normalize(path.join(path.dirname(scriptPath), '..', '..'));
-      final uploadDir = Directory(path.join(projectRoot, 'uploads', 'avatars'));
-      if (!await uploadDir.exists()) {
-        await uploadDir.create(recursive: true);
-      }
-
-      // Генерируем уникальное имя файла, чтобы избежать коллизий
-      final extension = fileName.split('.').last;
-      final uniqueFileName = 'user_${userId}_${DateTime.now().millisecondsSinceEpoch}.$extension';
-      final filePath = '${uploadDir.path}/$uniqueFileName';
-      
-      final file = File(filePath);
-      await file.writeAsBytes(fileBytes);
-
-      // URL для доступа к файлу с клиента
-      final photoUrl = '/uploads/avatars/$uniqueFileName';
+      final photoService = PhotoService();
+      final photoUrl = await photoService.savePhoto(
+        subDirectory: 'avatars',
+        fileName: fileName,
+        fileBytes: fileBytes,
+      );
 
       await _db.users.updateUserPhotoUrl(userId, photoUrl, updaterId);
 
