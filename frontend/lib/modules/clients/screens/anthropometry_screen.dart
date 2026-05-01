@@ -86,7 +86,7 @@ class _AnthropometryScreenState extends ConsumerState<AnthropometryScreen>
                 if (_showFab) ...[
                   const Center(
                       child:
-                          Text('Показать архив', style: TextStyle(fontSize: 14))),
+                          Text('Архив', style: TextStyle(fontSize: 14))),
                   Switch(
                     value: showArchived,
                     onChanged: (value) {

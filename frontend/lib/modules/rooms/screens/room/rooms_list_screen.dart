@@ -218,7 +218,7 @@ class _RoomsListViewScreenState extends ConsumerState<RoomsListViewScreen> {
                     ),
                     const SizedBox(width: 8),
                     const Spacer(),
-                    const Text('Показать архив'),
+                    const Text('Архив'),
                     Switch(
                       value: ref.watch(roomIsArchivedFilterProvider),
                       onChanged: (value) {
