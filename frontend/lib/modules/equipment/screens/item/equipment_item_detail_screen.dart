@@ -47,6 +47,7 @@ class _EquipmentItemDetailScreenState
       BuildContext context, WidgetRef ref, String equipmentId) async {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.image,
+      withData: true,
     );
 
     if (result != null && result.files.single.bytes != null) {
@@ -71,6 +72,11 @@ class _EquipmentItemDetailScreenState
           SnackBar(content: Text('Ошибка загрузки фото: $e')),
         );
       }
+    } else {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Выбор фото отменен или файл недоступен.')),
+      );
     }
   }
 
