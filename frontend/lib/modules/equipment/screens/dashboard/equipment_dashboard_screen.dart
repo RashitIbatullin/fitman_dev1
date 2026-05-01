@@ -148,11 +148,7 @@ class _EquipmentDashboardScreenState
                       item.inventoryNumber
                           .toLowerCase()
                           .contains(searchQuery.toLowerCase()) ||
-                      (item.model
-                              ?.toLowerCase()
-                              .contains(searchQuery.toLowerCase()) ??
-                          false) ||
-                      (item.manufacturer
+                      (item.typeName
                               ?.toLowerCase()
                               .contains(searchQuery.toLowerCase()) ??
                           false);
@@ -359,8 +355,8 @@ class EquipmentItemCard extends ConsumerWidget {
       child: ListTile(
         onTap: onTap,
         leading: SizedBox(
-          width: 50,
-          height: 50,
+          width: 40,
+          height: 40,
           child: item.photoUrls.isNotEmpty
               ? Image.network(
                   item.photoUrls.first,
@@ -382,11 +378,7 @@ class EquipmentItemCard extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildInfoRow(context, 'Тип:', item.typeName ?? 'N/A'),
-                  _buildInfoRow(
-                    context,
-                    'Модель/Производитель:',
-                    '${item.model ?? 'N/A'}${item.manufacturer != null && item.manufacturer!.isNotEmpty ? ' (${item.manufacturer})' : ''}',
-                  ),
+                  // Модель/Производитель скрыты по требованию
                   _buildInfoRow(
                       context, 'Помещение:', item.roomName ?? 'Не назначено'),
                 ],
@@ -510,17 +502,17 @@ class EquipmentItemCard extends ConsumerWidget {
 
   Widget _buildInfoRow(BuildContext context, String label, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 1.0),
-      child: Column(
+      padding: const EdgeInsets.symmetric(vertical: 2.0),
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(label,
               style: Theme.of(context)
                   .textTheme
                   .bodySmall
-                  ?.copyWith(fontWeight: FontWeight.bold, color: Colors.grey.shade600)),
-          Padding(
-            padding: const EdgeInsets.only(left: 4.0),
+                  ?.copyWith(fontWeight: FontWeight.bold)),
+          const SizedBox(width: 4),
+          Expanded(
             child: Text(value, style: Theme.of(context).textTheme.bodySmall),
           ),
         ],
@@ -551,17 +543,17 @@ class ArchivedByInfo extends ConsumerWidget {
 
     Widget _buildInfoRow(BuildContext context, String label, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 1.0),
-      child: Column(
+      padding: const EdgeInsets.symmetric(vertical: 2.0),
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(label,
               style: Theme.of(context)
                   .textTheme
                   .bodySmall
-                  ?.copyWith(fontWeight: FontWeight.bold, color: Colors.grey.shade600)),
-          Padding(
-            padding: const EdgeInsets.only(left: 4.0),
+                  ?.copyWith(fontWeight: FontWeight.bold)),
+          const SizedBox(width: 4),
+          Expanded(
             child: Text(value, style: Theme.of(context).textTheme.bodySmall),
           ),
         ],
