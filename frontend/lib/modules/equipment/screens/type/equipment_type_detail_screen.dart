@@ -75,7 +75,7 @@ class EquipmentTypeDetailScreen extends ConsumerWidget {
                   ),
                 _buildDetailRow(
                   label: 'Категория:',
-                  value: equipmentType.category.name,
+                  value: equipmentType.category.displayName,
                 ),
                 if (equipmentType.weightRange != null && equipmentType.weightRange!.isNotEmpty)
                   _buildDetailRow(
@@ -107,8 +107,6 @@ class EquipmentTypeDetailScreen extends ConsumerWidget {
 
 
 IconData _getSchematicIcon(String iconName) {
-  // This is a placeholder. In a real app, you would have a map
-  // or a way to dynamically resolve string names to actual IconData.
   switch (iconName) {
     case 'dumbbell':
       return Icons.fitness_center;
@@ -127,9 +125,23 @@ IconData _getSchematicIcon(String iconName) {
     case 'fitball':
       return Icons.sports_basketball; // Placeholder
     case 'yoga_mat':
-      return Icons.spa; // Placeholder
+      return Icons.spa; // Using spa for yoga mat
     case 'scales':
       return Icons.scale;
+    case 'crossover':
+      return Icons.cable; // Placeholder icon
+    case 'kettlebell':
+      return Icons.fitness_center; // Placeholder icon
+    case 'pull_block':
+      return Icons.sports_gymnastics; // Placeholder icon
+    case 'stepper':
+      return Icons.directions_walk; // Placeholder icon
+    case 'hammer_chest':
+      return Icons.fitness_center; // Placeholder icon
+    case 'aerobic_step':
+      return Icons.directions_walk; // Placeholder icon
+    case 'punching_bag':
+      return Icons.sports_mma; // Placeholder icon
     default:
       return Icons.category; // Default icon if not found
   }

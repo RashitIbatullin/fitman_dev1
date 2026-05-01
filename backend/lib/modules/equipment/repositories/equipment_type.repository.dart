@@ -59,7 +59,7 @@ class EquipmentTypeRepositoryImpl implements EquipmentTypeRepository {
       parameters: {
         'name': equipmentType.name,
         'description': equipmentType.description,
-        'category': equipmentType.category.name,
+        'category': equipmentType.category.index,
         'weightRange': equipmentType.weightRange,
         'dimensions': equipmentType.dimensions,
         'isMobile': equipmentType.isMobile,
@@ -137,7 +137,7 @@ class EquipmentTypeRepositoryImpl implements EquipmentTypeRepository {
         'id': id,
         'name': equipmentType.name,
         'description': equipmentType.description,
-        'category': equipmentType.category.name,
+        'category': equipmentType.category.index,
         'weightRange': equipmentType.weightRange,
         'dimensions': equipmentType.dimensions,
         'isMobile': equipmentType.isMobile,

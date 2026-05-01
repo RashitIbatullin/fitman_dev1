@@ -309,6 +309,20 @@ IconData _getSchematicIcon(String iconName) {
       return Icons.spa; // Using spa for yoga mat
     case 'scales':
       return Icons.scale;
+    case 'crossover':
+      return Icons.cable; // Placeholder icon
+    case 'kettlebell':
+      return Icons.fitness_center; // Placeholder icon
+    case 'pull_block':
+      return Icons.sports_gymnastics; // Placeholder icon
+    case 'stepper':
+      return Icons.directions_walk; // Placeholder icon
+    case 'hammer_chest':
+      return Icons.fitness_center; // Placeholder icon
+    case 'aerobic_step':
+      return Icons.directions_walk; // Placeholder icon
+    case 'punching_bag':
+      return Icons.sports_mma; // Placeholder icon
     default:
       return Icons.category; // Default icon if not found
   }
@@ -327,5 +341,12 @@ List<String> _getSchematicIconNames() {
     'fitball',
     'yoga_mat',
     'scales',
+    'crossover',
+    'kettlebell',
+    'pull_block',
+    'stepper',
+    'hammer_chest',
+    'aerobic_step',
+    'punching_bag',
   ];
 }

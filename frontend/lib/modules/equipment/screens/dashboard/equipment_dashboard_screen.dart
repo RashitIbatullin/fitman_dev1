@@ -81,7 +81,7 @@ class _EquipmentDashboardScreenState
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                labelText: 'Поиск по инв. номеру, модели, производителю',
+                labelText: 'Поиск по инв. номеру или типу',
                 prefixIcon: const Icon(Icons.search),
                 border: const OutlineInputBorder(),
                 suffixIcon: IconButton(
@@ -374,6 +374,7 @@ class EquipmentItemCard extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
+              flex: 2,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -386,6 +387,7 @@ class EquipmentItemCard extends ConsumerWidget {
             ),
             const SizedBox(width: 16.0),
             Expanded(
+              flex: 1,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -506,13 +508,17 @@ class EquipmentItemCard extends ConsumerWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodySmall
-                  ?.copyWith(fontWeight: FontWeight.bold)),
+          Flexible(
+            flex: 2, // Give label a bit more priority
+            child: Text(label,
+                style: Theme.of(context)
+                    .textTheme
+                    .bodySmall
+                    ?.copyWith(fontWeight: FontWeight.bold)),
+          ),
           const SizedBox(width: 4),
-          Expanded(
+          Flexible(
+            flex: 3, // Give value more space
             child: Text(value, style: Theme.of(context).textTheme.bodySmall),
           ),
         ],
@@ -547,13 +553,17 @@ class ArchivedByInfo extends ConsumerWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodySmall
-                  ?.copyWith(fontWeight: FontWeight.bold)),
+          Flexible(
+            flex: 2, // Give label a bit more priority
+            child: Text(label,
+                style: Theme.of(context)
+                    .textTheme
+                    .bodySmall
+                    ?.copyWith(fontWeight: FontWeight.bold)),
+          ),
           const SizedBox(width: 4),
-          Expanded(
+          Flexible(
+            flex: 3, // Give value more space
             child: Text(value, style: Theme.of(context).textTheme.bodySmall),
           ),
         ],

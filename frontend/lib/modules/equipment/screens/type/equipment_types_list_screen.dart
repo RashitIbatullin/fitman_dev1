@@ -3,8 +3,8 @@ import 'package:fitman_common/modules/equipment/equipment/equipment_category.enu
 import 'package:fitman_common/modules/equipment/equipment/equipment_type.model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fitman_app/extensions/equipment_ui_extensions.dart';
 import 'package:fitman_app/modules/equipment/providers/equipment/equipment_provider.dart';
+import 'package:fitman_app/modules/equipment/utils/schematic_icons.dart'; // New import for centralized icons
 import 'equipment_type_detail_screen.dart';
 import 'equipment_type_edit_screen.dart';
 
@@ -176,9 +176,7 @@ class EquipmentTypesListScreen extends ConsumerWidget {
                       backgroundColor: Theme.of(context)
                           .primaryColorLight, // Add a background color for visibility
                       child: Icon(
-                        equipmentType.schematicIcon != null && equipmentType.schematicIcon!.isNotEmpty
-                            ? _getSchematicIcon(equipmentType.schematicIcon!) // Use schematic icon
-                            : equipmentType.category.icon, // Fallback to category icon
+                        getSchematicIcon(equipmentType.schematicIcon), // Use schematic icon, handles null/empty
                         color: Theme.of(context)
                             .primaryColorDark, // Ensure icon color contrasts with background
                       ),
@@ -314,34 +312,4 @@ Widget _buildInfoRow(BuildContext context, String label, String value) {
       ],
     ),
   );
-}
-
-IconData _getSchematicIcon(String iconName) {
-  // This is a placeholder. In a real app, you would have a map
-  // or a way to dynamically resolve string names to actual IconData.
-  // For example:
-  switch (iconName) {
-    case 'dumbbell':
-      return Icons.fitness_center;
-    case 'treadmill':
-      return Icons.directions_run;
-    case 'bike':
-      return Icons.pedal_bike;
-    case 'elliptical':
-      return Icons.directions_walk;
-    case 'barbell':
-      return Icons.sports_gymnastics;
-    case 'bench':
-      return Icons.chair; // Placeholder
-    case 'leg_press':
-      return Icons.view_sidebar; // Placeholder
-    case 'fitball':
-      return Icons.sports_basketball; // Placeholder
-    case 'yoga_mat':
-      return Icons.spa; // Placeholder
-    case 'scales':
-      return Icons.scale;
-    default:
-      return Icons.category; // Default icon if not found
-  }
 }
