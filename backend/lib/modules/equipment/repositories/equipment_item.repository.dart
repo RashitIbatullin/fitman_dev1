@@ -5,8 +5,8 @@ import 'package:postgres/postgres.dart';
 
 abstract class EquipmentItemRepository {
   Future<EquipmentItem> getById(String id);
-  Future<List<EquipmentItem>> getAll({bool includeArchived = false});
-  Future<List<EquipmentItem>> getByRoomId(String roomId, {bool includeArchived = false});
+  Future<List<EquipmentItem>> getAll({bool? includeArchived});
+  Future<List<EquipmentItem>> getByRoomId(String roomId, {bool? includeArchived});
   Future<EquipmentItem> create(EquipmentItem equipmentItem, String userId);
   Future<EquipmentItem> update(String id, EquipmentItem equipmentItem, String userId);
   Future<void> delete(String id);
@@ -117,11 +117,18 @@ class EquipmentItemRepositoryImpl implements EquipmentItemRepository {
   }
 
   @override
-  Future<List<EquipmentItem>> getAll({bool includeArchived = false}) async {
+  Future<List<EquipmentItem>> getAll({bool? includeArchived}) async {
     final conn = await _db.connection;
     try {
-      final whereClause =
-          includeArchived ? 'ei.archived_at IS NOT NULL' : 'ei.archived_at IS NULL';
+      String whereClause;
+      if (includeArchived == null) {
+        whereClause = '1=1'; // Get all
+      } else if (includeArchived) {
+        whereClause = 'ei.archived_at IS NOT NULL'; // Get only archived
+      } else {
+        whereClause = 'ei.archived_at IS NULL'; // Get only non-archived
+      }
+
       final result = await conn.execute(Sql.named('''
         SELECT 
           ei.*,
@@ -164,14 +171,16 @@ class EquipmentItemRepositoryImpl implements EquipmentItemRepository {
 
   @override
   Future<List<EquipmentItem>> getByRoomId(String roomId,
-      {bool includeArchived = false}) async {
+      {bool? includeArchived}) async {
     final conn = await _db.connection;
     try {
       String whereClause;
-      if (includeArchived) {
-        whereClause = 'WHERE ei.room_id = @roomId AND ei.archived_at IS NOT NULL';
+      if (includeArchived == null) {
+        whereClause = 'WHERE ei.room_id = @roomId'; // Get all for room
+      } else if (includeArchived) {
+        whereClause = 'WHERE ei.room_id = @roomId AND ei.archived_at IS NOT NULL'; // Get only archived for room
       } else {
-        whereClause = 'WHERE ei.room_id = @roomId AND ei.archived_at IS NULL';
+        whereClause = 'WHERE ei.room_id = @roomId AND ei.archived_at IS NULL'; // Get only non-archived for room
       }
 
       final result = await conn.execute(

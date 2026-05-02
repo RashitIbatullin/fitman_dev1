@@ -4,7 +4,7 @@ import 'package:postgres/postgres.dart';
 
 abstract class EquipmentTypeRepository {
   Future<EquipmentType> getById(String id);
-  Future<List<EquipmentType>> getAll({bool includeArchived = false});
+  Future<List<EquipmentType>> getAll({bool? includeArchived});
   Future<EquipmentType> create(EquipmentType equipmentType, String userId);
   Future<EquipmentType> update(String id, EquipmentType equipmentType, String userId);
   Future<void> delete(String id);
@@ -80,17 +80,33 @@ class EquipmentTypeRepositoryImpl implements EquipmentTypeRepository {
   }
 
   @override
-  Future<List<EquipmentType>> getAll({bool includeArchived = false}) async {
+  Future<List<EquipmentType>> getAll({bool? includeArchived}) async {
     try {
       final conn = await _db.connection;
-      final whereClause = includeArchived ? 'WHERE archived_at IS NOT NULL' : 'WHERE archived_at IS NULL';
-      final result =
-          await conn.execute(Sql.named('SELECT * FROM equipment_types $whereClause ORDER BY name ASC'));
+      String whereClause;
+      if (includeArchived == null) {
+        whereClause = ''; // Get all
+      } else if (includeArchived) {
+        whereClause = 'WHERE archived_at IS NOT NULL'; // Get only archived
+      } else {
+        whereClause = 'WHERE archived_at IS NULL'; // Get only non-archived
+      }
+      final result = await conn.execute(
+          Sql.named('SELECT * FROM equipment_types $whereClause ORDER BY name ASC'));
 
       return result.map((row) {
         final map = row.toColumnMap();
         if (map['archived_at'] is DateTime) {
-          map['archived_at'] = (map['archived_at'] as DateTime).toIso8601String();
+          map['archived_at'] =
+              (map['archived_at'] as DateTime).toIso8601String();
+        }
+        if (map['updated_at'] is DateTime) {
+          map['updated_at'] =
+              (map['updated_at'] as DateTime).toIso8601String();
+        }
+        if (map['created_at'] is DateTime) {
+          map['created_at'] =
+              (map['created_at'] as DateTime).toIso8601String();
         }
         return EquipmentType.fromJson(map);
       }).toList();

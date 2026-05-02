@@ -38,9 +38,12 @@ class EquipmentItemController {
 
   Future<Response> _getAllEquipmentItems(Request request) async {
     try {
-      final roomId = request.url.queryParameters['roomId'];
-      final includeArchived =
-          request.url.queryParameters['includeArchived'] == 'true';
+      final queryParams = request.url.queryParameters;
+      final roomId = queryParams['roomId'];
+      bool? includeArchived;
+      if (queryParams.containsKey('includeArchived')) {
+        includeArchived = queryParams['includeArchived'] == 'true';
+      }
 
       late final List<EquipmentItem> equipmentItems;
 

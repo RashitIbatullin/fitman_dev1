@@ -1,3 +1,4 @@
+import 'package:fitman_app/extensions/repair_complexity_ui_extensions.dart';
 import 'package:fitman_app/modules/equipment/providers/equipment/equipment_provider.dart';
 import 'package:fitman_app/modules/equipment/providers/repair_time_standard_provider.dart';
 import 'package:fitman_common/modules/equipment/repair_time_standard.model.dart';
@@ -46,13 +47,19 @@ class _RepairTimeStandardEditScreenState
 
   @override
   Widget build(BuildContext context) {
-    final equipmentTypesAsync = ref.watch(allEquipmentTypesProvider);
+    final equipmentTypesAsync = ref.watch(allEquipmentTypesIncludingArchivedProvider);
 
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.standard == null
             ? 'Новый норматив'
             : 'Редактировать норматив'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.save),
+            onPressed: _save,
+          ),
+        ],
       ),
       body: Form(
         key: _formKey,
@@ -125,7 +132,7 @@ class _RepairTimeStandardEditScreenState
                 items: RepairComplexity.values
                     .map((complexity) => DropdownMenuItem(
                           value: complexity,
-                          child: Text(complexity.name),
+                          child: Text(complexity.displayName),
                         ))
                     .toList(),
                 onChanged: (value) {
@@ -137,10 +144,6 @@ class _RepairTimeStandardEditScreenState
             ],
           ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _save,
-        child: const Icon(Icons.save),
       ),
     );
   }

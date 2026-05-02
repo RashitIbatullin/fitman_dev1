@@ -102,6 +102,13 @@ final activeEquipmentTypesProvider =
   return ApiService.getAllEquipmentTypes(isArchived: false);
 });
 
+// Provider to get all equipment types, including archived, for dropdowns and name maps
+final allEquipmentTypesIncludingArchivedProvider =
+    FutureProvider<List<EquipmentType>>((ref) async {
+  return ApiService.getAllEquipmentTypes(isArchived: null);
+});
+
+
 // --- Equipment Item Providers ---
 
 // All equipment items provider

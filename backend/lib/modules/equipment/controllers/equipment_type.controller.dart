@@ -34,10 +34,14 @@ class EquipmentTypeController {
 
   Future<Response> _getAllEquipmentTypes(Request request) async {
     try {
-      final includeArchived =
-          request.url.queryParameters['includeArchived'] == 'true';
+      final queryParams = request.url.queryParameters;
+      bool? includeArchived;
+      if (queryParams.containsKey('includeArchived')) {
+        includeArchived = queryParams['includeArchived'] == 'true';
+      }
+
       final equipmentTypes =
-          await _db.equipmentTypes.getAll(includeArchived: includeArchived);
+          await _equipmentService.getAllTypes(includeArchived: includeArchived);
       final equipmentTypesJson =
           equipmentTypes.map((type) => type.toJson()).toList();
       return Response.ok(jsonEncode(equipmentTypesJson));

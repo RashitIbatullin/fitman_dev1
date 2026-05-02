@@ -5,14 +5,14 @@ import 'package:fitman_backend/modules/equipment/repositories/equipment_type.rep
 
 abstract class EquipmentService {
   Future<EquipmentType> getTypeById(String id);
-  Future<List<EquipmentType>> getAllTypes();
+  Future<List<EquipmentType>> getAllTypes({bool? includeArchived});
   Future<EquipmentType> createType(EquipmentType equipmentType, String userId);
   Future<EquipmentType> updateType(String id, EquipmentType equipmentType, String userId);
   Future<void> deleteType(String id);
 
   Future<EquipmentItem> getItemById(String id);
-  Future<List<EquipmentItem>> getAllItems();
-  Future<List<EquipmentItem>> getItemsByRoomId(String roomId);
+  Future<List<EquipmentItem>> getAllItems({bool? includeArchived});
+  Future<List<EquipmentItem>> getItemsByRoomId(String roomId, {bool? includeArchived});
   Future<EquipmentItem> createItem(EquipmentItem equipmentItem, String userId);
   Future<EquipmentItem> updateItem(String id, EquipmentItem equipmentItem, String userId);
   Future<void> deleteItem(String id);
@@ -36,8 +36,8 @@ class EquipmentServiceImpl implements EquipmentService {
   }
 
   @override
-  Future<List<EquipmentType>> getAllTypes() {
-    return _typeRepository.getAll();
+  Future<List<EquipmentType>> getAllTypes({bool? includeArchived}) {
+    return _typeRepository.getAll(includeArchived: includeArchived);
   }
 
   @override
@@ -61,13 +61,13 @@ class EquipmentServiceImpl implements EquipmentService {
   }
 
   @override
-  Future<List<EquipmentItem>> getAllItems() {
-    return _itemRepository.getAll();
+  Future<List<EquipmentItem>> getAllItems({bool? includeArchived}) {
+    return _itemRepository.getAll(includeArchived: includeArchived);
   }
 
   @override
-  Future<List<EquipmentItem>> getItemsByRoomId(String roomId) {
-    return _itemRepository.getByRoomId(roomId);
+  Future<List<EquipmentItem>> getItemsByRoomId(String roomId, {bool? includeArchived}) {
+    return _itemRepository.getByRoomId(roomId, includeArchived: includeArchived);
   }
 
   @override
