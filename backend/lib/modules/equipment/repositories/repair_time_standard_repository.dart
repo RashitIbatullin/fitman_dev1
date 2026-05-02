@@ -4,7 +4,7 @@ import '../../../config/database.dart';
 import 'package:fitman_common/modules/equipment/repair_time_standard.model.dart';
 
 abstract class RepairTimeStandardRepository {
-  Future<List<RepairTimeStandard>> getAll();
+  Future<List<RepairTimeStandard>> getAll({bool includeArchived = false});
   Future<RepairTimeStandard> getById(String id);
   Future<RepairTimeStandard> create(RepairTimeStandard standard, String userId);
   Future<RepairTimeStandard> update(String id, RepairTimeStandard standard, String userId);
@@ -27,7 +27,7 @@ class RepairTimeStandardRepositoryImpl implements RepairTimeStandardRepository {
         'equipmentTypeId': standard.equipmentTypeId,
         'description': standard.description,
         'standardDurationHours': standard.standardDurationHours,
-        'complexity': standard.complexity?.name,
+        'complexity': standard.complexity?.index,
         'userId': userId,
       },
     );
@@ -36,10 +36,42 @@ class RepairTimeStandardRepositoryImpl implements RepairTimeStandardRepository {
   }
 
   @override
-  Future<List<RepairTimeStandard>> getAll() async {
+  Future<List<RepairTimeStandard>> getAll({bool includeArchived = false}) async {
     final conn = await _db.connection;
-    final result = await conn.execute(Sql.named('SELECT * FROM repair_time_standards WHERE archived_at IS NULL ORDER BY name'));
-    return result.map((row) => RepairTimeStandard.fromJson(row.toColumnMap())).toList();
+    final whereClause = includeArchived
+        ? 'WHERE archived_at IS NOT NULL'
+        : 'WHERE archived_at IS NULL';
+    final result = await conn.execute(Sql.named(
+        'SELECT * FROM repair_time_standards $whereClause ORDER BY name'));
+    return result.map((row) {
+      final map = row.toColumnMap();
+
+      // Handle numeric and date conversions before passing to fromJson
+      if (map['standard_duration_hours'] is String) {
+        map['standard_duration_hours'] =
+            double.parse(map['standard_duration_hours'] as String);
+      }
+      if (map['complexity'] is int) {
+        final int complexityIndex = map['complexity'];
+        if (complexityIndex >= 0 &&
+            complexityIndex < RepairComplexity.values.length) {
+          map['complexity'] = RepairComplexity.values[complexityIndex].name;
+        }
+      }
+      if (map['archived_at'] is DateTime) {
+        map['archived_at'] =
+            (map['archived_at'] as DateTime).toIso8601String();
+      }
+      if (map['updated_at'] is DateTime) {
+        map['updated_at'] =
+            (map['updated_at'] as DateTime).toIso8601String();
+      }
+      if (map['created_at'] is DateTime) {
+        map['created_at'] =
+            (map['created_at'] as DateTime).toIso8601String();
+      }
+      return RepairTimeStandard.fromJson(map);
+    }).toList();
   }
 
   @override
@@ -52,7 +84,26 @@ class RepairTimeStandardRepositoryImpl implements RepairTimeStandardRepository {
     if (result.isEmpty) {
       throw Exception('RepairTimeStandard with id $id not found');
     }
-    return RepairTimeStandard.fromJson(result.first.toColumnMap());
+    final map = result.first.toColumnMap();
+    if (map['standard_duration_hours'] is String) {
+      map['standard_duration_hours'] = double.parse(map['standard_duration_hours'] as String);
+    }
+    if (map['complexity'] is int) {
+      final int complexityIndex = map['complexity'];
+      if (complexityIndex >= 0 && complexityIndex < RepairComplexity.values.length) {
+        map['complexity'] = RepairComplexity.values[complexityIndex].name;
+      }
+    }
+    if (map['archived_at'] is DateTime) {
+      map['archived_at'] = (map['archived_at'] as DateTime).toIso8601String();
+    }
+    if (map['updated_at'] is DateTime) {
+      map['updated_at'] = (map['updated_at'] as DateTime).toIso8601String();
+    }
+    if (map['created_at'] is DateTime) {
+      map['created_at'] = (map['created_at'] as DateTime).toIso8601String();
+    }
+    return RepairTimeStandard.fromJson(map);
   }
 
   @override
@@ -66,7 +117,7 @@ class RepairTimeStandardRepositoryImpl implements RepairTimeStandardRepository {
         'equipmentTypeId': standard.equipmentTypeId,
         'description': standard.description,
         'standardDurationHours': standard.standardDurationHours,
-        'complexity': standard.complexity?.name,
+        'complexity': standard.complexity?.index,
         'userId': userId,
       },
     );

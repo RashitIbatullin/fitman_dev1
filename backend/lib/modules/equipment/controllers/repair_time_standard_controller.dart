@@ -21,13 +21,15 @@ class RepairTimeStandardController {
     router.get('/<id>', getById);
     router.put('/<id>', update);
     router.delete('/<id>', archive);
+    router.put('/<id>/unarchive', unarchive);
 
     return router;
   }
 
   FutureOr<Response> getAll(Request request) async {
     try {
-      final standards = await _service.getAll();
+      final includeArchived = request.url.queryParameters['includeArchived'] == 'true';
+      final standards = await _service.getAll(includeArchived: includeArchived);
       return Response.ok(
         jsonEncode(standards.map((e) => e.toJson()).toList()),
         headers: {'Content-Type': 'application/json'},
@@ -53,7 +55,8 @@ class RepairTimeStandardController {
     try {
       final body = await request.readAsString();
       final data = jsonDecode(body) as Map<String, dynamic>;
-      final userId = request.context['user_id'] as String?;
+      final userPayload = request.context['user'] as Map<String, dynamic>?;
+      final userId = userPayload?['userId'] as String?;
       if (userId == null) {
         return Response.unauthorized('User not authenticated');
       }
@@ -74,7 +77,8 @@ class RepairTimeStandardController {
     try {
       final body = await request.readAsString();
       final data = jsonDecode(body) as Map<String, dynamic>;
-      final userId = request.context['user_id'] as String?;
+      final userPayload = request.context['user'] as Map<String, dynamic>?;
+      final userId = userPayload?['userId'] as String?;
       if (userId == null) {
         return Response.unauthorized('User not authenticated');
       }
@@ -92,7 +96,8 @@ class RepairTimeStandardController {
 
   FutureOr<Response> archive(Request request, String id) async {
     try {
-      final userId = request.context['user_id'] as String?;
+      final userPayload = request.context['user'] as Map<String, dynamic>?;
+      final userId = userPayload?['userId'] as String?;
       if (userId == null) {
         return Response.unauthorized('User not authenticated');
       }
@@ -103,6 +108,20 @@ class RepairTimeStandardController {
         return Response.badRequest(body: 'Archived reason is required');
       }
       await _service.archive(id, userId, reason);
+      return Response(HttpStatus.noContent);
+    } catch (e) {
+      return Response.internalServerError(body: e.toString());
+    }
+  }
+
+  FutureOr<Response> unarchive(Request request, String id) async {
+    try {
+      final userPayload = request.context['user'] as Map<String, dynamic>?;
+      final userId = userPayload?['userId'] as String?;
+      if (userId == null) {
+        return Response.unauthorized('User not authenticated');
+      }
+      await _service.unarchive(id, userId);
       return Response(HttpStatus.noContent);
     } catch (e) {
       return Response.internalServerError(body: e.toString());

@@ -7,7 +7,8 @@ class RepairTimeStandardService {
 
   final RepairTimeStandardRepository _repository;
 
-  Future<List<RepairTimeStandard>> getAll() => _repository.getAll();
+  Future<List<RepairTimeStandard>> getAll({bool includeArchived = false}) =>
+      _repository.getAll(includeArchived: includeArchived);
 
   Future<RepairTimeStandard> getById(String id) => _repository.getById(id);
 

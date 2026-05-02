@@ -58,7 +58,8 @@ CREATE TABLE repair_time_standards (
   updated_by UUID REFERENCES users(id),
   archived_at TIMESTAMPTZ,
   archived_by UUID REFERENCES users(id),
-  archived_reason TEXT
+  archived_reason TEXT,
+  UNIQUE (name, equipment_type_id)
 );
 
 CREATE TABLE equipment_maintenance_history (

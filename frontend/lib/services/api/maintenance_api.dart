@@ -14,7 +14,7 @@ class MaintenanceApiService extends BaseApiService {
   Future<List<EquipmentMaintenanceHistory>> getMaintenanceHistory(String itemId, {bool includeArchived = false}) async {
     final queryParameters = <String, String>{};
     if (includeArchived) {
-      queryParameters['isArchived'] = 'true';
+      queryParameters['includeArchived'] = 'true';
     }
     
     final data = await get('/api/maintenance/item/$itemId', queryParams: queryParameters);
@@ -74,7 +74,7 @@ class MaintenanceApiService extends BaseApiService {
   Future<List<RepairTimeStandard>> getRepairTimeStandards({bool includeArchived = false}) async {
     final queryParameters = <String, String>{};
     if (includeArchived) {
-      queryParameters['isArchived'] = 'true';
+      queryParameters['includeArchived'] = 'true';
     }
     final data = await get('/api/maintenance/standards', queryParams: queryParameters);
     return (data as List).map((json) => RepairTimeStandard.fromJson(json)).toList();

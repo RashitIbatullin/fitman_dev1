@@ -231,7 +231,67 @@ class DatabaseSeeder {
     print('📖 Seeding recommendation data...');
     await _seedBodyShapeRecommendations(goals, levels);
     await _seedWhtrRefinements(goals);
+    await _seedRepairTimeStandards(equipmentTypes, adminId);
     print('   📖 Created recommendation data.');
+  }
+
+  Future<void> _seedRepairTimeStandards(Map<String, String> equipmentTypeIds, String adminId) async {
+    print('   -> Seeding repair time standards...');
+    final standards = [
+      {
+        'name': 'Замена бегового полотна',
+        'equipmentTypeId': equipmentTypeIds['treadmill'],
+        'duration': 4.0,
+        'complexity': 1, // medium
+        'description': 'Полная замена изношенного бегового полотна на новое.',
+      },
+      {
+        'name': 'Диагностика и смазка',
+        'equipmentTypeId': equipmentTypeIds['treadmill'],
+        'duration': 1.0,
+        'complexity': 0, // low
+        'description': 'Плановая проверка, чистка и смазка движущихся частей беговой дорожки.',
+      },
+      {
+        'name': 'Замена педалей',
+        'equipmentTypeId': equipmentTypeIds['bike'],
+        'duration': 0.5,
+        'complexity': 0, // low
+      },
+      {
+        'name': 'Замена троса',
+        'equipmentTypeId': equipmentTypeIds['crossover'],
+        'duration': 2.5,
+        'complexity': 2, // high
+        'description': 'Полная замена одного из тросов силового тренажера. Требует частичной разборки.',
+      },
+      {
+        'name': 'Перепрошивка консоли',
+        'equipmentTypeId': equipmentTypeIds['elliptical'],
+        'duration': 1.5,
+        'complexity': 1, // medium
+      },
+    ];
+
+    for (final standard in standards) {
+      await _connection.execute(
+        Sql.named(r'''
+        INSERT INTO repair_time_standards (name, equipment_type_id, standard_duration_hours, complexity, description, created_by, updated_by)
+        VALUES (@name, @typeId, @duration, @complexity, @description, @createdBy, @updatedBy)
+        ON CONFLICT (name, equipment_type_id) DO NOTHING;
+      '''),
+        parameters: {
+          'name': standard['name'],
+          'typeId': standard['equipmentTypeId'],
+          'duration': standard['duration'],
+          'complexity': standard['complexity'],
+          'description': standard['description'],
+          'createdBy': adminId,
+          'updatedBy': adminId,
+        },
+      );
+    }
+    print('   ✅ Seeded ${standards.length} repair time standards.');
   }
 
   Future<void> runLoadTest({int userCount = 100}) async {
