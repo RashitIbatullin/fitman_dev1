@@ -76,66 +76,85 @@ class _EquipmentDashboardScreenState
       ),
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                labelText: 'Поиск по инв. номеру или типу',
-                prefixIcon: const Icon(Icons.search),
-                border: const OutlineInputBorder(),
-                suffixIcon: IconButton(
-                  icon: const Icon(Icons.clear),
-                  onPressed: () => _searchController.clear(),
-                ),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Flexible(
-                  child: _TypePicker(),
-                ),
-                const SizedBox(width: 8.0),
-                Flexible(
-                  child: DropdownButtonFormField<EquipmentStatus>(
-                    isExpanded: true,
-                    decoration: const InputDecoration(
-                        labelText: 'Статус', border: OutlineInputBorder()),
-                    initialValue: selectedStatus,
-                    items: [
-                      const DropdownMenuItem(
-                          value: null, child: Text('Все')),
-                      ...EquipmentStatus.values.map((status) =>
-                          DropdownMenuItem(
-                            value: status,
-                            child: Row(
-                              children: [
-                                Icon(status.icon,
-                                    size: 20, color: status.color),
-                                const SizedBox(width: 8.0),
-                                Flexible(child: Text(status.displayName, overflow: TextOverflow.ellipsis)),
-                              ],
-                            ),
-                          )),
-                    ],
-                    onChanged: (value) => ref
-                        .read(equipmentFilterStatusProvider.notifier)
-                        .state = value,
+          Card(
+            margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                children: [
+                  TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      isDense: true,
+                      labelText: 'Поиск по инв. номеру или типу',
+                      prefixIcon: const Icon(Icons.search),
+                      border: const OutlineInputBorder(),
+                      suffixIcon: IconButton(
+                        icon: const Icon(Icons.clear),
+                        onPressed: () => _searchController.clear(),
+                      ),
+                    ),
                   ),
-                ),
-                const SizedBox(width: 8.0),
-                const Text('Архив'),
-                Switch(
-                  value: showArchived,
-                  onChanged: (value) {
-                    ref.read(equipmentItemFilterIncludeArchivedProvider.notifier).state = value;
-                  },
-                ),
-              ],
+                  const SizedBox(height: 8.0),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Expanded(
+                        flex: 3,
+                        child: _TypePicker(),
+                      ),
+                      const SizedBox(width: 8.0),
+                      Expanded(
+                        flex: 3,
+                        child: DropdownButtonFormField<EquipmentStatus>(
+                          isExpanded: true,
+                          decoration: const InputDecoration(
+                              isDense: true,
+                              labelText: 'Статус',
+                              border: OutlineInputBorder()),
+                          initialValue: selectedStatus,
+                          items: [
+                            const DropdownMenuItem(
+                                value: null, child: Text('Все')),
+                            ...EquipmentStatus.values.map((status) =>
+                                DropdownMenuItem(
+                                  value: status,
+                                  child: Row(
+                                    children: [
+                                      Icon(status.icon,
+                                          size: 18, color: status.color),
+                                      const SizedBox(width: 4.0),
+                                      Flexible(child: Text(status.displayName, overflow: TextOverflow.ellipsis)),
+                                    ],
+                                  ),
+                                )),
+                          ],
+                          onChanged: (value) => ref
+                              .read(equipmentFilterStatusProvider.notifier)
+                              .state = value,
+                        ),
+                      ),
+                      const SizedBox(width: 8.0),
+                      Expanded(
+                        flex: 2,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            const Text('Архив'),
+                            Switch(
+                              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              value: showArchived,
+                              onChanged: (value) {
+                                ref.read(equipmentItemFilterIncludeArchivedProvider.notifier).state = value;
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
           Expanded(
@@ -222,8 +241,9 @@ class _TypePicker extends ConsumerWidget {
 
         return OutlinedButton(
           style: OutlinedButton.styleFrom(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 8.0), // Reduced padding
             side: BorderSide(color: Theme.of(context).colorScheme.outline),
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
           ),
           onPressed: () {
             showModalBottomSheet(

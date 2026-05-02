@@ -1,5 +1,4 @@
 import 'package:fitman_app/modules/users/providers/users_provider.dart';
-import 'package:fitman_common/modules/equipment/equipment/equipment_category.enum.dart';
 import 'package:fitman_common/modules/equipment/equipment/equipment_type.model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -98,31 +97,6 @@ class EquipmentTypesListScreen extends ConsumerWidget {
                 },
               ),
             ],
-          ),
-          IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () {
-              // TODO: Implement search functionality
-            },
-          ),
-          PopupMenuButton<EquipmentCategory?>(
-            onSelected: (category) {
-              ref.read(equipmentFilterCategoryProvider.notifier).state =
-                  category;
-            },
-            itemBuilder: (BuildContext context) {
-              return [
-                const PopupMenuItem(
-                  value: null,
-                  child: Text('Все категории'),
-                ),
-                ...EquipmentCategory.values.map((category) => PopupMenuItem(
-                      value: category,
-                      child: Text(category.displayName),
-                    )),
-              ];
-            },
-            icon: const Icon(Icons.filter_list),
           ),
         ],
       ),

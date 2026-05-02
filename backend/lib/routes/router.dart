@@ -281,8 +281,8 @@ final Router router = Router()
     return _adminHandler(router.call)(request);
   })
   ..mount('/api/equipment/types', _adminHandler(_equipmentTypeController.handler))
-  ..mount('/api/maintenance', _adminHandler(_maintenanceController.handler))
   ..mount('/api/maintenance/standards', _adminHandler(_repairTimeStandardController.router.call))
+  ..mount('/api/maintenance', _adminHandler(_maintenanceController.handler))
   ..mount('/api/buildings', _adminHandler(_buildingController.router.call))
 
 // Support Staff routes (Admin access)

@@ -40,6 +40,26 @@ IconData getSchematicIcon(String? iconName) {
       return Icons.directions_walk; // Placeholder icon
     case 'punching_bag':
       return Icons.sports_mma; // Placeholder icon
+    case 'rower':
+      return Icons.rowing;
+    case 'plates':
+      return Icons.adjust;
+    case 'power_rack':
+      return Icons.fitness_center; // General fitness equipment
+    case 'smith_machine':
+      return Icons.fitness_center; // General fitness equipment
+    case 'trx':
+      return Icons.monitor_weight; // Strength icon
+    case 'med_ball':
+      return Icons.sports_baseball; // Ball-like icon
+    case 'plyo_box':
+      return Icons.square; // Simple geometric shape
+    case 'jump_rope':
+      return Icons.linear_scale; // Represents a rope
+    case 'mat':
+      return Icons.crop_square; // Represents a mat
+    case 'foam_roller':
+      return Icons.line_weight; // Represents a roller
     default:
       return Icons.category; // Default icon if not found
   }
@@ -65,5 +85,15 @@ List<String> getSchematicIconNames() {
     'hammer_chest',
     'aerobic_step',
     'punching_bag',
+    'rower',
+    'plates',
+    'power_rack',
+    'smith_machine',
+    'trx',
+    'med_ball',
+    'plyo_box',
+    'jump_rope',
+    'mat',
+    'foam_roller',
   ];
 }

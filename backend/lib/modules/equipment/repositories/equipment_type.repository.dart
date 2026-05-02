@@ -87,11 +87,13 @@ class EquipmentTypeRepositoryImpl implements EquipmentTypeRepository {
       final result =
           await conn.execute(Sql.named('SELECT * FROM equipment_types $whereClause ORDER BY name ASC'));
 
-      return result
-          .map(
-            (row) => EquipmentType.fromJson(row.toColumnMap()),
-          )
-          .toList();
+      return result.map((row) {
+        final map = row.toColumnMap();
+        if (map['archived_at'] is DateTime) {
+          map['archived_at'] = (map['archived_at'] as DateTime).toIso8601String();
+        }
+        return EquipmentType.fromJson(map);
+      }).toList();
     } catch (e) {
       print('Error fetching all equipment types: $e');
       rethrow;
@@ -110,7 +112,11 @@ class EquipmentTypeRepositoryImpl implements EquipmentTypeRepository {
       throw Exception('EquipmentType with id $id not found');
     }
 
-    return EquipmentType.fromJson(result.first.toColumnMap());
+    final map = result.first.toColumnMap();
+    if (map['archived_at'] is DateTime) {
+      map['archived_at'] = (map['archived_at'] as DateTime).toIso8601String();
+    }
+    return EquipmentType.fromJson(map);
   }
 
   @override
