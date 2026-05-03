@@ -5,6 +5,22 @@ import '../employees/trainer_profile.dart';
 import '../roles/role.dart';
 import 'client_profile.dart';
 
+// Helper functions for DateTime parsing
+DateTime? _parseNullableDateTime(dynamic date) {
+  if (date == null) return null;
+  if (date is DateTime) return date;
+  if (date is String) return DateTime.tryParse(date);
+  return null;
+}
+
+DateTime _parseDateTime(dynamic date, String fieldName) {
+  final parsed = _parseNullableDateTime(date);
+  if (parsed == null) {
+    throw ArgumentError('Invalid or missing date value for required field: $fieldName');
+  }
+  return parsed;
+}
+
 // --- Main User Model ---
 class User {
   final String id;
@@ -58,68 +74,83 @@ class User {
   factory User.fromMap(Map<String, dynamic> map) => User.fromJson(map);
 
   factory User.fromJson(Map<String, dynamic> json) {
-    // Helper to handle DateTime parsing from either DateTime or String
-    DateTime? parseNullableDateTime(dynamic date) {
-      if (date == null) return null;
-      if (date is DateTime) return date;
-      if (date is String) return DateTime.tryParse(date);
-      return null;
-    }
-    
-    DateTime parseDateTime(dynamic date, String fieldName) {
-      final parsed = parseNullableDateTime(date);
-      if (parsed == null) {
-        throw ArgumentError('Invalid or missing date value for required field: $fieldName');
-      }
-      return parsed;
-    }
-
+    // This constructor assumes 'id' is present and roles are maps (from DB or direct API)
     return User(
-      id: (json['id'] ?? json['userId']).toString(),
-      phone: json['phone'],
-      email: json['email'],
-      passwordHash: json['password_hash'] ?? '',
-      firstName: json['first_name'] ?? '',
-      lastName: json['last_name'] ?? '',
-      middleName: json['middle_name'],
-      photoUrl: json['photo_url'],
+      id: json['id'] as String,
+      email: json['email'] as String,
+      passwordHash: json['password_hash'] as String? ?? '', // Provide default empty string
+      firstName: json['first_name'] as String? ?? '',       // Provide default empty string
+      lastName: json['last_name'] as String? ?? '',         // Provide default empty string
+      middleName: json['middle_name'] as String?,
+      photoUrl: json['photo_url'] as String?,
       roles: (json['roles'] as List<dynamic>?)
-              ?.map((role) {
-                if (role is Map<String, dynamic>) {
-                  return Role.fromJson(role);
-                }
-                if (role is String) {
-                  // If role is just a string (e.g., from a JWT), create a Role object from it.
-                  return Role(id: '', name: role, title: role);
-                }
-                return null;
-              })
-              .where((r) => r != null)
-              .cast<Role>()
+              ?.map((roleMap) => Role.fromJson(roleMap as Map<String, dynamic>))
               .toList() ??
           [],
+      phone: json['phone'] as String?,
+      gender: json['gender'] is int ? (json['gender'] == 0 ? 'мужской' : 'женский') : json['gender'] as String?,
+      dateOfBirth: _parseNullableDateTime(json['date_of_birth']),
+      sendNotification: json['send_notification'] as bool? ?? true,
+      hourNotification: (json['hour_notification'] as num?)?.toInt() ?? 1,
+      clientProfile: json['client_profile'] != null
+          ? ClientProfile.fromJson(json['client_profile'] as Map<String, dynamic>)
+          : null,
+      employeeProfile: json['employee_profile'] != null
+          ? EmployeeProfile.fromJson(json['employee_profile'] as Map<String, dynamic>)
+          : null,
+      instructorProfile: json['instructor_profile'] != null
+          ? InstructorProfile.fromJson(json['instructor_profile'] as Map<String, dynamic>)
+          : null,
+      trainerProfile: json['trainer_profile'] != null
+          ? TrainerProfile.fromJson(json['trainer_profile'] as Map<String, dynamic>)
+          : null,
+      managerProfile: json['manager_profile'] != null
+          ? ManagerProfile.fromJson(json['manager_profile'] as Map<String, dynamic>)
+          : null,
+      createdAt: json.containsKey('created_at') ? _parseDateTime(json['created_at'], 'created_at') : DateTime.now(),
+      updatedAt: json.containsKey('updated_at') ? _parseDateTime(json['updated_at'], 'updated_at') : DateTime.now(),
+      archivedAt: _parseNullableDateTime(json['archived_at']),
+      archivedReason: json['archived_reason'],
+    );
+  }
+
+  factory User.fromJwt(Map<String, dynamic> json) {
+    // This constructor handles JWT-specific fields like 'userId' and 'roles' as string list
+    return User(
+      id: json['userId'] as String, // From JWT payload
+      email: json['email'] as String,
+      passwordHash: json['password_hash'] ?? '', // JWT might not have passwordHash
+      firstName: json['firstName'] ?? '', // From JWT
+      lastName: json['lastName'] ?? '', // From JWT
+      middleName: json['middleName'] as String?, // From JWT
+      photoUrl: json['photo_url'],
+      roles: (json['roles'] as List<dynamic>?) // From JWT payload as list of strings
+              ?.map((role) => Role(id: '', name: role as String, title: role))
+              .toList() ??
+          [],
+      phone: json['phone'],
       gender: json['gender'] is int ? (json['gender'] == 0 ? 'мужской' : 'женский') : json['gender'],
-      dateOfBirth: parseNullableDateTime(json['date_of_birth']),
+      dateOfBirth: _parseNullableDateTime(json['date_of_birth']),
       sendNotification: json['send_notification'] ?? true,
       hourNotification: (json['hour_notification'] as num?)?.toInt() ?? 1,
       clientProfile: json['client_profile'] != null
-          ? ClientProfile.fromJson(json['client_profile'])
+          ? ClientProfile.fromJson(json['client_profile'] as Map<String, dynamic>)
           : null,
       employeeProfile: json['employee_profile'] != null
-          ? EmployeeProfile.fromJson(json['employee_profile'])
+          ? EmployeeProfile.fromJson(json['employee_profile'] as Map<String, dynamic>)
           : null,
       instructorProfile: json['instructor_profile'] != null
-          ? InstructorProfile.fromJson(json['instructor_profile'])
+          ? InstructorProfile.fromJson(json['instructor_profile'] as Map<String, dynamic>)
           : null,
       trainerProfile: json['trainer_profile'] != null
-          ? TrainerProfile.fromJson(json['trainer_profile'])
+          ? TrainerProfile.fromJson(json['trainer_profile'] as Map<String, dynamic>)
           : null,
       managerProfile: json['manager_profile'] != null
-          ? ManagerProfile.fromJson(json['manager_profile'])
+          ? ManagerProfile.fromJson(json['manager_profile'] as Map<String, dynamic>)
           : null,
-      createdAt: json.containsKey('created_at') ? parseDateTime(json['created_at'], 'created_at') : DateTime.now(),
-      updatedAt: json.containsKey('updated_at') ? parseDateTime(json['updated_at'], 'updated_at') : DateTime.now(),
-      archivedAt: parseNullableDateTime(json['archived_at']),
+      createdAt: json.containsKey('created_at') ? _parseDateTime(json['created_at'], 'created_at') : DateTime.now(),
+      updatedAt: json.containsKey('updated_at') ? _parseDateTime(json['updated_at'], 'updated_at') : DateTime.now(),
+      archivedAt: _parseNullableDateTime(json['archived_at']),
       archivedReason: json['archived_reason'],
     );
   }
