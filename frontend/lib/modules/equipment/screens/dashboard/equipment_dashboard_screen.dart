@@ -387,7 +387,7 @@ class EquipmentItemCard extends ConsumerWidget {
               : const Icon(Icons.fitness_center),
         ),
         title: Text(
-          item.inventoryNumber,
+          '${item.inventoryNumber} (${item.typeName ?? 'N/A'})',
           style: Theme.of(context).textTheme.titleMedium,
         ),
         subtitle: Row(
@@ -398,7 +398,7 @@ class EquipmentItemCard extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildInfoRow(context, 'Тип:', item.typeName ?? 'N/A'),
+                  // Type moved to title
                   // Модель/Производитель скрыты по требованию
                   _buildInfoRow(
                       context, 'Помещение:', item.roomName ?? 'Не назначено'),
@@ -421,6 +421,7 @@ class EquipmentItemCard extends ConsumerWidget {
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 2.0),
                       child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           Text('Статус: ',
                               style: Theme.of(context)
@@ -434,27 +435,6 @@ class EquipmentItemCard extends ConsumerWidget {
                               visualDensity: VisualDensity.compact,
                             ),
                           ),
-                        ],
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 2.0),
-                      child: Row(
-                        children: [
-                          Text('Состояние: ',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall
-                                  ?.copyWith(fontWeight: FontWeight.bold)),
-                          ...List.generate(5, (index) {
-                            return Icon(
-                              index < item.conditionRating
-                                  ? Icons.star
-                                  : Icons.star_border,
-                              color: Colors.amber,
-                              size: 16,
-                            );
-                          }),
                         ],
                       ),
                     ),
