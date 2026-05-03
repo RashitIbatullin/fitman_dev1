@@ -68,7 +68,7 @@ class _EquipmentItemEditScreenState
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 5, vsync: this);
+    _tabController = TabController(length: 4, vsync: this); // <-- CHANGED from 5 to 4
     _inventoryNumberController = TextEditingController();
     _serialNumberController = TextEditingController();
     _modelController = TextEditingController();
@@ -153,6 +153,7 @@ class _EquipmentItemEditScreenState
   }
 
   Future<void> _uploadPhoto(BuildContext context, WidgetRef ref, String equipmentId, Uint8List photoBytes, String fileName) async {
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
     try {
       await ApiService.uploadEquipmentPhoto(
         equipmentId: equipmentId,
@@ -161,13 +162,11 @@ class _EquipmentItemEditScreenState
       );
       ref.invalidate(equipmentItemByIdProvider(equipmentId));
       ref.invalidate(allEquipmentItemsProvider);
-      if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
+      scaffoldMessenger.showSnackBar(
         const SnackBar(content: Text('Фото успешно загружено')),
       );
     } catch (e) {
-      if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
+      scaffoldMessenger.showSnackBar(
         SnackBar(content: Text('Ошибка загрузки фото: $e')),
       );
     }
@@ -230,7 +229,7 @@ class _EquipmentItemEditScreenState
       _populateForm(item);
     } catch (e) {
       if (!mounted) return;
-      scaffoldMessenger.showSnackBar(SnackBar(content: Text('Ошибка: $e'), backgroundColor: Colors.red));
+       scaffoldMessenger.showSnackBar(SnackBar(content: Text('Ошибка: $e'), backgroundColor: Colors.red));
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);
@@ -239,10 +238,12 @@ class _EquipmentItemEditScreenState
   }
 
   Future<void> _saveForm() async {
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
+
     if (!_formKey.currentState!.validate()) return;
     if (_selectedEquipmentType == null) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+      scaffoldMessenger.showSnackBar(const SnackBar(
           content: Text('Пожалуйста, выберите тип оборудования.'),
           backgroundColor: Colors.red));
       return;
@@ -250,11 +251,11 @@ class _EquipmentItemEditScreenState
 
     setState(() => _isLoading = true);
 
-    final isCreating = _currentEquipmentId == null; // Use _currentEquipmentId for consistency
+    final isCreating = _currentEquipmentId == null;
     String? equipmentIdToSave = _currentEquipmentId;
 
     final equipmentItem = EquipmentItem(
-      id: equipmentIdToSave ?? '', // If creating, id will be empty for API to generate
+      id: equipmentIdToSave ?? '',
       typeId: _selectedEquipmentType!.id,
       inventoryNumber: _inventoryNumberController.text,
       serialNumber: _serialNumberController.text.isEmpty
@@ -297,7 +298,7 @@ class _EquipmentItemEditScreenState
       lastUsedDate: _lastUsedDateController.text.isEmpty
           ? null
           : DateTime.parse(_lastUsedDateController.text),
-      photoUrls: isCreating ? const [] : widget.equipmentItem?.photoUrls ?? const [], // Use empty list for creating
+      photoUrls: isCreating ? const [] : widget.equipmentItem?.photoUrls ?? const [],
       archivedAt: widget.equipmentItem?.archivedAt,
       archivedBy: widget.equipmentItem?.archivedBy,
       archivedReason: widget.equipmentItem?.archivedReason,
@@ -306,9 +307,8 @@ class _EquipmentItemEditScreenState
     try {
       if (isCreating) {
         final createdItem = await ApiService.createEquipmentItem(equipmentItem);
-        equipmentIdToSave = createdItem.id; // Get the ID of the newly created item
+        equipmentIdToSave = createdItem.id; 
 
-        // Upload staged photos
         for (final stagedPhoto in _stagedPhotos) {
           if (stagedPhoto.bytes != null) {
             await ApiService.uploadEquipmentPhoto(
@@ -325,23 +325,21 @@ class _EquipmentItemEditScreenState
         await ApiService.updateEquipmentItem(equipmentIdToSave, equipmentItem);
       }
       ref.invalidate(allEquipmentItemsProvider);
-      // Invalidate the specific item provider if it was being watched
-        ref.invalidate(equipmentItemByIdProvider(equipmentIdToSave));
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      ref.invalidate(equipmentItemByIdProvider(equipmentIdToSave));
+      
+      scaffoldMessenger.showSnackBar(SnackBar(
         content: Text(isCreating ? 'Элемент создан' : 'Элемент обновлен'),
         backgroundColor: Colors.green,
       ));
-      Navigator.of(context).pop(true);
+      navigator.pop(true);
     } catch (e) {
-      if (!mounted) return;
       final errorMessage = e.toString();
       if (errorMessage.contains('Инвентарный номер уже существует')) {
         setState(() {
           _inventoryNumberError = 'Этот номер уже используется';
         });
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        scaffoldMessenger.showSnackBar(SnackBar(
             content: Text('Ошибка: $errorMessage'), backgroundColor: Colors.red));
       }
     } finally {
@@ -364,7 +362,6 @@ class _EquipmentItemEditScreenState
   }
 
   void _navigateToMaintenanceHistoryEditScreen({EquipmentMaintenanceHistory? record}) async {
-    // Use _currentEquipmentId as it's guaranteed to be set if we are in edit mode
     final currentId = _currentEquipmentId;
     if (currentId == null) return;
     
@@ -382,19 +379,18 @@ class _EquipmentItemEditScreenState
   }
 
   Widget _buildPhotosTab(BuildContext context, WidgetRef ref) {
-    final isCreating = _currentEquipmentId == null;
+    // ... (content remains the same)
+        final isCreating = _currentEquipmentId == null;
     
-    // Determine which list of photos to display based on creation/editing mode
     final photosToDisplay = isCreating ? _stagedPhotoPaths : <String>[];
     
-    // Only fetch from provider if in editing mode, and _currentEquipmentId is not null
     final itemAsync = isCreating ? null : ref.watch(equipmentItemByIdProvider(_currentEquipmentId!));
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 16.0),
       child: Column(
         children: [
-          if (isCreating) ...[ // Logic for creating new item (staged photos)
+          if (isCreating) ...[
             if (photosToDisplay.isEmpty)
               const Center(
                 child: Text(
@@ -414,14 +410,14 @@ class _EquipmentItemEditScreenState
                         child: ClipRRect(
                           borderRadius: const BorderRadius.all(Radius.circular(8.0)),
                           child: photoPath.startsWith('data:image')
-                              ? Image.network( // Use Image.network for data URLs
+                              ? Image.network(
                                   photoPath,
                                   fit: BoxFit.cover,
                                   width: 1000,
                                   errorBuilder: (context, error, stackTrace) =>
                                       const Icon(Icons.error, color: Colors.red, size: 48),
                                 )
-                              : Image.file( // Use Image.file for file paths
+                              : Image.file(
                                   File(photoPath),
                                   fit: BoxFit.cover,
                                   width: 1000,
@@ -467,7 +463,7 @@ class _EquipmentItemEditScreenState
                   viewportFraction: 0.8,
                 ),
               ),
-          ] else ...[ // Logic for editing existing item (fetched photos)
+          ] else ...[
             itemAsync!.when(
               data: (item) {
                 if (item.photoUrls.isEmpty) {
@@ -567,7 +563,7 @@ class _EquipmentItemEditScreenState
           const SizedBox(height: 20),
           Center(
             child: ElevatedButton.icon(
-              onPressed: () => _pickAndAddPhoto(context, ref), // Use new method
+              onPressed: () => _pickAndAddPhoto(context, ref),
               icon: const Icon(Icons.add_a_photo),
               label: const Text('Добавить фото'),
             ),
@@ -646,41 +642,32 @@ class _EquipmentItemEditScreenState
           ),
           const SizedBox(height: 16),
           TextFormField(controller: _placementNoteController, decoration: const InputDecoration(labelText: 'Местоположение/Примечания', border: OutlineInputBorder())),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildConditionTab() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          DropdownButtonFormField<EquipmentStatus>(
-            decoration: const InputDecoration(labelText: 'Статус', border: OutlineInputBorder()),
-            initialValue: _selectedStatus,
-            items: EquipmentStatus.values.map((s) => DropdownMenuItem(value: s, child: Text(s.displayName))).toList(),
-            onChanged: (v) => setState(() => _selectedStatus = v!),
-            validator: (v) => v == null ? 'Обязательное поле' : null,
-          ),
+          const SizedBox(height: 24),
+          const Divider(),
           const SizedBox(height: 16),
-          DropdownButtonFormField<int>(
-            decoration: const InputDecoration(labelText: 'Оценка состояния (1-5)', border: OutlineInputBorder()),
-            initialValue: _conditionRating,
-            items: List.generate(5, (i) => i + 1).map((r) => DropdownMenuItem(value: r, child: Text('$r'))).toList(),
-            onChanged: (v) => setState(() => _conditionRating = v!),
-             validator: (v) => v == null ? 'Обязательное поле' : null,
+          _EquipmentConditionSection(
+            selectedStatus: _selectedStatus,
+            conditionRating: _conditionRating,
+            conditionNotesController: _conditionNotesController,
+            onStatusChanged: (status) {
+              if(status != null) {
+                setState(() => _selectedStatus = status);
+              }
+            },
+            onRatingChanged: (rating) {
+               if(rating != null) {
+                setState(() => _conditionRating = rating);
+               }
+            },
           ),
-          const SizedBox(height: 16),
-          TextFormField(controller: _conditionNotesController, decoration: const InputDecoration(labelText: 'Заметки о состоянии', border: OutlineInputBorder()), maxLines: 3),
         ],
       ),
     );
   }
 
   Widget _buildAccountingTab() {
-    return SingleChildScrollView(
+    // ... (content remains the same)
+        return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -712,6 +699,7 @@ class _EquipmentItemEditScreenState
   }
 
   Widget _buildMaintenanceHistoryTab() {
+    // ... (content remains the same as the full-featured one)
     final itemId = _currentEquipmentId;
     if (itemId == null) {
       return const Center(child: Text('История обслуживания доступна после создания.'));
@@ -818,7 +806,7 @@ class _EquipmentItemEditScreenState
       ),
     );
   }
-
+  // ... new helper methods ...
   void _showArchiveDialog(BuildContext context, WidgetRef ref, EquipmentMaintenanceHistory record) {
     final reasonController = TextEditingController();
     final formKey = GlobalKey<FormState>();
@@ -916,8 +904,7 @@ class _EquipmentItemEditScreenState
           controller: _tabController,
           tabs: const [
             Tab(text: 'Основное'),
-            Tab(text: 'Состояние'),
-            Tab(text: 'Фото'), // New tab
+            Tab(text: 'Фото'),
             Tab(text: 'Учет'),
             Tab(text: 'История ТО'),
           ],
@@ -931,8 +918,7 @@ class _EquipmentItemEditScreenState
                 controller: _tabController,
                 children: [
                   _buildMainInfoTab(),
-                  _buildConditionTab(),
-                  _buildPhotosTab(context, ref), // New tab content
+                  _buildPhotosTab(context, ref),
                   _buildAccountingTab(),
                   _buildMaintenanceHistoryTab(),
                 ],
@@ -942,6 +928,55 @@ class _EquipmentItemEditScreenState
   }
 }
 
+class _EquipmentConditionSection extends StatelessWidget {
+  final EquipmentStatus selectedStatus;
+  final int conditionRating;
+  final TextEditingController conditionNotesController;
+  final ValueChanged<EquipmentStatus?> onStatusChanged;
+  final ValueChanged<int?> onRatingChanged;
+
+  const _EquipmentConditionSection({
+    required this.selectedStatus,
+    required this.conditionRating,
+    required this.conditionNotesController,
+    required this.onStatusChanged,
+    required this.onRatingChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Состояние', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 16),
+        DropdownButtonFormField<EquipmentStatus>(
+          decoration: const InputDecoration(labelText: 'Статус', border: OutlineInputBorder()),
+          initialValue: selectedStatus,
+          items: EquipmentStatus.values.map((s) => DropdownMenuItem(value: s, child: Text(s.displayName))).toList(),
+          onChanged: onStatusChanged,
+          validator: (v) => v == null ? 'Обязательное поле' : null,
+        ),
+        const SizedBox(height: 16),
+        DropdownButtonFormField<int>(
+          decoration: const InputDecoration(labelText: 'Оценка состояния (1-5)', border: OutlineInputBorder()),
+          initialValue: conditionRating,
+          items: List.generate(5, (i) => i + 1).map((r) => DropdownMenuItem(value: r, child: Text('$r'))).toList(),
+          onChanged: onRatingChanged,
+          validator: (v) => v == null ? 'Обязательное поле' : null,
+        ),
+        const SizedBox(height: 16),
+        TextFormField(
+          controller: conditionNotesController,
+          decoration: const InputDecoration(labelText: 'Заметки о состоянии', border: OutlineInputBorder()),
+          maxLines: 3,
+        ),
+      ],
+    );
+  }
+}
+
+// ... helper widgets for maintenance history ...
 Widget _buildDetailRow({
   required String label,
   required String value,

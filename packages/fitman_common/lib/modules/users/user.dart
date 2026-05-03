@@ -75,7 +75,7 @@ class User {
     }
 
     return User(
-      id: json['id'],
+      id: (json['id'] ?? json['userId']).toString(),
       phone: json['phone'],
       email: json['email'],
       passwordHash: json['password_hash'] ?? '',
