@@ -1,14 +1,16 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:file_picker/file_picker.dart'; // Added
-import 'package:carousel_slider/carousel_slider.dart'; // Added
+import 'package:file_picker/file_picker.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:fitman_app/services/api_service.dart';
 import 'package:fitman_app/modules/equipment/providers/equipment/equipment_provider.dart';
 import 'package:fitman_app/modules/equipment/providers/maintenance_provider.dart';
 import 'package:fitman_app/modules/rooms/providers/room/room_provider.dart';
 import 'package:fitman_common/fitman_common.dart';
-import 'dart:io'; // Added
+import 'dart:io';
+import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'equipment_maintenance_history_edit_screen.dart';
 
 class EquipmentItemEditScreen extends ConsumerStatefulWidget {
@@ -127,7 +129,12 @@ class _EquipmentItemEditScreenState
         // Creation mode: stage the photo
         setState(() {
           _stagedPhotos.add(platformFile);
-          _stagedPhotoPaths.add(platformFile.path!); // Assuming path is always available for locally picked files
+          if (kIsWeb) {
+            final dataUrl = 'data:image/jpeg;base64,${base64Encode(platformFile.bytes!)}';
+            _stagedPhotoPaths.add(dataUrl);
+          } else {
+            _stagedPhotoPaths.add(platformFile.path!);
+          }
         });
         if (!context.mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
@@ -135,8 +142,7 @@ class _EquipmentItemEditScreenState
         );
       } else {
         // Editing mode: upload directly
-        // The existing _pickAndUploadPhoto logic handles this
-        await _pickAndUploadPhoto(context, ref, _currentEquipmentId!);
+        await _uploadPhoto(context, ref, _currentEquipmentId!, platformFile.bytes!, platformFile.name);
       }
     } else {
       if (!context.mounted) return;
@@ -146,39 +152,23 @@ class _EquipmentItemEditScreenState
     }
   }
 
-  Future<void> _pickAndUploadPhoto(
-      BuildContext context, WidgetRef ref, String equipmentId) async {
-    final result = await FilePicker.platform.pickFiles(
-      type: FileType.image,
-      withData: true,
-    );
-
-    if (result != null && result.files.single.bytes != null) {
-      final fileBytes = result.files.single.bytes!;
-      final fileName = result.files.single.name;
-
-      try {
-        await ApiService.uploadEquipmentPhoto(
-          equipmentId: equipmentId,
-          photoBytes: fileBytes,
-          fileName: fileName,
-        );
-        ref.invalidate(equipmentItemByIdProvider(equipmentId));
-        ref.invalidate(allEquipmentItemsProvider);
-        if (!context.mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Фото успешно загружено')),
-        );
-      } catch (e) {
-        if (!context.mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Ошибка загрузки фото: $e')),
-        );
-      }
-    } else {
+  Future<void> _uploadPhoto(BuildContext context, WidgetRef ref, String equipmentId, Uint8List photoBytes, String fileName) async {
+    try {
+      await ApiService.uploadEquipmentPhoto(
+        equipmentId: equipmentId,
+        photoBytes: photoBytes,
+        fileName: fileName,
+      );
+      ref.invalidate(equipmentItemByIdProvider(equipmentId));
+      ref.invalidate(allEquipmentItemsProvider);
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Выбор фото отменен или файл недоступен.')),
+        const SnackBar(content: Text('Фото успешно загружено')),
+      );
+    } catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Ошибка загрузки фото: $e')),
       );
     }
   }
@@ -421,13 +411,21 @@ class _EquipmentItemEditScreenState
                         margin: const EdgeInsets.symmetric(horizontal: 5.0),
                         child: ClipRRect(
                           borderRadius: const BorderRadius.all(Radius.circular(8.0)),
-                          child: Image.file(
-                            File(photoPath), // Use File for local path
-                            fit: BoxFit.cover,
-                            width: 1000,
-                            errorBuilder: (context, error, stackTrace) =>
-                                const Icon(Icons.error, color: Colors.red, size: 48),
-                          ),
+                          child: photoPath.startsWith('data:image')
+                              ? Image.network( // Use Image.network for data URLs
+                                  photoPath,
+                                  fit: BoxFit.cover,
+                                  width: 1000,
+                                  errorBuilder: (context, error, stackTrace) =>
+                                      const Icon(Icons.error, color: Colors.red, size: 48),
+                                )
+                              : Image.file( // Use Image.file for file paths
+                                  File(photoPath),
+                                  fit: BoxFit.cover,
+                                  width: 1000,
+                                  errorBuilder: (context, error, stackTrace) =>
+                                      const Icon(Icons.error, color: Colors.red, size: 48),
+                                ),
                         ),
                       ),
                       Positioned(
