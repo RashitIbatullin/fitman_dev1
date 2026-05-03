@@ -69,7 +69,8 @@ class EquipmentItemController {
       final body = await request.readAsString();
       final Map<String, dynamic> jsonBody = jsonDecode(body) as Map<String, dynamic>;
 
-      final user = request.context['user'] as User;
+      final userMap = request.context['user'] as Map<String, dynamic>;
+      final user = User.fromJson(userMap);
 
       final equipmentItem = EquipmentItem.fromJson(jsonBody);
       final createdEquipmentItem =
@@ -94,7 +95,8 @@ class EquipmentItemController {
       final body = await request.readAsString();
       final Map<String, dynamic> jsonBody = jsonDecode(body) as Map<String, dynamic>;
 
-      final user = request.context['user'] as User;
+      final userMap = request.context['user'] as Map<String, dynamic>;
+      final user = User.fromJson(userMap);
 
       final equipmentItem = EquipmentItem.fromJson(jsonBody);
       final updatedEquipmentItem =
@@ -119,7 +121,8 @@ class EquipmentItemController {
       final body = await request.readAsString();
       final params = jsonDecode(body) as Map<String, dynamic>;
       final reason = params['reason'] as String?;
-      final user = request.context['user'] as User;
+      final userMap = request.context['user'] as Map<String, dynamic>;
+      final user = User.fromJson(userMap);
 
       if (reason == null || reason.length < 5) {
         return Response.badRequest(

@@ -88,8 +88,6 @@ class _EquipmentItemEditScreenState
 
     if (widget.equipmentItem != null) {
       _populateForm(widget.equipmentItem!);
-      _selectedEquipmentType = null;
-      _selectedRoom = null;
     } else if (_currentEquipmentId != null) { // Use _currentEquipmentId here
       _loadEquipmentItem();
     }
@@ -576,7 +574,7 @@ class _EquipmentItemEditScreenState
   }
 
   Widget _buildMainInfoTab() {
-    final equipmentTypesAsync = ref.watch(activeEquipmentTypesProvider);
+    final equipmentTypesAsync = ref.watch(allEquipmentTypesIncludingArchivedProvider);
     final roomsAsync = ref.watch(allRoomsProvider);
 
     return SingleChildScrollView(
