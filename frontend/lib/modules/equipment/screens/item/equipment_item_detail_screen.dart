@@ -1,5 +1,5 @@
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:file_picker/file_picker.dart';
+
 import 'package:fitman_app/services/api_service.dart';
 import 'package:fitman_app/modules/equipment/widgets/maintenance_list_tile.dart';
 import 'package:fitman_common/fitman_common.dart';
@@ -43,64 +43,7 @@ class _EquipmentItemDetailScreenState
     super.dispose();
   }
 
-  Future<void> _pickAndUploadPhoto(
-      BuildContext context, WidgetRef ref, String equipmentId) async {
-    final result = await FilePicker.platform.pickFiles(
-      type: FileType.image,
-      withData: true,
-    );
 
-    if (result != null && result.files.single.bytes != null) {
-      final fileBytes = result.files.single.bytes!;
-      final fileName = result.files.single.name;
-
-      try {
-        await ApiService.uploadEquipmentPhoto(
-          equipmentId: equipmentId,
-          photoBytes: fileBytes,
-          fileName: fileName,
-        );
-        ref.invalidate(equipmentItemByIdProvider(equipmentId));
-        ref.invalidate(allEquipmentItemsProvider);
-        if (!context.mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Фото успешно загружено')),
-        );
-      } catch (e) {
-        if (!context.mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Ошибка загрузки фото: $e')),
-        );
-      }
-    } else {
-      if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Выбор фото отменен или файл недоступен.')),
-      );
-    }
-  }
-
-  Future<bool?> _showDeleteConfirmationDialog(BuildContext context) async {
-    return showDialog<bool>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Удалить фото?'),
-          content: const Text('Вы уверены, что хотите удалить это фото?'),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Отмена'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              child: const Text('Удалить'),
-            ),
-          ],
-        );
-      },
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -226,23 +169,15 @@ class _EquipmentItemDetailScreenState
   Widget _buildPhotosTab(
       BuildContext context, WidgetRef ref, EquipmentItem item) {
     if (item.photoUrls.isEmpty) {
-      return Center(
+      return const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text(
+            Text(
               'Нет фотографий',
               style: TextStyle(fontSize: 16, color: Colors.grey),
             ),
-            const SizedBox(height: 20),
-            ElevatedButton.icon(
-              onPressed: () {
-                print('Add photo button pressed!');
-                _pickAndUploadPhoto(context, ref, item.id);
-              },
-              icon: const Icon(Icons.add_a_photo),
-              label: const Text('Добавить фото'),
-            ),
+            // Функционал добавления фото перенесен в карточку редактирования
           ],
         ),
       );
@@ -260,66 +195,28 @@ class _EquipmentItemDetailScreenState
               final fullUrl = photoUrl.startsWith('http')
                   ? photoUrl
                   : '$baseUrl/${photoUrl.startsWith('/') ? photoUrl.substring(1) : photoUrl}';
-              return Stack( 
-                children: [
-                  Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 5.0),
-                    child: ClipRRect(
-                      borderRadius: const BorderRadius.all(Radius.circular(8.0)),
-                      child: Image.network(
-                        fullUrl,
-                        fit: BoxFit.cover,
-                        width: 1000,
-                        loadingBuilder: (context, child, loadingProgress) {
-                          if (loadingProgress == null) return child;
-                          return Center(
-                            child: CircularProgressIndicator(
-                              value: loadingProgress.expectedTotalBytes != null
-                                  ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
-                                  : null,
-                            ),
-                          );
-                        },
-                        errorBuilder: (context, error, stackTrace) =>
-                            const Icon(Icons.error, color: Colors.red, size: 48),
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    top: 8.0,
-                    right: 8.0,
-                    child: GestureDetector(
-                      onTap: () async {
-                        final confirm = await _showDeleteConfirmationDialog(context);
-                        if (confirm == true) {
-                          try {
-                            await ApiService.removeEquipmentPhoto(
-                                equipmentId: item.id, photoUrl: photoUrl);
-                            ref.invalidate(equipmentItemByIdProvider(item.id));
-                            ref.invalidate(allEquipmentItemsProvider);
-                            if (!context.mounted) return;
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Фото успешно удалено')),
-                            );
-                          } catch (e) {
-                            if (!context.mounted) return;
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Ошибка удаления фото: $e')),
-                            );
-                          }
-                        }
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(4.0),
-                        decoration: BoxDecoration(
-                          color: Colors.red.withAlpha((0.7 * 255).round()),
-                          borderRadius: BorderRadius.circular(12.0),
+              return Container( // Removed Stack
+                margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                child: ClipRRect(
+                  borderRadius: const BorderRadius.all(Radius.circular(8.0)),
+                  child: Image.network(
+                    fullUrl,
+                    fit: BoxFit.cover,
+                    width: 1000,
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      return Center(
+                        child: CircularProgressIndicator(
+                          value: loadingProgress.expectedTotalBytes != null
+                              ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                              : null,
                         ),
-                        child: const Icon(Icons.delete, color: Colors.white, size: 20),
-                      ),
-                    ),
+                      );
+                    },
+                    errorBuilder: (context, error, stackTrace) =>
+                        const Icon(Icons.error, color: Colors.red, size: 48),
                   ),
-                ],
+                ),
               );
             },
             options: CarouselOptions(
@@ -333,15 +230,7 @@ class _EquipmentItemDetailScreenState
               viewportFraction: 0.8,
             ),
           ),
-          const SizedBox(height: 20),
-          ElevatedButton.icon(
-            onPressed: () {
-              print('Add photo button pressed!');
-              _pickAndUploadPhoto(context, ref, item.id);
-            },
-            icon: const Icon(Icons.add_a_photo),
-            label: const Text('Добавить фото'),
-          ),
+          // Функционал добавления фото перенесен в карточку редактирования
         ],
       ),
     );

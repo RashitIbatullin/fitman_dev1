@@ -1,11 +1,14 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:file_picker/file_picker.dart'; // Added
+import 'package:carousel_slider/carousel_slider.dart'; // Added
 import 'package:fitman_app/services/api_service.dart';
 import 'package:fitman_app/modules/equipment/providers/equipment/equipment_provider.dart';
 import 'package:fitman_app/modules/equipment/providers/maintenance_provider.dart';
 import 'package:fitman_app/modules/rooms/providers/room/room_provider.dart';
 import 'package:fitman_common/fitman_common.dart';
+import 'dart:io'; // Added
 import 'equipment_maintenance_history_edit_screen.dart';
 
 class EquipmentItemEditScreen extends ConsumerStatefulWidget {
@@ -45,6 +48,7 @@ class _EquipmentItemEditScreenState
   late TextEditingController _usageHoursController;
   late TextEditingController _lastUsedDateController;
 
+  String? _currentEquipmentId; // New state variable
   String? _initialEquipmentTypeId;
   String? _initialRoomId;
   EquipmentType? _selectedEquipmentType;
@@ -53,10 +57,13 @@ class _EquipmentItemEditScreenState
   bool _isLoading = false;
   String? _inventoryNumberError;
 
+  List<PlatformFile> _stagedPhotos = []; // For new items, photos not yet uploaded
+  List<String> _stagedPhotoPaths = []; // To display locally picked images in carousel
+
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this);
+    _tabController = TabController(length: 5, vsync: this);
     _inventoryNumberController = TextEditingController();
     _serialNumberController = TextEditingController();
     _modelController = TextEditingController();
@@ -75,11 +82,13 @@ class _EquipmentItemEditScreenState
     _usageHoursController = TextEditingController(text: '0'); // Default
     _lastUsedDateController = TextEditingController();
 
+    _currentEquipmentId = widget.itemId ?? widget.equipmentItem?.id; // Initialize _currentEquipmentId
+
     if (widget.equipmentItem != null) {
       _populateForm(widget.equipmentItem!);
-      _selectedEquipmentType = null; 
-      _selectedRoom = null; 
-    } else if (widget.itemId != null) {
+      _selectedEquipmentType = null;
+      _selectedRoom = null;
+    } else if (_currentEquipmentId != null) { // Use _currentEquipmentId here
       _loadEquipmentItem();
     }
   }
@@ -103,6 +112,97 @@ class _EquipmentItemEditScreenState
     _usageHoursController.dispose();
     _lastUsedDateController.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickAndAddPhoto(BuildContext context, WidgetRef ref) async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+      withData: true,
+    );
+
+    if (result != null && result.files.single.bytes != null) {
+      final platformFile = result.files.single;
+
+      if (_currentEquipmentId == null) {
+        // Creation mode: stage the photo
+        setState(() {
+          _stagedPhotos.add(platformFile);
+          _stagedPhotoPaths.add(platformFile.path!); // Assuming path is always available for locally picked files
+        });
+        if (!context.mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Фото добавлено в список')),
+        );
+      } else {
+        // Editing mode: upload directly
+        // The existing _pickAndUploadPhoto logic handles this
+        await _pickAndUploadPhoto(context, ref, _currentEquipmentId!);
+      }
+    } else {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Выбор фото отменен или файл недоступен.')),
+      );
+    }
+  }
+
+  Future<void> _pickAndUploadPhoto(
+      BuildContext context, WidgetRef ref, String equipmentId) async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+      withData: true,
+    );
+
+    if (result != null && result.files.single.bytes != null) {
+      final fileBytes = result.files.single.bytes!;
+      final fileName = result.files.single.name;
+
+      try {
+        await ApiService.uploadEquipmentPhoto(
+          equipmentId: equipmentId,
+          photoBytes: fileBytes,
+          fileName: fileName,
+        );
+        ref.invalidate(equipmentItemByIdProvider(equipmentId));
+        ref.invalidate(allEquipmentItemsProvider);
+        if (!context.mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Фото успешно загружено')),
+        );
+      } catch (e) {
+        if (!context.mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Ошибка загрузки фото: $e')),
+        );
+      }
+    } else {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Выбор фото отменен или файл недоступен.')),
+      );
+    }
+  }
+
+  Future<bool?> _showDeleteConfirmationDialog(BuildContext context) async {
+    return showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Удалить фото?'),
+          content: const Text('Вы уверены, что хотите удалить это фото?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Отмена'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Удалить'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _populateForm(EquipmentItem item) {
@@ -135,7 +235,7 @@ class _EquipmentItemEditScreenState
   Future<void> _loadEquipmentItem() async {
     setState(() => _isLoading = true);
     try {
-      final item = await ref.read(equipmentItemByIdProvider(widget.itemId!).future);
+      final item = await ref.read(equipmentItemByIdProvider(_currentEquipmentId!).future);
       _populateForm(item);
     } catch (e) {
       if (!mounted) return;
@@ -159,11 +259,11 @@ class _EquipmentItemEditScreenState
 
     setState(() => _isLoading = true);
 
-    final isCreating = widget.itemId == null && widget.equipmentItem == null;
-    final id = widget.itemId ?? widget.equipmentItem?.id;
+    final isCreating = _currentEquipmentId == null; // Use _currentEquipmentId for consistency
+    String? equipmentIdToSave = _currentEquipmentId;
 
     final equipmentItem = EquipmentItem(
-      id: id ?? '',
+      id: equipmentIdToSave ?? '', // If creating, id will be empty for API to generate
       typeId: _selectedEquipmentType!.id,
       inventoryNumber: _inventoryNumberController.text,
       serialNumber: _serialNumberController.text.isEmpty
@@ -206,7 +306,7 @@ class _EquipmentItemEditScreenState
       lastUsedDate: _lastUsedDateController.text.isEmpty
           ? null
           : DateTime.parse(_lastUsedDateController.text),
-      photoUrls: widget.equipmentItem?.photoUrls ?? const [],
+      photoUrls: isCreating ? const [] : widget.equipmentItem?.photoUrls ?? const [], // Use empty list for creating
       archivedAt: widget.equipmentItem?.archivedAt,
       archivedBy: widget.equipmentItem?.archivedBy,
       archivedReason: widget.equipmentItem?.archivedReason,
@@ -214,14 +314,30 @@ class _EquipmentItemEditScreenState
 
     try {
       if (isCreating) {
-        await ApiService.createEquipmentItem(equipmentItem);
+        final createdItem = await ApiService.createEquipmentItem(equipmentItem);
+        equipmentIdToSave = createdItem.id; // Get the ID of the newly created item
+
+        // Upload staged photos
+        for (final stagedPhoto in _stagedPhotos) {
+          if (stagedPhoto.bytes != null) {
+            await ApiService.uploadEquipmentPhoto(
+              equipmentId: equipmentIdToSave!,
+              photoBytes: stagedPhoto.bytes!,
+              fileName: stagedPhoto.name,
+            );
+          }
+        }
       } else {
-        if (id == null) {
+        if (equipmentIdToSave == null) {
           throw Exception("ID элемента оборудования не найдено для обновления.");
         }
-        await ApiService.updateEquipmentItem(id, equipmentItem);
+        await ApiService.updateEquipmentItem(equipmentIdToSave, equipmentItem);
       }
       ref.invalidate(allEquipmentItemsProvider);
+      // Invalidate the specific item provider if it was being watched
+      if (equipmentIdToSave != null) {
+        ref.invalidate(equipmentItemByIdProvider(equipmentIdToSave));
+      }
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(isCreating ? 'Элемент создан' : 'Элемент обновлен'),
@@ -271,6 +387,194 @@ class _EquipmentItemEditScreenState
     if (result == true) {
       ref.invalidate(maintenanceHistoryProvider(widget.itemId!));
     }
+  }
+
+  Widget _buildPhotosTab(BuildContext context, WidgetRef ref) {
+    final isCreating = _currentEquipmentId == null;
+    
+    // Determine which list of photos to display based on creation/editing mode
+    final photosToDisplay = isCreating ? _stagedPhotoPaths : <String>[];
+    
+    // Only fetch from provider if in editing mode, and _currentEquipmentId is not null
+    final itemAsync = isCreating ? null : ref.watch(equipmentItemByIdProvider(_currentEquipmentId!));
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 16.0),
+      child: Column(
+        children: [
+          if (isCreating) ...[ // Logic for creating new item (staged photos)
+            if (photosToDisplay.isEmpty)
+              const Center(
+                child: Text(
+                  'Нет фотографий (будут добавлены после сохранения)',
+                  style: TextStyle(fontSize: 16, color: Colors.grey),
+                ),
+              )
+            else
+              CarouselSlider.builder(
+                itemCount: photosToDisplay.length,
+                itemBuilder: (context, index, realIndex) {
+                  final photoPath = photosToDisplay[index];
+                  return Stack(
+                    children: [
+                      Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                        child: ClipRRect(
+                          borderRadius: const BorderRadius.all(Radius.circular(8.0)),
+                          child: Image.file(
+                            File(photoPath), // Use File for local path
+                            fit: BoxFit.cover,
+                            width: 1000,
+                            errorBuilder: (context, error, stackTrace) =>
+                                const Icon(Icons.error, color: Colors.red, size: 48),
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        top: 8.0,
+                        right: 8.0,
+                        child: GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              _stagedPhotos.removeAt(index);
+                              _stagedPhotoPaths.removeAt(index);
+                            });
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Фото удалено из списка')),
+                            );
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.all(4.0),
+                            decoration: BoxDecoration(
+                              color: Colors.red.withAlpha((0.7 * 255).round()),
+                              borderRadius: BorderRadius.circular(12.0),
+                            ),
+                            child: const Icon(Icons.delete, color: Colors.white, size: 20),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                },
+                options: CarouselOptions(
+                  height: 400.0,
+                  enlargeCenterPage: true,
+                  autoPlay: photosToDisplay.length > 1,
+                  aspectRatio: 16 / 9,
+                  autoPlayCurve: Curves.fastOutSlowIn,
+                  enableInfiniteScroll: photosToDisplay.length > 1,
+                  autoPlayAnimationDuration: const Duration(milliseconds: 800),
+                  viewportFraction: 0.8,
+                ),
+              ),
+          ] else ...[ // Logic for editing existing item (fetched photos)
+            itemAsync!.when(
+              data: (item) {
+                if (item.photoUrls.isEmpty) {
+                  return const Center(
+                    child: Text(
+                      'Нет фотографий',
+                      style: TextStyle(fontSize: 16, color: Colors.grey),
+                    ),
+                  );
+                }
+                final baseUrl = ApiService.baseUrl;
+                return CarouselSlider.builder(
+                  itemCount: item.photoUrls.length,
+                  itemBuilder: (context, index, realIndex) {
+                    final photoUrl = item.photoUrls[index];
+                    final fullUrl = photoUrl.startsWith('http')
+                        ? photoUrl
+                        : '$baseUrl/${photoUrl.startsWith('/') ? photoUrl.substring(1) : photoUrl}';
+                    return Stack(
+                      children: [
+                        Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                          child: ClipRRect(
+                            borderRadius: const BorderRadius.all(Radius.circular(8.0)),
+                            child: Image.network(
+                              fullUrl,
+                              fit: BoxFit.cover,
+                              width: 1000,
+                              loadingBuilder: (context, child, loadingProgress) {
+                                if (loadingProgress == null) return child;
+                                return Center(
+                                  child: CircularProgressIndicator(
+                                    value: loadingProgress.expectedTotalBytes != null
+                                        ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                                        : null,
+                                  ),
+                                );
+                              },
+                              errorBuilder: (context, error, stackTrace) =>
+                                  const Icon(Icons.error, color: Colors.red, size: 48),
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          top: 8.0,
+                          right: 8.0,
+                          child: GestureDetector(
+                            onTap: () async {
+                              final confirm = await _showDeleteConfirmationDialog(context);
+                              if (confirm == true) {
+                                try {
+                                  await ApiService.removeEquipmentPhoto(
+                                      equipmentId: _currentEquipmentId!, photoUrl: photoUrl);
+                                  ref.invalidate(equipmentItemByIdProvider(_currentEquipmentId!));
+                                  ref.invalidate(allEquipmentItemsProvider);
+                                  if (!context.mounted) return;
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('Фото успешно удалено')),
+                                  );
+                                } catch (e) {
+                                  if (!context.mounted) return;
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text('Ошибка удаления фото: $e')),
+                                  );
+                                }
+                              }
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(4.0),
+                              decoration: BoxDecoration(
+                                color: Colors.red.withAlpha((0.7 * 255).round()),
+                                borderRadius: BorderRadius.circular(12.0),
+                              ),
+                              child: const Icon(Icons.delete, color: Colors.white, size: 20),
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                  options: CarouselOptions(
+                    height: 400.0,
+                    enlargeCenterPage: true,
+                    autoPlay: item.photoUrls.length > 1,
+                    aspectRatio: 16 / 9,
+                    autoPlayCurve: Curves.fastOutSlowIn,
+                    enableInfiniteScroll: item.photoUrls.length > 1,
+                    autoPlayAnimationDuration: const Duration(milliseconds: 800),
+                    viewportFraction: 0.8,
+                  ),
+                );
+              },
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (error, stack) => Center(child: Text('Ошибка загрузки фото: $error')),
+            ),
+          ],
+          const SizedBox(height: 20),
+          Center(
+            child: ElevatedButton.icon(
+              onPressed: () => _pickAndAddPhoto(context, ref), // Use new method
+              icon: const Icon(Icons.add_a_photo),
+              label: const Text('Добавить фото'),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildMainInfoTab() {
@@ -463,6 +767,7 @@ class _EquipmentItemEditScreenState
           tabs: const [
             Tab(text: 'Основное'),
             Tab(text: 'Состояние'),
+            Tab(text: 'Фото'), // New tab
             Tab(text: 'Учет'),
             Tab(text: 'История ТО'),
           ],
@@ -477,6 +782,7 @@ class _EquipmentItemEditScreenState
                 children: [
                   _buildMainInfoTab(),
                   _buildConditionTab(),
+                  _buildPhotosTab(context, ref), // New tab content
                   _buildAccountingTab(),
                   _buildMaintenanceHistoryTab(),
                 ],
