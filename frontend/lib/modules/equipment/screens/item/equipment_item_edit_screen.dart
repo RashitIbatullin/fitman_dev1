@@ -12,6 +12,9 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'equipment_maintenance_history_edit_screen.dart';
+import 'package:fitman_app/modules/equipment/widgets/maintenance_list_tile.dart';
+import 'package:fitman_app/modules/users/providers/users_provider.dart';
+
 
 class EquipmentItemEditScreen extends ConsumerStatefulWidget {
   final String? itemId; // For existing item
@@ -115,6 +118,7 @@ class _EquipmentItemEditScreenState
   }
 
   Future<void> _pickAndAddPhoto(BuildContext context, WidgetRef ref) async {
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
     final result = await FilePicker.platform.pickFiles(
       type: FileType.image,
       withData: true,
@@ -134,8 +138,7 @@ class _EquipmentItemEditScreenState
             _stagedPhotoPaths.add(platformFile.path!);
           }
         });
-        if (!context.mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
+        scaffoldMessenger.showSnackBar(
           const SnackBar(content: Text('Фото добавлено в список')),
         );
       } else {
@@ -143,8 +146,7 @@ class _EquipmentItemEditScreenState
         await _uploadPhoto(context, ref, _currentEquipmentId!, platformFile.bytes!, platformFile.name);
       }
     } else {
-      if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
+      scaffoldMessenger.showSnackBar(
         const SnackBar(content: Text('Выбор фото отменен или файл недоступен.')),
       );
     }
@@ -221,13 +223,14 @@ class _EquipmentItemEditScreenState
   }
 
   Future<void> _loadEquipmentItem() async {
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
     setState(() => _isLoading = true);
     try {
       final item = await ref.read(equipmentItemByIdProvider(_currentEquipmentId!).future);
       _populateForm(item);
     } catch (e) {
       if (!mounted) return;
-       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Ошибка: $e'), backgroundColor: Colors.red));
+      scaffoldMessenger.showSnackBar(SnackBar(content: Text('Ошибка: $e'), backgroundColor: Colors.red));
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);
@@ -361,17 +364,20 @@ class _EquipmentItemEditScreenState
   }
 
   void _navigateToMaintenanceHistoryEditScreen({EquipmentMaintenanceHistory? record}) async {
-    if (widget.itemId == null) return;
+    // Use _currentEquipmentId as it's guaranteed to be set if we are in edit mode
+    final currentId = _currentEquipmentId;
+    if (currentId == null) return;
+    
     final result = await Navigator.of(context).push<bool>(
       MaterialPageRoute(
         builder: (context) => EquipmentMaintenanceHistoryEditScreen(
-          equipmentItemId: widget.itemId!,
+          equipmentItemId: currentId,
           historyRecord: record,
         ),
       ),
     );
     if (result == true) {
-      ref.invalidate(maintenanceHistoryProvider(widget.itemId!));
+      ref.invalidate(maintenanceHistoryProvider(currentId));
     }
   }
 
@@ -706,39 +712,189 @@ class _EquipmentItemEditScreenState
   }
 
   Widget _buildMaintenanceHistoryTab() {
-    final itemId = widget.itemId;
+    final itemId = _currentEquipmentId;
     if (itemId == null) {
       return const Center(child: Text('История обслуживания доступна после создания.'));
     }
     final historyAsync = ref.watch(maintenanceHistoryProvider(itemId));
+    final showArchived = ref.watch(maintenanceHistoryFilterIncludeArchivedProvider);
+
     return Scaffold(
-      body: historyAsync.when(
-        data: (history) {
-          if (history.isEmpty) {
-            return const Center(child: Text('Нет записей в истории обслуживания.'));
-          }
-          return ListView.builder(
-            itemCount: history.length,
-            itemBuilder: (context, index) {
-              final record = history[index];
-              return Card(
-                margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                child: ListTile(
-                  title: Text(record.reportedProblem),
-                  subtitle: Text('Статус: ${record.status.name} | Создано: ${record.createdAt != null ? record.createdAt!.toLocal().toString().substring(0, 10) : 'N/A'}'),
-                  onTap: () => _navigateToMaintenanceHistoryEditScreen(record: record),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                const Text('Архив'),
+                Switch(
+                  value: showArchived,
+                  onChanged: (value) {
+                    ref.read(maintenanceHistoryFilterIncludeArchivedProvider.notifier).state = value;
+                  },
                 ),
-              );
-            },
-          );
-        },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, st) => Center(child: Text('Ошибка: $err')),
+              ],
+            ),
+          ),
+          Expanded(
+            child: historyAsync.when(
+              data: (history) {
+                if (history.isEmpty) {
+                  return const Center(child: Text('Нет записей в истории обслуживания.'));
+                }
+                history.sort((a, b) {
+                  if (a.createdAt == null && b.createdAt == null) return 0;
+                  if (a.createdAt == null) return 1;
+                  if (b.createdAt == null) return -1;
+                  return b.createdAt!.compareTo(a.createdAt!);
+                });
+
+                return ListView.builder(
+                  padding: const EdgeInsets.all(8.0),
+                  itemCount: history.length,
+                  itemBuilder: (context, index) {
+                    final record = history[index];
+                    final isArchived = record.archivedAt != null;
+
+                    return MaintenanceListTile(
+                      historyItem: record,
+                      statusDetails: isArchived
+                          ? Padding(
+                              padding: const EdgeInsets.only(top: 4.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text('Архивировано', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.brown)),
+                                  _buildInfoRow(context, 'Когда:', record.archivedAt?.toLocal().toString().substring(0, 10) ?? 'N/A'),
+                                  ArchivedByInfo(userId: record.archivedBy, isSmall: true),
+                                  _buildInfoRow(context, 'Причина:', record.archivedReason ?? 'N/A'),
+                                ],
+                              ),
+                            )
+                          : null,
+                      trailing: PopupMenuButton<String>(
+                        onSelected: (value) {
+                          if (value == 'edit') {
+                            _navigateToMaintenanceHistoryEditScreen(record: record);
+                          } else if (value == 'archive') {
+                            _showArchiveDialog(context, ref, record);
+                          } else if (value == 'unarchive') {
+                            ref.read(maintenanceProvider.notifier).unarchiveMaintenanceHistory(record.id!, record.equipmentItemId);
+                          }
+                        },
+                        itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                          if (!isArchived) ...[
+                            const PopupMenuItem<String>(
+                              value: 'edit',
+                              child: Text('Редактировать'),
+                            ),
+                            const PopupMenuItem<String>(
+                              value: 'archive',
+                              child: Text('Архивировать'),
+                            ),
+                          ] else ...[
+                            const PopupMenuItem<String>(
+                              value: 'unarchive',
+                              child: Text('Деархивировать'),
+                            ),
+                          ]
+                        ],
+                      ),
+                    );
+                  },
+                );
+              },
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (err, st) => Center(child: Text('Ошибка: $err')),
+            ),
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _navigateToMaintenanceHistoryEditScreen(),
         tooltip: 'Добавить запись',
         child: const Icon(Icons.add),
+      ),
+    );
+  }
+
+  void _showArchiveDialog(BuildContext context, WidgetRef ref, EquipmentMaintenanceHistory record) {
+    final reasonController = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            void validate() {
+              setState(() {
+                formKey.currentState?.validate();
+              });
+            }
+
+            reasonController.addListener(validate);
+
+            return AlertDialog(
+              title: const Text('Архивировать запись'),
+              content: Form(
+                key: formKey,
+                child: TextFormField(
+                  controller: reasonController,
+                  autofocus: true,
+                  decoration: const InputDecoration(
+                    labelText: 'Причина архивации',
+                    hintText: 'Минимум 5 символов',
+                  ),
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  validator: (value) {
+                    if (value == null || value.trim().length < 5) {
+                      return 'Причина должна быть не менее 5 символов.';
+                    }
+                    return null;
+                  },
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    reasonController.removeListener(validate);
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Отмена'),
+                ),
+                TextButton(
+                  onPressed: formKey.currentState?.validate() ?? false
+                      ? () {
+                          ref.read(maintenanceProvider.notifier).archiveMaintenanceHistory(
+                                record.id!,
+                                record.equipmentItemId,
+                                reasonController.text.trim(),
+                              );
+                          reasonController.removeListener(validate);
+                          Navigator.of(context).pop();
+                        }
+                      : null,
+                  child: const Text('Архивировать'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildInfoRow(BuildContext context, String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 1.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('$label ', style: Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold)),
+          Expanded(child: Text(value, style: Theme.of(context).textTheme.bodySmall)),
+        ],
       ),
     );
   }
@@ -783,5 +939,77 @@ class _EquipmentItemEditScreenState
               ),
             ),
     );
+  }
+}
+
+Widget _buildDetailRow({
+  required String label,
+  required String value,
+  Color? valueColor,
+}) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 8.0),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: 150,
+          child: Text(
+            label,
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+          ),
+        ),
+        Expanded(
+          child: Text(
+            value,
+            style: TextStyle(
+              fontSize: 16,
+              color: valueColor,
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+class ArchivedByInfo extends ConsumerWidget {
+  const ArchivedByInfo({super.key, this.userId, this.isSmall = false});
+
+  final String? userId;
+  final bool isSmall;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (userId == null) {
+      return _buildRow(context, 'Кто:', 'N/A');
+    }
+
+    final userAsync = ref.watch(userByIdProvider(userId!));
+
+    return userAsync.when(
+      data: (user) => _buildRow(context, 'Кто:', user.shortName),
+      loading: () => _buildRow(context, 'Кто:', 'Загрузка...'),
+      error: (err, stack) => _buildRow(context, 'Кто:', 'Ошибка'),
+    );
+  }
+
+  Widget _buildRow(BuildContext context, String label, String value) {
+    if (isSmall) {
+        return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 1.0),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('$label ', style: Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold)),
+            Expanded(child: Text(value, style: Theme.of(context).textTheme.bodySmall)),
+          ],
+        ),
+      );
+    }
+    return _buildDetailRow(label: label, value: value);
   }
 }

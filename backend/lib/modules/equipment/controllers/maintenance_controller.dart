@@ -101,8 +101,8 @@ class MaintenanceController {
 
     router.get('/item/<itemId>', (Request request, String itemId) async {
       try {
-        final isArchived = request.url.queryParameters['isArchived'] == 'true';
-        final history = await _maintenanceService.getByEquipmentItemId(itemId, isArchived: isArchived);
+        final includeArchived = request.url.queryParameters['includeArchived'] == 'true';
+        final history = await _maintenanceService.getByEquipmentItemId(itemId, isArchived: includeArchived);
         final jsonResponse = jsonEncode(history.map((h) => h.toJson()).toList());
         return Response.ok(
           jsonResponse,

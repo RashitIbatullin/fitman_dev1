@@ -1,12 +1,9 @@
 import 'package:carousel_slider/carousel_slider.dart';
-
 import 'package:fitman_app/services/api_service.dart';
-import 'package:fitman_app/modules/equipment/widgets/maintenance_list_tile.dart';
 import 'package:fitman_common/fitman_common.dart';
-import 'equipment_item_edit_screen.dart';
-import 'package:fitman_app/modules/equipment/screens/item/equipment_maintenance_history_edit_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'equipment_item_edit_screen.dart';
 import 'package:fitman_app/extensions/equipment_ui_extensions.dart';
 import 'package:fitman_app/modules/equipment/providers/equipment/equipment_provider.dart';
 import 'package:fitman_app/modules/equipment/providers/maintenance_provider.dart';
@@ -264,86 +261,6 @@ class _EquipmentItemDetailScreenState
     );
   }
 
-  void _showArchiveDialog(BuildContext context, WidgetRef ref, EquipmentMaintenanceHistory record) {
-    final reasonController = TextEditingController();
-    final formKey = GlobalKey<FormState>();
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            void validate() {
-              setState(() {
-                formKey.currentState?.validate();
-              });
-            }
-
-            reasonController.addListener(validate);
-
-            return AlertDialog(
-              title: const Text('Архивировать запись'),
-              content: Form(
-                key: formKey,
-                child: TextFormField(
-                  controller: reasonController,
-                  autofocus: true,
-                  decoration: const InputDecoration(
-                    labelText: 'Причина архивации',
-                    hintText: 'Минимум 5 символов',
-                  ),
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  validator: (value) {
-                    if (value == null || value.trim().length < 5) {
-                      return 'Причина должна быть не менее 5 символов.';
-                    }
-                    return null;
-                  },
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    reasonController.removeListener(validate);
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text('Отмена'),
-                ),
-                TextButton(
-                  onPressed: formKey.currentState?.validate() ?? false
-                      ? () {
-                          ref.read(maintenanceProvider.notifier).archiveMaintenanceHistory(
-                                record.id!,
-                                record.equipmentItemId,
-                                reasonController.text.trim(),
-                              );
-                          reasonController.removeListener(validate);
-                          Navigator.of(context).pop();
-                        }
-                      : null,
-                  child: const Text('Архивировать'),
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
-  }
-
-  Widget _buildInfoRow(BuildContext context, String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 1.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('$label ', style: Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold)),
-          Expanded(child: Text(value, style: Theme.of(context).textTheme.bodySmall)),
-        ],
-      ),
-    );
-  }
-
   Widget _buildMaintenanceHistoryTab(String itemId) {
     final historyAsync = ref.watch(maintenanceHistoryProvider(itemId));
     final showArchived = ref.watch(maintenanceHistoryFilterIncludeArchivedProvider);
@@ -386,56 +303,22 @@ class _EquipmentItemDetailScreenState
                     final record = history[index];
                     final isArchived = record.archivedAt != null;
 
-                    return MaintenanceListTile(
-                      historyItem: record,
-                      statusDetails: isArchived
-                          ? Padding(
-                              padding: const EdgeInsets.only(top: 4.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text('Архивировано', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.brown)),
-                                  _buildInfoRow(context, 'Когда:', record.archivedAt?.toLocal().toString().substring(0, 10) ?? 'N/A'),
-                                  ArchivedByInfo(userId: record.archivedBy, isSmall: true),
-                                  _buildInfoRow(context, 'Причина:', record.archivedReason ?? 'N/A'),
-                                ],
-                              ),
-                            )
-                          : null,
-                      trailing: PopupMenuButton<String>(
-                        onSelected: (value) {
-                          if (value == 'edit') {
-                            Navigator.of(context).push<bool>(
-                              MaterialPageRoute(
-                                builder: (context) => EquipmentMaintenanceHistoryEditScreen(
-                                  equipmentItemId: record.equipmentItemId,
-                                  historyRecord: record,
-                                ),
-                              ),
-                            );
-                          } else if (value == 'archive') {
-                            _showArchiveDialog(context, ref, record);
-                          } else if (value == 'unarchive') {
-                            ref.read(maintenanceProvider.notifier).unarchiveMaintenanceHistory(record.id!, record.equipmentItemId);
-                          }
-                        },
-                        itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                          if (!isArchived) ...[
-                            const PopupMenuItem<String>(
-                              value: 'edit',
-                              child: Text('Редактировать'),
-                            ),
-                            const PopupMenuItem<String>(
-                              value: 'archive',
-                              child: Text('Архивировать'),
-                            ),
-                          ] else ...[
-                            const PopupMenuItem<String>(
-                              value: 'unarchive',
-                              child: Text('Деархивировать'),
-                            ),
-                          ]
-                        ],
+                    // Using a simpler, non-editable tile
+                    return Card(
+                      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      child: ListTile(
+                        title: Text(record.reportedProblem),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                             Text('Статус: ${record.status.name} | Создано: ${record.createdAt != null ? record.createdAt!.toLocal().toString().substring(0, 10) : 'N/A'}'),
+                             if (isArchived)
+                               Padding(
+                                 padding: const EdgeInsets.only(top: 4.0),
+                                 child: Text('Архивировано', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.brown)),
+                               )
+                          ],
+                        ),
                       ),
                     );
                   },
@@ -447,19 +330,7 @@ class _EquipmentItemDetailScreenState
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => EquipmentMaintenanceHistoryEditScreen(
-                equipmentItemId: itemId,
-              ),
-            ),
-          );
-        },
-        tooltip: 'Добавить запись',
-        child: const Icon(Icons.add),
-      ),
+      // No FloatingActionButton here to make it read-only
     );
   }
 }
