@@ -59,8 +59,8 @@ class _EquipmentItemEditScreenState
   bool _isLoading = false;
   String? _inventoryNumberError;
 
-  List<PlatformFile> _stagedPhotos = []; // For new items, photos not yet uploaded
-  List<String> _stagedPhotoPaths = []; // To display locally picked images in carousel
+  final List<PlatformFile> _stagedPhotos = []; // For new items, photos not yet uploaded
+  final List<String> _stagedPhotoPaths = []; // To display locally picked images in carousel
 
   @override
   void initState() {
@@ -309,7 +309,7 @@ class _EquipmentItemEditScreenState
         for (final stagedPhoto in _stagedPhotos) {
           if (stagedPhoto.bytes != null) {
             await ApiService.uploadEquipmentPhoto(
-              equipmentId: equipmentIdToSave!,
+              equipmentId: equipmentIdToSave,
               photoBytes: stagedPhoto.bytes!,
               fileName: stagedPhoto.name,
             );
@@ -323,9 +323,7 @@ class _EquipmentItemEditScreenState
       }
       ref.invalidate(allEquipmentItemsProvider);
       // Invalidate the specific item provider if it was being watched
-      if (equipmentIdToSave != null) {
         ref.invalidate(equipmentItemByIdProvider(equipmentIdToSave));
-      }
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(isCreating ? 'Элемент создан' : 'Элемент обновлен'),

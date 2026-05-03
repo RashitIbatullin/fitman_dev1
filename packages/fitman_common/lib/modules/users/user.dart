@@ -75,18 +75,29 @@ class User {
     }
 
     return User(
-      id: json['id'].toString(),
-      email: json['email'] ?? json['login'],
+      id: json['id'],
+      phone: json['phone'],
+      email: json['email'],
       passwordHash: json['password_hash'] ?? '',
       firstName: json['first_name'] ?? '',
       lastName: json['last_name'] ?? '',
       middleName: json['middle_name'],
       photoUrl: json['photo_url'],
       roles: (json['roles'] as List<dynamic>?)
-              ?.map((roleMap) => Role.fromJson(roleMap as Map<String, dynamic>))
+              ?.map((role) {
+                if (role is Map<String, dynamic>) {
+                  return Role.fromJson(role);
+                }
+                if (role is String) {
+                  // If role is just a string (e.g., from a JWT), create a Role object from it.
+                  return Role(id: '', name: role, title: role);
+                }
+                return null;
+              })
+              .where((r) => r != null)
+              .cast<Role>()
               .toList() ??
           [],
-      phone: json['phone'],
       gender: json['gender'] is int ? (json['gender'] == 0 ? 'мужской' : 'женский') : json['gender'],
       dateOfBirth: parseNullableDateTime(json['date_of_birth']),
       sendNotification: json['send_notification'] ?? true,
@@ -106,8 +117,8 @@ class User {
       managerProfile: json['manager_profile'] != null
           ? ManagerProfile.fromJson(json['manager_profile'])
           : null,
-      createdAt: parseDateTime(json['created_at'], 'created_at'),
-      updatedAt: parseDateTime(json['updated_at'], 'updated_at'),
+      createdAt: json.containsKey('created_at') ? parseDateTime(json['created_at'], 'created_at') : DateTime.now(),
+      updatedAt: json.containsKey('updated_at') ? parseDateTime(json['updated_at'], 'updated_at') : DateTime.now(),
       archivedAt: parseNullableDateTime(json['archived_at']),
       archivedReason: json['archived_reason'],
     );

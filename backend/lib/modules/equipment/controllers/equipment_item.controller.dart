@@ -78,7 +78,8 @@ class EquipmentItemController {
 
       return Response.ok(jsonEncode(createdEquipmentItem.toJson()),
           headers: {'Content-Type': 'application/json'});
-    } catch (e) {
+    } catch (e, s) {
+      print('Error creating equipment item: $e, $s');
       if (e
           .toString()
           .contains('duplicate key value violates unique constraint')) {
@@ -104,7 +105,8 @@ class EquipmentItemController {
 
       return Response.ok(jsonEncode(updatedEquipmentItem.toJson()),
           headers: {'Content-Type': 'application/json'});
-    } catch (e) {
+    } catch (e, s) {
+      print('Error updating equipment item: $e, $s');
       if (e
           .toString()
           .contains('duplicate key value violates unique constraint')) {
@@ -134,7 +136,8 @@ class EquipmentItemController {
       await _db.equipmentItems.archive(id, reason, user.id);
 
       return Response.ok('{"status": "success"}');
-    } catch (e) {
+    } catch (e, s) {
+      print('Error archiving equipment item: $e, $s');
       return Response.internalServerError(
           body: '{"error": "Error archiving equipment item: $e"}');
     }

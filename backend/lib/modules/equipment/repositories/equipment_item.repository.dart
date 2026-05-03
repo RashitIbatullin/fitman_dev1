@@ -315,7 +315,7 @@ class EquipmentItemRepositoryImpl implements EquipmentItemRepository {
         'conditionNotes': equipmentItem.conditionNotes,
         'lastMaintenanceDate': equipmentItem.lastMaintenanceDate,
         'nextMaintenanceDate': equipmentItem.nextMaintenanceDate,
-        'maintenance_notes': equipmentItem.maintenanceNotes,
+        'maintenanceNotes': equipmentItem.maintenanceNotes,
         'purchaseDate': equipmentItem.purchaseDate,
         'purchasePrice': equipmentItem.purchasePrice,
         'supplier': equipmentItem.supplier,
