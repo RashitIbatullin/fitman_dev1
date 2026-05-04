@@ -10,6 +10,7 @@ import '../item/equipment_item_edit_screen.dart';
 import 'package:fitman_app/modules/equipment/screens/standards/repair_time_standards_screen.dart';
 import '../type/equipment_types_list_screen.dart';
 import 'package:collection/collection.dart';
+import 'package:fitman_app/modules/equipment/utils/schematic_icons.dart';
 
 
 class EquipmentDashboardScreen extends ConsumerStatefulWidget {
@@ -368,136 +369,121 @@ class EquipmentItemCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isArchived = item.archivedAt != null;
+    final allTypesAsync = ref.watch(allEquipmentTypesProvider);
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
       color: isArchived ? Colors.grey.shade200 : null,
-      child: ListTile(
-        onTap: onTap,
-        leading: SizedBox(
-          width: 40,
-          height: 40,
-          child: item.photoUrls.isNotEmpty
-              ? Image.network(
-                  item.photoUrls.first,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) =>
-                      const Icon(Icons.broken_image),
-                )
-              : const Icon(Icons.fitness_center),
-        ),
-        title: Text(
-          '${item.inventoryNumber} (${item.typeName ?? 'N/A'})',
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
-        subtitle: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              flex: 2,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Type moved to title
-                  // Модель/Производитель скрыты по требованию
-                  _buildInfoRow(
-                      context, 'Помещение:', item.roomName ?? 'Не назначено'),
-                ],
-              ),
-            ),
-            const SizedBox(width: 16.0),
-            Expanded(
-              flex: 1,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (isArchived) ...[
-                    const Text('Архивировано', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.brown)),
-                    _buildInfoRow(context, 'Когда:',
-                        item.archivedAt?.toLocal().toString().substring(0, 10) ?? 'N/A'),
-                    ArchivedByInfo(userId: item.archivedBy),
-                    _buildInfoRow(context, 'Причина:', item.archivedReason ?? 'N/A'),
-                  ] else ...[
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 2.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Text('Статус: ',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall
-                                  ?.copyWith(fontWeight: FontWeight.bold)),
-                          Flexible(
-                            child: Chip(
-                              label: Text(item.status.displayName),
-                              backgroundColor: item.status.color,
-                              visualDensity: VisualDensity.compact,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ]
-                ],
-              ),
-            ),
-          ],
-        ),
-        trailing: PopupMenuButton<String>(
-          icon: const Icon(Icons.more_vert),
-          onSelected: (value) async {
-            switch (value) {
-              case 'edit':
-                await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        EquipmentItemEditScreen(equipmentItem: item),
+      child: allTypesAsync.when(
+        loading: () => const ListTile(title: Center(child: CircularProgressIndicator())),
+        error: (err, stack) => ListTile(title: Text('Error: $err')),
+        data: (allTypes) {
+          final type = allTypes.firstWhereOrNull((t) => t.id == item.typeId);
+          final icon = getSchematicIcon(type?.schematicIcon);
+
+          return ListTile(
+            onTap: onTap,
+            title: Row(
+              children: [
+                Icon(icon),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    '${item.inventoryNumber} (${item.typeName ?? 'N/A'})',
+                    style: Theme.of(context).textTheme.titleMedium,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                );
-                ref.invalidate(allEquipmentItemsProvider);
-                break;
-              case 'archive':
-                _showArchiveDialog(context, ref, item);
-                break;
-              case 'unarchive':
-                ref.read(equipmentProvider.notifier).unarchiveItem(item.id);
-                break;
-              case 'maintenance':
-                // TODO: Implement mark maintenance logic
-                break;
-              case 'book':
-                // TODO: Implement booking logic
-                break;
-            }
-          },
-          itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-            if (!isArchived) ...[
-              const PopupMenuItem<String>(
-                value: 'edit',
-                child: Text('Изменить'),
-              ),
-              const PopupMenuItem<String>(
-                value: 'maintenance',
-                child: Text('Отметить ТО'),
-              ),
-              const PopupMenuItem<String>(
-                value: 'book',
-                child: Text('Бронировать'),
-              ),
-              const PopupMenuItem<String>(
-                value: 'archive',
-                child: Text('Архивировать'),
-              ),
-            ] else ...[
-              const PopupMenuItem<String>(
-                value: 'unarchive',
-                child: Text('Деархивировать'),
-              ),
-            ],
-          ],
-        ),
+                ),
+              ],
+            ),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildInfoRow(
+                    context, 'Помещение:', item.roomName ?? 'Не назначено'),
+                if (isArchived) ...[
+                  const Text('Архивировано', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.brown)),
+                  _buildInfoRow(context, 'Когда:',
+                      item.archivedAt?.toLocal().toString().substring(0, 10) ?? 'N/A'),
+                  ArchivedByInfo(userId: item.archivedBy),
+                  _buildInfoRow(context, 'Причина:', item.archivedReason ?? 'N/A'),
+                ] else ...[
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 2.0),
+                    child: Row(
+                      children: [
+                        Text('Статус: ',
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodySmall
+                                ?.copyWith(fontWeight: FontWeight.bold)),
+                        Chip(
+                          label: Text(item.status.displayName),
+                          backgroundColor: item.status.color,
+                          visualDensity: VisualDensity.compact,
+                        ),
+                      ],
+                    ),
+                  ),
+                ]
+              ],
+            ),
+            trailing: PopupMenuButton<String>(
+              icon: const Icon(Icons.more_vert),
+              onSelected: (value) async {
+                switch (value) {
+                  case 'edit':
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            EquipmentItemEditScreen(equipmentItem: item),
+                      ),
+                    );
+                    ref.invalidate(allEquipmentItemsProvider);
+                    break;
+                  case 'archive':
+                    _showArchiveDialog(context, ref, item);
+                    break;
+                  case 'unarchive':
+                    ref.read(equipmentProvider.notifier).unarchiveItem(item.id);
+                    break;
+                  case 'maintenance':
+                    // TODO: Implement mark maintenance logic
+                    break;
+                  case 'book':
+                    // TODO: Implement booking logic
+                    break;
+                }
+              },
+              itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                if (!isArchived) ...[
+                  const PopupMenuItem<String>(
+                    value: 'edit',
+                    child: Text('Изменить'),
+                  ),
+                  const PopupMenuItem<String>(
+                    value: 'maintenance',
+                    child: Text('Отметить ТО'),
+                  ),
+                  const PopupMenuItem<String>(
+                    value: 'book',
+                    child: Text('Бронировать'),
+                  ),
+                  const PopupMenuItem<String>(
+                    value: 'archive',
+                    child: Text('Архивировать'),
+                  ),
+                ] else ...[
+                  const PopupMenuItem<String>(
+                    value: 'unarchive',
+                    child: Text('Деархивировать'),
+                  ),
+                ],
+              ],
+            ),
+          );
+        },
       ),
     );
   }
