@@ -73,7 +73,7 @@ CREATE TABLE kinds_exercis (
 
 CREATE TABLE equipment_types (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  name VARCHAR(255) NOT NULL,
+  name VARCHAR(255) NOT NULL UNIQUE,
   description TEXT,
   category SMALLINT NOT NULL,
   weight_range VARCHAR(50),

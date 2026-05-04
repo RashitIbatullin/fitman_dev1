@@ -445,7 +445,10 @@ class DatabaseSeeder {
     for (final type in types) {
       await _connection.execute(Sql.named('''
         INSERT INTO equipment_types (name, category, schematic_icon)
-        VALUES (@name, @category, @schematic_icon) ON CONFLICT DO NOTHING;
+        VALUES (@name, @category, @schematic_icon)
+        ON CONFLICT (name) DO UPDATE SET
+          category = EXCLUDED.category,
+          schematic_icon = EXCLUDED.schematic_icon;
       '''), parameters: type);
     }
     return await _getIdsForTable('equipment_types', keyColumn: 'schematic_icon');
