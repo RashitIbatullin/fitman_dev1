@@ -124,6 +124,8 @@ class _EquipmentItemEditScreenState
       withData: true,
     );
 
+    if (!context.mounted) return;
+
     if (result != null && result.files.single.bytes != null) {
       final platformFile = result.files.single;
 
@@ -160,6 +162,7 @@ class _EquipmentItemEditScreenState
         photoBytes: photoBytes,
         fileName: fileName,
       );
+      if (!context.mounted) return;
       ref.invalidate(equipmentItemByIdProvider(equipmentId));
       ref.invalidate(allEquipmentItemsProvider);
       scaffoldMessenger.showSnackBar(
