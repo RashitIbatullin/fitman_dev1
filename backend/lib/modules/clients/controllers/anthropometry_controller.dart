@@ -9,7 +9,7 @@ import '../../../services/photo_service.dart';
 class AnthropometryController {
   static Future<Response> getSomatotype(Request request, [String? id]) async {
     try {
-      final user = request.context['user'] as Map<String, dynamic>?;
+      final user = request.context['user'] as User?;
       if (user == null) {
         return Response.unauthorized(jsonEncode({'error': 'Not authenticated'}));
       }
@@ -18,7 +18,7 @@ class AnthropometryController {
       if (id != null) {
         clientId = id;
       } else {
-        clientId = user['userId'] as String;
+        clientId = user.id;
       }
 
       final recommendationService = RecommendationService();
@@ -47,11 +47,11 @@ class AnthropometryController {
   static Future<Response> getAnthropometry(Request request,
       [String? id]) async {
     try {
-      final user = request.context['user'] as Map<String, dynamic>?;
+      final user = request.context['user'] as User?;
       if (user == null) {
         return Response.unauthorized(jsonEncode({'error': 'Not authenticated'}));
       }
-      final clientId = id ?? user['userId'] as String;
+      final clientId = id ?? user.id;
       final includeArchived =
           request.url.queryParameters['includeArchived'] == 'true';
 
@@ -70,21 +70,21 @@ class AnthropometryController {
   static Future<Response> saveAnthropometry(Request request,
       [String? id]) async {
     try {
-      final user = request.context['user'] as Map<String, dynamic>?;
+      final user = request.context['user'] as User?;
       if (user == null) {
         return Response.unauthorized(jsonEncode({'error': 'Not authenticated'}));
       }
       final body = await request.readAsString();
       final data = jsonDecode(body) as Map<String, dynamic>;
       final measurement = AnthropometryMeasurement.fromJson(data);
-      final authorizedClientId = id ?? user['userId'] as String;
+      final authorizedClientId = id ?? user.id;
       if (measurement.userId != authorizedClientId) {
         return Response.forbidden(
             jsonEncode({'error': 'Mismatched user ID'}));
       }
       final updatedMeasurement = measurement.copyWith(
-        updatedBy: user['userId'] as String,
-        createdBy: measurement.id == null ? user['userId'] as String : measurement.createdBy,
+        updatedBy: user.id,
+        createdBy: measurement.id == null ? user.id : measurement.createdBy,
       );
       final savedMeasurement = await Database()
           .clients
@@ -101,11 +101,11 @@ class AnthropometryController {
   static Future<Response> archiveAnthropometryMeasurement(
       Request request, String clientId, String measurementId) async {
     try {
-      final user = request.context['user'] as Map<String, dynamic>?;
+      final user = request.context['user'] as User?;
       if (user == null) {
         return Response.unauthorized(jsonEncode({'error': 'Not authenticated'}));
       }
-      final userId = user['userId'] as String;
+      final userId = user.id;
       
       final body = await request.readAsString();
       if (body.isEmpty) {
@@ -145,11 +145,11 @@ class AnthropometryController {
   // Methods for fixed data
   static Future<Response> getFixedAnthropometry(Request request, [String? id]) async {
     try {
-      final user = request.context['user'] as Map<String, dynamic>?;
+      final user = request.context['user'] as User?;
       if (user == null) {
         return Response.unauthorized(jsonEncode({'error': 'Not authenticated'}));
       }
-      final clientId = id ?? user['userId'] as String;
+      final clientId = id ?? user.id;
       final data = await Database().clients.getFixedAnthropometry(clientId);
       if (data == null) {
         return Response.notFound(jsonEncode({'message': 'No fixed data found for user'}));
@@ -163,21 +163,21 @@ class AnthropometryController {
 
   static Future<Response> saveFixedAnthropometry(Request request, [String? id]) async {
     try {
-      final user = request.context['user'] as Map<String, dynamic>?;
+      final user = request.context['user'] as User?;
       if (user == null) {
         return Response.unauthorized(jsonEncode({'error': 'Not authenticated'}));
       }
       final body = await request.readAsString();
       final data = jsonDecode(body) as Map<String, dynamic>;
       final fixedData = AnthropometryFixed.fromJson(data);
-       final authorizedClientId = id ?? user['userId'] as String;
+       final authorizedClientId = id ?? user.id;
       if (fixedData.userId != authorizedClientId) {
         return Response.forbidden(
             jsonEncode({'error': 'Mismatched user ID'}));
       }
       final updatedFixedData = fixedData.copyWith(
-        updatedBy: user['userId'] as String,
-        createdBy: fixedData.createdBy ?? user['userId'] as String,
+        updatedBy: user.id,
+        createdBy: fixedData.createdBy ?? user.id,
       );
       final savedData = await Database().clients.saveFixedAnthropometry(updatedFixedData);
       return Response.ok(jsonEncode(savedData));
@@ -189,7 +189,7 @@ class AnthropometryController {
 
   static Future<Response> uploadPhoto(Request request) async {
     try {
-      final user = request.context['user'] as Map<String, dynamic>?;
+      final user = request.context['user'] as User?;
       if (user == null) {
         return Response.unauthorized(jsonEncode({'error': 'Not authenticated'}));
       }
@@ -234,7 +234,7 @@ class AnthropometryController {
   static Future<Response> getWhtrProfiles(Request request,
       [String? id]) async {
     try {
-      final user = request.context['user'] as Map<String, dynamic>?;
+      final user = request.context['user'] as User?;
       if (user == null) {
         return Response.unauthorized(jsonEncode({'error': 'Not authenticated'}));
       }
@@ -242,7 +242,7 @@ class AnthropometryController {
       if (id != null) {
         clientId = id;
       } else {
-        clientId = user['userId'] as String;
+        clientId = user.id;
       }
       final recommendationService = RecommendationService();
       final profiles =

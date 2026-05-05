@@ -1,20 +1,18 @@
 import 'dart:convert';
+import 'package:fitman_common/fitman_common.dart';
 import 'package:shelf/shelf.dart';
 import '../../../config/database.dart'; // Adjusted relative path
 
 class ManagerController {
   static Future<Response> getAssignedClients(Request request) async {
     try {
-      final userPayload = request.context['user'] as Map<String, dynamic>?;
-      if (userPayload == null) {
+      final user = request.context['user'] as User?;
+      if (user == null) {
         return Response.unauthorized('{"error": "Not authenticated"}');
       }
 
       // Предполагаем, что 'userId' в payload токена - это ID пользователя (менеджера)
-      final managerId = userPayload['userId'] as String?;
-      if (managerId == null) {
-        return Response.badRequest(body: '{"error": "Invalid token payload"}');
-      }
+      final managerId = user.id;
 
       final db = Database();
       final clients = await db.users.getClientsForManager(managerId);
@@ -36,15 +34,12 @@ class ManagerController {
 
   static Future<Response> getAssignedInstructors(Request request) async {
     try {
-      final userPayload = request.context['user'] as Map<String, dynamic>?;
-      if (userPayload == null) {
+      final user = request.context['user'] as User?;
+      if (user == null) {
         return Response.unauthorized('{"error": "Not authenticated"}');
       }
 
-      final managerId = userPayload['userId'] as String?;
-      if (managerId == null) {
-        return Response.badRequest(body: '{"error": "Invalid token payload"}');
-      }
+      final managerId = user.id;
 
       final db = Database();
       // TODO: Implement getInstructorsForManager in Database class
@@ -67,15 +62,12 @@ class ManagerController {
 
   static Future<Response> getAssignedTrainers(Request request) async {
     try {
-      final userPayload = request.context['user'] as Map<String, dynamic>?;
-      if (userPayload == null) {
+      final user = request.context['user'] as User?;
+      if (user == null) {
         return Response.unauthorized('{"error": "Not authenticated"}');
       }
 
-      final managerId = userPayload['userId'] as String?;
-      if (managerId == null) {
-        return Response.badRequest(body: '{"error": "Invalid token payload"}');
-      }
+      final managerId = user.id;
 
       final db = Database();
       // TODO: Implement getTrainersForManager in Database class

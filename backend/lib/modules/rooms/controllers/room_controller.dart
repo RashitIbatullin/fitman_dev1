@@ -3,7 +3,7 @@ import 'dart:convert';
 
 import 'package:fitman_backend/modules/rooms/room_providers.dart';
 import 'package:fitman_backend/modules/rooms/services/room_service.dart';
-import 'package:fitman_common/modules/rooms/room_model.dart';
+import 'package:fitman_common/fitman_common.dart';
 import 'package:shelf/shelf.dart' as shelf;
 import 'package:shelf_router/shelf_router.dart';
 import 'package:shelf_multipart/shelf_multipart.dart';
@@ -109,12 +109,12 @@ class RoomController {
   Future<shelf.Response> _updateRoom(shelf.Request request, String id) async {
     try {
       // 1. Get user ID from context
-      final userPayload = request.context['user'] as Map<String, dynamic>?;
-      if (userPayload == null || userPayload['userId'] == null) {
+      final user = request.context['user'] as User?;
+      if (user == null) {
         return shelf.Response.forbidden(
             jsonEncode({'error': 'Authorization required. User payload missing.'}));
       }
-      final userId = userPayload['userId'].toString();
+      final userId = user.id;
 
       // 2. Decode the incoming room data
       final body = await request.readAsString();
@@ -138,11 +138,11 @@ class RoomController {
 
   Future<shelf.Response> _archiveRoom(shelf.Request request, String id) async {
     try {
-      final userPayload = request.context['user'] as Map<String, dynamic>?;
-      if (userPayload == null || userPayload['userId'] == null) {
+      final user = request.context['user'] as User?;
+      if (user == null) {
         return shelf.Response.forbidden(jsonEncode({'error': 'Authorization required. User ID missing.'}));
       }
-      final userId = userPayload['userId'].toString();
+      final userId = user.id;
 
       await _roomService.archiveRoom(id, userId);
       return shelf.Response(204);

@@ -1,20 +1,21 @@
 import 'dart:convert';
+import 'package:fitman_common/fitman_common.dart';
 import 'package:shelf/shelf.dart';
 import '../config/database.dart';
 
 class ScheduleController {
   static Future<Response> getSchedule(Request request) async {
     try {
-      final userPayload = request.context['user'] as Map<String, dynamic>?;
-      if (userPayload == null) {
+      final user = request.context['user'] as User?;
+      if (user == null) {
         return Response.unauthorized('{"error": "Not authenticated"}');
       }
 
-      final userId = userPayload['userId'] as String?;
-      final userRoles = userPayload['roles'] as List<dynamic>?;
-      final userRole = userRoles?.isNotEmpty == true ? userRoles!.first as String : null;
+      final userId = user.id;
+      final userRoles = user.roles.map((r) => r.name).toList();
+      final userRole = userRoles.isNotEmpty ? userRoles.first : null;
 
-      if (userId == null || userRole == null) {
+      if (userRole == null) {
         return Response.badRequest(body: '{"error": "Invalid token payload"}');
       }
 
@@ -33,13 +34,13 @@ class ScheduleController {
 
   static Future<Response> createSchedule(Request request) async {
     try {
-      final user = request.context['user'] as Map<String, dynamic>?;
+      final user = request.context['user'] as User?;
       if (user == null) {
         return Response(401, body: jsonEncode({'error': 'Not authenticated'}));
       }
 
       // Проверяем права (только тренер и админ могут создавать расписание)
-      if (user['role'] != 'trainer' && user['role'] != 'admin') {
+      if (!user.roles.any((r) => r.name == 'trainer' || r.name == 'admin')) {
         return Response(403, body: jsonEncode({'error': 'Insufficient permissions'}));
       }
 

@@ -1,4 +1,5 @@
 import 'package:shelf_router/shelf_router.dart';
+import 'package:fitman_common/fitman_common.dart';
 import 'package:shelf/shelf.dart';
 import '../controllers/auth_controller.dart';
 import '../modules/users/controllers/users_controller.dart';
@@ -84,9 +85,8 @@ Handler _protectedHandler(Handler handler) {
 Middleware _requireTrainerOrAdmin() {
   return (Handler innerHandler) {
     return (Request request) {
-      final user = request.context['user'] as Map<String, dynamic>?;
-      final role = user?['role'] as String?;
-      if (user == null || (role != 'trainer' && role != 'admin')) {
+      final user = request.context['user'] as User?;
+      if (user == null || !user.roles.any((r) => r.name == 'trainer' || r.name == 'admin')) {
         return Response.forbidden('{"error": "Trainer or Admin access required"}');
       }
       return innerHandler(request);
@@ -97,9 +97,8 @@ Middleware _requireTrainerOrAdmin() {
 Middleware _requireManagerOrAdmin() {
   return (Handler innerHandler) {
     return (Request request) {
-      final user = request.context['user'] as Map<String, dynamic>?;
-      final role = user?['role'] as String?;
-      if (user == null || (role != 'manager' && role != 'admin')) {
+      final user = request.context['user'] as User?;
+      if (user == null || !user.roles.any((r) => r.name == 'manager' || r.name == 'admin')) {
         return Response.forbidden('{"error": "Manager or Admin access required"}');
       }
       return innerHandler(request);
@@ -125,9 +124,8 @@ Handler _managerHandler(Handler handler) {
 Middleware _requireInstructorOrAdmin() {
   return (Handler innerHandler) {
     return (Request request) {
-      final user = request.context['user'] as Map<String, dynamic>?;
-      final role = user?['role'] as String?;
-      if (user == null || (role != 'instructor' && role != 'admin')) {
+      final user = request.context['user'] as User?;
+      if (user == null || !user.roles.any((r) => r.name == 'instructor' || r.name == 'admin')) {
         return Response.forbidden('{"error": "Instructor or Admin access required"}');
       }
       return innerHandler(request);

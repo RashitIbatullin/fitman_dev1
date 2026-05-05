@@ -1,11 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-
+import 'package:fitman_common/fitman_common.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 
-import 'package:fitman_common/modules/equipment/repair_time_standard.model.dart';
 import '../services/repair_time_standard_service.dart';
 
 class RepairTimeStandardController {
@@ -55,8 +54,8 @@ class RepairTimeStandardController {
     try {
       final body = await request.readAsString();
       final data = jsonDecode(body) as Map<String, dynamic>;
-      final userPayload = request.context['user'] as Map<String, dynamic>?;
-      final userId = userPayload?['userId'] as String?;
+      final user = request.context['user'] as User?;
+      final userId = user?.id;
       if (userId == null) {
         return Response.unauthorized('User not authenticated');
       }
@@ -77,8 +76,8 @@ class RepairTimeStandardController {
     try {
       final body = await request.readAsString();
       final data = jsonDecode(body) as Map<String, dynamic>;
-      final userPayload = request.context['user'] as Map<String, dynamic>?;
-      final userId = userPayload?['userId'] as String?;
+      final user = request.context['user'] as User?;
+      final userId = user?.id;
       if (userId == null) {
         return Response.unauthorized('User not authenticated');
       }
@@ -96,8 +95,8 @@ class RepairTimeStandardController {
 
   FutureOr<Response> archive(Request request, String id) async {
     try {
-      final userPayload = request.context['user'] as Map<String, dynamic>?;
-      final userId = userPayload?['userId'] as String?;
+      final user = request.context['user'] as User?;
+      final userId = user?.id;
       if (userId == null) {
         return Response.unauthorized('User not authenticated');
       }
@@ -116,8 +115,8 @@ class RepairTimeStandardController {
 
   FutureOr<Response> unarchive(Request request, String id) async {
     try {
-      final userPayload = request.context['user'] as Map<String, dynamic>?;
-      final userId = userPayload?['userId'] as String?;
+      final user = request.context['user'] as User?;
+      final userId = user?.id;
       if (userId == null) {
         return Response.unauthorized('User not authenticated');
       }

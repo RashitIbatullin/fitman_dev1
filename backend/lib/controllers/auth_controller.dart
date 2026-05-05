@@ -139,14 +139,14 @@ class AuthController {
 
   static Future<Response> checkAuth(Request request) async {
     try {
-      final user = request.context['user'] as Map<String, dynamic>?;
+      final user = request.context['user'] as User?;
       if (user == null) {
         return Response(401, body: jsonEncode({'error': 'Not authenticated'}));
       }
 
       return Response.ok(jsonEncode({
         'authenticated': true,
-        'user': user
+        'user': user.toJson()
       }));
     } catch (e) {
       return Response(500, body: jsonEncode({'error': 'Internal server error: $e'}));

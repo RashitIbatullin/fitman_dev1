@@ -9,12 +9,12 @@ class DashboardController {
   static Future<Response> getClientDashboardData(
       Request request, String userId) async {
     try {
-      final authenticatedUser = request.context['user'] as Map<String, dynamic>?;
-      if (authenticatedUser == null || authenticatedUser['userId'] == null) {
+      final authenticatedUser = request.context['user'] as User?;
+      if (authenticatedUser == null) {
         return Response.forbidden(jsonEncode({'error': 'Not authenticated.'}));
       }
-      final authenticatedUserId = authenticatedUser['userId'] as String;
-      final authenticatedUserRoles = (authenticatedUser['roles'] as List).cast<String>();
+      final authenticatedUserId = authenticatedUser.id;
+      final authenticatedUserRoles = authenticatedUser.roles.map((r) => r.name).toList();
 
       // Authorization: Allow if the user is requesting their own data, or if they are an admin/manager.
       final canAccess = (authenticatedUserId == userId) ||

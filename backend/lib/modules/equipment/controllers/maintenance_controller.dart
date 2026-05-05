@@ -1,10 +1,9 @@
 import 'dart:convert';
-
+import 'package:fitman_common/fitman_common.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_multipart/shelf_multipart.dart';
 import 'package:shelf_router/shelf_router.dart';
 
-import 'package:fitman_common/modules/equipment/equipment_maintenance_history.model.dart';
 import 'package:fitman_backend/modules/equipment/services/maintenance_service.dart';
 import '../../../services/photo_service.dart';
 
@@ -40,8 +39,8 @@ class MaintenanceController {
         return Response.badRequest(body: jsonEncode({'error': "Missing required fields: 'photo', 'timing'"}));
       }
 
-      final userPayload = request.context['user'] as Map<String, dynamic>?;
-      final userId = userPayload?['userId']?.toString();
+      final user = request.context['user'] as User?;
+      final userId = user?.id;
       if (userId == null) {
         return Response.forbidden(jsonEncode({'error': 'User not authenticated or userId is missing in token.'}));
       }
@@ -137,8 +136,8 @@ class MaintenanceController {
         final body = await request.readAsString();
         final jsonData = jsonDecode(body) as Map<String, dynamic>;
         
-        final userPayload = request.context['user'] as Map<String, dynamic>?;
-        final userId = userPayload?['userId']?.toString();
+        final user = request.context['user'] as User?;
+        final userId = user?.id;
         if (userId == null) {
           return Response.forbidden(jsonEncode({'error': 'User not authenticated or userId is missing in token.'}));
         }
@@ -180,8 +179,8 @@ class MaintenanceController {
         final body = await request.readAsString();
         final jsonData = jsonDecode(body) as Map<String, dynamic>;
         
-        final userPayload = request.context['user'] as Map<String, dynamic>?;
-        final userId = userPayload?['userId']?.toString();
+        final user = request.context['user'] as User?;
+        final userId = user?.id;
         if (userId == null) {
           return Response.forbidden(jsonEncode({'error': 'User not authenticated'}));
         }
@@ -216,8 +215,8 @@ class MaintenanceController {
         final body = await request.readAsString();
         final jsonData = jsonDecode(body) as Map<String, dynamic>;
 
-        final userPayload = request.context['user'] as Map<String, dynamic>?;
-        final userId = userPayload?['userId']?.toString();
+        final user = request.context['user'] as User?;
+        final userId = user?.id;
         if (userId == null) {
           return Response.forbidden(jsonEncode({'error': 'User not authenticated'}));
         }
@@ -250,8 +249,8 @@ class MaintenanceController {
         final jsonData = jsonDecode(body) as Map<String, dynamic>;
         final history = EquipmentMaintenanceHistory.fromJson(jsonData);
         
-        final userPayload = request.context['user'] as Map<String, dynamic>?;
-        final userId = userPayload?['userId']?.toString();
+        final user = request.context['user'] as User?;
+        final userId = user?.id;
         if (userId == null) {
           return Response.forbidden(jsonEncode({'error': 'User not authenticated or userId is missing in token.'}));
         }
@@ -278,8 +277,8 @@ class MaintenanceController {
           return Response.badRequest(body: '{"error": "Archival reason is required"}');
         }
         
-        final userPayload = request.context['user'] as Map<String, dynamic>?;
-        final userId = userPayload?['userId']?.toString();
+        final user = request.context['user'] as User?;
+        final userId = user?.id;
         if (userId == null) {
           return Response.forbidden(jsonEncode({'error': 'User not authenticated or userId is missing in token.'}));
         }

@@ -1,11 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:fitman_backend/modules/rooms/services/building_service.dart';
-import 'package:fitman_backend/modules/rooms/repositories/building_repository.dart';
-import 'package:fitman_backend/config/database.dart';
-import 'package:fitman_common/modules/rooms/building_model.dart';
+import 'package:fitman_common/fitman_common.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
+
+import '../../../config/database.dart';
+import '../repositories/building_repository.dart';
+import '../services/building_service.dart';
 
 class BuildingController {
   BuildingController(Database db)
@@ -68,14 +69,11 @@ class BuildingController {
 
   Future<Response> _updateBuilding(Request request, String id) async {
     try {
-      final userPayload = request.context['user'] as Map<String, dynamic>?;
-      if (userPayload == null) {
+      final user = request.context['user'] as User?;
+      if (user == null) {
         return Response.forbidden('{"error": "Authorization required. User payload missing."}');
       }
-      final userId = userPayload['userId']?.toString();
-      if (userId == null) {
-        return Response.forbidden('{"error": "Authorization required. User ID missing."}');
-      }
+      final userId = user.id;
 
       final body = await request.readAsString();
       final initialBuilding = Building.fromJson(jsonDecode(body));
@@ -127,14 +125,11 @@ class BuildingController {
 
   Future<Response> _deleteBuilding(Request request, String id) async {
     try {
-      final userPayload = request.context['user'] as Map<String, dynamic>?;
-      if (userPayload == null) {
+      final user = request.context['user'] as User?;
+      if (user == null) {
         return Response(401, body: jsonEncode({'error': 'Not authenticated: User payload missing.'}));
       }
-      final userId = userPayload['userId'] as String?;
-      if (userId == null) {
-        return Response(401, body: jsonEncode({'error': 'Not authenticated: User ID missing in token.'}));
-      }
+      final userId = user.id;
 
       await _buildingService.deleteBuilding(id, userId);
       return Response(204);

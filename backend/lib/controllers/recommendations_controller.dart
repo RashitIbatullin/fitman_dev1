@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:fitman_common/fitman_common.dart';
 import 'package:shelf/shelf.dart';
 
 import '../services/recommendations/recommendation_service.dart';
@@ -8,7 +9,7 @@ class RecommendationsController {
   static Future<Response> getRecommendation(Request request, String id) async {
     try {
       // Basic authentication check from the context set by middleware
-      final user = request.context['user'] as Map<String, dynamic>?;
+      final user = request.context['user'] as User?;
       if (user == null) {
         return Response.unauthorized(jsonEncode({'error': 'Not authenticated'}));
       }
@@ -40,7 +41,7 @@ class RecommendationsController {
 
   static Future<Response> getMetabolicRate(Request request, String userId, String measurementId) async {
     try {
-      final user = request.context['user'] as Map<String, dynamic>?;
+      final user = request.context['user'] as User?;
       if (user == null) {
         return Response.unauthorized(jsonEncode({'error': 'Not authenticated'}));
       }

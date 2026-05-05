@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:fitman_backend/modules/rooms/services/room_schedule_service.dart';
 import 'package:fitman_common/modules/rooms/room_schedule.model.dart';
+import 'package:fitman_common/fitman_common.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 
@@ -30,11 +31,11 @@ class RoomScheduleController {
 
   Future<Response> _updateRoomSchedules(Request request, String roomId) async {
     try {
-      final userPayload = request.context['user'] as Map<String, dynamic>?;
-      if (userPayload == null || userPayload['userId'] == null) {
+      final user = request.context['user'] as User?;
+      if (user == null) {
         return Response.forbidden('{"error": "Authorization required. User payload missing."}');
       }
-      final userId = userPayload['userId'].toString();
+      final userId = user.id;
 
       final body = await request.readAsString();
       final List<dynamic> jsonList = jsonDecode(body);

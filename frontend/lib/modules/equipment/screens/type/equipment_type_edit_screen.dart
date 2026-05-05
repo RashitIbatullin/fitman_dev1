@@ -125,14 +125,12 @@ class _EquipmentTypeEditScreenState extends ConsumerState<EquipmentTypeEditScree
       category: _selectedCategory,
       weightRange: _weightRangeController.text.isEmpty ? null : _weightRangeController.text,
       dimensions: _dimensionsController.text.isEmpty ? null : _dimensionsController.text,
-
       isMobile: _isMobile,
-
-
-
       schematicIcon: _selectedSchematicIcon,
-
     );
+    
+    final navigator = Navigator.of(context);
+    final messenger = ScaffoldMessenger.of(context);
 
     try {
       String message;
@@ -148,22 +146,27 @@ class _EquipmentTypeEditScreenState extends ConsumerState<EquipmentTypeEditScree
       }
       ref.invalidate(allEquipmentTypesProvider); // Invalidate all types to refresh the list
 
-      if (!mounted) return; // Guard against BuildContext across async gaps
-      ScaffoldMessenger.of(context).showSnackBar(
+      if (!context.mounted) return; // Guard against BuildContext across async gaps
+      
+      // Pop first, then show SnackBar on the previous screen.
+      navigator.pop(true); 
+      messenger.showSnackBar(
         SnackBar(content: Text(message), backgroundColor: Colors.green),
       );
-      Navigator.of(context).pop(true); // Go back to the list screen with a result
     } catch (e) {
       setState(() {
         _errorMessage = e.toString();
       });
-      ScaffoldMessenger.of(context).showSnackBar(
+      if (!context.mounted) return;
+      messenger.showSnackBar(
         SnackBar(content: Text('Ошибка: $_errorMessage'), backgroundColor: Colors.red),
       );
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      if (context.mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -176,6 +179,21 @@ class _EquipmentTypeEditScreenState extends ConsumerState<EquipmentTypeEditScree
               ? 'Создать тип оборудования'
               : 'Редактировать тип оборудования',
         ),
+        actions: [
+          _isLoading
+              ? const Padding(
+                  padding: EdgeInsets.all(12.0),
+                  child: SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(strokeWidth: 3, color: Colors.white),
+                  ),
+                )
+              : IconButton(
+                  icon: const Icon(Icons.save),
+                  onPressed: _saveForm,
+                ),
+        ],
       ),
       body: _isLoading && widget.equipmentTypeId != null && widget.equipmentType == null
           ? const Center(child: CircularProgressIndicator())
@@ -271,14 +289,6 @@ class _EquipmentTypeEditScreenState extends ConsumerState<EquipmentTypeEditScree
                         ),
                       ),
                     const SizedBox(height: 20),
-                    Center(
-                      child: ElevatedButton(
-                        onPressed: _isLoading ? null : _saveForm,
-                        child: _isLoading
-                            ? const CircularProgressIndicator()
-                            : const Text('Сохранить'),
-                      ),
-                    ),
                   ],
                 ),
               ),

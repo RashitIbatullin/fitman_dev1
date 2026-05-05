@@ -69,8 +69,10 @@ class EquipmentItemController {
       final body = await request.readAsString();
       final Map<String, dynamic> jsonBody = jsonDecode(body) as Map<String, dynamic>;
 
-      final userMap = request.context['user'] as Map<String, dynamic>;
-      final user = User.fromJson(userMap);
+      final user = request.context['user'] as User?;
+      if (user == null) {
+        return Response.unauthorized('{"error": "Authentication required"}');
+      }
 
       final equipmentItem = EquipmentItem.fromJson(jsonBody);
       final createdEquipmentItem =
@@ -96,8 +98,10 @@ class EquipmentItemController {
       final body = await request.readAsString();
       final Map<String, dynamic> jsonBody = jsonDecode(body) as Map<String, dynamic>;
 
-      final userMap = request.context['user'] as Map<String, dynamic>;
-      final user = User.fromJson(userMap);
+      final user = request.context['user'] as User?;
+      if (user == null) {
+        return Response.unauthorized('{"error": "Authentication required"}');
+      }
 
       final equipmentItem = EquipmentItem.fromJson(jsonBody);
       final updatedEquipmentItem =
@@ -123,8 +127,10 @@ class EquipmentItemController {
       final body = await request.readAsString();
       final params = jsonDecode(body) as Map<String, dynamic>;
       final reason = params['reason'] as String?;
-      final userMap = request.context['user'] as Map<String, dynamic>;
-      final user = User.fromJson(userMap);
+      final user = request.context['user'] as User?;
+      if (user == null) {
+        return Response.unauthorized('{"error": "Authentication required"}');
+      }
 
       if (reason == null || reason.length < 5) {
         return Response.badRequest(

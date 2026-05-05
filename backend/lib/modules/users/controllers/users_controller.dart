@@ -13,11 +13,10 @@ class UsersController {
   // Создать нового пользователя (только для админа)
   static Future<Response> createUser(Request request) async {
     try {
-      final payload = request.context['user'] as Map<String, dynamic>?;
+      final payload = request.context['user'] as User?;
       if (payload == null) {
         return Response.forbidden('Not authorized.');
       }
-      final creatorId = payload['userId'] as String;
 
       final body = await request.readAsString();
       final data = jsonDecode(body) as Map<String, dynamic>;
@@ -84,7 +83,7 @@ class UsersController {
         updatedAt: DateTime.now(),
       );
 
-      final createdUser = await _db.users.createUser(newUser, roles, creatorId);
+      final createdUser = await _db.users.createUser(newUser, roles, payload.id);
 
       return Response(201, body: jsonEncode({
         'message': 'Пользователь успешно создан',
@@ -187,8 +186,8 @@ class UsersController {
     try {
       final userId = id;
 
-      final payload = request.context['user'] as Map<String, dynamic>?;
-      final updaterId = payload?['userId'] as String?;
+      final payload = request.context['user'] as User?;
+      final updaterId = payload?.id;
 
       final body = await request.readAsString();
       final data = jsonDecode(body) as Map<String, dynamic>;
@@ -301,12 +300,11 @@ class UsersController {
 
   static Future<Response> getProfile(Request request) async {
     try {
-      final user = request.context['user'] as Map<String, dynamic>?;
+      final user = request.context['user'] as User?;
       if (user == null) {
         return Response(401, body: jsonEncode({'error': 'Not authenticated'}));
       }
-      final userId = user['userId'] as String;
-      final userData = await _db.users.getUserById(userId);
+      final userData = await _db.users.getUserById(user.id);
       if (userData == null) {
         return Response(404, body: jsonEncode({'error': 'User not found'}));
       }
@@ -339,13 +337,12 @@ class UsersController {
   // Получить тренера для клиента
   static Future<Response> getTrainerForClient(Request request) async {
     try {
-      final user = request.context['user'] as Map<String, dynamic>?;
+      final user = request.context['user'] as User?;
       if (user == null) {
         return Response(401, body: jsonEncode({'error': 'Not authenticated'}));
       }
 
-      final clientId = user['userId'] as String;
-      final trainer = await _db.users.getTrainerForClient(clientId);
+      final trainer = await _db.users.getTrainerForClient(user.id);
 
       if (trainer == null) {
         return Response(404, body: jsonEncode({'error': 'Trainer not found for this client'}));
@@ -361,13 +358,12 @@ class UsersController {
   // Получить инструктора для клиента
   static Future<Response> getInstructorForClient(Request request) async {
     try {
-      final user = request.context['user'] as Map<String, dynamic>?;
+      final user = request.context['user'] as User?;
       if (user == null) {
         return Response(401, body: jsonEncode({'error': 'Not authenticated'}));
       }
 
-      final clientId = user['userId'] as String;
-      final instructor = await _db.users.getInstructorForClient(clientId);
+      final instructor = await _db.users.getInstructorForClient(user.id);
 
       if (instructor == null) {
         return Response(404, body: jsonEncode({'error': 'Instructor not found for this client'}));
@@ -383,13 +379,12 @@ class UsersController {
   // Получить менеджера для клиента
   static Future<Response> getManagerForClient(Request request) async {
     try {
-      final user = request.context['user'] as Map<String, dynamic>?;
+      final user = request.context['user'] as User?;
       if (user == null) {
         return Response(401, body: jsonEncode({'error': 'Not authenticated'}));
       }
 
-      final clientId = user['userId'] as String;
-      final manager = await _db.users.getManagerForClient(clientId);
+      final manager = await _db.users.getManagerForClient(user.id);
 
       if (manager == null) {
         return Response(404, body: jsonEncode({'error': 'Manager not found for this client'}));
@@ -444,11 +439,11 @@ class UsersController {
   // Обновить профиль клиента (цель, уровень)
   static Future<Response> updateClientProfile(Request request) async {
     try {
-      final payload = request.context['user'] as Map<String, dynamic>?;
+      final payload = request.context['user'] as User?;
       if (payload == null) {
         return Response.unauthorized(jsonEncode({'error': 'Not authenticated'}));
       }
-      final userId = payload['userId'] as String;
+      final userId = payload.id;
 
       final body = await request.readAsString();
       final data = jsonDecode(body) as Map<String, dynamic>;
@@ -486,11 +481,11 @@ class UsersController {
   // Загрузить аватар пользователя
   static Future<Response> uploadAvatar(Request request, String id) async {
     try {
-      final updater = request.context['user'] as Map<String, dynamic>?;
+      final updater = request.context['user'] as User?;
       if (updater == null) {
         return Response.unauthorized(jsonEncode({'error': 'Not authenticated'}));
       }
-      final updaterId = updater['userId'] as String;
+      final updaterId = updater.id;
 
       final userId = id;
 

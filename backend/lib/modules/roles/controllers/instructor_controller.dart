@@ -1,19 +1,17 @@
 import 'dart:convert';
+import 'package:fitman_common/fitman_common.dart';
 import 'package:shelf/shelf.dart';
 import '../../../config/database.dart'; // Adjusted relative path
 
 class InstructorController {
   static Future<Response> getAssignedClients(Request request) async {
     try {
-      final userPayload = request.context['user'] as Map<String, dynamic>?;
-      if (userPayload == null) {
+      final user = request.context['user'] as User?;
+      if (user == null) {
         return Response.unauthorized('{"error": "Not authenticated"}');
       }
 
-      final instructorId = userPayload['userId'] as String?;
-      if (instructorId == null) {
-        return Response.badRequest(body: '{"error": "Invalid token payload"}');
-      }
+      final instructorId = user.id;
 
       final db = Database();
       final clients = await db.users.getClientsForInstructor(instructorId);
@@ -35,15 +33,12 @@ class InstructorController {
 
   static Future<Response> getAssignedTrainers(Request request) async {
     try {
-      final userPayload = request.context['user'] as Map<String, dynamic>?;
-      if (userPayload == null) {
+      final user = request.context['user'] as User?;
+      if (user == null) {
         return Response.unauthorized('{"error": "Not authenticated"}');
       }
 
-      final instructorId = userPayload['userId'] as String?;
-      if (instructorId == null) {
-        return Response.badRequest(body: '{"error": "Invalid token payload"}');
-      }
+      final instructorId = user.id;
 
       final db = Database();
       final trainers = await db.users.getTrainersForInstructor(instructorId);
@@ -65,15 +60,12 @@ class InstructorController {
 
   static Future<Response> getAssignedManager(Request request) async {
     try {
-      final userPayload = request.context['user'] as Map<String, dynamic>?;
-      if (userPayload == null) {
+      final user = request.context['user'] as User?;
+      if (user == null) {
         return Response.unauthorized('{"error": "Not authenticated"}');
       }
 
-      final instructorId = userPayload['userId'] as String?;
-      if (instructorId == null) {
-        return Response.badRequest(body: '{"error": "Invalid token payload"}');
-      }
+      final instructorId = user.id;
 
       final db = Database();
       final manager = await db.users.getManagerForInstructor(instructorId);

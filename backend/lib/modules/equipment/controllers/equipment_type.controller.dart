@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:fitman_backend/config/database.dart';
+import 'package:fitman_common/modules/users/user.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 import 'package:fitman_common/modules/equipment/equipment/equipment_type.model.dart';
@@ -57,14 +58,12 @@ class EquipmentTypeController {
       final Map<String, dynamic> jsonBody = jsonDecode(body) as Map<String, dynamic>;
       
       // Get userId from request context
-      final userPayload = request.context['user'] as Map<String, dynamic>?;
-      if (userPayload == null) {
+      final user = request.context['user'] as User?;
+      if (user == null) {
         return Response.unauthorized('{"error": "Authentication required"}');
       }
-      final userId = userPayload['userId']?.toString();
-      if (userId == null) {
-        return Response.internalServerError(body: '{"error": "User ID not found in token payload"}');
-      }
+      final userId = user.id;
+
 
       final equipmentType = EquipmentType.fromJson(jsonBody);
       final createdEquipmentType = await _equipmentService.createType(equipmentType, userId);
@@ -81,14 +80,12 @@ class EquipmentTypeController {
       final Map<String, dynamic> jsonBody = jsonDecode(body) as Map<String, dynamic>;
 
       // Get userId from request context
-      final userPayload = request.context['user'] as Map<String, dynamic>?;
-      if (userPayload == null) {
+      final user = request.context['user'] as User?;
+      if (user == null) {
         return Response.unauthorized('{"error": "Authentication required"}');
       }
-      final userId = userPayload['userId']?.toString();
-      if (userId == null) {
-        return Response.internalServerError(body: '{"error": "User ID not found in token payload"}');
-      }
+      final userId = user.id;
+
       
       final equipmentType = EquipmentType.fromJson(jsonBody);
       final updatedEquipmentType = await _equipmentService.updateType(id, equipmentType, userId);
@@ -104,14 +101,12 @@ class EquipmentTypeController {
       final body = await request.readAsString();
       final params = jsonDecode(body) as Map<String, dynamic>;
       final reason = params['reason'] as String?;
-      final userPayload = request.context['user'] as Map<String, dynamic>?;
-      if (userPayload == null) {
+      final user = request.context['user'] as User?;
+      if (user == null) {
         return Response.unauthorized('{"error": "Authentication required"}');
       }
-      final userId = userPayload['userId']?.toString();
-      if (userId == null) {
-        return Response.internalServerError(body: '{"error": "User ID not found in token payload"}');
-      }
+      final userId = user.id;
+
 
       if (reason == null || reason.length < 5) {
         return Response.badRequest(

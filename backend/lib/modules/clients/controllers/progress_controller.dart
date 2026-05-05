@@ -1,16 +1,17 @@
 import 'dart:convert';
+import 'package:fitman_common/fitman_common.dart';
 import 'package:shelf/shelf.dart';
 import '../../../config/database.dart';
 
 class ProgressController {
   static Future<Response> getProgressDataForClient(Request request) async {
     try {
-      final user = request.context['user'] as Map<String, dynamic>?;
+      final user = request.context['user'] as User?;
       if (user == null) {
         return Response.unauthorized(jsonEncode({'error': 'Not authenticated'}));
       }
 
-      final clientId = user['userId'] as String;
+      final clientId = user.id;
       final data = await Database().clients.getProgressData(clientId);
 
       return Response.ok(jsonEncode(data));

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:fitman_common/fitman_common.dart';
 import 'package:shelf/shelf.dart';
 import 'package:postgres/postgres.dart';
 import '../../../config/database.dart'; 
@@ -7,8 +8,8 @@ class ChatHttpController {
   // Получить все чаты для текущего пользователя
   static Future<Response> getChats(Request request) async {
     try {
-      final user = request.context['user'] as Map<String, dynamic>?;
-      final userId = user?['userId'] as String?;
+      final user = request.context['user'] as User?;
+      final userId = user?.id;
 
       if (userId == null) {
         return Response.badRequest(body: jsonEncode({'error': 'User ID not found in token.'}));
@@ -39,8 +40,8 @@ class ChatHttpController {
   // Получить сообщения для конкретного чата с пагинацией
   static Future<Response> getMessages(Request request, String chatId) async {
     try {
-      final user = request.context['user'] as Map<String, dynamic>?;
-      final userId = user?['userId'] as String?;
+      final user = request.context['user'] as User?;
+      final userId = user?.id;
       if (userId == null) {
         return Response.forbidden('Authentication required.');
       }
@@ -89,8 +90,8 @@ class ChatHttpController {
   // Создать или получить существующий личный чат
   static Future<Response> createOrGetPrivateChat(Request request) async {
     try {
-      final user = request.context['user'] as Map<String, dynamic>?;
-      final userId1 = user?['userId'] as String?;
+      final user = request.context['user'] as User?;
+      final userId1 = user?.id;
       if (userId1 == null) {
         return Response.forbidden('Authentication required.');
       }
@@ -158,8 +159,8 @@ class ChatHttpController {
   // Создать групповой чат
   static Future<Response> createGroupChat(Request request) async {
     try {
-      final user = request.context['user'] as Map<String, dynamic>?;
-      final creatorId = user?['userId'] as String?;
+      final user = request.context['user'] as User?;
+      final creatorId = user?.id;
       if (creatorId == null) {
         return Response.forbidden('Authentication required.');
       }

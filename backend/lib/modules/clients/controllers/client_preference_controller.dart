@@ -1,5 +1,6 @@
 
 import 'dart:convert';
+import 'package:fitman_common/fitman_common.dart';
 import 'package:shelf/shelf.dart';
 import 'package:postgres/postgres.dart';
 import '../../../config/database.dart';
@@ -13,8 +14,8 @@ class ClientPreferenceController {
       final connection = await db.connection;
 
       // Get client ID from request context (assuming it's set by auth middleware)
-      final user = request.context['user'] as Map<String, dynamic>?;
-      final clientId = user?['userId'] as int?;
+      final user = request.context['user'] as User?;
+      final clientId = user?.id;
 
       if (clientId == null) {
         return Response.badRequest(body: jsonEncode({'error': 'Client ID not found in token.'}));
@@ -52,8 +53,8 @@ class ClientPreferenceController {
       final connection = await db.connection;
 
       // Get client ID from request context (assuming it's set by auth middleware)
-      final user = request.context['user'] as Map<String, dynamic>?;
-      final clientId = user?['userId'] as int?;
+      final user = request.context['user'] as User?;
+      final clientId = user?.id;
 
       if (clientId == null) {
         return Response.badRequest(body: jsonEncode({'error': 'Client ID not found in token.'}));
