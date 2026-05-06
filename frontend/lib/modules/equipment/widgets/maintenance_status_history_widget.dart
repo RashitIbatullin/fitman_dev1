@@ -1,84 +1,49 @@
-import 'package:fitman_common/modules/equipment/equipment_maintenance_history.model.dart';
+import 'package:fitman_common/fitman_common.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-
 class MaintenanceStatusHistoryWidget extends StatelessWidget {
-  const MaintenanceStatusHistoryWidget({
-    required this.history,
-    super.key,
-  });
+  final List<MaintenanceStatusHistoryRecord> historyRecords;
 
-  final EquipmentMaintenanceHistory history;
+  const MaintenanceStatusHistoryWidget({
+    super.key,
+    required this.historyRecords,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final dateFormat = DateFormat('dd.MM.yyyy HH:mm');
-
-    Widget buildRow(String status, String? person, DateTime? date) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4),
-        child: Row(
-          children: [
-            Expanded(flex: 2, child: Text(status, style: theme.textTheme.bodyMedium)),
-            Expanded(
-              flex: 3,
-              child: Text(
-                person ?? '---',
-                style: theme.textTheme.bodyMedium,
-                overflow: TextOverflow.ellipsis,
-              ),
+    return ListView.builder(
+      padding: const EdgeInsets.all(8.0),
+      itemCount: historyRecords.length,
+      itemBuilder: (context, index) {
+        final record = historyRecords[index];
+        final formattedDate = DateFormat('yyyy-MM-dd HH:mm').format(record.changedAt.toLocal());
+        
+        return Card(
+          margin: const EdgeInsets.symmetric(vertical: 4),
+          child: ListTile(
+            leading: CircleAvatar(
+              child: Text('${index + 1}'),
             ),
-            Expanded(
-              flex: 3,
-              child: Text(
-                date != null ? dateFormat.format(date) : '---',
-                style: theme.textTheme.bodyMedium,
-                textAlign: TextAlign.right,
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-
-            const Divider(),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4),
-              child: Row(
-                children: [
-                  Expanded(flex: 2, child: Text('Статус', style: theme.textTheme.labelSmall)),
-                  Expanded(flex: 3, child: Text('Пользователь', style: theme.textTheme.labelSmall)),
-                  Expanded(
-                    flex: 3,
-                    child: Text(
-                      'Время',
-                      style: theme.textTheme.labelSmall,
-                      textAlign: TextAlign.right,
-                    ),
+            title: Text('Новый статус: ${record.newStatus.title}'),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (record.oldStatus != null)
+                  Text('Старый статус: ${record.oldStatus!.title}'),
+                const SizedBox(height: 4),
+                Text('Изменил: ${record.changedByName ?? 'N/A'}'),
+                Text('Время: $formattedDate'),
+                if (record.comment != null && record.comment!.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4.0),
+                    child: Text('Комментарий: ${record.comment!}', style: const TextStyle(fontStyle: FontStyle.italic)),
                   ),
-                ],
-              ),
+              ],
             ),
-            const Divider(),
-            buildRow('Заявка', history.reportedByName, history.createdAt),
-            if (history.startedAt != null || history.status == MaintenanceStatus.inProgress)
-              buildRow('В работе', history.inProgressByName, history.startedAt),
-            if (history.completedAt != null || history.status == MaintenanceStatus.completed)
-              buildRow('Завершено', history.completedByName, history.completedAt),
-            if (history.cancelledAt != null || history.status == MaintenanceStatus.cancelled)
-              buildRow('Отмена', history.cancelledByName, history.cancelledAt),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }

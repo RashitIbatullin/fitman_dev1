@@ -5,6 +5,7 @@
 
 DROP TABLE IF EXISTS equipment_bookings CASCADE;
 DROP TABLE IF EXISTS maintenance_photos CASCADE;
+DROP TABLE IF EXISTS maintenance_status_history CASCADE;
 DROP TABLE IF EXISTS equipment_maintenance_history CASCADE;
 DROP TABLE IF EXISTS repair_time_standards CASCADE;
 DROP TABLE IF EXISTS equipment_items CASCADE;
@@ -96,6 +97,16 @@ CREATE TABLE equipment_maintenance_history (
   updated_by UUID REFERENCES users(id)
 );
 
+CREATE TABLE maintenance_status_history (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  maintenance_id UUID NOT NULL REFERENCES equipment_maintenance_history(id) ON DELETE CASCADE,
+  old_status SMALLINT, -- Может быть NULL для первой записи
+  new_status SMALLINT NOT NULL,
+  comment TEXT, -- Например, причина отмены
+  changed_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  changed_by UUID NOT NULL REFERENCES users(id)
+);
+
 CREATE TABLE maintenance_photos (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   maintenance_id UUID NOT NULL REFERENCES equipment_maintenance_history(id) ON DELETE CASCADE,
@@ -143,6 +154,8 @@ CREATE INDEX idx_rts_equipment_type ON repair_time_standards(equipment_type_id);
 CREATE INDEX idx_maintenance_equipment ON equipment_maintenance_history(equipment_item_id);
 CREATE INDEX idx_maintenance_status ON equipment_maintenance_history(status) WHERE archived_at IS NULL;
 CREATE INDEX idx_maintenance_executor ON equipment_maintenance_history(executor_id, executor_type) WHERE executor_id IS NOT NULL;
+
+CREATE INDEX idx_maintenance_status_history_maintenance_id ON maintenance_status_history(maintenance_id);
 
 CREATE INDEX idx_maintenance_photos ON maintenance_photos(maintenance_id, timing);
 

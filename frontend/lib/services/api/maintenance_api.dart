@@ -26,6 +26,11 @@ class MaintenanceApiService extends BaseApiService {
     return EquipmentMaintenanceHistory.fromJson(data);
   }
 
+  Future<List<MaintenanceStatusHistoryRecord>> getStatusHistory(String maintenanceId) async {
+    final data = await get('/api/maintenance/$maintenanceId/status-history');
+    return (data as List).map((json) => MaintenanceStatusHistoryRecord.fromJson(json)).toList();
+  }
+
   Future<AvailableExecutorsResponse> getAvailableExecutors() async {
     final data = await get('/api/maintenance/available-executors');
     return AvailableExecutorsResponse.fromJson(data);

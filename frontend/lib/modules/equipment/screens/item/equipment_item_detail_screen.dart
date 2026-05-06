@@ -312,7 +312,7 @@ class _EquipmentItemDetailScreenState
                           Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (context) => MaintenanceDetailsScreen(
-                                record: record,
+                                maintenanceId: record.id!,
                               ),
                             ),
                           );

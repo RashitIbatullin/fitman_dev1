@@ -82,6 +82,10 @@ class MaintenanceService {
     return _maintenanceRepository.getAvailableExecutors();
   }
 
+  Future<List<Map<String, dynamic>>> getStatusHistory(String maintenanceId) {
+    return _maintenanceRepository.getStatusHistory(maintenanceId);
+  }
+
   Future<EquipmentMaintenanceHistory> submitDiagnosis({
     required String maintenanceId,
     required String userId,

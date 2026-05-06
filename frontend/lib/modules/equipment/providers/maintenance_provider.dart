@@ -31,6 +31,7 @@ class Maintenance extends _$Maintenance {
     state = await AsyncValue.guard(() async {
       await ApiService.updateMaintenanceHistory(historyId, history);
       ref.invalidate(maintenanceHistoryProvider(history.equipmentItemId));
+      ref.invalidate(singleMaintenanceHistoryByIdProvider(historyId));
     });
   }
 
@@ -69,4 +70,9 @@ final maintenanceHistoryProvider =
 final singleMaintenanceHistoryByIdProvider =
     FutureProvider.family<EquipmentMaintenanceHistory, String>((ref, maintenanceId) async {
   return ApiService.getMaintenanceHistoryById(maintenanceId);
+});
+
+final maintenanceStatusHistoryProvider =
+    FutureProvider.family<List<MaintenanceStatusHistoryRecord>, String>((ref, maintenanceId) async {
+  return ApiService.getStatusHistory(maintenanceId);
 });

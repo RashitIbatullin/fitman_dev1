@@ -447,7 +447,7 @@ class EquipmentItemCard extends ConsumerWidget {
                                 ?.copyWith(fontWeight: FontWeight.bold)),
                         Chip(
                           label: Text(item.status.displayName),
-                          backgroundColor: item.status.color,
+                          backgroundColor: item.status.color.withAlpha((255 * 0.2).round()),
                           visualDensity: VisualDensity.compact,
                         ),
                       ],

@@ -47,6 +47,7 @@ class _EquipmentMaintenanceHistoryEditScreenState
   final _formKey = GlobalKey<FormState>();
 
   late TextEditingController _reportedProblemController;
+  late TextEditingController _diagnosisNotesController;
   late TextEditingController _workDescriptionController;
   late TextEditingController _notesController;
   late TextEditingController _cancellationReasonController;
@@ -69,6 +70,8 @@ class _EquipmentMaintenanceHistoryEditScreenState
     final record = widget.historyRecord;
     _reportedProblemController =
         TextEditingController(text: record?.reportedProblem ?? '');
+    _diagnosisNotesController =
+        TextEditingController(text: record?.diagnosisNotes ?? '');
     _workDescriptionController =
         TextEditingController(text: record?.workDescription ?? '');
     _notesController = TextEditingController(text: record?.notes ?? '');
@@ -99,10 +102,12 @@ class _EquipmentMaintenanceHistoryEditScreenState
   @override
   void dispose() {
     _reportedProblemController.dispose();
+    _diagnosisNotesController.dispose();
     _workDescriptionController.dispose();
     _notesController.dispose();
     _cancellationReasonController.dispose();
     _executorNameController.dispose();
+    _numberController.dispose();
     for (var photo in _beforePhotos) {
       photo.commentController.dispose();
     }
@@ -170,13 +175,16 @@ class _EquipmentMaintenanceHistoryEditScreenState
           id: null,
           equipmentItemId: widget.equipmentItemId,
           reportedProblem: _reportedProblemController.text,
+          diagnosisNotes: _diagnosisNotesController.text.isNotEmpty
+              ? _diagnosisNotesController.text
+              : null,
           workDescription: _workDescriptionController.text.isNotEmpty
               ? _workDescriptionController.text
               : null,
           notes: _notesController.text.isNotEmpty ? _notesController.text : null,
           type: _selectedType,
           status: _selectedStatus,
-          reportedBy: userId.toString(),
+          reportedBy: userId,
           executorId: _executorId,
           executorType: _executorType,
           cancellationReason: _cancellationReasonController.text,
@@ -193,6 +201,7 @@ class _EquipmentMaintenanceHistoryEditScreenState
       } else {
         recordToSave = widget.historyRecord!.copyWith(
           reportedProblem: _reportedProblemController.text,
+          diagnosisNotes: _diagnosisNotesController.text,
           workDescription: _workDescriptionController.text,
           notes: _notesController.text,
           type: _selectedType,
@@ -245,6 +254,10 @@ class _EquipmentMaintenanceHistoryEditScreenState
 
       ref.invalidate(allMaintenanceHistoryProvider);
       ref.invalidate(maintenanceHistoryProvider(widget.equipmentItemId));
+      if (recordToSave.id != null) {
+        ref.invalidate(singleMaintenanceHistoryByIdProvider(recordToSave.id!));
+        ref.invalidate(maintenanceStatusHistoryProvider(recordToSave.id!));
+      }
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -272,25 +285,15 @@ class _EquipmentMaintenanceHistoryEditScreenState
   }
 
   List<MaintenanceStatus> _getAvailableStatuses() {
-    // For new records, only 'reported' is valid.
-    if (widget.historyRecord == null) {
-      return [MaintenanceStatus.reported];
-    }
-    // For existing records, logic depends on the current status.
-    switch (widget.historyRecord!.status) {
+    final initialStatus = widget.historyRecord?.status ?? MaintenanceStatus.reported;
+
+    switch (initialStatus) {
       case MaintenanceStatus.reported:
+        return [MaintenanceStatus.reported, MaintenanceStatus.diagnosing, MaintenanceStatus.cancelled];
       case MaintenanceStatus.diagnosing:
-        return [
-          MaintenanceStatus.reported,
-          MaintenanceStatus.inProgress,
-          MaintenanceStatus.cancelled
-        ];
+        return [MaintenanceStatus.diagnosing, MaintenanceStatus.inProgress, MaintenanceStatus.cancelled];
       case MaintenanceStatus.inProgress:
-        return [
-          MaintenanceStatus.inProgress,
-          MaintenanceStatus.completed,
-          MaintenanceStatus.cancelled
-        ];
+        return [MaintenanceStatus.inProgress, MaintenanceStatus.completed, MaintenanceStatus.cancelled];
       case MaintenanceStatus.completed:
         return [MaintenanceStatus.completed];
       case MaintenanceStatus.cancelled:
@@ -300,11 +303,30 @@ class _EquipmentMaintenanceHistoryEditScreenState
 
   Future<void> _onStatusChanged(MaintenanceStatus? newValue) async {
     if (newValue == null || newValue == _selectedStatus) return;
+
+    // Validation before changing status
+    if (newValue == MaintenanceStatus.diagnosing && _executorId == null) {
+       ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('Нельзя начать диагностику без назначения исполнителя.'),
+            backgroundColor: Colors.orange),
+      );
+      return;
+    }
     
-    if (newValue == MaintenanceStatus.inProgress && _executorId == null) {
+    if (newValue == MaintenanceStatus.inProgress && _diagnosisNotesController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-            content: Text('Нельзя перевести в статус "В работе" без назначения исполнителя.'),
+            content: Text('Для перехода "В работу" необходимо заполнить "Заметки по диагностике".'),
+            backgroundColor: Colors.orange),
+      );
+      return;
+    }
+    
+    if (newValue == MaintenanceStatus.completed && _workDescriptionController.text.trim().isEmpty) {
+       ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('Для завершения заявки необходимо заполнить "Описание выполненных работ".'),
             backgroundColor: Colors.orange),
       );
       return;
@@ -363,19 +385,16 @@ class _EquipmentMaintenanceHistoryEditScreenState
         (widget.historyRecord!.status == MaintenanceStatus.completed ||
          widget.historyRecord!.status == MaintenanceStatus.cancelled);
 
-    // Form elements are dynamically locked based on the currently selected status in the UI.
-    final isLockedByStatus = _selectedStatus == MaintenanceStatus.completed ||
-                             _selectedStatus == MaintenanceStatus.cancelled;
-    
-    // Individual field lock states
-    final isTypeLocked = isPermanentlyLocked || (_selectedStatus != MaintenanceStatus.reported && widget.historyRecord != null);
-    final isExecutorLocked = isPermanentlyLocked || _selectedStatus != MaintenanceStatus.reported;
-    final isProblemLocked = isPermanentlyLocked || _selectedStatus != MaintenanceStatus.reported;
+    // Individual field lock states based on the plan
+    final isTypeLocked = isPermanentlyLocked || widget.historyRecord != null;
+    final isExecutorLocked = isPermanentlyLocked || !([MaintenanceStatus.reported, MaintenanceStatus.diagnosing].contains(_selectedStatus));
+    final isProblemLocked = isPermanentlyLocked || widget.historyRecord != null;
+    final isDiagnosisLocked = isPermanentlyLocked || _selectedStatus != MaintenanceStatus.diagnosing;
     final isWorkDescriptionLocked = isPermanentlyLocked || _selectedStatus != MaintenanceStatus.inProgress;
-    final isNotesLocked = isPermanentlyLocked || isLockedByStatus;
-    final canAddPhotos = !isPermanentlyLocked && !isLockedByStatus;
+    final isNotesLocked = isPermanentlyLocked || _selectedStatus == MaintenanceStatus.completed || _selectedStatus == MaintenanceStatus.cancelled;
+    final canAddPhotos = !isPermanentlyLocked && !([MaintenanceStatus.completed, MaintenanceStatus.cancelled].contains(_selectedStatus));
 
-    final isSaveButtonDisabled = _isLoading || isPermanentlyLocked || isLockedByStatus;
+    final isSaveButtonDisabled = _isLoading || isPermanentlyLocked;
     
     // --- End of Logic ---
 
@@ -385,15 +404,10 @@ class _EquipmentMaintenanceHistoryEditScreenState
       appBar: AppBar(
         title: equipmentItemAsync.when(
           data: (equipment) {
-            final equipmentDisplayName =
-                '${equipment.manufacturer ?? ''} ${equipment.model ?? ''}'.trim();
-            final finalDisplayName = equipmentDisplayName.isNotEmpty
-                ? equipmentDisplayName
-                : equipment.inventoryNumber;
             return Text(
               widget.historyRecord == null
-                  ? 'Новая заявка на ТО: $finalDisplayName'
-                  : 'Редактировать заявку № ${widget.historyRecord!.number}: $finalDisplayName',
+                  ? 'Новая заявка на ТО: ${equipment.inventoryNumber}'
+                  : 'Редактировать заявку № ${widget.historyRecord!.number}: ${equipment.inventoryNumber}',
               overflow: TextOverflow.ellipsis,
             );
           },
@@ -532,10 +546,21 @@ class _EquipmentMaintenanceHistoryEditScreenState
               ),
               const SizedBox(height: 16),
               TextFormField(
+                controller: _diagnosisNotesController,
+                readOnly: isDiagnosisLocked,
+                decoration: const InputDecoration(
+                    labelText: 'Заметки по диагностике',
+                    hintText: 'Обязательно для перехода в статус "В работе"',
+                    border: OutlineInputBorder()),
+                maxLines: 3,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
                 controller: _workDescriptionController,
                 readOnly: isWorkDescriptionLocked,
                 decoration: const InputDecoration(
                     labelText: 'Описание выполненных работ',
+                    hintText: 'Обязательно для перехода в статус "Завершено"',
                     border: OutlineInputBorder()),
                 maxLines: 3,
               ),

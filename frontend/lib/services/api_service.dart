@@ -217,6 +217,9 @@ class ApiService {
   static Future<EquipmentMaintenanceHistory> getMaintenanceHistoryById(String id) =>
       _maintenanceApi.getMaintenanceHistoryById(id);
 
+  static Future<List<MaintenanceStatusHistoryRecord>> getStatusHistory(String maintenanceId) =>
+      _maintenanceApi.getStatusHistory(maintenanceId);
+
   static Future<String> uploadMaintenancePhoto({
     required String maintenanceId,
     required List<int> photoBytes,

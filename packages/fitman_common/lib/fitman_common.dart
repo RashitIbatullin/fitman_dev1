@@ -31,6 +31,7 @@ export '/modules/equipment/equipment/equipment_item.model.dart';
 export '/modules/equipment/equipment/equipment_stats.model.dart';
 export '/modules/equipment/equipment/equipment_status.enum.dart';
 export '/modules/equipment/equipment/equipment_category.enum.dart';
+export '/modules/equipment/maintenance_status_history_record.model.dart';
 export '/modules/equipment/booking/equipment_booking.model.dart';
 export '/modules/equipment/booking/booking_status.enum.dart';
 

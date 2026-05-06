@@ -12,6 +12,8 @@ abstract class MaintenanceRepository {
   Future<void> unarchive(String id);
   Future<void> addPhoto(String maintenanceId, String photoUrl, String comment, String timing, String takenBy);
   Future<Map<String, List<Map<String, dynamic>>>> getAvailableExecutors();
+  Future<List<Map<String, dynamic>>> getStatusHistory(String maintenanceId);
+  Future<void> addStatusHistoryRecord(String maintenanceId, int? oldStatus, int newStatus, String userId, {String? comment, required Session session});
 }
 
 class MaintenanceRepositoryImpl implements MaintenanceRepository {
@@ -93,6 +95,9 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
         },
       );
       newId = result.first[0] as String;
+
+      // Log initial status
+      await addStatusHistoryRecord(newId, null, history.status.index, userId, session: tx);
     });
 
     return await getById(newId);
@@ -157,67 +162,83 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
 
   @override
   Future<EquipmentMaintenanceHistory> update(String id, EquipmentMaintenanceHistory history, String userId) async {
-     final conn = await _db.connection;
-    await conn.execute(
-      Sql.named('''
-        UPDATE equipment_maintenance_history SET
-          type = @type,
-          status = @status,
-          started_at = @started_at,
-          completed_at = @completed_at,
-          equipment_available_from = @equipment_available_from,
-          reported_problem = @reported_problem,
-          work_description = @work_description,
-          notes = @notes,
-          executor_id = @executor_id,
-          executor_type = @executor_type,
-          related_booking_id = @related_booking_id,
-          caused_downtime = @caused_downtime,
-          updated_at = NOW(),
-          updated_by = @user_id,
-          archived_at = @archived_at,
-          archived_by = @archived_by,
-          archived_reason = @archived_reason,
-          -- Новые поля
-          repair_time_standard_id = @repair_time_standard_id,
-          diagnosis_notes = @diagnosis_notes,
-          actual_duration_hours = @actual_duration_hours,
-          in_progress_by = @in_progress_by,
-          completed_by = @completed_by,
-          cancelled_by = @cancelled_by,
-          cancelled_at = @cancelled_at,
-          cancellation_reason = @cancellation_reason
-        WHERE id = @id;
-      '''),
-      parameters: {
-        'id': id,
-        'type': history.type.index,
-        'status': history.status.index,
-        'started_at': history.startedAt,
-        'completed_at': history.completedAt,
-        'equipment_available_from': history.equipmentAvailableFrom,
-        'reported_problem': history.reportedProblem,
-        'work_description': history.workDescription,
-        'notes': history.notes,
-        'executor_id': history.executorId,
-        'executor_type': history.executorType?.index,
-        'related_booking_id': history.relatedBookingId,
-        'caused_downtime': history.causedDowntime,
-        'user_id': userId,
-        'archived_at': history.archivedAt,
-        'archived_by': history.archivedBy,
-        'archived_reason': history.archivedReason,
-        // Новые параметры
-        'repair_time_standard_id': history.repairTimeStandardId,
-        'diagnosis_notes': history.diagnosisNotes,
-        'actual_duration_hours': history.actualDurationHours,
-        'in_progress_by': history.inProgressBy,
-        'completed_by': history.completedBy,
-        'cancelled_by': history.cancelledBy,
-        'cancelled_at': history.cancelledAt,
-        'cancellation_reason': history.cancellationReason,
-      },
-    );
+    final conn = await _db.connection;
+
+    await conn.runTx((tx) async {
+      // Get old status before update
+      final oldRecordResult = await tx.execute(
+        Sql.named('SELECT status FROM equipment_maintenance_history WHERE id = @id'),
+        parameters: {'id': id},
+      );
+      final oldStatus = oldRecordResult.first[0] as int;
+
+      if (oldStatus != history.status.index) {
+        final comment = history.status == MaintenanceStatus.cancelled ? history.cancellationReason : null;
+        await addStatusHistoryRecord(id, oldStatus, history.status.index, userId, comment: comment, session: tx);
+      }
+
+      await tx.execute(
+        Sql.named('''
+          UPDATE equipment_maintenance_history SET
+            type = @type,
+            status = @status,
+            started_at = @started_at,
+            completed_at = @completed_at,
+            equipment_available_from = @equipment_available_from,
+            reported_problem = @reported_problem,
+            work_description = @work_description,
+            notes = @notes,
+            executor_id = @executor_id,
+            executor_type = @executor_type,
+            related_booking_id = @related_booking_id,
+            caused_downtime = @caused_downtime,
+            updated_at = NOW(),
+            updated_by = @user_id,
+            archived_at = @archived_at,
+            archived_by = @archived_by,
+            archived_reason = @archived_reason,
+            -- Новые поля
+            repair_time_standard_id = @repair_time_standard_id,
+            diagnosis_notes = @diagnosis_notes,
+            actual_duration_hours = @actual_duration_hours,
+            in_progress_by = @in_progress_by,
+            completed_by = @completed_by,
+            cancelled_by = @cancelled_by,
+            cancelled_at = @cancelled_at,
+            cancellation_reason = @cancellation_reason
+          WHERE id = @id;
+        '''),
+        parameters: {
+          'id': id,
+          'type': history.type.index,
+          'status': history.status.index,
+          'started_at': history.startedAt,
+          'completed_at': history.completedAt,
+          'equipment_available_from': history.equipmentAvailableFrom,
+          'reported_problem': history.reportedProblem,
+          'work_description': history.workDescription,
+          'notes': history.notes,
+          'executor_id': history.executorId,
+          'executor_type': history.executorType?.index,
+          'related_booking_id': history.relatedBookingId,
+          'caused_downtime': history.causedDowntime,
+          'user_id': userId,
+          'archived_at': history.archivedAt,
+          'archived_by': history.archivedBy,
+          'archived_reason': history.archivedReason,
+          // Новые параметры
+          'repair_time_standard_id': history.repairTimeStandardId,
+          'diagnosis_notes': history.diagnosisNotes,
+          'actual_duration_hours': history.actualDurationHours,
+          'in_progress_by': history.inProgressBy,
+          'completed_by': history.completedBy,
+          'cancelled_by': history.cancelledBy,
+          'cancelled_at': history.cancelledAt,
+          'cancellation_reason': history.cancellationReason,
+        },
+      );
+    });
+    
     return await getById(id);
   }
 
@@ -321,6 +342,59 @@ class MaintenanceRepositoryImpl implements MaintenanceRepository {
         VALUES (@maintenance_id, @url, @comment, @timing, @taken_by)
       '''),
       parameters: params,
+    );
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> getStatusHistory(String maintenanceId) async {
+    final conn = await _db.connection;
+    final query = '''
+      SELECT 
+        msh.*,
+        u.first_name || ' ' || u.last_name as changed_by_name
+      FROM maintenance_status_history msh
+      JOIN users u ON msh.changed_by = u.id
+      WHERE msh.maintenance_id = @maintenance_id
+      ORDER BY msh.changed_at ASC
+    ''';
+    final result = await conn.execute(Sql.named(query), parameters: {'maintenance_id': maintenanceId});
+    
+    return result.map((row) {
+      final map = row.toColumnMap();
+
+      // Fix DateTime
+      if (map['changed_at'] != null && map['changed_at'] is DateTime) {
+        map['changed_at'] = (map['changed_at'] as DateTime).toIso8601String();
+      }
+
+      // Fix enums
+      final oldStatus = map['old_status'];
+      if (oldStatus != null && oldStatus is int && oldStatus >= 0 && oldStatus < MaintenanceStatus.values.length) {
+        map['old_status'] = MaintenanceStatus.values[oldStatus].name;
+      }
+      final newStatus = map['new_status'];
+      if (newStatus is int && newStatus >= 0 && newStatus < MaintenanceStatus.values.length) {
+        map['new_status'] = MaintenanceStatus.values[newStatus].name;
+      }
+
+      return map;
+    }).toList();
+  }
+
+  @override
+  Future<void> addStatusHistoryRecord(String maintenanceId, int? oldStatus, int newStatus, String userId, {String? comment, required Session session}) async {
+    await session.execute(
+      Sql.named('''
+        INSERT INTO maintenance_status_history (maintenance_id, old_status, new_status, comment, changed_by)
+        VALUES (@maintenance_id, @old_status, @new_status, @comment, @changed_by)
+      '''),
+      parameters: {
+        'maintenance_id': maintenanceId,
+        'old_status': oldStatus,
+        'new_status': newStatus,
+        'comment': comment,
+        'changed_by': userId,
+      },
     );
   }
 

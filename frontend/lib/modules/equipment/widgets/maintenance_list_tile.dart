@@ -29,7 +29,7 @@ class MaintenanceListTile extends ConsumerWidget {
         onTap: () {
           Navigator.of(context).push(
             MaterialPageRoute(
-              builder: (context) => MaintenanceDetailsScreen(record: historyItem),
+              builder: (context) => MaintenanceDetailsScreen(maintenanceId: historyItem.id!),
             ),
           );
         },
