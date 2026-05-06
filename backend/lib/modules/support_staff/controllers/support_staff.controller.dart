@@ -1,7 +1,6 @@
-import 'dart:async';
 import 'dart:convert';
-import 'dart:io'; // Import for HttpStatus
-
+import 'dart:io';
+import 'package:fitman_common/fitman_common.dart';
 import 'package:shelf/shelf.dart'; // Changed import
 import 'package:fitman_common/modules/support_staff/competency.model.dart';
 import 'package:fitman_common/modules/support_staff/support_staff.model.dart';
@@ -27,26 +26,35 @@ class SupportStaffController {
   }
 
   Future<Response> create(Request request) async { // Changed Request and Response
+    final user = request.context['user'] as User?;
+    if (user == null) return Response.unauthorized('{"error": "User not authenticated"}');
+    final userId = user.id;
+
     final body = await request.readAsString(); // Changed request.body() to request.readAsString()
     final data = jsonDecode(body) as Map<String, dynamic>;
     final supportStaff = SupportStaff.fromJson(data);
-    final userId = request.headers['X-User-Id'] ?? '1'; // Placeholder for user id
     final newStaff = await _supportStaffService.create(supportStaff, userId);
     return Response(HttpStatus.created, body: jsonEncode(newStaff.toJson()), headers: {'Content-Type': 'application/json'}); // Corrected for created status
   }
 
   Future<Response> update(Request request, String id) async { // Changed Request and Response
+    final user = request.context['user'] as User?;
+    if (user == null) return Response.unauthorized('{"error": "User not authenticated"}');
+    final userId = user.id;
+
     final body = await request.readAsString(); // Changed request.body() to request.readAsString()
     final data = jsonDecode(body) as Map<String, dynamic>;
     final supportStaff = SupportStaff.fromJson(data);
-    final userId = request.headers['X-User-Id'] ?? '1'; // Placeholder for user id
     final updatedStaff =
         await _supportStaffService.update(id, supportStaff, userId);
     return Response.ok(jsonEncode(updatedStaff.toJson()), headers: {'Content-Type': 'application/json'}); // Changed Response.json to Response.ok(jsonEncode) and added headers
   }
 
   Future<Response> archive(Request request, String id) async { // Changed Request and Response
-    final userId = request.headers['X-User-Id'] ?? '1'; // Placeholder for user id
+    final user = request.context['user'] as User?;
+    if (user == null) return Response.unauthorized('{"error": "User not authenticated"}');
+    final userId = user.id;
+
     final body = await request.readAsString();
     final data = jsonDecode(body) as Map<String, dynamic>;
     final reason = data['reason'] as String?;

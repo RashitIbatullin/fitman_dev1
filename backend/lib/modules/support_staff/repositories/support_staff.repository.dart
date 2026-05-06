@@ -1,6 +1,8 @@
 import 'package:fitman_backend/config/database.dart';
 import 'package:fitman_backend/modules/competencies/repositories/competency_repository.dart';
 import 'package:fitman_common/enums/executor_type.dart';
+import 'package:fitman_common/modules/support_staff/employment_type.enum.dart';
+import 'package:fitman_common/modules/support_staff/staff_category.enum.dart';
 import 'package:fitman_common/modules/support_staff/support_staff.model.dart';
 import 'package:postgres/postgres.dart';
 
@@ -18,6 +20,34 @@ class SupportStaffRepositoryImpl implements SupportStaffRepository {
 
   final Database _db;
   final CompetencyRepository _competencyRepository;
+
+  Map<String, dynamic> _fixRowMap(Map<String, dynamic> rowMap) {
+    final fixedMap = Map<String, dynamic>.from(rowMap);
+
+    final employmentType = fixedMap['employment_type'];
+    if (employmentType != null && employmentType is int) {
+      if (employmentType >= 0 && employmentType < EmploymentType.values.length) {
+        fixedMap['employment_type'] = EmploymentType.values[employmentType].name;
+      }
+    }
+
+    final category = fixedMap['category'];
+    if (category != null && category is int) {
+      if (category >= 0 && category < StaffCategory.values.length) {
+        fixedMap['category'] = StaffCategory.values[category].name;
+      }
+    }
+
+    // Convert DateTime fields to ISO 8601 strings for json_serializable
+    const dateFields = ['created_at', 'updated_at', 'archived_at', 'contract_expiry_date'];
+    for (final field in dateFields) {
+      if (fixedMap.containsKey(field) && fixedMap[field] is DateTime) {
+        fixedMap[field] = (fixedMap[field] as DateTime).toIso8601String();
+      }
+    }
+    
+    return fixedMap;
+  }
 
   @override
   Future<void> archive(String id, String userId, String? archivedReason) async {
@@ -74,13 +104,20 @@ class SupportStaffRepositoryImpl implements SupportStaffRepository {
   @override
   Future<List<SupportStaff>> getAll({bool includeArchived = false}) async {
     final conn = await _db.connection;
-    final whereClause = includeArchived ? '' : 'WHERE archived_at IS NULL';
+    
+    String whereClause;
+    if (includeArchived) {
+      whereClause = 'WHERE archived_at IS NOT NULL';
+    } else {
+      whereClause = 'WHERE archived_at IS NULL';
+    }
+
     final result = await conn.execute(
         Sql.named('SELECT * FROM support_staff $whereClause ORDER BY last_name, first_name ASC'));
 
     final staffList = <SupportStaff>[];
     for (final row in result) {
-      final staff = SupportStaff.fromJson(row.toColumnMap());
+      final staff = SupportStaff.fromJson(_fixRowMap(row.toColumnMap()));
       final competencies = await _competencyRepository.getCompetencies(staff.id, ExecutorType.staff);
       staffList.add(
         staff.copyWith(
@@ -103,7 +140,7 @@ class SupportStaffRepositoryImpl implements SupportStaffRepository {
       throw Exception('SupportStaff with id $id not found');
     }
 
-    final staff = SupportStaff.fromJson(result.first.toColumnMap());
+    final staff = SupportStaff.fromJson(_fixRowMap(result.first.toColumnMap()));
     final competencies = await _competencyRepository.getCompetencies(staff.id, ExecutorType.staff);
 
     return staff.copyWith(

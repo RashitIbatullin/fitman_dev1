@@ -177,12 +177,14 @@ class _EquipmentDashboardScreenState
                   final matchesStatus = selectedStatus == null || item.status == selectedStatus;
                   final matchesRoom = selectedRoomId == null || item.roomId == selectedRoomId;
                   final matchesCondition = selectedCondition == null || item.conditionRating == selectedCondition;
+                  final matchesArchived = showArchived ? item.archivedAt != null : item.archivedAt == null;
 
                   return matchesSearch &&
                       matchesType &&
                       matchesStatus &&
                       matchesRoom &&
-                      matchesCondition;
+                      matchesCondition &&
+                      matchesArchived;
                 }).toList();
 
                 if (filteredItems.isEmpty) {

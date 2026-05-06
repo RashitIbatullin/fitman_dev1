@@ -15,8 +15,38 @@ class CompetencyRepositoryImpl implements CompetencyRepository {
 
   final Database _db;
 
+  Map<String, dynamic> _fixCompetencyRowMap(Map<String, dynamic> rowMap) {
+    final map = Map<String, dynamic>.from(rowMap);
+
+    // Fix enums
+    final executorType = map['executor_type'];
+    if (executorType != null && executorType is int) {
+      if (executorType >= 0 && executorType < ExecutorType.values.length) {
+        map['executor_type'] = ExecutorType.values[executorType].name;
+      }
+    }
+
+    final level = map['level'];
+    if (level != null && level is int) {
+      if (level >= 0 && level < CompetencyLevel.values.length) {
+        map['level'] = CompetencyLevel.values[level].name;
+      }
+    }
+
+    // Fix DateTime
+    const dateFields = ['verified_at'];
+    for (final field in dateFields) {
+      if (map.containsKey(field) && map[field] is DateTime) {
+        map[field] = (map[field] as DateTime).toIso8601String();
+      }
+    }
+
+    return map;
+  }
+
   @override
-  Future<List<Competency>> getCompetencies(String competentId, ExecutorType executorType) async {
+  Future<List<Competency>> getCompetencies(
+      String competentId, ExecutorType executorType) async {
     final conn = await _db.connection;
     final result = await conn.execute(
       Sql.named(
@@ -26,17 +56,9 @@ class CompetencyRepositoryImpl implements CompetencyRepository {
         'executorType': executorType.index,
       },
     );
-    return result.map((row) {
-      final map = row.toColumnMap();
-      
-      final executorTypeInt = map['executor_type'] as int;
-      map['executor_type'] = ExecutorType.values[executorTypeInt].name;
-
-      final levelInt = map['level'] as int;
-      map['level'] = CompetencyLevel.values[levelInt].name;
-
-      return Competency.fromJson(map);
-    }).toList();
+    return result
+        .map((row) => Competency.fromJson(_fixCompetencyRowMap(row.toColumnMap())))
+        .toList();
   }
 
   @override

@@ -257,60 +257,70 @@ class _EquipmentItemEditScreenState
     final isCreating = _currentEquipmentId == null;
     String? equipmentIdToSave = _currentEquipmentId;
 
-    final equipmentItem = EquipmentItem(
-      id: equipmentIdToSave ?? '',
-      typeId: _selectedEquipmentType!.id,
-      inventoryNumber: _inventoryNumberController.text,
-      serialNumber: _serialNumberController.text.isEmpty
-          ? null
-          : _serialNumberController.text,
-      model: _modelController.text.isEmpty ? null : _modelController.text,
-      manufacturer: _manufacturerController.text.isEmpty
-          ? null
-          : _manufacturerController.text,
-      roomId: _selectedRoom?.id,
-      placementNote: _placementNoteController.text.isEmpty
-          ? null
-          : _placementNoteController.text,
-      status: _selectedStatus,
-      conditionRating: _conditionRating,
-      conditionNotes: _conditionNotesController.text.isEmpty
-          ? null
-          : _conditionNotesController.text,
-      lastMaintenanceDate: _lastMaintenanceDateController.text.isEmpty
-          ? null
-          : DateTime.parse(_lastMaintenanceDateController.text),
-      nextMaintenanceDate: _nextMaintenanceDateController.text.isEmpty
-          ? null
-          : DateTime.parse(_nextMaintenanceDateController.text),
-      maintenanceNotes: _maintenanceNotesController.text.isEmpty
-          ? null
-          : _maintenanceNotesController.text,
-      purchaseDate: _purchaseDateController.text.isEmpty
-          ? null
-          : DateTime.parse(_purchaseDateController.text),
-      purchasePrice: _purchasePriceController.text.isEmpty
-          ? null
-          : double.tryParse(_purchasePriceController.text),
-      supplier:
-          _supplierController.text.isEmpty ? null : _supplierController.text,
-      warrantyMonths: _warrantyMonthsController.text.isEmpty
-          ? null
-          : int.tryParse(_warrantyMonthsController.text),
-      usageHours: int.tryParse(_usageHoursController.text) ?? 0,
-      lastUsedDate: _lastUsedDateController.text.isEmpty
-          ? null
-          : DateTime.parse(_lastUsedDateController.text),
-      photoUrls: isCreating ? const [] : widget.equipmentItem?.photoUrls ?? const [],
-      archivedAt: widget.equipmentItem?.archivedAt,
-      archivedBy: widget.equipmentItem?.archivedBy,
-      archivedReason: widget.equipmentItem?.archivedReason,
-    );
-
     try {
+      List<String> photoUrlsForSave;
+      if (isCreating) {
+        photoUrlsForSave = const [];
+      } else {
+        // For updates, fetch the latest item to get the correct photo list
+        // and prevent overwriting with stale data.
+        final latestItem = await ref.read(equipmentItemByIdProvider(equipmentIdToSave!).future);
+        photoUrlsForSave = latestItem.photoUrls;
+      }
+
+      final equipmentItem = EquipmentItem(
+        id: equipmentIdToSave ?? '',
+        typeId: _selectedEquipmentType!.id,
+        inventoryNumber: _inventoryNumberController.text,
+        serialNumber: _serialNumberController.text.isEmpty
+            ? null
+            : _serialNumberController.text,
+        model: _modelController.text.isEmpty ? null : _modelController.text,
+        manufacturer: _manufacturerController.text.isEmpty
+            ? null
+            : _manufacturerController.text,
+        roomId: _selectedRoom?.id,
+        placementNote: _placementNoteController.text.isEmpty
+            ? null
+            : _placementNoteController.text,
+        status: _selectedStatus,
+        conditionRating: _conditionRating,
+        conditionNotes: _conditionNotesController.text.isEmpty
+            ? null
+            : _conditionNotesController.text,
+        lastMaintenanceDate: _lastMaintenanceDateController.text.isEmpty
+            ? null
+            : DateTime.parse(_lastMaintenanceDateController.text),
+        nextMaintenanceDate: _nextMaintenanceDateController.text.isEmpty
+            ? null
+            : DateTime.parse(_nextMaintenanceDateController.text),
+        maintenanceNotes: _maintenanceNotesController.text.isEmpty
+            ? null
+            : _maintenanceNotesController.text,
+        purchaseDate: _purchaseDateController.text.isEmpty
+            ? null
+            : DateTime.parse(_purchaseDateController.text),
+        purchasePrice: _purchasePriceController.text.isEmpty
+            ? null
+            : double.tryParse(_purchasePriceController.text),
+        supplier:
+            _supplierController.text.isEmpty ? null : _supplierController.text,
+        warrantyMonths: _warrantyMonthsController.text.isEmpty
+            ? null
+            : int.tryParse(_warrantyMonthsController.text),
+        usageHours: int.tryParse(_usageHoursController.text) ?? 0,
+        lastUsedDate: _lastUsedDateController.text.isEmpty
+            ? null
+            : DateTime.parse(_lastUsedDateController.text),
+        photoUrls: photoUrlsForSave,
+        archivedAt: widget.equipmentItem?.archivedAt,
+        archivedBy: widget.equipmentItem?.archivedBy,
+        archivedReason: widget.equipmentItem?.archivedReason,
+      );
+
       if (isCreating) {
         final createdItem = await ApiService.createEquipmentItem(equipmentItem);
-        equipmentIdToSave = createdItem.id; 
+        equipmentIdToSave = createdItem.id;
 
         for (final stagedPhoto in _stagedPhotos) {
           if (stagedPhoto.bytes != null) {
@@ -329,7 +339,7 @@ class _EquipmentItemEditScreenState
       }
       ref.invalidate(allEquipmentItemsProvider);
       ref.invalidate(equipmentItemByIdProvider(equipmentIdToSave));
-      
+
       scaffoldMessenger.showSnackBar(SnackBar(
         content: Text(isCreating ? 'Элемент создан' : 'Элемент обновлен'),
         backgroundColor: Colors.green,

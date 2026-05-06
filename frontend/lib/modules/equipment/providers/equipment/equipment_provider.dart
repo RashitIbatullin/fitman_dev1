@@ -57,6 +57,7 @@ class Equipment extends _$Equipment {
     state = await AsyncValue.guard(() async {
       await ApiService.archiveEquipmentItem(id, reason);
       ref.invalidate(allEquipmentItemsProvider);
+      await ref.read(allEquipmentItemsProvider.future);
     });
   }
 
@@ -65,6 +66,7 @@ class Equipment extends _$Equipment {
     state = await AsyncValue.guard(() async {
       await ApiService.unarchiveEquipmentItem(id);
       ref.invalidate(allEquipmentItemsProvider);
+      await ref.read(allEquipmentItemsProvider.future);
     });
   }
 
@@ -115,8 +117,8 @@ final allEquipmentTypesIncludingArchivedProvider =
 final allEquipmentItemsProvider =
     FutureProvider<List<EquipmentItem>>((ref) async {
   final roomId = ref.watch(equipmentFilterRoomIdProvider);
-  final isArchived = ref.watch(equipmentItemFilterIncludeArchivedProvider); // Use specific filter for items
-  return ApiService.getAllEquipmentItems(roomId: roomId, isArchived: isArchived);
+  // Always fetch ALL items and let the client-side filtering logic handle what to show.
+  return ApiService.getAllEquipmentItems(roomId: roomId, isArchived: null);
 });
 
 // Equipment item by ID provider
@@ -166,10 +168,14 @@ List<EquipmentItem> filteredDashboardEquipment(
 
   return equipmentAsync.when(
     data: (items) {
+      // First, always filter out archived items for this dashboard view.
+      final activeItems = items.where((item) => item.archivedAt == null).toList();
+
       if (filter == null) {
-        return items; // Show all
+        return activeItems; // Return all non-archived items
       }
-      return items.where((item) => item.status == filter).toList();
+      // Then, apply the status filter to the active items.
+      return activeItems.where((item) => item.status == filter).toList();
     },
     loading: () => [],
     error: (e, s) => [],

@@ -9,6 +9,7 @@ import 'package:fitman_app/modules/equipment/providers/equipment/equipment_provi
 import 'package:fitman_app/modules/equipment/providers/maintenance_provider.dart';
 import 'package:fitman_app/modules/rooms/providers/room/room_provider.dart';
 import 'package:fitman_app/modules/users/providers/users_provider.dart';
+import 'maintenance_details_screen.dart';
 
 class EquipmentItemDetailScreen extends ConsumerStatefulWidget {
   const EquipmentItemDetailScreen({super.key, required this.itemId});
@@ -307,11 +308,20 @@ class _EquipmentItemDetailScreenState
                     return Card(
                       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       child: ListTile(
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => MaintenanceDetailsScreen(
+                                record: record,
+                              ),
+                            ),
+                          );
+                        },
                         title: Text(record.reportedProblem),
                         subtitle: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                             Text('Статус: ${record.status.name} | Создано: ${record.createdAt != null ? record.createdAt!.toLocal().toString().substring(0, 10) : 'N/A'}'),
+                             Text('Статус: ${record.status.title} | Создано: ${record.createdAt != null ? record.createdAt!.toLocal().toString().substring(0, 10) : 'N/A'}'),
                              if (isArchived)
                                Padding(
                                  padding: const EdgeInsets.only(top: 4.0),
