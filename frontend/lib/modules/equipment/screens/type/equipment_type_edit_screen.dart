@@ -268,7 +268,7 @@ class _EquipmentTypeEditScreenState extends ConsumerState<EquipmentTypeEditScree
                             children: [
                               Icon(getSchematicIcon(iconName)),
                               const SizedBox(width: 8),
-                              Text(iconName),
+                              Text(getSchematicIconDisplayName(iconName)),
                             ],
                           ),
                         )),

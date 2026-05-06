@@ -253,21 +253,31 @@ class _TypePicker extends ConsumerWidget {
                 return ListView(
                   children: [
                     ListTile(
-                      title: const Text('Все типы', style: TextStyle(fontWeight: FontWeight.bold)),
+                      leading: const Icon(Icons.clear_all),
+                      title: const Text('Все типы',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
                       onTap: () {
-                        ref.read(equipmentFilterEquipmentTypeProvider.notifier).state = null;
+                        ref
+                            .read(equipmentFilterEquipmentTypeProvider.notifier)
+                            .state = null;
                         Navigator.pop(context);
                       },
                     ),
                     ...grouped.entries.map((entry) {
                       return ExpansionTile(
                         leading: Icon(entry.key.icon, size: 24),
-                        title: Text(entry.key.displayName, style: const TextStyle(fontWeight: FontWeight.bold)),
+                        title: Text(entry.key.displayName,
+                            style:
+                                const TextStyle(fontWeight: FontWeight.bold)),
                         children: entry.value.map((type) {
                           return ListTile(
+                            leading: Icon(getSchematicIcon(type.schematicIcon)),
                             title: Text(type.name),
                             onTap: () {
-                              ref.read(equipmentFilterEquipmentTypeProvider.notifier).state = type;
+                              ref
+                                  .read(equipmentFilterEquipmentTypeProvider
+                                      .notifier)
+                                  .state = type;
                               Navigator.pop(context);
                             },
                           );
@@ -279,11 +289,27 @@ class _TypePicker extends ConsumerWidget {
               },
             );
           },
-          child: Text(selectedType?.name ?? 'Все типы'),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (selectedType != null) ...[
+                Icon(getSchematicIcon(selectedType.schematicIcon), size: 18),
+                const SizedBox(width: 8),
+              ],
+              Expanded(
+                child: Text(
+                  selectedType?.name ?? 'Все типы',
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
         );
       },
-      loading: () => const OutlinedButton(onPressed: null, child: Text('Загрузка...')),
-      error: (e, s) => OutlinedButton(onPressed: null, child: Text('Ошибка')),
+      loading: () =>
+          const OutlinedButton(onPressed: null, child: Text('Загрузка...')),
+      error: (e, s) =>
+          const OutlinedButton(onPressed: null, child: Text('Ошибка')),
     );
   }
 }
