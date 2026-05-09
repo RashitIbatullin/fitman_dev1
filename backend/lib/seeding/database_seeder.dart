@@ -33,7 +33,6 @@ class DatabaseSeeder {
     _connection = await Connection.open(endpoint,
         settings: ConnectionSettings(sslMode: SslMode.disable));
     
-    // Initialize helpers
     _staticDataSeeder = StaticDataSeeder(_connection);
     _userSeeder = UserSeeder(_connection, _faker);
     _infrastructureSeeder = InfrastructureSeeder(_connection);
@@ -120,17 +119,57 @@ class DatabaseSeeder {
 
     print('🏢 Seeding infrastructure (buildings, rooms)...');
     final building1Id = await _infrastructureSeeder.createBuilding(name: 'Главный корпус', address: 'ул. Спортивная, д. 1');
+    final building2Id = await _infrastructureSeeder.createBuilding(name: 'Водный комплекс', address: 'ул. Спортивная, д. 1, стр. 2');
+
     final rooms = {
+      'reception': await _infrastructureSeeder.createRoom(name: 'Ресепшен', buildingId: building1Id, type: 9, floor: 1),
       'cardio': await _infrastructureSeeder.createRoom(name: 'Кардио-зона', buildingId: building1Id, type: 1, floor: 2),
       'strength': await _infrastructureSeeder.createRoom(name: 'Силовая зона', buildingId: building1Id, type: 2, floor: 2),
+      'group': await _infrastructureSeeder.createRoom(name: 'Зал групповых программ', buildingId: building1Id, type: 0, floor: 3),
+      'yoga': await _infrastructureSeeder.createRoom(name: 'Студия йоги', buildingId: building1Id, type: 4, floor: 3),
+      'pool': await _infrastructureSeeder.createRoom(name: 'Бассейн 25м', buildingId: building2Id, type: 6, floor: 1),
     };
-    print('🏡 Created ${rooms.length} rooms.');
+    print('🏡 Created ${rooms.length} rooms in 2 buildings.');
     
     print('🔩 Seeding equipment...');
     final equipmentTypes = await _infrastructureSeeder.seedEquipmentTypes();
-    await _infrastructureSeeder.createEquipmentItem(typeId: equipmentTypes['treadmill']!, inventoryNumber: 'ТРЕД-001', roomId: rooms['cardio']!);
-    await _infrastructureSeeder.createEquipmentItem(typeId: equipmentTypes['dumbbell']!, inventoryNumber: 'ГАН-001', roomId: rooms['strength']!);
-    print('🔧 Created equipment items.');
+    
+    // Cardio
+    for (var i = 1; i <= 5; i++) { await _infrastructureSeeder.createEquipmentItem(typeId: equipmentTypes['treadmill']!, inventoryNumber: 'ТРЕД-00$i', roomId: rooms['cardio']!); }
+    for (var i = 1; i <= 3; i++) { await _infrastructureSeeder.createEquipmentItem(typeId: equipmentTypes['elliptical']!, inventoryNumber: 'ЭЛЛ-00$i', roomId: rooms['cardio']!); }
+    for (var i = 1; i <= 2; i++) { await _infrastructureSeeder.createEquipmentItem(typeId: equipmentTypes['bike']!, inventoryNumber: 'ВЕЛО-00$i', roomId: rooms['cardio']!); }
+    await _infrastructureSeeder.createEquipmentItem(typeId: equipmentTypes['rower']!, inventoryNumber: 'ГРЕБ-001', roomId: rooms['cardio']!);
+    
+    // Strength Machines
+    await _infrastructureSeeder.createEquipmentItem(typeId: equipmentTypes['leg_press']!, inventoryNumber: 'ЖИМ-НОГ-001', roomId: rooms['strength']!);
+    await _infrastructureSeeder.createEquipmentItem(typeId: equipmentTypes['leg_extension']!, inventoryNumber: 'РАЗГ-НОГ-001', roomId: rooms['strength']!);
+    await _infrastructureSeeder.createEquipmentItem(typeId: equipmentTypes['leg_curl']!, inventoryNumber: 'СГИБ-НОГ-001', roomId: rooms['strength']!);
+    await _infrastructureSeeder.createEquipmentItem(typeId: equipmentTypes['lat_pulldown']!, inventoryNumber: 'В-ТЯГА-001', roomId: rooms['strength']!);
+    await _infrastructureSeeder.createEquipmentItem(typeId: equipmentTypes['seated_row']!, inventoryNumber: 'Г-ТЯГА-001', roomId: rooms['strength']!);
+    await _infrastructureSeeder.createEquipmentItem(typeId: equipmentTypes['chest_press']!, inventoryNumber: 'ЖИМ-ГР-001', roomId: rooms['strength']!);
+    await _infrastructureSeeder.createEquipmentItem(typeId: equipmentTypes['shoulder_press']!, inventoryNumber: 'ЖИМ-ПЛ-001', roomId: rooms['strength']!);
+    await _infrastructureSeeder.createEquipmentItem(typeId: equipmentTypes['crossover']!, inventoryNumber: 'КРОСС-001', roomId: rooms['strength']!);
+    await _infrastructureSeeder.createEquipmentItem(typeId: equipmentTypes['smith_machine']!, inventoryNumber: 'СМИТ-001', roomId: rooms['strength']!);
+    await _infrastructureSeeder.createEquipmentItem(typeId: equipmentTypes['power_rack']!, inventoryNumber: 'РАМА-001', roomId: rooms['strength']!);
+    await _infrastructureSeeder.createEquipmentItem(typeId: equipmentTypes['power_rack']!, inventoryNumber: 'РАМА-002', roomId: rooms['strength']!);
+
+    // Benches & Barbells
+    for (var i = 1; i <= 4; i++) { await _infrastructureSeeder.createEquipmentItem(typeId: equipmentTypes['adjustable_bench']!, inventoryNumber: 'СКАМ-РЕГ-00$i', roomId: rooms['strength']!); }
+    await _infrastructureSeeder.createEquipmentItem(typeId: equipmentTypes['flat_bench']!, inventoryNumber: 'СКАМ-ГОР-001', roomId: rooms['strength']!);
+    for (var i = 1; i <= 4; i++) { await _infrastructureSeeder.createEquipmentItem(typeId: equipmentTypes['barbell']!, inventoryNumber: 'ШТАНГА-00$i', roomId: rooms['strength']!); }
+
+    // Free Weights - Dumbbells & Kettlebells
+    for (var i = 4; i <= 30; i += 2) {
+      final weight = i.toString().padLeft(2, '0');
+      await _infrastructureSeeder.createEquipmentItem(typeId: equipmentTypes['dumbbell']!, inventoryNumber: 'ГАН-$weight-01', roomId: rooms['strength']!);
+      await _infrastructureSeeder.createEquipmentItem(typeId: equipmentTypes['dumbbell']!, inventoryNumber: 'ГАН-$weight-02', roomId: rooms['strength']!);
+    }
+    final kettlebellWeights = [8, 12, 16, 20, 24, 32];
+    for (final weight in kettlebellWeights) {
+      await _infrastructureSeeder.createEquipmentItem(typeId: equipmentTypes['kettlebell']!, inventoryNumber: 'ГИРЯ-$weight', roomId: rooms['strength']!);
+    }
+
+    print('🔧 Created a full set of equipment items.');
 
     print('👥 Seeding users and profiles for a medium center...');
     final roles = await getIdsForTable('roles', keyColumn: 'name');
@@ -138,7 +177,6 @@ class DatabaseSeeder {
     final goals = await getIdsForTable('goals_training', keyColumn: 'name');
     final groupTypes = await getIdsForTable('training_group_types', keyColumn: 'name');
 
-    // 1. Create Staff
     final adminId = await _userSeeder.createUser(login: 'admin@fitman.ru', firstName: 'Админ', lastName: 'Администраторов', phone: '+70000000000', password: 'admin123');
     await _userSeeder.assignRole(adminId, roles['admin']!);
     await _connection.execute(Sql.named('INSERT INTO admin_profiles (user_id) VALUES (@user_id)'), parameters: {'user_id': adminId});
@@ -156,7 +194,7 @@ class DatabaseSeeder {
 
     final trainerIds = <String>[];
     for (int i = 1; i <= 5; i++) {
-      final trainerId = await _userSeeder.createUser(login: 'trainer$i@fitman.ru', firstName: 'Тренер-$i', lastName: 'Наставников', phone: '+700000000${i+4}', password: 'trainer123');
+      final trainerId = await _userSeeder.createUser(login: 'trainer$i@fitman.ru', firstName: 'Тренер-$i', lastName: 'Наставников', phone: '+700000001${i+4}', password: 'trainer123');
       await _userSeeder.assignRole(trainerId, roles['trainer']!);
       await _userSeeder.createEmployeeProfile(trainerId, specialization: 'Силовой тренинг', workExperience: i, createdBy: adminId);
       await _connection.execute(Sql.named('INSERT INTO trainer_profiles (user_id, created_by) VALUES (@user_id, @created_by)'), parameters: {'user_id': trainerId, 'created_by': adminId});
@@ -164,7 +202,16 @@ class DatabaseSeeder {
       print('   👤 Created Trainer $i');
     }
 
-    // 2. Create Clients
+    final instructorIds = <String>[];
+    for (int i = 1; i <= 4; i++) {
+      final instructorId = await _userSeeder.createUser(login: 'instructor$i@fitman.ru', firstName: 'Инструктор-$i', lastName: 'Проводникова', gender: 1, phone: '+700000002${i+4}', password: 'instructor123');
+      await _userSeeder.assignRole(instructorId, roles['instructor']!);
+      await _userSeeder.createEmployeeProfile(instructorId, specialization: 'Групповые программы', workExperience: i, createdBy: adminId);
+      await _connection.execute(Sql.named('INSERT INTO instructor_profiles (user_id, created_by) VALUES (@user_id, @created_by)'), parameters: {'user_id': instructorId, 'created_by': adminId});
+      instructorIds.add(instructorId);
+      print('   👤 Created Instructor $i');
+    }
+
     final clientIds = <String>[];
     print('   Creating 100 clients...');
     for (int i = 1; i <= 100; i++) {
@@ -191,41 +238,32 @@ class DatabaseSeeder {
     }
     print('');
     print('   Created 100 clients.');
+    
+    print('🛠️ Seeding support staff and competencies...');
+    final supportStaffId1 = await _userSeeder.createSupportStaff(firstName: 'Петр', lastName: 'Сергеев', phone: '+79991112233', email: 'p.sergeev@techservice.com', employmentType: 2, category: 0, canMaintainEquipment: true, companyName: 'ООО "ТехСервис"', createdBy: adminId);
+    await _userSeeder.createCompetency(competentId: supportStaffId1, executorType: 1, name: 'Обслуживание кардио-тренажеров Matrix', level: 3, verifiedBy: adminId, createdBy: adminId);
+    
+    final supportStaffId2 = await _userSeeder.createSupportStaff(firstName: 'Иван', lastName: 'Золотов', phone: '+79992223344', email: 'i.zolotov@clean.com', employmentType: 1, category: 1, canMaintainEquipment: false, createdBy: adminId);
+    await _userSeeder.createCompetency(competentId: supportStaffId2, executorType: 1, name: 'Уборка помещений', level: 2, verifiedBy: adminId, createdBy: adminId);
+
+    await _userSeeder.createCompetency(competentId: trainerIds[0], executorType: 0, name: 'Базовое обслуживание силовых тренажеров', level: 2, verifiedBy: adminId, createdBy: adminId);
+    await _userSeeder.createCompetency(competentId: trainerIds[1], executorType: 0, name: 'TRX-тренировки', level: 3, verifiedBy: adminId, createdBy: adminId);
+    await _userSeeder.createCompetency(competentId: instructorIds[0], executorType: 0, name: 'Проведение занятий по Йоге', level: 3, verifiedBy: adminId, createdBy: adminId);
+    print('   🛠️ Created support staff and competencies.');
 
     print('🤸 Seeding training groups...');
-    final yogaGroup = await _groupSeeder.createTrainingGroup(
-      name: 'Утренняя Йога',
-      description: 'Группа для тех, кто хочет начать день с бодрости и гибкости.',
-      trainingGroupTypeId: groupTypes['group']!,
-      primaryTrainerId: trainerIds[0],
-      responsibleManagerId: managerIds[0],
-      createdBy: adminId,
-    );
+    final yogaGroup = await _groupSeeder.createTrainingGroup(name: 'Утренняя Йога', description: 'Группа для тех, кто хочет начать день с бодрости и гибкости.', trainingGroupTypeId: groupTypes['group']!, primaryTrainerId: trainerIds[0], primaryInstructorId: instructorIds[0], responsibleManagerId: managerIds[0], createdBy: adminId);
     await _groupSeeder.createGroupSchedule(groupId: yogaGroup, dayOfWeek: 2, startTime: '08:00', endTime: '09:00');
     await _groupSeeder.createGroupSchedule(groupId: yogaGroup, dayOfWeek: 4, startTime: '08:00', endTime: '09:00');
     print('   🧘 Created Yoga group');
 
-    final strengthGroup = await _groupSeeder.createTrainingGroup(
-      name: 'Силовой Пауэрлифтинг',
-      description: 'Для тех, кто хочет стать сильнее. Работа с большими весами.',
-      trainingGroupTypeId: groupTypes['group']!,
-      primaryTrainerId: trainerIds[1],
-      responsibleManagerId: managerIds[0],
-      createdBy: adminId,
-    );
+    final strengthGroup = await _groupSeeder.createTrainingGroup(name: 'Силовой Пауэрлифтинг', description: 'Для тех, кто хочет стать сильнее. Работа с большими весами.', trainingGroupTypeId: groupTypes['group']!, primaryTrainerId: trainerIds[1], responsibleManagerId: managerIds[0], createdBy: adminId);
     await _groupSeeder.createGroupSchedule(groupId: strengthGroup, dayOfWeek: 1, startTime: '19:00', endTime: '20:30');
     await _groupSeeder.createGroupSchedule(groupId: strengthGroup, dayOfWeek: 3, startTime: '19:00', endTime: '20:30');
     await _groupSeeder.createGroupSchedule(groupId: strengthGroup, dayOfWeek: 5, startTime: '19:00', endTime: '20:30');
     print('   🏋️ Created Powerlifting group');
     
-    final crossfitGroup = await _groupSeeder.createTrainingGroup(
-      name: 'CrossFit для всех',
-      description: 'Интенсивные функциональные тренировки.',
-      trainingGroupTypeId: groupTypes['group']!,
-      primaryTrainerId: trainerIds[2],
-      responsibleManagerId: managerIds[1],
-      createdBy: adminId,
-    );
+    final crossfitGroup = await _groupSeeder.createTrainingGroup(name: 'CrossFit для всех', description: 'Интенсивные функциональные тренировки.', trainingGroupTypeId: groupTypes['group']!, primaryTrainerId: trainerIds[2], primaryInstructorId: instructorIds[1], responsibleManagerId: managerIds[1], createdBy: adminId);
     await _groupSeeder.createGroupSchedule(groupId: crossfitGroup, dayOfWeek: 2, startTime: '18:00', endTime: '19:00');
     await _groupSeeder.createGroupSchedule(groupId: crossfitGroup, dayOfWeek: 4, startTime: '18:00', endTime: '19:00');
     print('   🤸 Created CrossFit group');
