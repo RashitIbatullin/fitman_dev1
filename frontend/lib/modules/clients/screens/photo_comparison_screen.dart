@@ -105,7 +105,7 @@ class _PhotoComparisonScreenState extends ConsumerState<PhotoComparisonScreen> {
     /*
     try {
       FilePickerResult? result =
-          await FilePicker.platform.pickFiles(type: FileType.image);
+          await FilePicker.pickFiles(type: FileType.image);
 
       if (result != null) {
         final platformFile = result.files.single;

@@ -28,12 +28,12 @@ dependencies:
   path: ^1.9.0
   redis: ^4.0.0
   dart_frog_web_socket: ^1.0.0
-  shelf_web_socket: ^2.0.0
-  web_socket_channel: ^2.4.0 # Or a more recent compatible version
+  shelf_web_socket: ^3.0.0
+  web_socket_channel: ^3.0.3 # Or a more recent compatible version
   jwt_decoder: ^2.0.1
   uuid: ^4.0.0
   http_parser: ^4.0.2
-  mime: ^1.0.4
+  mime: ^2.0.0
   faker: ^2.2.0
   args: ^2.7.0
 

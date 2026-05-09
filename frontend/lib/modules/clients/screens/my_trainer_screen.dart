@@ -98,7 +98,7 @@ class _MyTrainerScreenState extends ConsumerState<MyTrainerScreen> {
   }
 
   Future<void> _pickFile() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
+    FilePickerResult? result = await FilePicker.pickFiles(
       type: FileType.any,
       allowMultiple: false,
     );

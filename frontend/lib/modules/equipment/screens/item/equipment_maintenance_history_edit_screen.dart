@@ -118,7 +118,7 @@ class _EquipmentMaintenanceHistoryEditScreenState
   }
 
   Future<void> _pickFiles(List<_PhotoHolder> photoList) async {
-    final result = await FilePicker.platform.pickFiles(
+    final result = await FilePicker.pickFiles(
       type: FileType.image,
       allowMultiple: true,
     );

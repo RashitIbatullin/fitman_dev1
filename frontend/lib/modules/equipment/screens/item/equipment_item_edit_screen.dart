@@ -119,7 +119,7 @@ class _EquipmentItemEditScreenState
 
   Future<void> _pickAndAddPhoto(BuildContext context, WidgetRef ref) async {
     final scaffoldMessenger = ScaffoldMessenger.of(context);
-    final result = await FilePicker.platform.pickFiles(
+    final result = await FilePicker.pickFiles(
       type: FileType.image,
       withData: true,
     );

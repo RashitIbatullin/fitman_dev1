@@ -103,7 +103,7 @@ abstract class _BaseChart extends StatelessWidget {
   Widget _bottomTitleWidgets(double value, TitleMeta meta) {
     final date = DateTime.fromMillisecondsSinceEpoch(value.toInt());
     return SideTitleWidget(
-      axisSide: meta.axisSide,
+      meta: meta,
       space: 4,
       angle: -pi / 4,
       child: Text(DateFormat('dd.MM').format(date)),

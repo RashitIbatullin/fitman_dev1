@@ -14,7 +14,7 @@ class ChatWsController {
         return Response.forbidden('Authentication failed.');
       }
 
-      final handler = webSocketHandler((webSocket) {
+      final handler = webSocketHandler((webSocket, request) {
         ChatService.instance.handleConnection(userId, webSocket);
       });
       

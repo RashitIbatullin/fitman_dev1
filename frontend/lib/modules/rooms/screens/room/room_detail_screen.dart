@@ -256,7 +256,7 @@ class RoomDetailScreen extends ConsumerWidget {
   }
 
   Future<void> _pickAndUploadPhoto(BuildContext context, WidgetRef ref, String roomId) async {
-    final result = await FilePicker.platform.pickFiles(
+    final result = await FilePicker.pickFiles(
       type: FileType.image,
       withData: true,
     );

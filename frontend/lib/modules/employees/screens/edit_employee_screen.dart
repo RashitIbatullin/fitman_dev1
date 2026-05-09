@@ -113,9 +113,9 @@ class _EditEmployeeScreenState extends ConsumerState<EditEmployeeScreen> with Si
   }
 
   Future<void> _uploadAndReplaceAvatar() async {
-    FilePickerResult? result =
-        await FilePicker.platform.pickFiles(type: FileType.image);
+    FilePickerResult? result = await FilePicker.pickFiles(type: FileType.image);
     if (result == null) return;
+
 
     final platformFile = result.files.single;
     final fileName = platformFile.name;
