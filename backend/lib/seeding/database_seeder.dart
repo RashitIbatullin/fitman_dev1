@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:faker/faker.dart';
+import 'package:faker_dart/faker_dart.dart';
 import 'package:postgres/postgres.dart';
 import 'package:fitman_backend/config/app_config.dart';
 
@@ -12,7 +12,7 @@ import 'user_seeder.dart';
 
 class DatabaseSeeder {
   late final Connection _connection;
-  final Faker _faker = Faker();
+  final Faker _faker = Faker.instance;
 
   // Seeder helpers
   late final StaticDataSeeder _staticDataSeeder;
@@ -33,6 +33,8 @@ class DatabaseSeeder {
     _connection = await Connection.open(endpoint,
         settings: ConnectionSettings(sslMode: SslMode.disable));
     
+    _faker.setLocale(FakerLocaleType.ru);
+
     _staticDataSeeder = StaticDataSeeder(_connection);
     _userSeeder = UserSeeder(_connection, _faker);
     _infrastructureSeeder = InfrastructureSeeder(_connection);
@@ -177,6 +179,7 @@ class DatabaseSeeder {
     final goals = await getIdsForTable('goals_training', keyColumn: 'name');
     final groupTypes = await getIdsForTable('training_group_types', keyColumn: 'name');
 
+    // 1. Create Staff
     final adminId = await _userSeeder.createUser(login: 'admin@fitman.ru', firstName: 'Админ', lastName: 'Администраторов', phone: '+70000000000', password: 'admin123');
     await _userSeeder.assignRole(adminId, roles['admin']!);
     await _connection.execute(Sql.named('INSERT INTO admin_profiles (user_id) VALUES (@user_id)'), parameters: {'user_id': adminId});
@@ -212,14 +215,15 @@ class DatabaseSeeder {
       print('   👤 Created Instructor $i');
     }
 
+    // 2. Create Clients
     final clientIds = <String>[];
     print('   Creating 100 clients...');
     for (int i = 1; i <= 100; i++) {
       final clientId = await _userSeeder.createUser(
         login: 'client$i@fitman.ru',
-        firstName: _faker.person.firstName(),
-        lastName: _faker.person.lastName(),
-        gender: _faker.randomGenerator.integer(2),
+        firstName: _faker.name.firstName(),
+        lastName: _faker.name.lastName(),
+        gender: _faker.datatype.number(min: 0, max: 1),
         password: 'client123',
         phone: '+7${9000000000 + i}',
       );
@@ -229,8 +233,8 @@ class DatabaseSeeder {
         VALUES (@user_id, @goal, @level, @created_by)
       '''), parameters: {
         'user_id': clientId,
-        'goal': goals.values.elementAt(_faker.randomGenerator.integer(goals.length)),
-        'level': levels.values.elementAt(_faker.randomGenerator.integer(levels.length)),
+        'goal': goals.values.elementAt(_faker.datatype.number(min: 0, max:goals.length)),
+        'level': levels.values.elementAt(_faker.datatype.number(min: 0, max:levels.length)),
         'created_by': adminId,
       });
       clientIds.add(clientId);
@@ -239,6 +243,7 @@ class DatabaseSeeder {
     print('');
     print('   Created 100 clients.');
     
+    // 3. Seeding support staff and competencies
     print('🛠️ Seeding support staff and competencies...');
     final supportStaffId1 = await _userSeeder.createSupportStaff(firstName: 'Петр', lastName: 'Сергеев', phone: '+79991112233', email: 'p.sergeev@techservice.com', employmentType: 2, category: 0, canMaintainEquipment: true, companyName: 'ООО "ТехСервис"', createdBy: adminId);
     await _userSeeder.createCompetency(competentId: supportStaffId1, executorType: 1, name: 'Обслуживание кардио-тренажеров Matrix', level: 3, verifiedBy: adminId, createdBy: adminId);
@@ -251,6 +256,7 @@ class DatabaseSeeder {
     await _userSeeder.createCompetency(competentId: instructorIds[0], executorType: 0, name: 'Проведение занятий по Йоге', level: 3, verifiedBy: adminId, createdBy: adminId);
     print('   🛠️ Created support staff and competencies.');
 
+    // 4. Create Training Groups
     print('🤸 Seeding training groups...');
     final yogaGroup = await _groupSeeder.createTrainingGroup(name: 'Утренняя Йога', description: 'Группа для тех, кто хочет начать день с бодрости и гибкости.', trainingGroupTypeId: groupTypes['group']!, primaryTrainerId: trainerIds[0], primaryInstructorId: instructorIds[0], responsibleManagerId: managerIds[0], createdBy: adminId);
     await _groupSeeder.createGroupSchedule(groupId: yogaGroup, dayOfWeek: 2, startTime: '08:00', endTime: '09:00');
@@ -268,16 +274,54 @@ class DatabaseSeeder {
     await _groupSeeder.createGroupSchedule(groupId: crossfitGroup, dayOfWeek: 4, startTime: '18:00', endTime: '19:00');
     print('   🤸 Created CrossFit group');
 
+    final boxingGroup = await _groupSeeder.createTrainingGroup(name: 'Бокс для начинающих', description: 'Основы бокса, постановка удара и защита.', trainingGroupTypeId: groupTypes['group']!, primaryTrainerId: trainerIds[3], primaryInstructorId: instructorIds[2], responsibleManagerId: managerIds[1], createdBy: adminId);
+    await _groupSeeder.createGroupSchedule(groupId: boxingGroup, dayOfWeek: 1, startTime: '20:00', endTime: '21:30');
+    await _groupSeeder.createGroupSchedule(groupId: boxingGroup, dayOfWeek: 5, startTime: '20:00', endTime: '21:30');
+    print('   🥊 Created Boxing group');
+    
+    final pilatesGroup = await _groupSeeder.createTrainingGroup(name: 'Пилатес', description: 'Укрепление мышечного корсета и улучшение осанки.', trainingGroupTypeId: groupTypes['group']!, primaryTrainerId: trainerIds[4], primaryInstructorId: instructorIds[3], responsibleManagerId: managerIds[1], createdBy: adminId);
+    await _groupSeeder.createGroupSchedule(groupId: pilatesGroup, dayOfWeek: 3, startTime: '18:00', endTime: '19:00');
+    print('   🧘‍♀️ Created Pilates group');
+
+    // 5. Assign members to groups
     print('   Assigning members to groups...');
-    for (var i = 0; i < 10; i++) {
+    // Distribute 80 clients among 5 groups
+    for (var i = 0; i < 15; i++) {
       await _groupSeeder.addMemberToTrainingGroup(groupId: yogaGroup, userId: clientIds[i], addedBy: adminId);
     }
-    for (var i = 10; i < 20; i++) {
+    for (var i = 15; i < 30; i++) {
       await _groupSeeder.addMemberToTrainingGroup(groupId: strengthGroup, userId: clientIds[i], addedBy: adminId);
     }
-    for (var i = 20; i < 35; i++) {
+    for (var i = 30; i < 50; i++) {
       await _groupSeeder.addMemberToTrainingGroup(groupId: crossfitGroup, userId: clientIds[i], addedBy: adminId);
     }
+    for (var i = 50; i < 65; i++) {
+      await _groupSeeder.addMemberToTrainingGroup(groupId: boxingGroup, userId: clientIds[i], addedBy: adminId);
+    }
+    for (var i = 65; i < 80; i++) {
+      await _groupSeeder.addMemberToTrainingGroup(groupId: pilatesGroup, userId: clientIds[i], addedBy: adminId);
+    }
+
+    // Create semi-personal groups
+    final semiPersonal1 = await _groupSeeder.createTrainingGroup(name: 'Полуперсональная 1', description: 'Тренировка для двоих', trainingGroupTypeId: groupTypes['semi_personal']!, primaryTrainerId: trainerIds[0], createdBy: adminId, maxParticipants: 2);
+    await _groupSeeder.addMemberToTrainingGroup(groupId: semiPersonal1, userId: clientIds[80], addedBy: adminId);
+    await _groupSeeder.addMemberToTrainingGroup(groupId: semiPersonal1, userId: clientIds[81], addedBy: adminId);
+    await _groupSeeder.createGroupSchedule(groupId: semiPersonal1, dayOfWeek: 1, startTime: '10:00', endTime: '11:00');
+
+    final semiPersonal2 = await _groupSeeder.createTrainingGroup(name: 'Полуперсональная 2', description: 'Тренировка для двоих', trainingGroupTypeId: groupTypes['semi_personal']!, primaryTrainerId: trainerIds[1], createdBy: adminId, maxParticipants: 2);
+    await _groupSeeder.addMemberToTrainingGroup(groupId: semiPersonal2, userId: clientIds[82], addedBy: adminId);
+    await _groupSeeder.addMemberToTrainingGroup(groupId: semiPersonal2, userId: clientIds[83], addedBy: adminId);
+    await _groupSeeder.createGroupSchedule(groupId: semiPersonal2, dayOfWeek: 2, startTime: '11:00', endTime: '12:00');
+
+    // Create individual groups
+    final individual1 = await _groupSeeder.createTrainingGroup(name: 'Индивидуальная 1', description: 'Персональная тренировка', trainingGroupTypeId: groupTypes['individual']!, primaryTrainerId: trainerIds[2], createdBy: adminId, maxParticipants: 1);
+    await _groupSeeder.addMemberToTrainingGroup(groupId: individual1, userId: clientIds[84], addedBy: adminId);
+    await _groupSeeder.createGroupSchedule(groupId: individual1, dayOfWeek: 3, startTime: '14:00', endTime: '15:00');
+
+    final individual2 = await _groupSeeder.createTrainingGroup(name: 'Индивидуальная 2', description: 'Персональная тренировка', trainingGroupTypeId: groupTypes['individual']!, primaryTrainerId: trainerIds[3], createdBy: adminId, maxParticipants: 1);
+    await _groupSeeder.addMemberToTrainingGroup(groupId: individual2, userId: clientIds[85], addedBy: adminId);
+    await _groupSeeder.createGroupSchedule(groupId: individual2, dayOfWeek: 4, startTime: '15:00', endTime: '16:00');
+
     print('   ✅ Members assigned.');
   }
 
@@ -286,7 +330,7 @@ class DatabaseSeeder {
     await _staticDataSeeder.seed();
     print('Generating $userCount users...');
     for (int i = 0; i < userCount; i++) {
-      await _userSeeder.createUser(login: _faker.internet.email(), firstName: _faker.person.firstName(), lastName: _faker.person.lastName(), password: 'password');
+      await _userSeeder.createUser(login: _faker.internet.email(), firstName: _faker.name.firstName(), lastName: _faker.name.lastName(), password: 'password');
       stdout.write('.');
     }
     print('');

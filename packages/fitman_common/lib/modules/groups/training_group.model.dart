@@ -1,3 +1,4 @@
+import 'package:fitman_common/custom/custom_date_time_converter.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
@@ -28,8 +29,12 @@ class TrainingGroup extends Equatable {
   final String? levelId; // Уровень подготовки группы
 
   // ЛИМИТЫ И ОГРАНИЧЕНИЯ
+  @CustomDateTimeConverter()
   final DateTime startDate; // Дата начала работы группы
+  
+  @NullableCustomDateTimeConverter()
   final DateTime? endDate; // Дата окончания (если предусмотрена)
+  
   final int maxParticipants; // Максимальное количество участников
   final int? currentParticipants; // Текущее количество участников
 
@@ -37,11 +42,19 @@ class TrainingGroup extends Equatable {
   final bool? isActive; // Активна ли группа
   final String? chatId; // Ссылка на групповой чат (создается автоматически)
   final String? companyId;
+
+  @NullableCustomDateTimeConverter()
   final DateTime? createdAt;
+  
+  @NullableCustomDateTimeConverter()
   final DateTime? updatedAt;
+  
   final String? createdBy;
   final String? updatedBy;
+  
+  @NullableCustomDateTimeConverter()
   final DateTime? archivedAt;
+  
   final String? archivedBy;
 
   const TrainingGroup({

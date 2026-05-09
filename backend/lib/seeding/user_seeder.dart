@@ -1,4 +1,4 @@
-import 'package:faker/faker.dart';
+import 'package:faker_dart/faker_dart.dart';
 import 'package:postgres/postgres.dart';
 import 'package:bcrypt/bcrypt.dart';
 
@@ -9,11 +9,18 @@ class UserSeeder {
 
   Future<String> createUser({required String login, required String firstName, required String lastName, String? phone, int gender = 0, required String password}) async {
     final passwordHash = BCrypt.hashpw(password, BCrypt.gensalt());
+
+    final DateTime now = DateTime.now();
+// Самая ранняя дата (человеку 60 лет)
+    final minDate = DateTime(now.year - 60, now.month, now.day);
+// Самая поздняя дата (человеку 22 года)
+    final maxDate = DateTime(now.year - 16, now.month, now.day);
+
     final result = await _connection.execute(Sql.named('''
       INSERT INTO users (login, password_hash, email, first_name, last_name, gender, date_of_birth, phone)
       VALUES (@login, @hash, @email, @first, @last, @gender, @dob, @phone)
       RETURNING id
-      '''), parameters: {'login': phone ?? login, 'hash': passwordHash, 'email': login, 'first': firstName, 'last': lastName, 'gender': gender, 'dob': _faker.date.dateTime(minYear: 1970, maxYear: 2004), 'phone': phone});
+      '''), parameters: {'login': phone ?? login, 'hash': passwordHash, 'email': login, 'first': firstName, 'last': lastName, 'gender': gender, 'dob': _faker.date.between(minDate, maxDate), 'phone': phone});
     return result.first[0].toString();
   }
 
@@ -25,7 +32,7 @@ class UserSeeder {
     await _connection.execute(Sql.named('''
       INSERT INTO employee_profiles (user_id, specialization, work_experience, can_maintain_equipment, created_by)
       VALUES (@user_id, @spec, @exp, @can_maintain, @created_by)
-      '''), parameters: {'user_id': userId, 'spec': specialization, 'exp': workExperience, 'can_maintain': _faker.randomGenerator.boolean(), 'created_by': createdBy});
+      '''), parameters: {'user_id': userId, 'spec': specialization, 'exp': workExperience, 'can_maintain': _faker.datatype.boolean(), 'created_by': createdBy});
   }
 
   Future<void> assign(String managerId, String tableName, String roleIdColumn, String subordinateId) async {

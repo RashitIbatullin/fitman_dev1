@@ -22,26 +22,23 @@ TrainingGroup _$TrainingGroupFromJson(Map<String, dynamic> json) =>
       programId: json['program_id'] as String?,
       goalId: json['goal_id'] as String?,
       levelId: json['level_id'] as String?,
-      startDate: DateTime.parse(json['start_date'] as String),
-      endDate: json['end_date'] == null
-          ? null
-          : DateTime.parse(json['end_date'] as String),
+      startDate:
+          const CustomDateTimeConverter().fromJson(json['start_date'] as Object),
+      endDate: const NullableCustomDateTimeConverter()
+          .fromJson(json['end_date'] as Object?),
       maxParticipants: (json['max_participants'] as num).toInt(),
       currentParticipants: (json['current_participants'] as num?)?.toInt(),
       isActive: json['is_active'] as bool?,
       chatId: json['chat_id'] as String?,
       companyId: json['company_id'] as String?,
-      createdAt: json['created_at'] == null
-          ? null
-          : DateTime.parse(json['created_at'] as String),
-      updatedAt: json['updated_at'] == null
-          ? null
-          : DateTime.parse(json['updated_at'] as String),
+      createdAt: const NullableCustomDateTimeConverter()
+          .fromJson(json['created_at'] as Object?),
+      updatedAt: const NullableCustomDateTimeConverter()
+          .fromJson(json['updated_at'] as Object?),
       createdBy: json['created_by'] as String?,
       updatedBy: json['updated_by'] as String?,
-      archivedAt: json['archived_at'] == null
-          ? null
-          : DateTime.parse(json['archived_at'] as String),
+      archivedAt: const NullableCustomDateTimeConverter()
+          .fromJson(json['archived_at'] as Object?),
       archivedBy: json['archived_by'] as String?,
     );
 
@@ -58,17 +55,22 @@ Map<String, dynamic> _$TrainingGroupToJson(TrainingGroup instance) =>
       'program_id': instance.programId,
       'goal_id': instance.goalId,
       'level_id': instance.levelId,
-      'start_date': instance.startDate.toIso8601String(),
-      'end_date': instance.endDate?.toIso8601String(),
+      'start_date':
+          const CustomDateTimeConverter().toJson(instance.startDate),
+      'end_date':
+          const NullableCustomDateTimeConverter().toJson(instance.endDate),
       'max_participants': instance.maxParticipants,
       'current_participants': instance.currentParticipants,
       'is_active': instance.isActive,
       'chat_id': instance.chatId,
       'company_id': instance.companyId,
-      'created_at': instance.createdAt?.toIso8601String(),
-      'updated_at': instance.updatedAt?.toIso8601String(),
+      'created_at':
+          const NullableCustomDateTimeConverter().toJson(instance.createdAt),
+      'updated_at':
+          const NullableCustomDateTimeConverter().toJson(instance.updatedAt),
       'created_by': instance.createdBy,
       'updated_by': instance.updatedBy,
-      'archived_at': instance.archivedAt?.toIso8601String(),
+      'archived_at':
+          const NullableCustomDateTimeConverter().toJson(instance.archivedAt),
       'archived_by': instance.archivedBy,
     };
