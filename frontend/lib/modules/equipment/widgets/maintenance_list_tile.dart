@@ -38,14 +38,17 @@ class MaintenanceListTile extends ConsumerWidget {
           spacing: 8.0, // space between items
           runSpacing: 4.0,
           children: [
-            if (historyItem.number != null)
-              Text('№${historyItem.number}', style: const TextStyle(fontWeight: FontWeight.bold)),
+            // ignore: use_null_aware_elements
+            if (historyItem.number case final number?)
+              Text('№$number', style: const TextStyle(fontWeight: FontWeight.bold)),
             // Fix for unnecessary_string_interpolations info
             Text(statusLabel, style: TextStyle(color: Colors.black)),
             Text(historyItem.status.title, style: TextStyle(fontWeight: FontWeight.bold, color: historyItem.status.color)),
-            if (historyItem.createdAt != null)
-              Text('Создано: ${DateFormat('dd.MM.yy').format(historyItem.createdAt!.toLocal())}'),
-            if (statusDetails != null) statusDetails!,
+            // ignore: use_null_aware_elements
+            if (historyItem.createdAt case final createdAt?)
+              Text('Создано: ${DateFormat('dd.MM.yy').format(createdAt.toLocal())}'),
+            // ignore: use_null_aware_elements
+            if (statusDetails case final details?) details,
           ],
         ),
         trailing: trailing,
