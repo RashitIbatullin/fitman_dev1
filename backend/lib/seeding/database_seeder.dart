@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:faker_dart/faker_dart.dart';
 import 'package:postgres/postgres.dart';
@@ -7,12 +8,14 @@ import 'package:fitman_backend/config/app_config.dart';
 import 'group_seeder.dart';
 import 'infrastructure_seeder.dart';
 import 'recommendation_seeder.dart';
+import 'russian_names_provider.dart';
 import 'static_data_seeder.dart';
 import 'user_seeder.dart';
 
 class DatabaseSeeder {
   late final Connection _connection;
   final Faker _faker = Faker.instance;
+  final _random = Random();
 
   // Seeder helpers
   late final StaticDataSeeder _staticDataSeeder;
@@ -219,11 +222,13 @@ class DatabaseSeeder {
     final clientIds = <String>[];
     print('   Creating 100 clients...');
     for (int i = 1; i <= 100; i++) {
+            final gender = _random.nextInt(2);
+      final isMale = gender == 0;
       final clientId = await _userSeeder.createUser(
         login: 'client$i@fitman.ru',
-        firstName: _faker.name.firstName(),
-        lastName: _faker.name.lastName(),
-        gender: _faker.datatype.number(min: 0, max: 1),
+        firstName: _faker.name.russianFirstName(isMale: isMale),
+        lastName: _faker.name.russianLastName(isMale: isMale),
+        gender: gender,
         password: 'client123',
         phone: '+7${9000000000 + i}',
       );
@@ -330,7 +335,15 @@ class DatabaseSeeder {
     await _staticDataSeeder.seed();
     print('Generating $userCount users...');
     for (int i = 0; i < userCount; i++) {
-      await _userSeeder.createUser(login: _faker.internet.email(), firstName: _faker.name.firstName(), lastName: _faker.name.lastName(), password: 'password');
+      final gender = _random.nextInt(2);
+      final isMale = gender == 0;
+      await _userSeeder.createUser(
+        login: _faker.internet.email(),
+        firstName: _faker.name.russianFirstName(isMale: isMale),
+        lastName: _faker.name.russianLastName(isMale: isMale),
+        gender: gender,
+        password: 'password',
+      );
       stdout.write('.');
     }
     print('');
