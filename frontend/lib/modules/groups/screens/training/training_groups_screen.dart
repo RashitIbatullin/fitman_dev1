@@ -4,26 +4,28 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/group_providers.dart';
 import './training_group_edit_screen.dart';
 import '../../widgets/training/training_group_card.dart';
-import 'package:fitman_common/modules/groups/training_group.model.dart'; // Import for TrainingGroup
-import 'package:fitman_app/services/api_service.dart'; // Import ApiService
-import 'package:fitman_common/fitman_common.dart'; // Import User
+import 'package:fitman_common/modules/groups/training_group.model.dart';
+import 'package:fitman_app/services/api_service.dart';
+import 'package:fitman_common/fitman_common.dart';
 import 'package:fitman_app/widgets/filter_popup_menu.dart';
 
 class TrainingGroupsScreen extends ConsumerStatefulWidget {
   const TrainingGroupsScreen({super.key});
 
   @override
-  ConsumerState<TrainingGroupsScreen> createState() => _TrainingGroupsScreenState();
+  ConsumerState<TrainingGroupsScreen> createState() =>
+      _TrainingGroupsScreenState();
 }
 
 class _TrainingGroupsScreenState extends ConsumerState<TrainingGroupsScreen> {
   String _searchQuery = '';
   String? _selectedGroupTypeId;
-  bool? _isActiveFilter = true; // null for 'All', true for 'Active', false for 'Inactive'
-  bool? _isArchivedFilter = false; // null for 'All', true for 'Archived', false for 'Not Archived'
-  String? _selectedTrainerId;
-  String? _selectedInstructorId;
-  String? _selectedManagerId;
+  bool? _isActiveFilter = true;
+  bool? _isArchivedFilter = false;
+
+  // New combined employee filter state
+  User? _selectedEmployee;
+  String? _selectedEmployeeRole;
 
   List<User> _trainers = [];
   List<User> _instructors = [];
@@ -51,9 +53,15 @@ class _TrainingGroupsScreenState extends ConsumerState<TrainingGroupsScreen> {
       final allUsers = await ApiService.getUsers();
       if (!mounted) return;
       setState(() {
-        _trainers = allUsers.where((user) => user.roles.any((role) => role.name == 'trainer')).toList();
-        _instructors = allUsers.where((user) => user.roles.any((role) => role.name == 'instructor')).toList();
-        _managers = allUsers.where((user) => user.roles.any((role) => role.name == 'manager')).toList();
+        _trainers = allUsers
+            .where((user) => user.roles.any((role) => role.name == 'trainer'))
+            .toList();
+        _instructors = allUsers
+            .where((user) => user.roles.any((role) => role.name == 'instructor'))
+            .toList();
+        _managers = allUsers
+            .where((user) => user.roles.any((role) => role.name == 'manager'))
+            .toList();
       });
     } catch (e) {
       if (!mounted) return;
@@ -63,13 +71,11 @@ class _TrainingGroupsScreenState extends ConsumerState<TrainingGroupsScreen> {
     }
   }
 
-    @override
+  @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
   }
-
-  // --- Widget Builder Functions ---
 
   AppBar _buildAppBar() {
     return AppBar(
@@ -97,43 +103,41 @@ class _TrainingGroupsScreenState extends ConsumerState<TrainingGroupsScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // First row of filters (Type, Active/Inactive, Archived/Not Archived)
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.symmetric(horizontal: 8.0),
           child: Row(
-            mainAxisSize: MainAxisSize.min, // Crucial for horizontal scrolling
+            mainAxisSize: MainAxisSize.min,
             children: [
-              // Existing Group Type Filter
               ...ref.watch(trainingGroupTypesProvider).when(
-                data: (types) => [
-                  ChoiceChip(
-                    label: const Text('Все типы'),
-                    selected: _selectedGroupTypeId == null,
-                    onSelected: (selected) {
-                      setState(() {
-                        _selectedGroupTypeId = null;
-                      });
-                    },
+                    data: (types) => [
+                      ChoiceChip(
+                        label: const Text('Все типы'),
+                        selected: _selectedGroupTypeId == null,
+                        onSelected: (selected) {
+                          setState(() {
+                            _selectedGroupTypeId = null;
+                          });
+                        },
+                      ),
+                      ...types.map((type) => Padding(
+                            padding: const EdgeInsets.only(left: 8.0),
+                            child: ChoiceChip(
+                              label: Text(type.title),
+                              selected: _selectedGroupTypeId == type.id,
+                              onSelected: (selected) {
+                                setState(() {
+                                  _selectedGroupTypeId = selected ? type.id : null;
+                                });
+                              },
+                            ),
+                          )),
+                    ],
+                    loading: () => [const SizedBox.shrink()],
+                    error: (e, st) =>
+                        [Center(child: Text('Ошибка загрузки типов: $e'))],
                   ),
-                  ...types.map((type) => Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
-                    child: ChoiceChip(
-                      label: Text(type.title),
-                      selected: _selectedGroupTypeId == type.id,
-                      onSelected: (selected) {
-                        setState(() {
-                          _selectedGroupTypeId = selected ? type.id : null;
-                        });
-                      },
-                    ),
-                  )),
-                ],
-                loading: () => [const SizedBox.shrink()],
-                error: (e, st) => [Center(child: Text('Ошибка загрузки типов: $e'))],
-              ),
-              const SizedBox(width: 16.0), // Spacer
-
+              const SizedBox(width: 16.0),
               FilterPopupMenuButton<bool?>(
                 tooltip: 'Фильтр по активности',
                 initialValue: _isActiveFilter,
@@ -149,8 +153,7 @@ class _TrainingGroupsScreenState extends ConsumerState<TrainingGroupsScreen> {
                 ],
                 avatar: const Icon(Icons.filter_alt),
               ),
-              const SizedBox(width: 8.0), // Spacer
-
+              const SizedBox(width: 8.0),
               FilterPopupMenuButton<bool?>(
                 tooltip: 'Фильтр по архивации',
                 initialValue: _isArchivedFilter,
@@ -169,110 +172,20 @@ class _TrainingGroupsScreenState extends ConsumerState<TrainingGroupsScreen> {
             ],
           ),
         ),
-        const SizedBox(height: 8.0), // Space between filter rows
-
-        // Second row of filters (Trainer, Instructor, Manager)
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
+        const SizedBox(height: 8.0),
+        Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8.0),
-          child: Row(
-            mainAxisSize: MainAxisSize.min, // Crucial for horizontal scrolling
-            children: [
-              // Trainer Filter
-              SizedBox(
-                width: 180, // Fixed width for the dropdown
-                child: IntrinsicWidth( // Added IntrinsicWidth
-                  child: DropdownButtonFormField<String?>(
-                    key: ValueKey('trainer_filter_dropdown_$_selectedTrainerId'), // Add Key
-                    decoration: const InputDecoration(
-                      labelText: 'Тренер',
-                      border: OutlineInputBorder(),
-                      contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                    ),
-                    initialValue: _selectedTrainerId,
-                    items: [
-                      const DropdownMenuItem<String?>(
-                        value: null,
-                        child: Text('Все тренеры'),
-                      ),
-                      ..._trainers.map((user) => DropdownMenuItem<String?>(
-                        value: user.id,
-                        child: Text(user.fullName),
-                      )),
-                    ],
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedTrainerId = value;
-                      });
-                    },
-                  ),
-                ),
-              ),
-              const SizedBox(width: 16.0), // Spacer
-
-              // Instructor Filter
-              SizedBox(
-                width: 250, // Increased width for the dropdown
-                child: IntrinsicWidth( // Added IntrinsicWidth
-                  child: DropdownButtonFormField<String?>(
-                    key: ValueKey('instructor_filter_dropdown_$_selectedInstructorId'), // Add Key
-                    decoration: const InputDecoration(
-                      labelText: 'Инструктор',
-                      border: OutlineInputBorder(),
-                      contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                    ),
-                    initialValue: _selectedInstructorId,
-                    items: [
-                      const DropdownMenuItem<String?>(
-                        value: null,
-                        child: Text('Все инструкторы'),
-                      ),
-                      ..._instructors.map((user) => DropdownMenuItem<String?>(
-                        value: user.id,
-                        child: Text(user.fullName),
-                      )),
-                    ],
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedInstructorId = value;
-                      });
-                    },
-                  ),
-                ),
-              ),
-              const SizedBox(width: 16.0), // Spacer
-
-              // Manager Filter
-              SizedBox(
-                width: 220, // Keep increased width for the dropdown
-                child: IntrinsicWidth( // Added IntrinsicWidth
-                  child: DropdownButtonFormField<String?>(
-                    key: ValueKey('manager_filter_dropdown_$_selectedManagerId'), // Add Key
-                    decoration: const InputDecoration(
-                      labelText: 'Менеджер',
-                      border: OutlineInputBorder(),
-                      contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                    ),
-                    initialValue: _selectedManagerId,
-                    items: [
-                      const DropdownMenuItem<String?>(
-                        value: null,
-                        child: Text('Все менеджеры'),
-                      ),
-                      ..._managers.map((user) => DropdownMenuItem<String?>(
-                        value: user.id,
-                        child: Text(user.fullName),
-                      )),
-                    ],
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedManagerId = value;
-                      });
-                    },
-                  ),
-                ),
-              ),
-            ],
+          child: _EmployeePicker(
+            selectedEmployee: _selectedEmployee,
+            trainers: _trainers,
+            instructors: _instructors,
+            managers: _managers,
+            onChanged: (user, role) {
+              setState(() {
+                _selectedEmployee = user;
+                _selectedEmployeeRole = role;
+              });
+            },
           ),
         ),
       ],
@@ -284,7 +197,8 @@ class _TrainingGroupsScreenState extends ConsumerState<TrainingGroupsScreen> {
       child: groupsAsyncValue.when(
         data: (groups) {
           if (groups.isEmpty) {
-            return const Center(child: Text('Нет групп, соответствующих фильтру.'));
+            return const Center(
+                child: Text('Нет групп, соответствующих фильтру.'));
           }
           return Padding(
             padding: const EdgeInsets.only(bottom: 80.0),
@@ -297,19 +211,11 @@ class _TrainingGroupsScreenState extends ConsumerState<TrainingGroupsScreen> {
                   onTap: () async {
                     await Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (context) => TrainingGroupEditScreen(groupId: group.id?.toString()),
+                        builder: (context) =>
+                            TrainingGroupEditScreen(groupId: group.id?.toString()),
                       ),
                     );
-                    // Refresh the list after editing
-                    ref.invalidate(trainingGroupsProvider(
-                      searchQuery: _searchQuery,
-                      groupTypeId: _selectedGroupTypeId,
-                      isActive: _isActiveFilter,
-                      isArchived: _isArchivedFilter,
-                      trainerId: _selectedTrainerId,
-                      instructorId: _selectedInstructorId,
-                      managerId: _selectedManagerId,
-                    ));
+                    ref.invalidate(trainingGroupsProvider);
                   },
                   onDelete: () async {
                     if (group.id == null) return;
@@ -317,7 +223,8 @@ class _TrainingGroupsScreenState extends ConsumerState<TrainingGroupsScreen> {
                       context: context,
                       builder: (context) => AlertDialog(
                         title: const Text('Подтвердите архивацию'),
-                        content: Text('Вы уверены, что хотите архивировать группу "${group.name}"?'),
+                        content: Text(
+                            'Вы уверены, что хотите архивировать группу "${group.name}"?'),
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.of(context).pop(false),
@@ -331,15 +238,9 @@ class _TrainingGroupsScreenState extends ConsumerState<TrainingGroupsScreen> {
                       ),
                     );
                     if (confirmed == true) {
-                      await ref.read(trainingGroupsProvider(
-                        searchQuery: _searchQuery,
-                        groupTypeId: _selectedGroupTypeId,
-                        isActive: _isActiveFilter,
-                        isArchived: _isArchivedFilter,
-                        trainerId: _selectedTrainerId,
-                        instructorId: _selectedInstructorId,
-                        managerId: _selectedManagerId,
-                      ).notifier).deleteTrainingGroup(group.id!);
+                      await ref
+                          .read(trainingGroupsProvider().notifier)
+                          .deleteTrainingGroup(group.id!);
                     }
                   },
                 );
@@ -362,16 +263,7 @@ class _TrainingGroupsScreenState extends ConsumerState<TrainingGroupsScreen> {
             builder: (context) => const TrainingGroupEditScreen(),
           ),
         );
-        // Refresh the list after creating
-        ref.invalidate(trainingGroupsProvider(
-          searchQuery: _searchQuery,
-          groupTypeId: _selectedGroupTypeId,
-          isActive: _isActiveFilter,
-          isArchived: _isArchivedFilter,
-          trainerId: _selectedTrainerId,
-          instructorId: _selectedInstructorId,
-          managerId: _selectedManagerId,
-        ));
+        ref.invalidate(trainingGroupsProvider);
       },
       child: const Icon(Icons.add),
     );
@@ -379,14 +271,18 @@ class _TrainingGroupsScreenState extends ConsumerState<TrainingGroupsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final String? trainerId = (_selectedEmployeeRole == 'trainer') ? _selectedEmployee?.id : null;
+    final String? instructorId = (_selectedEmployeeRole == 'instructor') ? _selectedEmployee?.id : null;
+    final String? managerId = (_selectedEmployeeRole == 'manager') ? _selectedEmployee?.id : null;
+
     final trainingGroupsAsyncValue = ref.watch(trainingGroupsProvider(
       searchQuery: _searchQuery,
       groupTypeId: _selectedGroupTypeId,
       isActive: _isActiveFilter,
       isArchived: _isArchivedFilter,
-      trainerId: _selectedTrainerId,
-      instructorId: _selectedInstructorId,
-      managerId: _selectedManagerId,
+      trainerId: trainerId,
+      instructorId: instructorId,
+      managerId: managerId,
     ));
 
     return Scaffold(
@@ -400,6 +296,226 @@ class _TrainingGroupsScreenState extends ConsumerState<TrainingGroupsScreen> {
         ],
       ),
       floatingActionButton: _buildFloatingActionButton(),
+    );
+  }
+}
+
+class _EmployeePicker extends StatelessWidget {
+  final User? selectedEmployee;
+  final List<User> trainers;
+  final List<User> instructors;
+  final List<User> managers;
+  final Function(User?, String?) onChanged;
+
+  const _EmployeePicker({
+    required this.selectedEmployee,
+    required this.trainers,
+    required this.instructors,
+    required this.managers,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return OutlinedButton(
+      style: OutlinedButton.styleFrom(
+        padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 8.0),
+        side: BorderSide(color: Theme.of(context).colorScheme.outline),
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      ),
+      onPressed: () {
+        showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          builder: (context) => _EmployeePickerSheet(
+            trainers: trainers,
+            instructors: instructors,
+            managers: managers,
+            onChanged: onChanged,
+          ),
+        );
+      },
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.person_search, size: 18),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              selectedEmployee?.fullName ?? 'Все сотрудники',
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _EmployeeSearchResult {
+  final User user;
+  final String role;
+  _EmployeeSearchResult(this.user, this.role);
+}
+
+class _EmployeePickerSheet extends StatefulWidget {
+  final List<User> trainers;
+  final List<User> instructors;
+  final List<User> managers;
+  final Function(User?, String?) onChanged;
+
+  const _EmployeePickerSheet({
+    required this.trainers,
+    required this.instructors,
+    required this.managers,
+    required this.onChanged,
+  });
+
+  @override
+  State<_EmployeePickerSheet> createState() => _EmployeePickerSheetState();
+}
+
+class _EmployeePickerSheetState extends State<_EmployeePickerSheet> {
+  String _searchQuery = '';
+
+  String _roleDisplayName(String role) {
+    switch (role) {
+      case 'trainer':
+        return 'Тренер';
+      case 'instructor':
+        return 'Инструктор';
+      case 'manager':
+        return 'Менеджер';
+      default:
+        return role;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final bool hasSearch = _searchQuery.isNotEmpty;
+
+    List<_EmployeeSearchResult> searchResults = [];
+    if (hasSearch) {
+      final filteredTrainers = widget.trainers
+          .where((u) =>
+              u.fullName.toLowerCase().contains(_searchQuery.toLowerCase()));
+      searchResults.addAll(filteredTrainers
+          .map((u) => _EmployeeSearchResult(u, 'trainer')));
+
+      final filteredInstructors = widget.instructors
+          .where((u) =>
+              u.fullName.toLowerCase().contains(_searchQuery.toLowerCase()));
+      searchResults.addAll(filteredInstructors
+          .map((u) => _EmployeeSearchResult(u, 'instructor')));
+
+      final filteredManagers = widget.managers
+          .where((u) =>
+              u.fullName.toLowerCase().contains(_searchQuery.toLowerCase()));
+       searchResults.addAll(filteredManagers
+          .map((u) => _EmployeeSearchResult(u, 'manager')));
+    }
+
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 16.0),
+            child: TextField(
+              autofocus: true,
+              decoration: const InputDecoration(
+                labelText: 'Поиск по сотруднику',
+                prefixIcon: Icon(Icons.search),
+                border: OutlineInputBorder(),
+              ),
+              onChanged: (value) {
+                setState(() {
+                  _searchQuery = value;
+                });
+              },
+            ),
+          ),
+          Expanded(
+            child: hasSearch
+                ? (searchResults.isEmpty 
+                    ? const Center(child: Text('Сотрудники не найдены.'))
+                    : ListView.builder(
+                        itemCount: searchResults.length,
+                        itemBuilder: (context, index) {
+                          final result = searchResults[index];
+                          return ListTile(
+                            title: Text(result.user.fullName),
+                            subtitle: Text(_roleDisplayName(result.role)),
+                            onTap: () {
+                              widget.onChanged(result.user, result.role);
+                              Navigator.pop(context);
+                            },
+                          );
+                        },
+                      ))
+                : ListView(
+                    children: [
+                      ListTile(
+                        leading: const Icon(Icons.clear_all),
+                        title: const Text('Все сотрудники',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        onTap: () {
+                          widget.onChanged(null, null);
+                          Navigator.pop(context);
+                        },
+                      ),
+                      if (widget.trainers.isNotEmpty)
+                        ExpansionTile(
+                          leading: const Icon(Icons.sports_martial_arts),
+                          title: const Text('Тренеры',
+                              style: TextStyle(fontWeight: FontWeight.bold)),
+                          children: widget.trainers.map((user) {
+                            return ListTile(
+                              title: Text(user.fullName),
+                              onTap: () {
+                                widget.onChanged(user, 'trainer');
+                                Navigator.pop(context);
+                              },
+                            );
+                          }).toList(),
+                        ),
+                      if (widget.instructors.isNotEmpty)
+                        ExpansionTile(
+                          leading: const Icon(Icons.fitness_center),
+                          title: const Text('Инструкторы',
+                              style: TextStyle(fontWeight: FontWeight.bold)),
+                          children: widget.instructors.map((user) {
+                            return ListTile(
+                              title: Text(user.fullName),
+                              onTap: () {
+                                widget.onChanged(user, 'instructor');
+                                Navigator.pop(context);
+                              },
+                            );
+                          }).toList(),
+                        ),
+                      if (widget.managers.isNotEmpty)
+                        ExpansionTile(
+                          leading: const Icon(Icons.manage_accounts),
+                          title: const Text('Менеджеры',
+                              style: TextStyle(fontWeight: FontWeight.bold)),
+                          children: widget.managers.map((user) {
+                            return ListTile(
+                              title: Text(user.fullName),
+                              onTap: () {
+                                widget.onChanged(user, 'manager');
+                                Navigator.pop(context);
+                              },
+                            );
+                          }).toList(),
+                        ),
+                    ],
+                  ),
+          ),
+        ],
+      ),
     );
   }
 }
