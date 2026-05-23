@@ -7,7 +7,8 @@ import '../../widgets/training/training_group_card.dart';
 import 'package:fitman_common/modules/groups/training_group.model.dart';
 import 'package:fitman_app/services/api_service.dart';
 import 'package:fitman_common/fitman_common.dart';
-import 'package:fitman_app/widgets/filter_popup_menu.dart';
+
+enum GroupStatusFilter { active, inactive, archived }
 
 class TrainingGroupsScreen extends ConsumerStatefulWidget {
   const TrainingGroupsScreen({super.key});
@@ -20,10 +21,8 @@ class TrainingGroupsScreen extends ConsumerStatefulWidget {
 class _TrainingGroupsScreenState extends ConsumerState<TrainingGroupsScreen> {
   String _searchQuery = '';
   String? _selectedGroupTypeId;
-  bool? _isActiveFilter = true;
-  bool? _isArchivedFilter = false;
+  GroupStatusFilter _statusFilter = GroupStatusFilter.active;
 
-  // New combined employee filter state
   User? _selectedEmployee;
   String? _selectedEmployeeRole;
 
@@ -77,6 +76,17 @@ class _TrainingGroupsScreenState extends ConsumerState<TrainingGroupsScreen> {
     super.dispose();
   }
 
+  String _statusDisplayName(GroupStatusFilter status) {
+    switch (status) {
+      case GroupStatusFilter.active:
+        return 'Активные';
+      case GroupStatusFilter.inactive:
+        return 'Неактивные';
+      case GroupStatusFilter.archived:
+        return 'Архив';
+    }
+  }
+
   AppBar _buildAppBar() {
     return AppBar(
       title: const Text('Тренировочные группы'),
@@ -99,96 +109,79 @@ class _TrainingGroupsScreenState extends ConsumerState<TrainingGroupsScreen> {
     );
   }
 
-  Widget _buildFilterChips() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ...ref.watch(trainingGroupTypesProvider).when(
-                    data: (types) => [
-                      ChoiceChip(
-                        label: const Text('Все типы'),
-                        selected: _selectedGroupTypeId == null,
-                        onSelected: (selected) {
-                          setState(() {
-                            _selectedGroupTypeId = null;
-                          });
-                        },
-                      ),
-                      ...types.map((type) => Padding(
-                            padding: const EdgeInsets.only(left: 8.0),
-                            child: ChoiceChip(
-                              label: Text(type.title),
-                              selected: _selectedGroupTypeId == type.id,
-                              onSelected: (selected) {
-                                setState(() {
-                                  _selectedGroupTypeId = selected ? type.id : null;
-                                });
-                              },
-                            ),
-                          )),
-                    ],
-                    loading: () => [const SizedBox.shrink()],
-                    error: (e, st) =>
-                        [Center(child: Text('Ошибка загрузки типов: $e'))],
-                  ),
-              const SizedBox(width: 16.0),
-              FilterPopupMenuButton<bool?>(
-                tooltip: 'Фильтр по активности',
-                initialValue: _isActiveFilter,
-                onSelected: (value) {
-                  setState(() {
-                    _isActiveFilter = value;
-                  });
-                },
-                allOptionText: 'Статус: Все',
-                options: [
-                  FilterOption(label: 'Активные', value: true),
-                  FilterOption(label: 'Неактивные', value: false),
-                ],
-                avatar: const Icon(Icons.filter_alt),
+  Widget _buildFilterPanel() {
+    final groupTypes = ref.watch(trainingGroupTypesProvider).value ?? [];
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      child: Row(
+        children: [
+          Expanded(
+            child: DropdownButtonFormField<String?>(
+              decoration: const InputDecoration(
+                labelText: 'Тип группы',
+                border: OutlineInputBorder(),
               ),
-              const SizedBox(width: 8.0),
-              FilterPopupMenuButton<bool?>(
-                tooltip: 'Фильтр по архивации',
-                initialValue: _isArchivedFilter,
-                onSelected: (value) {
-                  setState(() {
-                    _isArchivedFilter = value;
-                  });
-                },
-                allOptionText: 'Архив: Все',
-                options: [
-                  FilterOption(label: 'Архивные', value: true),
-                  FilterOption(label: 'Неархивные', value: false),
-                ],
-                avatar: const Icon(Icons.archive),
+              initialValue: _selectedGroupTypeId,
+              items: [
+                const DropdownMenuItem<String?>(
+                  value: null,
+                  child: Text('Все типы'),
+                ),
+                ...groupTypes.map((type) {
+                  return DropdownMenuItem<String>(
+                    value: type.id,
+                    child: Text(type.title),
+                  );
+                }),
+              ],
+              onChanged: (String? newValue) {
+                setState(() {
+                  _selectedGroupTypeId = newValue;
+                });
+              },
+            ),
+          ),
+          const SizedBox(width: 8.0),
+          Expanded(
+            child: _EmployeePicker(
+              selectedEmployee: _selectedEmployee,
+              trainers: _trainers,
+              instructors: _instructors,
+              managers: _managers,
+              onChanged: (user, role) {
+                setState(() {
+                  _selectedEmployee = user;
+                  _selectedEmployeeRole = role;
+                });
+              },
+            ),
+          ),
+          const SizedBox(width: 8.0),
+          Expanded(
+            child: DropdownButtonFormField<GroupStatusFilter>(
+              decoration: const InputDecoration(
+                labelText: 'Статус',
+                border: OutlineInputBorder(),
               ),
-            ],
+              initialValue: _statusFilter,
+              items: GroupStatusFilter.values.map((status) {
+                return DropdownMenuItem<GroupStatusFilter>(
+                  value: status,
+                  child: Text(_statusDisplayName(status)),
+                );
+              }).toList(),
+              onChanged: (GroupStatusFilter? newValue) {
+                if (newValue != null) {
+                  setState(() {
+                    _statusFilter = newValue;
+                  });
+                }
+              },
+            ),
           ),
-        ),
-        const SizedBox(height: 8.0),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-          child: _EmployeePicker(
-            selectedEmployee: _selectedEmployee,
-            trainers: _trainers,
-            instructors: _instructors,
-            managers: _managers,
-            onChanged: (user, role) {
-              setState(() {
-                _selectedEmployee = user;
-                _selectedEmployeeRole = role;
-              });
-            },
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -271,6 +264,24 @@ class _TrainingGroupsScreenState extends ConsumerState<TrainingGroupsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    bool? isActive;
+    bool isArchived;
+
+    switch (_statusFilter) {
+      case GroupStatusFilter.active:
+        isActive = true;
+        isArchived = false;
+        break;
+      case GroupStatusFilter.inactive:
+        isActive = false;
+        isArchived = false;
+        break;
+      case GroupStatusFilter.archived:
+        isActive = null;
+        isArchived = true;
+        break;
+    }
+
     final String? trainerId = (_selectedEmployeeRole == 'trainer') ? _selectedEmployee?.id : null;
     final String? instructorId = (_selectedEmployeeRole == 'instructor') ? _selectedEmployee?.id : null;
     final String? managerId = (_selectedEmployeeRole == 'manager') ? _selectedEmployee?.id : null;
@@ -278,8 +289,8 @@ class _TrainingGroupsScreenState extends ConsumerState<TrainingGroupsScreen> {
     final trainingGroupsAsyncValue = ref.watch(trainingGroupsProvider(
       searchQuery: _searchQuery,
       groupTypeId: _selectedGroupTypeId,
-      isActive: _isActiveFilter,
-      isArchived: _isArchivedFilter,
+      isActive: isActive,
+      isArchived: isArchived,
       trainerId: trainerId,
       instructorId: instructorId,
       managerId: managerId,
@@ -290,7 +301,7 @@ class _TrainingGroupsScreenState extends ConsumerState<TrainingGroupsScreen> {
       body: Column(
         children: [
           _buildSearchBar(),
-          _buildFilterChips(),
+          _buildFilterPanel(),
           const Divider(),
           _buildGroupList(trainingGroupsAsyncValue),
         ],
@@ -319,7 +330,7 @@ class _EmployeePicker extends StatelessWidget {
   Widget build(BuildContext context) {
     return OutlinedButton(
       style: OutlinedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 8.0),
+        padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
         side: BorderSide(color: Theme.of(context).colorScheme.outline),
         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
       ),

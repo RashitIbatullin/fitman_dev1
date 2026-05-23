@@ -24,12 +24,31 @@ class TrainingGroupCard extends ConsumerWidget {
     final usersState = ref.watch(usersProvider);
     final groupTypesAsync = ref.watch(trainingGroupTypesProvider);
 
+    Widget buildCombinedRow(IconData icon, String text) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 2.0),
+        child: Row(
+          children: [
+            Icon(icon, size: 18, color: Theme.of(context).colorScheme.primary),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                text,
+                style: Theme.of(context).textTheme.bodySmall,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
     Widget buildPersonnelInfo() {
       if (usersState.isLoading) {
-        return _buildInfoRow(context, Icons.person, 'Тренер:', 'Загрузка...');
+        return buildCombinedRow(Icons.person, 'Тренер: Загрузка...');
       }
       if (usersState.error != null) {
-        return _buildInfoRow(context, Icons.person, 'Тренер:', 'Ошибка');
+        return buildCombinedRow(Icons.person, 'Тренер: Ошибка');
       }
 
       User? findUser(String? userId) {
@@ -48,11 +67,11 @@ class TrainingGroupCard extends ConsumerWidget {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildInfoRow(context, Icons.person, 'Тренер:', trainer?.fullName ?? 'Неизвестно'),
+          buildCombinedRow(Icons.person, 'Тренер: ${trainer?.fullName ?? 'Неизвестно'}'),
           if (instructor != null)
-            _buildInfoRow(context, Icons.person_outline, 'Инструктор:', instructor.fullName),
+            buildCombinedRow(Icons.person_outline, 'Инструктор: ${instructor.fullName}'),
           if (manager != null)
-            _buildInfoRow(context, Icons.manage_accounts, 'Менеджер:', manager.fullName),
+            buildCombinedRow(Icons.manage_accounts, 'Менеджер: ${manager.fullName}'),
         ],
       );
     }
@@ -66,10 +85,10 @@ class TrainingGroupCard extends ConsumerWidget {
           } catch (e) {
             type = null;
           }
-          return _buildInfoRow(context, Icons.groups, 'Тип:', type?.title ?? 'Неизвестно');
+          return buildCombinedRow(Icons.groups, 'Тип: ${type?.title ?? 'Неизвестно'}');
         },
-        loading: () => _buildInfoRow(context, Icons.groups, 'Тип:', 'Загрузка...'),
-        error: (e, st) => _buildInfoRow(context, Icons.groups, 'Тип:', 'Ошибка'),
+        loading: () => buildCombinedRow(Icons.groups, 'Тип: Загрузка...'),
+        error: (e, st) => buildCombinedRow(Icons.groups, 'Тип: Ошибка'),
       );
     }
 
@@ -142,11 +161,11 @@ class TrainingGroupCard extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildInfoRow(context, Icons.calendar_today, 'Начало:', DateFormat('dd.MM.yyyy').format(group.startDate)),
+                        buildCombinedRow(Icons.calendar_today, 'Начало: ${DateFormat('dd.MM.yyyy').format(group.startDate)}'),
                         if (group.endDate != null)
-                          _buildInfoRow(context, Icons.calendar_today, 'Окончание:', DateFormat('dd.MM.yyyy').format(group.endDate!)),
-                        _buildInfoRow(context, Icons.check_circle, 'Активна:', (group.isActive ?? false) ? 'Да' : 'Нет'),
-                        _buildInfoRow(context, Icons.people, 'Участники:', '${group.currentParticipants ?? 0}/${group.maxParticipants}'),
+                          buildCombinedRow(Icons.calendar_today, 'Окончание: ${DateFormat('dd.MM.yyyy').format(group.endDate!)}'),
+                        buildCombinedRow(Icons.check_circle, 'Активна: ${(group.isActive ?? false) ? 'Да' : 'Нет'}'),
+                        buildCombinedRow(Icons.people, 'Участники: ${group.currentParticipants ?? 0}/${group.maxParticipants}'),
                       ],
                     ),
                   ),
@@ -155,20 +174,6 @@ class TrainingGroupCard extends ConsumerWidget {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildInfoRow(BuildContext context, IconData icon, String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2.0),
-      child: Row(
-        children: [
-          Icon(icon, size: 18, color: Theme.of(context).colorScheme.primary),
-          const SizedBox(width: 8),
-          Text('$label ', style: Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold)),
-          Expanded(child: Text(value, style: Theme.of(context).textTheme.bodySmall)),
-        ],
       ),
     );
   }
