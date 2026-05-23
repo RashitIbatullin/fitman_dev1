@@ -182,7 +182,8 @@ class _TrainingGroupEditScreenState extends ConsumerState<TrainingGroupEditScree
             children: [
               TextFormField(
                 controller: _nameController,
-                decoration: const InputDecoration(labelText: 'Название группы *'),
+                style: Theme.of(context).textTheme.bodySmall,
+                decoration: InputDecoration(labelText: 'Название группы *', labelStyle: Theme.of(context).textTheme.labelMedium),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Пожалуйста, введите название';
@@ -192,17 +193,19 @@ class _TrainingGroupEditScreenState extends ConsumerState<TrainingGroupEditScree
               ),
               TextFormField(
                 controller: _descriptionController,
-                decoration: const InputDecoration(labelText: 'Описание'),
-                maxLines: 3,
+                style: Theme.of(context).textTheme.bodySmall,
+                decoration: InputDecoration(labelText: 'Описание', labelStyle: Theme.of(context).textTheme.labelMedium),
+                maxLines: 1,
               ),
               ref.watch(trainingGroupTypesProvider).when(
                 data: (types) => DropdownButtonFormField<String>(
                   initialValue: _selectedGroupTypeId,
-                  decoration: const InputDecoration(labelText: 'Тип группы'),
+                  style: Theme.of(context).textTheme.bodySmall,
+                  decoration: InputDecoration(labelText: 'Тип группы', labelStyle: Theme.of(context).textTheme.labelMedium),
                   items: types.map((type) {
                     return DropdownMenuItem(
                       value: type.id,
-                      child: Text(type.title),
+                      child: Text(type.title, style: Theme.of(context).textTheme.bodySmall),
                     );
                   }).toList(),
                   onChanged: (value) {
@@ -222,16 +225,17 @@ class _TrainingGroupEditScreenState extends ConsumerState<TrainingGroupEditScree
               ),
               DropdownButtonFormField<String?>(
                 initialValue: _selectedPrimaryTrainerId,
-                decoration: const InputDecoration(labelText: 'Основной тренер'),
+                style: Theme.of(context).textTheme.bodySmall,
+                decoration: InputDecoration(labelText: 'Основной тренер', labelStyle: Theme.of(context).textTheme.labelMedium),
                 items: [
-                  const DropdownMenuItem<String?>(
+                  DropdownMenuItem<String?>(
                     value: null,
-                    child: Text('Не назначен'),
+                    child: Text('Не назначен', style: Theme.of(context).textTheme.bodySmall),
                   ),
                   ..._trainers.map((user) {
                     return DropdownMenuItem<String?>(
                       value: user.id,
-                      child: Text(user.fullName),
+                      child: Text(user.fullName, style: Theme.of(context).textTheme.bodySmall),
                     );
                   }),
                 ],
@@ -243,13 +247,14 @@ class _TrainingGroupEditScreenState extends ConsumerState<TrainingGroupEditScree
               ),
               DropdownButtonFormField<String?>(
                 initialValue: _selectedPrimaryInstructorId,
-                decoration: const InputDecoration(labelText: 'Основной инструктор (опционально)'),
+                style: Theme.of(context).textTheme.bodySmall,
+                decoration: InputDecoration(labelText: 'Основной инструктор (опционально)', labelStyle: Theme.of(context).textTheme.labelMedium),
                 items: [
-                  const DropdownMenuItem<String?>(value: null, child: Text('Нет')),
+                  DropdownMenuItem<String?>(value: null, child: Text('Нет', style: Theme.of(context).textTheme.bodySmall)),
                   ..._instructors.map((user) {
                     return DropdownMenuItem<String?>(
                       value: user.id,
-                      child: Text(user.fullName),
+                      child: Text(user.fullName, style: Theme.of(context).textTheme.bodySmall),
                     );
                   }),
                 ],
@@ -261,13 +266,14 @@ class _TrainingGroupEditScreenState extends ConsumerState<TrainingGroupEditScree
               ),
               DropdownButtonFormField<String?>(
                 initialValue: _selectedResponsibleManagerId,
-                decoration: const InputDecoration(labelText: 'Ответственный менеджер (опционально)'),
+                style: Theme.of(context).textTheme.bodySmall,
+                decoration: InputDecoration(labelText: 'Ответственный менеджер (опционально)', labelStyle: Theme.of(context).textTheme.labelMedium),
                 items: [
-                  const DropdownMenuItem<String?>(value: null, child: Text('Нет')),
+                  DropdownMenuItem<String?>(value: null, child: Text('Нет', style: Theme.of(context).textTheme.bodySmall)),
                   ..._managers.map((user) {
                     return DropdownMenuItem<String?>(
                       value: user.id,
-                      child: Text(user.fullName),
+                      child: Text(user.fullName, style: Theme.of(context).textTheme.bodySmall),
                     );
                   }),
                 ],
@@ -279,7 +285,8 @@ class _TrainingGroupEditScreenState extends ConsumerState<TrainingGroupEditScree
               ),
               TextFormField(
                 controller: _maxParticipantsController,
-                decoration: const InputDecoration(labelText: 'Макс. участников'),
+                style: Theme.of(context).textTheme.bodySmall,
+                decoration: InputDecoration(labelText: 'Макс. участников', labelStyle: Theme.of(context).textTheme.labelMedium),
                 keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value == null || int.tryParse(value) == null) {
@@ -290,7 +297,7 @@ class _TrainingGroupEditScreenState extends ConsumerState<TrainingGroupEditScree
               ),
               // Current participants are now calculated automatically
               ListTile(
-                title: Text('Дата начала: ${DateFormat('dd.MM.yyyy').format(_startDate)}'),
+                title: Text('Дата начала: ${DateFormat('dd.MM.yyyy').format(_startDate)}', style: Theme.of(context).textTheme.bodySmall),
                 trailing: const Icon(Icons.calendar_today),
                 onTap: () async {
                   final pickedDate = await showDatePicker(
@@ -307,7 +314,7 @@ class _TrainingGroupEditScreenState extends ConsumerState<TrainingGroupEditScree
                 },
               ),
               ListTile(
-                title: Text('Дата окончания: ${_endDate != null ? DateFormat('dd.MM.yyyy').format(_endDate!) : 'Не указана'}'),
+                title: Text('Дата окончания: ${_endDate != null ? DateFormat('dd.MM.yyyy').format(_endDate!) : 'Не указана'}', style: Theme.of(context).textTheme.bodySmall),
                 trailing: const Icon(Icons.calendar_today),
                 onTap: () async {
                   final pickedDate = await showDatePicker(
@@ -324,7 +331,7 @@ class _TrainingGroupEditScreenState extends ConsumerState<TrainingGroupEditScree
                 },
               ),
               SwitchListTile(
-                title: const Text('Активна'),
+                title: Text('Активна', style: Theme.of(context).textTheme.bodySmall),
                 value: _isActive,
                 onChanged: (value) {
                   setState(() {
@@ -333,26 +340,26 @@ class _TrainingGroupEditScreenState extends ConsumerState<TrainingGroupEditScree
                 },
               ),
               const Divider(),
-              Text('Члены группы', style: Theme.of(context).textTheme.titleMedium),
+              Text('Члены группы', style: Theme.of(context).textTheme.titleSmall),
               if (_groupId != null) ...[
                 GroupMemberList(groupId: _groupId),
               ] else ...[
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 16.0),
-                  child: Text('Членов можно добавить после создания группы.'),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                  child: Text('Членов можно добавить после создания группы.', style: Theme.of(context).textTheme.bodySmall),
                 ),
               ],
               const Divider(),
-              Text('Расписание группы', style: Theme.of(context).textTheme.titleMedium),
+              Text('Расписание группы', style: Theme.of(context).textTheme.titleSmall),
               if (_groupId != null) ...[
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: 16.0),
                   child: Text('Расписание можно настроить после создания группы.'),
                 ),
               ] else ...[
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 16.0),
-                  child: Text('Расписание можно настроить после создания группы.'),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                  child: Text('Расписание можно настроить после создания группы.', style: Theme.of(context).textTheme.bodySmall),
                 ),
               ],
             ],
