@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 import '../../../config/database.dart';
+import 'package:fitman_common/fitman_common.dart';
 import 'package:fitman_common/modules/groups/training_group.model.dart';
 
 class TrainingGroupsController {
@@ -72,8 +73,8 @@ class TrainingGroupsController {
   Future<Response> _createTrainingGroup(Request request) async {
     try {
       final payload = jsonDecode(await request.readAsString());
-      // TODO: Get creatorId from authenticated user context
-      const creatorId = '00000000-0000-0000-0000-000000000000'; // Placeholder
+      final user = request.context['user'] as User;
+      final creatorId = user.id;
       final newGroup = TrainingGroup.fromJson(payload);
       final createdGroup = await _db.groups.createTrainingGroup(newGroup, creatorId);
       return Response(201, headers: {'Content-Type': 'application/json', 'Location': '/training_groups/${createdGroup.id}'}, body: jsonEncode(createdGroup.toJson()));
@@ -86,8 +87,8 @@ class TrainingGroupsController {
     try {
       final groupId = id;
       final payload = jsonDecode(await request.readAsString());
-      // TODO: Get updaterId from authenticated user context
-      const updaterId = '00000000-0000-0000-0000-000000000000'; // Placeholder
+      final user = request.context['user'] as User;
+      final updaterId = user.id;
       final updatedGroup = TrainingGroup.fromJson({...payload, 'id': groupId});
       final resultGroup = await _db.groups.updateTrainingGroup(updatedGroup, updaterId);
       return Response.ok(jsonEncode(resultGroup.toJson()));
@@ -99,8 +100,8 @@ class TrainingGroupsController {
   Future<Response> _deleteTrainingGroup(Request request, String id) async {
     try {
       final groupId = id;
-      // TODO: Get archiverId from authenticated user context
-      const archiverId = '00000000-0000-0000-0000-000000000000'; // Placeholder
+      final user = request.context['user'] as User;
+      final archiverId = user.id;
       await _db.groups.deleteTrainingGroup(groupId, archiverId);
       return Response(204);
     } catch (e) {
@@ -125,8 +126,8 @@ class TrainingGroupsController {
       final groupId = id;
       final payload = jsonDecode(await request.readAsString());
       final String userId = payload['userId'] as String;
-      // TODO: Get addedById from authenticated user context
-      const addedById = '00000000-0000-0000-0000-000000000000'; // Placeholder
+      final user = request.context['user'] as User;
+      final addedById = user.id;
 
       await _db.groups.addTrainingGroupMember(groupId, userId, addedById);
       return Response.ok(jsonEncode({'message': 'Member added successfully'}));

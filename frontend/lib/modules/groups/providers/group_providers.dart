@@ -121,23 +121,27 @@ class TrainingGroups extends _$TrainingGroups {
     return filteredGroups;
   }
 
-  Future<void> createTrainingGroup(TrainingGroup group) async {
+  Future<TrainingGroup> createTrainingGroup(TrainingGroup group) async {
     state = const AsyncValue.loading();
     try {
-      await ApiService.createTrainingGroup(group);
+      final newGroup = await ApiService.createTrainingGroup(group);
       ref.invalidateSelf();
-    } catch (e, st) {
-      state = AsyncValue.error(e, st);
+      return newGroup;
+    } catch (e) {
+      ref.invalidateSelf();
+      rethrow;
     }
   }
 
-  Future<void> updateTrainingGroup(TrainingGroup group) async {
+  Future<TrainingGroup> updateTrainingGroup(TrainingGroup group) async {
     state = const AsyncValue.loading();
     try {
-      await ApiService.updateTrainingGroup(group);
+      final updatedGroup = await ApiService.updateTrainingGroup(group);
       ref.invalidateSelf();
-    } catch (e, st) {
-      state = AsyncValue.error(e, st);
+      return updatedGroup;
+    } catch (e) {
+      ref.invalidateSelf();
+      rethrow;
     }
   }
 

@@ -1,143 +1,154 @@
+import 'package:fitman_app/modules/clients/screens/client_dashboard.dart';
+import 'package:fitman_app/modules/employees/screens/edit_employee_screen.dart';
+import 'package:fitman_app/services/api_service.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../providers/group_providers.dart';
 import 'package:fitman_common/fitman_common.dart';
-import '../../../../modules/users/providers/users_provider.dart';
 
-class GroupMemberList extends ConsumerWidget {
-  final String groupId;
-  const GroupMemberList({super.key, required this.groupId});
+class GroupMemberList extends StatelessWidget {
+  final List<User> members;
+  final VoidCallback onAdd;
+  final ValueChanged<String> onRemove;
+
+  const GroupMemberList({
+    super.key,
+    required this.members,
+    required this.onAdd,
+    required this.onRemove,
+  });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final groupMembersAsync = ref.watch(groupMembersProvider(groupId));
-    final allUsersState = ref.watch(usersProvider); // This is a UsersState object
-
+  Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        groupMembersAsync.when(
-          data: (memberIds) {
-            if (memberIds.isEmpty) {
-              return const Padding(
-                padding: EdgeInsets.symmetric(vertical: 8.0),
-                child: Text('В этой группе пока нет участников.'),
+        if (members.isEmpty)
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 8.0),
+            child: Text('В этой группе пока нет участников.'),
+          )
+        else
+          ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: members.length,
+            itemBuilder: (context, index) {
+              final member = members[index];
+              return _MemberListItem(
+                member: member,
+                onRemove: () => onRemove(member.id),
               );
-            }
-
-            if (allUsersState.isLoading) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            if (allUsersState.error != null) {
-              return Text('Ошибка загрузки пользователей: ${allUsersState.error}');
-            }
-
-            final members = allUsersState.users.where((user) => memberIds.contains(user.id)).toList();
-            return ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: members.length,
-              itemBuilder: (context, index) {
-                final member = members[index];
-                return ListTile(
-                  title: Text(member.fullName),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.remove_circle_outline, color: Colors.red),
-                    onPressed: () {
-                      ref.read(groupMembersProvider(groupId).notifier).removeMember(groupId, member.id);
-                    },
-                  ),
-                );
-              },
-            );
-          },
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (e, st) => Text('Ошибка загрузки участников группы: $e'),
-        ),
+            },
+          ),
         Align(
           alignment: Alignment.centerRight,
           child: TextButton.icon(
             icon: const Icon(Icons.add),
             label: const Text('Добавить участника'),
-            onPressed: () => _showAddMemberDialog(context, ref, allUsersState.users, groupMembersAsync.value ?? []),
+            onPressed: onAdd,
           ),
         ),
       ],
     );
   }
+}
 
-  void _showAddMemberDialog(BuildContext context, WidgetRef ref, List<User> allUsers, List<String> currentMemberIds) {
-    // 1. Filter for clients and exclude current members
-    final availableClients = allUsers.where((user) {
-      return user.roles.any((role) => role.name == 'client') && !currentMemberIds.contains(user.id);
-    }).toList();
+class _MemberListItem extends StatefulWidget {
+  final User member;
+  final VoidCallback onRemove;
 
-    showDialog(
+  const _MemberListItem({required this.member, required this.onRemove});
+
+  @override
+  State<_MemberListItem> createState() => _MemberListItemState();
+}
+
+class _MemberListItemState extends State<_MemberListItem> {
+  bool _isHovering = false;
+
+  Future<void> _confirmRemoveMember(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) {
-        String searchQuery = '';
-        return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setState) {
-            // 2. Filter clients based on the search query
-            final filteredClients = availableClients.where((user) {
-              final query = searchQuery.toLowerCase();
-              return user.fullName.toLowerCase().contains(query) ||
-                     (user.phone?.contains(query) ?? false);
-            }).toList();
+      builder: (context) => AlertDialog(
+        title: const Text('Подтверждение'),
+        content: Text("Удалить участника '${widget.member.fullName}' из группы?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Отмена'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Удалить'),
+          ),
+        ],
+      ),
+    );
 
-            return AlertDialog(
-              title: const Text('Добавить клиента'),
-              content: SizedBox(
-                width: double.maxFinite,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // 3. Add search field
-                    TextField(
-                      onChanged: (value) {
-                        setState(() {
-                          searchQuery = value;
-                        });
-                      },
-                      decoration: const InputDecoration(
-                        labelText: 'Поиск по ФИО или телефону',
-                        prefixIcon: Icon(Icons.search),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    // 4. Display the filtered list
-                    Expanded(
-                      child: filteredClients.isEmpty
-                          ? const Text('Клиенты не найдены.')
-                          : ListView.builder(
-                              shrinkWrap: true,
-                              itemCount: filteredClients.length,
-                              itemBuilder: (context, index) {
-                                final user = filteredClients[index];
-                                return ListTile(
-                                  title: Text(user.fullName),
-                                  subtitle: Text(user.phone ?? 'Нет телефона'),
-                                  onTap: () {
-                                    ref.read(groupMembersProvider(groupId).notifier).addMember(groupId, user.id);
-                                    Navigator.of(context).pop();
-                                  },
-                                );
-                              },
-                            ),
-                    ),
-                  ],
+    if (confirmed == true) {
+      widget.onRemove();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovering = true),
+      onExit: (_) => setState(() => _isHovering = false),
+      child: ListTile(
+        tileColor: _isHovering ? colorScheme.primary.withAlpha(25) : null,
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  ClientDashboard(client: widget.member, showBackButton: true),
+            ),
+          );
+        },
+        leading: CircleAvatar(
+          radius: 20,
+          backgroundImage: widget.member.photoUrl != null
+              ? NetworkImage(Uri.parse(ApiService.baseUrl)
+                  .replace(path: widget.member.photoUrl!)
+                  .toString())
+              : null,
+          child: widget.member.photoUrl == null
+              ? Text(widget.member.firstName.isNotEmpty
+                  ? widget.member.firstName[0]
+                  : '?')
+              : null,
+        ),
+        title: Text(
+          widget.member.fullName,
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+        trailing: PopupMenuButton<String>(
+          onSelected: (value) {
+            if (value == 'edit') {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      EditEmployeeScreen(user: widget.member),
                 ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('Отмена'),
-                ),
-              ],
-            );
+              );
+            } else if (value == 'delete') {
+              _confirmRemoveMember(context);
+            }
           },
-        );
-      },
+          itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+            const PopupMenuItem<String>(
+              value: 'edit',
+              child: Text('Редактировать'),
+            ),
+            const PopupMenuItem<String>(
+              value: 'delete',
+              child: Text('Удалить'),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
