@@ -98,9 +98,10 @@ class AuthNotifier extends StateNotifier<AsyncValue<AuthState>> {
     }
   }
 
-  void logout() async {
+  Future<void> logout() async {
     print('[AuthNotifier] Logout called.');
     print('[AuthNotifier] State before logout: ${state.value}');
+    state = const AsyncValue.loading();
     try {
       await ApiService.clearToken();
       final prefs = await SharedPreferences.getInstance();
@@ -112,6 +113,7 @@ class AuthNotifier extends StateNotifier<AsyncValue<AuthState>> {
     } catch (e, st) {
       print('[AuthNotifier] Logout error: $e');
       state = AsyncValue.error(e, st);
+      rethrow;
     }
   }
 

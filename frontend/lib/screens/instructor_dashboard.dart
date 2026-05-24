@@ -1,3 +1,4 @@
+import 'package:fitman_app/widgets/logout_button.dart';
 import 'package:fitman_common/fitman_common.dart';
 import 'package:fitman_app/modules/users/screens/user_list_screen.dart';
 import 'package:flutter/material.dart';
@@ -49,11 +50,7 @@ class _InstructorDashboardState extends ConsumerState<InstructorDashboard> {
 
   @override
   Widget build(BuildContext context) {
-    final user = widget.instructor ?? ref.watch(authProvider).value?.user;
-
-    if (user == null) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    }
+    final user = widget.instructor ?? ref.watch(authProvider).value!.user!;
 
     final List<Widget> views = [
       const Center(child: Text('Главное')),
@@ -138,36 +135,7 @@ class _InstructorDashboardState extends ConsumerState<InstructorDashboard> {
         ),
         title: Text(_titles[_selectedIndex]),
         actions: [
-          if (widget.instructor == null)
-            IconButton(
-              icon: const Icon(Icons.logout),
-              tooltip: 'Выйти',
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: const Text('Подтверждение выхода'),
-                      content: const Text('Вы уверены, что хотите выйти?'),
-                      actions: <Widget>[
-                        TextButton(
-                          onPressed: () => Navigator.of(context).pop(false),
-                          child: const Text('Нет'),
-                        ),
-                        TextButton(
-                          onPressed: () => Navigator.of(context).pop(true),
-                          child: const Text('Да'),
-                        ),
-                      ],
-                    );
-                  },
-                ).then((value) {
-                  if (value == true) {
-                    ref.read(authProvider.notifier).logout();
-                  }
-                });
-              },
-            ),
+          if (widget.instructor == null) const LogoutButton(),
         ],
       ),
       body: IndexedStack(index: _selectedIndex, children: views),

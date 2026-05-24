@@ -33,13 +33,13 @@ class _RoleDialogManagerState extends ConsumerState<RoleDialogManager> {
       context: context,
       barrierDismissible: false, // Пользователь обязан сделать выбор
       builder: (context) => RoleSelectionDialog(roles: widget.user.roles),
-    ).then((selectedRole) {
+    ).then((selectedRole) async {
       if (selectedRole != null) {
         ref.read(authProvider.notifier).setSelectedRole(selectedRole);
       } else {
         // Если диалог был закрыт без выбора (например, системной кнопкой назад),
         // разлогиниваем пользователя, чтобы не оставаться в неопределенном состоянии.
-        ref.read(authProvider.notifier).logout();
+        await ref.read(authProvider.notifier).logout();
       }
     });
   }

@@ -1,7 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 
 import '../../../screens/shared/profile_screen.dart';
-
+import '../../../widgets/logout_button.dart';
 import '../../users/providers/auth_provider.dart';
 import '../providers/dashboard_provider.dart';
 import 'package:flutter/material.dart';
@@ -27,12 +27,9 @@ class ClientDashboard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final user = client ?? ref.watch(authProvider).value?.user;
+    // The null check is removed because AuthNavigator now guarantees a non-null user.
+    final user = client ?? ref.watch(authProvider).value!.user!;
 
-    if (user == null) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    }
-    
     // Now we pass the user ID to the family provider.
     final dashboardData = ref.watch(dashboardDataProvider(user.id));
     final selectedIndex = ref.watch(clientDashboardIndexProvider);
@@ -96,36 +93,7 @@ class ClientDashboard extends ConsumerWidget {
         title: Text(titles[selectedIndex]),
         actions: [
           IconButton(icon: const Icon(Icons.notifications), onPressed: () {}),
-          if (client == null)
-            IconButton(
-              icon: const Icon(Icons.logout),
-              tooltip: 'Выйти',
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: const Text('Подтверждение выхода'),
-                      content: const Text('Вы уверены, что хотите выйти?'),
-                      actions: <Widget>[
-                        TextButton(
-                          onPressed: () => Navigator.of(context).pop(false),
-                          child: const Text('Нет'),
-                        ),
-                        TextButton(
-                          onPressed: () => Navigator.of(context).pop(true),
-                          child: const Text('Да'),
-                        ),
-                      ],
-                    );
-                  },
-                ).then((value) {
-                  if (value == true) {
-                    ref.read(authProvider.notifier).logout();
-                  }
-                });
-              },
-            ),
+          if (client == null) const LogoutButton(),
           if (showBackButton)
             Builder(
               builder: (context) => IconButton(

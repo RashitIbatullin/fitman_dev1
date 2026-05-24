@@ -25,20 +25,20 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
   ];
 
   Widget _buildDrawer(BuildContext context, WidgetRef ref) {
-    final user = ref.watch(authProvider).value?.user;
+    final user = ref.watch(authProvider).value!.user!;
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
           UserAccountsDrawerHeader(
-            accountName: Text(user?.fullName ?? ''),
-            accountEmail: Text(user?.email ?? ''),
+            accountName: Text(user.fullName),
+            accountEmail: Text(user.email),
             currentAccountPicture: CircleAvatar(
-              backgroundImage: user?.photoUrl != null
-                  ? NetworkImage(user!.photoUrl!)
+              backgroundImage: user.photoUrl != null
+                  ? NetworkImage(user.photoUrl!)
                   : null,
-              child: user?.photoUrl == null
-                  ? Text(user?.shortName.isNotEmpty == true ? user!.shortName[0] : '')
+              child: user.photoUrl == null
+                  ? Text(user.shortName.isNotEmpty == true ? user.shortName[0] : '')
                   : null,
             ),
           ),
@@ -47,9 +47,7 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
             title: const Text('Профиль'),
             onTap: () {
               Navigator.pop(context); // Close drawer
-              if (user != null) {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => ProfileScreen(user: user)));
-              }
+              Navigator.push(context, MaterialPageRoute(builder: (context) => ProfileScreen(user: user)));
             },
           ),
           ListTile(
@@ -100,9 +98,9 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
           ListTile(
             leading: const Icon(Icons.logout),
             title: const Text('Выйти'),
-            onTap: () {
+            onTap: () async {
               Navigator.pop(context); // Close drawer
-              showDialog(
+              final confirmed = await showDialog<bool>(
                 context: context,
                 builder: (BuildContext context) {
                   return AlertDialog(
@@ -120,11 +118,10 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
                     ],
                   );
                 },
-              ).then((value) {
-                if (value == true) {
-                  ref.read(authProvider.notifier).logout();
-                }
-              });
+              );
+              if (confirmed == true) {
+                ref.read(authProvider.notifier).logout();
+              }
             },
           ),
         ],
@@ -134,12 +131,6 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
 
   @override
   Widget build(BuildContext context) {
-    final user = ref.watch(authProvider).value?.user;
-
-    if (user == null) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    }
-
     // Only include screens for IndexedStack. TrainingGroupsScreen will be pushed.
     final List<Widget> views = [
       const Center(child: Text('Главное')),

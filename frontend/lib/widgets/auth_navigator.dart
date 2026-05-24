@@ -1,113 +1,75 @@
+import 'package:fitman_app/modules/roles/widgets/role_dialog_manager.dart';
 import 'package:fitman_app/screens/admin_dashboard.dart';
 import 'package:fitman_app/modules/clients/screens/client_dashboard.dart';
 import 'package:fitman_app/screens/instructor_dashboard.dart';
+import 'package:fitman_app/screens/login_screen.dart';
 import 'package:fitman_app/screens/manager_dashboard.dart';
 import 'package:fitman_app/screens/trainer_dashboard.dart';
 import 'package:fitman_app/modules/roles/screens/unknown_role_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fitman_common/fitman_common.dart';
-import '../modules/roles/widgets/role_dialog_manager.dart';
 import '../modules/users/providers/auth_provider.dart';
 
-/// This is an invisible widget whose only purpose is to listen to the
-/// auth state and perform navigations.
 class AuthNavigator extends ConsumerWidget {
-  final Widget child;
-  final GlobalKey<NavigatorState> navigatorKey;
-
-  const AuthNavigator({
-    super.key,
-    required this.child,
-    required this.navigatorKey,
-  });
+  const AuthNavigator({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ref.listen<AsyncValue<AuthState>>(authProvider, (previous, next) {
-      _onAuthStateChange(context, ref, previous, next);
-    });
-    return child;
-  }
+    final auth = ref.watch(authProvider);
 
-  void _onAuthStateChange(
-    BuildContext context, // Keep context for dialogs
-    WidgetRef ref,
-    AsyncValue<AuthState>? previous,
-    AsyncValue<AuthState> next,
-  ) {
-    next.when(
-      data: (authState) {
-        final user = authState.user;
-        final selectedRole = authState.selectedRole;
-        
-        // Safely get the previous data state, if it exists.
-        final previousData = previous?.whenOrNull(data: (d) => d);
+    return auth.when(
+      data: (state) {
+        final user = state.user;
+        final selectedRole = state.selectedRole;
 
-        // --- Handle Logout ---
         if (user == null) {
-          // If user was previously logged in, pop all routes to return to LoginScreen.
-          if (previousData?.user != null) {
-            navigatorKey.currentState!.popUntil((route) => route.isFirst);
+          return const LoginScreen();
+        }
+
+        // User is logged in, but role is not selected
+        if (selectedRole == null) {
+          // If user has multiple roles, show selection dialog.
+          // The RoleDialogManager is a widget that handles its own dialog presentation.
+          if (user.roles.length > 1) {
+            return RoleDialogManager(user: user);
           }
-          return;
+          // If user has one role, it should have been selected on login.
+          // If they have no roles, or something went wrong, show unknown role screen.
+          return const UnknownRoleScreen();
         }
 
-        // --- Handle Login & Navigation ---
-        // We only want to trigger navigation/dialogs on specific state transitions.
-        final wasRoleNull = previousData?.selectedRole == null;
-
-        // Case 1: Multi-role user needs to select a role.
-        if (user.roles.length > 1 && selectedRole == null && wasRoleNull) {
-          _showRoleSelectionDialog(context, ref, user.roles);
-          return;
-        }
-
-        // Case 2: Role is now selected, time to navigate.
-        if (selectedRole != null && wasRoleNull) {
-          _navigateToDashboard(selectedRole);
-        }
+        // User and role are selected, navigate to the correct dashboard.
+        return _getDashboard(selectedRole);
       },
-      loading: () {}, // Do nothing when loading
-      error: (err, stack) {
-        // Optionally, show a SnackBar or handle error
-        if (navigatorKey.currentContext != null) {
-          ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
-            SnackBar(content: Text('Ошибка аутентификации: $err')),
-          );
-        }
-      },
+      loading: () => const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      ),
+      error: (err, stack) => Scaffold(
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text('Произошла ошибка: $err'),
+          ),
+        ),
+      ),
     );
   }
 
-  Future<void> _showRoleSelectionDialog(BuildContext context, WidgetRef ref, List<Role> roles) async {
-    final Role? chosenRole = await RoleDialogManager.show(context, roles);
-    if (chosenRole != null) {
-      ref.read(authProvider.notifier).setSelectedRole(chosenRole);
-    } else {
-      ref.read(authProvider.notifier).logout();
-    }
-  }
-
-  void _navigateToDashboard(Role role) {
-    final dashboard = _getDashboard(role, showBackButton: false);
-    navigatorKey.currentState!.pushReplacement(
-      MaterialPageRoute(builder: (ctx) => dashboard),
-    );
-  }
-
-  Widget _getDashboard(Role role, {required bool showBackButton}) {
+  Widget _getDashboard(Role role) {
     switch (role.name) {
       case 'admin':
-        return AdminDashboard(showBackButton: showBackButton);
+        return const AdminDashboard(showBackButton: false);
       case 'manager':
-        return ManagerDashboard(showBackButton: showBackButton);
+        return const ManagerDashboard(showBackButton: false);
       case 'trainer':
-        return TrainerDashboard(showBackButton: showBackButton);
+        return const TrainerDashboard(showBackButton: false);
       case 'instructor':
-        return InstructorDashboard(showBackButton: showBackButton);
+        return const InstructorDashboard(showBackButton: false);
       case 'client':
-        return ClientDashboard(showBackButton: showBackButton);
+        return const ClientDashboard(showBackButton: false);
       default:
         return const UnknownRoleScreen();
     }

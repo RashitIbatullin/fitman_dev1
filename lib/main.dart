@@ -1,4 +1,3 @@
-import 'package:fitman_app/screens/login_screen.dart';
 import 'package:fitman_app/utils/my_custom_scroll_behavior.dart';
 import 'package:fitman_app/utils/provider_observer.dart';
 import 'package:fitman_app/widgets/auth_navigator.dart';
@@ -57,12 +56,7 @@ class MyApp extends StatelessWidget {
       supportedLocales: const [
         Locale('ru', ''), // Russian
       ],
-      // The LoginScreen is now the base route.
-      home: const LoginScreen(),
-      // The AuthNavigator sits above the navigator and handles auth-based navigation.
-      builder: (context, child) {
-        return AuthNavigator(navigatorKey: navigatorKey, child: child!);
-      },
+      home: const AuthNavigator(),
     );
   }
 }
