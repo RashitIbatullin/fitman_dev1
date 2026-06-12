@@ -24,6 +24,32 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
     'Группы тренинга', // This title is now associated with a push, not IndexedStack
   ];
 
+  Future<void> _showLogoutDialog(BuildContext context, WidgetRef ref) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Подтверждение выхода'),
+          content: const Text('Вы уверены, что хотите выйти?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Нет'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Да'),
+            ),
+          ],
+        );
+      },
+    );
+    if (confirmed == true) {
+      if (!context.mounted) return;
+      ref.read(authProvider.notifier).logout();
+    }
+  }
+
   Widget _buildDrawer(BuildContext context, WidgetRef ref) {
     final user = ref.watch(authProvider).value!.user!;
     return Drawer(
@@ -95,34 +121,17 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
             },
           ),
           const Divider(),
-          ListTile(
-            leading: const Icon(Icons.logout),
-            title: const Text('Выйти'),
-            onTap: () async {
-              Navigator.pop(context); // Close drawer
-              final confirmed = await showDialog<bool>(
-                context: context,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: const Text('Подтверждение выхода'),
-                    content: const Text('Вы уверены, что хотите выйти?'),
-                    actions: <Widget>[
-                      TextButton(
-                        onPressed: () => Navigator.of(context).pop(false),
-                        child: const Text('Нет'),
-                      ),
-                      TextButton(
-                        onPressed: () => Navigator.of(context).pop(true),
-                        child: const Text('Да'),
-                      ),
-                    ],
-                  );
-                },
-              );
-              if (confirmed == true) {
-                ref.read(authProvider.notifier).logout();
-              }
-            },
+          Builder(
+            builder: (drawerContext) => ListTile(
+              leading: const Icon(Icons.logout),
+              title: const Text('Выйти'),
+              onTap: () {
+                // First close the drawer
+                Navigator.pop(drawerContext);
+                // Then show the logout dialog
+                _showLogoutDialog(context, ref);
+              },
+            ),
           ),
         ],
       ),
@@ -151,29 +160,38 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
       });
     }
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(_titles[_selectedIndex]),
-      ),
-      drawer: _buildDrawer(context, ref),
-      body: IndexedStack(index: _selectedIndex, children: views),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Главное'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.people),
-            label: 'Пользователи',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.group),
-            label: 'Группы тренинга', // Label updated
-          ),
-        ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: Colors.amber[800],
-        unselectedItemColor: Colors.grey,
-        onTap: onItemTapped,
-        type: BottomNavigationBarType.fixed,
+    return PopScope(
+      canPop: widget.showBackButton,
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) {
+          return;
+        }
+        _showLogoutDialog(context, ref);
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(_titles[_selectedIndex]),
+        ),
+        drawer: _buildDrawer(context, ref),
+        body: IndexedStack(index: _selectedIndex, children: views),
+        bottomNavigationBar: BottomNavigationBar(
+          items: const <BottomNavigationBarItem>[
+            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Главное'),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.people),
+              label: 'Пользователи',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.group),
+              label: 'Группы тренинга', // Label updated
+            ),
+          ],
+          currentIndex: _selectedIndex,
+          selectedItemColor: Colors.amber[800],
+          unselectedItemColor: Colors.grey,
+          onTap: onItemTapped,
+          type: BottomNavigationBarType.fixed,
+        ),
       ),
     );
   }

@@ -188,19 +188,39 @@ class DatabaseSeeder {
     await _connection.execute(Sql.named('INSERT INTO admin_profiles (user_id) VALUES (@user_id)'), parameters: {'user_id': adminId});
     print('   👤 Created Admin');
 
-    final managerIds = <String>[];
-    for (int i = 1; i <= 2; i++) {
-      final managerId = await _userSeeder.createUser(login: 'manager$i@fitman.ru', firstName: 'Менеджер-$i', lastName: 'Управленцев', phone: '+7000000000${i+2}', password: 'manager123');
-      await _userSeeder.assignRole(managerId, roles['manager']!);
-      await _userSeeder.createEmployeeProfile(managerId, specialization: 'Управление клубом', workExperience: i + 1, createdBy: adminId);
-      await _connection.execute(Sql.named('INSERT INTO manager_profiles (user_id, created_by) VALUES (@user_id, @created_by)'), parameters: {'user_id': managerId, 'created_by': adminId});
-      managerIds.add(managerId);
-      print('   👤 Created Manager $i');
-    }
+    // --- Static test users from login screen ---
+    final managerId_static = await _userSeeder.createUser(login: 'manager@fitman.ru', firstName: 'Менеджер', lastName: 'Менеджеров', phone: '+70000000003', password: 'manager123');
+    await _userSeeder.assignRole(managerId_static, roles['manager']!);
+    await _userSeeder.createEmployeeProfile(managerId_static, specialization: 'Управление', workExperience: 3, createdBy: adminId);
+    await _connection.execute(Sql.named('INSERT INTO manager_profiles (user_id, created_by) VALUES (@user_id, @created_by)'), parameters: {'user_id': managerId_static, 'created_by': adminId});
+    print('   👤 Created Manager (static)');
+
+    final trainerId_static = await _userSeeder.createUser(login: 'trainer@fitman.ru', firstName: 'Тренер', lastName: 'Тренеров', phone: '+70000000002', password: 'trainer123');
+    await _userSeeder.assignRole(trainerId_static, roles['trainer']!);
+    await _userSeeder.createEmployeeProfile(trainerId_static, specialization: 'Силовой тренинг', workExperience: 5, createdBy: adminId);
+    await _connection.execute(Sql.named('INSERT INTO trainer_profiles (user_id, created_by) VALUES (@user_id, @created_by)'), parameters: {'user_id': trainerId_static, 'created_by': adminId});
+    print('   👤 Created Trainer (static)');
+
+    final instructorId_static = await _userSeeder.createUser(login: 'instructor@fitman.ru', firstName: 'Инструктор', lastName: 'Инструкторова', phone: '+70000000001', gender: 1, password: 'instructor123');
+    await _userSeeder.assignRole(instructorId_static, roles['instructor']!);
+    await _userSeeder.createEmployeeProfile(instructorId_static, specialization: 'Групповые занятия', workExperience: 2, createdBy: adminId);
+    await _connection.execute(Sql.named('INSERT INTO instructor_profiles (user_id, created_by) VALUES (@user_id, @created_by)'), parameters: {'user_id': instructorId_static, 'created_by': adminId});
+    print('   👤 Created Instructor (static)');
+
+    final clientId_static = await _userSeeder.createUser(login: 'client@fitman.ru', firstName: 'Клиент', lastName: 'Клиентов', phone: '+70000000004', gender: 0, password: 'client123');
+    await _userSeeder.assignRole(clientId_static, roles['client']!);
+    await _connection.execute(Sql.named('''
+      INSERT INTO client_profiles (user_id, goal_training_id, level_training_id, created_by)
+      VALUES (@user_id, @goal, @level, @created_by)
+      '''), parameters: {'user_id': clientId_static, 'goal': goals['Набор мышечной массы и силы'], 'level': levels['Новичок'], 'created_by': adminId});
+    print('   👤 Created Client (static)');
+    // --- End of static test users ---
+
+    final managerIds = [managerId_static]; // Use the static manager ID for assignments
 
     final trainerIds = <String>[];
     for (int i = 1; i <= 5; i++) {
-      final trainerId = await _userSeeder.createUser(login: 'trainer$i@fitman.ru', firstName: 'Тренер-$i', lastName: 'Наставников', phone: '+700000001${i+4}', password: 'trainer123');
+      final trainerId = await _userSeeder.createUser(login: 'trainer$i@fitman.ru', firstName: 'Тренер-$i', lastName: 'Наставников', phone: '+700000001${10 + i}', password: 'trainer123');
       await _userSeeder.assignRole(trainerId, roles['trainer']!);
       await _userSeeder.createEmployeeProfile(trainerId, specialization: 'Силовой тренинг', workExperience: i, createdBy: adminId);
       await _connection.execute(Sql.named('INSERT INTO trainer_profiles (user_id, created_by) VALUES (@user_id, @created_by)'), parameters: {'user_id': trainerId, 'created_by': adminId});
@@ -210,7 +230,7 @@ class DatabaseSeeder {
 
     final instructorIds = <String>[];
     for (int i = 1; i <= 4; i++) {
-      final instructorId = await _userSeeder.createUser(login: 'instructor$i@fitman.ru', firstName: 'Инструктор-$i', lastName: 'Проводникова', gender: 1, phone: '+700000002${i+4}', password: 'instructor123');
+      final instructorId = await _userSeeder.createUser(login: 'instructor$i@fitman.ru', firstName: 'Инструктор-$i', lastName: 'Проводникова', gender: 1, phone: '+700000002${10 + i}', password: 'instructor123');
       await _userSeeder.assignRole(instructorId, roles['instructor']!);
       await _userSeeder.createEmployeeProfile(instructorId, specialization: 'Групповые программы', workExperience: i, createdBy: adminId);
       await _connection.execute(Sql.named('INSERT INTO instructor_profiles (user_id, created_by) VALUES (@user_id, @created_by)'), parameters: {'user_id': instructorId, 'created_by': adminId});
@@ -274,17 +294,17 @@ class DatabaseSeeder {
     await _groupSeeder.createGroupSchedule(groupId: strengthGroup, dayOfWeek: 5, startTime: '19:00', endTime: '20:30');
     print('   🏋️ Created Powerlifting group');
     
-    final crossfitGroup = await _groupSeeder.createTrainingGroup(name: 'CrossFit для всех', description: 'Интенсивные функциональные тренировки.', trainingGroupTypeId: groupTypes['group']!, primaryTrainerId: trainerIds[2], primaryInstructorId: instructorIds[1], responsibleManagerId: managerIds[1], createdBy: adminId);
+    final crossfitGroup = await _groupSeeder.createTrainingGroup(name: 'CrossFit для всех', description: 'Интенсивные функциональные тренировки.', trainingGroupTypeId: groupTypes['group']!, primaryTrainerId: trainerIds[2], primaryInstructorId: instructorIds[1], responsibleManagerId: managerIds[0], createdBy: adminId);
     await _groupSeeder.createGroupSchedule(groupId: crossfitGroup, dayOfWeek: 2, startTime: '18:00', endTime: '19:00');
     await _groupSeeder.createGroupSchedule(groupId: crossfitGroup, dayOfWeek: 4, startTime: '18:00', endTime: '19:00');
     print('   🤸 Created CrossFit group');
 
-    final boxingGroup = await _groupSeeder.createTrainingGroup(name: 'Бокс для начинающих', description: 'Основы бокса, постановка удара и защита.', trainingGroupTypeId: groupTypes['group']!, primaryTrainerId: trainerIds[3], primaryInstructorId: instructorIds[2], responsibleManagerId: managerIds[1], createdBy: adminId);
+    final boxingGroup = await _groupSeeder.createTrainingGroup(name: 'Бокс для начинающих', description: 'Основы бокса, постановка удара и защита.', trainingGroupTypeId: groupTypes['group']!, primaryTrainerId: trainerIds[3], primaryInstructorId: instructorIds[2], responsibleManagerId: managerIds[0], createdBy: adminId);
     await _groupSeeder.createGroupSchedule(groupId: boxingGroup, dayOfWeek: 1, startTime: '20:00', endTime: '21:30');
     await _groupSeeder.createGroupSchedule(groupId: boxingGroup, dayOfWeek: 5, startTime: '20:00', endTime: '21:30');
     print('   🥊 Created Boxing group');
     
-    final pilatesGroup = await _groupSeeder.createTrainingGroup(name: 'Пилатес', description: 'Укрепление мышечного корсета и улучшение осанки.', trainingGroupTypeId: groupTypes['group']!, primaryTrainerId: trainerIds[4], primaryInstructorId: instructorIds[3], responsibleManagerId: managerIds[1], createdBy: adminId);
+    final pilatesGroup = await _groupSeeder.createTrainingGroup(name: 'Пилатес', description: 'Укрепление мышечного корсета и улучшение осанки.', trainingGroupTypeId: groupTypes['group']!, primaryTrainerId: trainerIds[4], primaryInstructorId: instructorIds[3], responsibleManagerId: managerIds[0], createdBy: adminId);
     await _groupSeeder.createGroupSchedule(groupId: pilatesGroup, dayOfWeek: 3, startTime: '18:00', endTime: '19:00');
     print('   🧘‍♀️ Created Pilates group');
 

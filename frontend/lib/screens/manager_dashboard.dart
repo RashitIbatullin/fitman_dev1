@@ -56,6 +56,32 @@ class _ManagerDashboardState extends ConsumerState<ManagerDashboard> {
     }
   }
 
+  Future<void> _showLogoutDialog() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Подтверждение выхода'),
+          content: const Text('Вы уверены, что хотите выйти?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Нет'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Да'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed == true && context.mounted) {
+      ref.read(authProvider.notifier).logout();
+    }
+  }
+
   final List<String> _titles = const [
     'Главное',
     'Пользователи',
@@ -121,38 +147,40 @@ class _ManagerDashboardState extends ConsumerState<ManagerDashboard> {
           height: _showBars ? kToolbarHeight : 0,
           child: AppBar(
             leadingWidth: widget.showBackButton ? 96 : 56,
-            leading: Row(
-              children: [
-                if (widget.showBackButton) const BackButton(),
-                if (widget.showBackButton)
-                  PopupMenuButton<String>(
-                    onSelected: handleMenuSelection,
-                    itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                      const PopupMenuItem<String>(
-                        value: 'main',
-                        child: Text('Главное'),
-                      ),
-                      const PopupMenuItem<String>(
-                        value: 'users',
-                        child: Text('Пользователи'),
-                      ),
-                      const PopupMenuItem<String>(
-                        value: 'schedule',
-                        child: Text('Расписание'),
-                      ),
-                      const PopupMenuItem<String>(
-                        value: 'timesheet',
-                        child: Text('Табели'),
-                      ),
-                      const PopupMenuDivider(),
-                      const PopupMenuItem<String>(
-                        value: 'competencies',
-                        child: Text('Компетенции ТО'),
+            leading: widget.showBackButton
+                ? Row(
+                    children: [
+                      const BackButton(),
+                      PopupMenuButton<String>(
+                        onSelected: handleMenuSelection,
+                        itemBuilder: (BuildContext context) =>
+                            <PopupMenuEntry<String>>[
+                          const PopupMenuItem<String>(
+                            value: 'main',
+                            child: Text('Главное'),
+                          ),
+                          const PopupMenuItem<String>(
+                            value: 'users',
+                            child: Text('Пользователи'),
+                          ),
+                          const PopupMenuItem<String>(
+                            value: 'schedule',
+                            child: Text('Расписание'),
+                          ),
+                          const PopupMenuItem<String>(
+                            value: 'timesheet',
+                            child: Text('Табели'),
+                          ),
+                          const PopupMenuDivider(),
+                          const PopupMenuItem<String>(
+                            value: 'competencies',
+                            child: Text('Компетенции ТО'),
+                          ),
+                        ],
                       ),
                     ],
-                  ),
-              ],
-            ),
+                  )
+                : null, // Let the AppBar handle the leading widget (show drawer button)
             title: Text(_titles[_selectedIndex]),
              actions: [
               if (widget.manager == null) const LogoutButton(),
@@ -184,6 +212,48 @@ class _ManagerDashboardState extends ConsumerState<ManagerDashboard> {
                 Navigator.push(context, MaterialPageRoute(builder: (context) => ProfileScreen(user: user)));
               },
             ),
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.people),
+              title: const Text('Пользователи'),
+              onTap: () {
+                Navigator.pop(context);
+                _onItemTapped(1);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.calendar_today),
+              title: const Text('Расписание'),
+              onTap: () {
+                Navigator.pop(context);
+                _onItemTapped(2);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.access_time),
+              title: const Text('Табели'),
+              onTap: () {
+                Navigator.pop(context);
+                _onItemTapped(3);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.school),
+              title: const Text('Компетенции ТО'),
+              onTap: () {
+                Navigator.pop(context);
+                handleMenuSelection('competencies');
+              },
+            ),
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.logout),
+              title: const Text('Выйти'),
+              onTap: () {
+                Navigator.pop(context);
+                _showLogoutDialog();
+              },
+            )
           ],
         ),
       ),
