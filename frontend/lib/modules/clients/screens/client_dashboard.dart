@@ -19,6 +19,32 @@ import '../../chat/screens/chat_list_screen.dart';
 
 final clientDashboardIndexProvider = StateProvider<int>((ref) => 0);
 
+Future<void> _showLogoutDialog(BuildContext context, WidgetRef ref) async {
+  final confirmed = await showDialog<bool>(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('Подтверждение выхода'),
+        content: const Text('Вы уверены, что хотите выйти?'),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Нет'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Да'),
+          ),
+        ],
+      );
+    },
+  );
+
+  if (confirmed == true && context.mounted) {
+    ref.read(authProvider.notifier).logout();
+  }
+}
+
 class ClientDashboard extends ConsumerWidget {
   final User? client;
   final bool showBackButton;
@@ -208,6 +234,15 @@ class ClientDashboard extends ConsumerWidget {
               onTap: () {
                 ref.read(clientDashboardIndexProvider.notifier).state = 9; // New index for chats
                 Navigator.pop(context);
+              },
+            ),
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.logout),
+              title: const Text('Выйти'),
+              onTap: () {
+                Navigator.pop(context);
+                _showLogoutDialog(context, ref);
               },
             ),
           ],

@@ -1,62 +1,22 @@
 import 'package:fitman_app/widgets/logout_button.dart';
 import 'package:fitman_common/fitman_common.dart';
-import 'package:fitman_app/modules/users/screens/user_list_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fitman_app/screens/shared/profile_screen.dart';
 
 import '../modules/users/providers/auth_provider.dart';
-import 'manager/schedule_view.dart';
+import 'manager/schedule_page.dart';
+import 'manager/user_list_page.dart';
+import 'manager/timesheet_page.dart';
 
 import 'package:fitman_app/modules/employees/screens/competency_screen.dart';
 
-class ManagerDashboard extends ConsumerStatefulWidget {
+class ManagerDashboard extends ConsumerWidget {
   final User? manager;
   final bool showBackButton;
   const ManagerDashboard({super.key, this.manager, required this.showBackButton});
 
-  @override
-  ConsumerState<ManagerDashboard> createState() => _ManagerDashboardState();
-}
-
-class _ManagerDashboardState extends ConsumerState<ManagerDashboard> {
-  int _selectedIndex = 0;
-  late ScrollController _scrollController;
-  bool _showBars = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _scrollController = ScrollController();
-    _scrollController.addListener(_scrollListener);
-  }
-
-  @override
-  void dispose() {
-    _scrollController.removeListener(_scrollListener);
-    _scrollController.dispose();
-    super.dispose();
-  }
-
-  void _scrollListener() {
-    if (_selectedIndex != 1) {
-       if (!_showBars) {
-        setState(() => _showBars = true);
-      }
-      return;
-    } 
-
-    final userScrollDirection = _scrollController.position.userScrollDirection;
-
-    if (userScrollDirection == ScrollDirection.reverse) {
-      if (_showBars) setState(() => _showBars = false);
-    } else if (userScrollDirection == ScrollDirection.forward) {
-      if (!_showBars) setState(() => _showBars = true);
-    }
-  }
-
-  Future<void> _showLogoutDialog() async {
+  Future<void> _showLogoutDialog(BuildContext context, WidgetRef ref) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
@@ -82,111 +42,48 @@ class _ManagerDashboardState extends ConsumerState<ManagerDashboard> {
     }
   }
 
-  final List<String> _titles = const [
-    'Главное',
-    'Пользователи',
-    'Расписание',
-    'Табели',
-  ];
-
-  void _onItemTapped(int index) {
-    if (index != _selectedIndex && !_showBars) {
-      setState(() {
-        _showBars = true;
-      });
-    }
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
   @override
-  Widget build(BuildContext context) {
-    final user = widget.manager ?? ref.watch(authProvider).value!.user!;
+  Widget build(BuildContext context, WidgetRef ref) {
+    final user = manager ?? ref.watch(authProvider).value!.user!;
 
-    final List<Widget> views = [
-      const Center(child: Text('Главное')),
-      UserListScreen(scrollController: _scrollController, showToolbar: _showBars),
-      const ScheduleView(),
-      const Center(child: Text('Табели - в разработке')),
-    ];
+    void navigateTo(Widget page) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => page),
+      );
+    }
+    
+    void handleDrawerTap(Widget? page) {
+      Navigator.pop(context); // Close drawer first
+      if (page != null) {
+        navigateTo(page);
+      }
+    }
 
-    void handleMenuSelection(String value) {
-      switch (value) {
-        case 'main':
-          _onItemTapped(0);
+    void onBottomNavTapped(int index) {
+      switch (index) {
+        case 0:
+          // Already on the main screen, do nothing.
           break;
-        case 'users':
-          _onItemTapped(1);
+        case 1:
+          navigateTo(const UserListPage());
           break;
-        case 'schedule':
-          _onItemTapped(2);
+        case 2:
+          navigateTo(const SchedulePage());
           break;
-        case 'timesheet':
-          _onItemTapped(3);
-          break;
-        case 'competencies':
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => CompetencyScreen(
-                employeeId: user.id.toString(),
-                employeeName: user.shortName,
-              ),
-            ),
-          );
+        case 3:
+          navigateTo(const TimesheetPage());
           break;
       }
     }
 
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(_showBars ? kToolbarHeight : 0),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          height: _showBars ? kToolbarHeight : 0,
-          child: AppBar(
-            leadingWidth: widget.showBackButton ? 96 : 56,
-            leading: widget.showBackButton
-                ? Row(
-                    children: [
-                      const BackButton(),
-                      PopupMenuButton<String>(
-                        onSelected: handleMenuSelection,
-                        itemBuilder: (BuildContext context) =>
-                            <PopupMenuEntry<String>>[
-                          const PopupMenuItem<String>(
-                            value: 'main',
-                            child: Text('Главное'),
-                          ),
-                          const PopupMenuItem<String>(
-                            value: 'users',
-                            child: Text('Пользователи'),
-                          ),
-                          const PopupMenuItem<String>(
-                            value: 'schedule',
-                            child: Text('Расписание'),
-                          ),
-                          const PopupMenuItem<String>(
-                            value: 'timesheet',
-                            child: Text('Табели'),
-                          ),
-                          const PopupMenuDivider(),
-                          const PopupMenuItem<String>(
-                            value: 'competencies',
-                            child: Text('Компетенции ТО'),
-                          ),
-                        ],
-                      ),
-                    ],
-                  )
-                : null, // Let the AppBar handle the leading widget (show drawer button)
-            title: Text(_titles[_selectedIndex]),
-             actions: [
-              if (widget.manager == null) const LogoutButton(),
-            ],
-          ),
-        ),
+      appBar: AppBar(
+        leading: showBackButton ? const BackButton() : null,
+        title: const Text('Главное'),
+         actions: [
+          if (manager == null) const LogoutButton(),
+        ],
       ),
       drawer: Drawer(
         child: ListView(
@@ -207,43 +104,33 @@ class _ManagerDashboardState extends ConsumerState<ManagerDashboard> {
              ListTile(
               leading: const Icon(Icons.account_circle),
               title: const Text('Профиль'),
-              onTap: () {
-                Navigator.pop(context); // Close drawer
-                Navigator.push(context, MaterialPageRoute(builder: (context) => ProfileScreen(user: user)));
-              },
+              onTap: () => handleDrawerTap(ProfileScreen(user: user)),
             ),
             const Divider(),
             ListTile(
               leading: const Icon(Icons.people),
               title: const Text('Пользователи'),
-              onTap: () {
-                Navigator.pop(context);
-                _onItemTapped(1);
-              },
+              onTap: () => handleDrawerTap(const UserListPage()),
             ),
             ListTile(
               leading: const Icon(Icons.calendar_today),
               title: const Text('Расписание'),
-              onTap: () {
-                Navigator.pop(context);
-                _onItemTapped(2);
-              },
+              onTap: () => handleDrawerTap(const SchedulePage()),
             ),
             ListTile(
               leading: const Icon(Icons.access_time),
               title: const Text('Табели'),
-              onTap: () {
-                Navigator.pop(context);
-                _onItemTapped(3);
-              },
+              onTap: () => handleDrawerTap(const TimesheetPage()),
             ),
             ListTile(
               leading: const Icon(Icons.school),
               title: const Text('Компетенции ТО'),
-              onTap: () {
-                Navigator.pop(context);
-                handleMenuSelection('competencies');
-              },
+              onTap: () => handleDrawerTap(
+                CompetencyScreen(
+                  employeeId: user.id.toString(),
+                  employeeName: user.shortName,
+                ),
+              ),
             ),
             const Divider(),
             ListTile(
@@ -251,42 +138,34 @@ class _ManagerDashboardState extends ConsumerState<ManagerDashboard> {
               title: const Text('Выйти'),
               onTap: () {
                 Navigator.pop(context);
-                _showLogoutDialog();
+                _showLogoutDialog(context, ref);
               },
             )
           ],
         ),
       ),
-      body: IndexedStack(index: _selectedIndex, children: views),
-      bottomNavigationBar: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        height: _showBars ? kBottomNavigationBarHeight : 0,
-        child: Wrap(
-          children: [
-            BottomNavigationBar(
-              items: const <BottomNavigationBarItem>[
-                BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Главное'),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.people),
-                  label: 'Пользователи',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.calendar_today),
-                  label: 'Расписание',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.access_time),
-                  label: 'Табели',
-                ),
-              ],
-              currentIndex: _selectedIndex,
-              selectedItemColor: Colors.amber[800],
-              unselectedItemColor: Colors.grey,
-              onTap: _onItemTapped,
-              type: BottomNavigationBarType.fixed,
-            ),
-          ],
-        ),
+      body: const Center(child: Text('Главный экран менеджера')),
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Главное'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.people),
+            label: 'Пользователи',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.calendar_today),
+            label: 'Расписание',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.access_time),
+            label: 'Табели',
+          ),
+        ],
+        currentIndex: 0, // Always on 'Главное'
+        selectedItemColor: Colors.amber[800],
+        unselectedItemColor: Colors.grey,
+        onTap: onBottomNavTapped,
+        type: BottomNavigationBarType.fixed,
       ),
     );
   }

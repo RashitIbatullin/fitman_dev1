@@ -1,144 +1,150 @@
 import 'package:fitman_app/widgets/logout_button.dart';
 import 'package:fitman_common/fitman_common.dart';
-import 'package:fitman_app/modules/users/screens/user_list_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fitman_app/screens/shared/profile_screen.dart';
 import 'package:fitman_app/modules/employees/screens/competency_screen.dart';
 
 import '../modules/users/providers/auth_provider.dart';
+import 'manager/schedule_page.dart';
+import 'manager/user_list_page.dart';
+import 'manager/timesheet_page.dart';
 
-class InstructorDashboard extends ConsumerStatefulWidget {
+class InstructorDashboard extends ConsumerWidget {
   final User? instructor;
   final bool showBackButton;
   const InstructorDashboard({super.key, this.instructor, required this.showBackButton});
 
-  @override
-  ConsumerState<InstructorDashboard> createState() =>
-      _InstructorDashboardState();
-}
-
-class _InstructorDashboardState extends ConsumerState<InstructorDashboard> {
-  int _selectedIndex = 0;
-  late ScrollController _scrollController;
-
-  @override
-  void initState() {
-    super.initState();
-    _scrollController = ScrollController();
-  }
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
-  }
-
-  final List<String> _titles = const [
-    'Главное',
-    'Профиль',
-    'Пользователи',
-    'Расписание',
-    'Табель',
-  ];
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final user = widget.instructor ?? ref.watch(authProvider).value!.user!;
-
-    final List<Widget> views = [
-      const Center(child: Text('Главное')),
-      ProfileScreen(user: user),
-      UserListScreen(
-        scrollController: _scrollController,
-        showToolbar: false,
-      ),
-      const Center(child: Text('Расписание - в разработке')),
-      const Center(child: Text('Табель - в разработке')),
-    ];
-
-    void handleMenuSelection(String value) {
-      switch (value) {
-        case 'main':
-          _onItemTapped(0);
-          break;
-        case 'profile':
-          _onItemTapped(1);
-          break;
-        case 'users':
-          _onItemTapped(2);
-          break;
-        case 'schedule':
-          _onItemTapped(3);
-          break;
-        case 'timesheet':
-          _onItemTapped(4);
-          break;
-        case 'competencies':
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => CompetencyScreen(
-                employeeId: user.id.toString(),
-                employeeName: user.shortName,
-              ),
+  Future<void> _showLogoutDialog(BuildContext context, WidgetRef ref) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Подтверждение выхода'),
+          content: const Text('Вы уверены, что хотите выйти?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Нет'),
             ),
-          );
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Да'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed == true && context.mounted) {
+      ref.read(authProvider.notifier).logout();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final user = instructor ?? ref.watch(authProvider).value!.user!;
+
+    void navigateTo(Widget page) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => page),
+      );
+    }
+    
+    void handleDrawerTap(Widget? page) {
+      Navigator.pop(context); // Close drawer first
+      if (page != null) {
+        navigateTo(page);
+      }
+    }
+
+    void onBottomNavTapped(int index) {
+      switch (index) {
+        case 0:
+          // Already on the main screen, do nothing.
+          break;
+        case 1:
+          navigateTo(ProfileScreen(user: user));
+          break;
+        case 2:
+          navigateTo(const UserListPage());
+          break;
+        case 3:
+          navigateTo(const SchedulePage());
+          break;
+        case 4:
+          navigateTo(const TimesheetPage());
           break;
       }
     }
 
     return Scaffold(
       appBar: AppBar(
-        leadingWidth: widget.showBackButton ? 96 : 56,
-        leading: Row(
-          children: [
-            if (widget.showBackButton) const BackButton(),
-            if (widget.showBackButton)
-              PopupMenuButton<String>(
-                onSelected: handleMenuSelection,
-                itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                  const PopupMenuItem<String>(
-                    value: 'main',
-                    child: Text('Главное'),
-                  ),
-                  const PopupMenuItem<String>(
-                    value: 'profile',
-                    child: Text('Профиль'),
-                  ),
-                  const PopupMenuItem<String>(
-                    value: 'users',
-                    child: Text('Пользователи'),
-                  ),
-                  const PopupMenuItem<String>(
-                    value: 'schedule',
-                    child: Text('Расписание'),
-                  ),
-                  const PopupMenuItem<String>(
-                    value: 'timesheet',
-                    child: Text('Табель'),
-                  ),
-                  const PopupMenuDivider(),
-                  const PopupMenuItem<String>(
-                    value: 'competencies',
-                    child: Text('Компетенции ТО'),
-                  ),
-                ],
-              ),
-          ],
-        ),
-        title: Text(_titles[_selectedIndex]),
+        leading: showBackButton ? const BackButton() : null,
+        title: const Text('Главное'),
         actions: [
-          if (widget.instructor == null) const LogoutButton(),
+          if (instructor == null) const LogoutButton(),
         ],
       ),
-      body: IndexedStack(index: _selectedIndex, children: views),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            UserAccountsDrawerHeader(
+              accountName: Text(user.fullName),
+              accountEmail: Text(user.email),
+              currentAccountPicture: CircleAvatar(
+                backgroundImage:
+                    user.photoUrl != null ? NetworkImage(user.photoUrl!) : null,
+                child: user.photoUrl == null
+                    ? Text(user.shortName.isNotEmpty ? user.shortName[0] : '')
+                    : null,
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.account_circle),
+              title: const Text('Профиль'),
+              onTap: () => handleDrawerTap(ProfileScreen(user: user)),
+            ),
+            ListTile(
+              leading: const Icon(Icons.people),
+              title: const Text('Пользователи'),
+              onTap: () => handleDrawerTap(const UserListPage()),
+            ),
+            ListTile(
+              leading: const Icon(Icons.calendar_today),
+              title: const Text('Расписание'),
+              onTap: () => handleDrawerTap(const SchedulePage()),
+            ),
+            ListTile(
+              leading: const Icon(Icons.access_time),
+              title: const Text('Табель'),
+              onTap: () => handleDrawerTap(const TimesheetPage()),
+            ),
+            ListTile(
+              leading: const Icon(Icons.school),
+              title: const Text('Компетенции'),
+              onTap: () => handleDrawerTap(
+                CompetencyScreen(
+                  employeeId: user.id.toString(),
+                  employeeName: user.shortName,
+                ),
+              ),
+            ),
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.logout),
+              title: const Text('Выйти'),
+              onTap: () {
+                Navigator.pop(context);
+                _showLogoutDialog(context, ref);
+              },
+            ),
+          ],
+        ),
+      ),
+      body: const Center(child: Text('Главный экран инструктора')),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Главное'),
@@ -156,10 +162,10 @@ class _InstructorDashboardState extends ConsumerState<InstructorDashboard> {
             label: 'Табель',
           ),
         ],
-        currentIndex: _selectedIndex,
+        currentIndex: 0, // Always on 'Главное'
         selectedItemColor: Colors.amber[800],
         unselectedItemColor: Colors.grey,
-        onTap: _onItemTapped,
+        onTap: onBottomNavTapped,
         type: BottomNavigationBarType.fixed,
       ),
     );

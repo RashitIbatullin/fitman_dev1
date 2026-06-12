@@ -128,43 +128,48 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     // Allow editing if the current user is not a client.
     final canEditClientProfile = currentUser != null && !currentUser.roles.any((r) => r.name == 'client');
 
-    return ListView(
-      padding: const EdgeInsets.all(16.0),
-      children: <Widget>[
-        Center(
-          child: Column(
-            children: [
-              RepaintBoundary(
-                key: _repaintBoundaryKey,
-                child: ClipOval(
-                  child: SizedBox(
-                    width: 100,
-                    height: 100,
-                    child: InteractiveViewer(
-                      transformationController: _transformationController,
-                      boundaryMargin: const EdgeInsets.all(double.infinity),
-                      minScale: 1,
-                      maxScale: 4,
-                      child: _photoUrl != null
-                          ? Image.network(
-                              Uri.parse(ApiService.baseUrl).replace(path: _photoUrl!).toString(),
-                              fit: BoxFit.cover,
-                            )
-                          : const Icon(Icons.person, size: 50),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Профиль'),
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(16.0),
+        children: <Widget>[
+          Center(
+            child: Column(
+              children: [
+                RepaintBoundary(
+                  key: _repaintBoundaryKey,
+                  child: ClipOval(
+                    child: SizedBox(
+                      width: 100,
+                      height: 100,
+                      child: InteractiveViewer(
+                        transformationController: _transformationController,
+                        boundaryMargin: const EdgeInsets.all(double.infinity),
+                        minScale: 1,
+                        maxScale: 4,
+                        child: _photoUrl != null
+                            ? Image.network(
+                                Uri.parse(ApiService.baseUrl).replace(path: _photoUrl!).toString(),
+                                fit: BoxFit.cover,
+                              )
+                            : const Icon(Icons.person, size: 50),
+                      ),
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-              ),
-            ],
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                ),
+              ],
+            ),
           ),
-        ),
-        const SizedBox(height: 16),
-        _buildProfileInfoCard(canEditClientProfile),
-      ],
+          const SizedBox(height: 16),
+          _buildProfileInfoCard(canEditClientProfile),
+        ],
+      ),
     );
   }
 
