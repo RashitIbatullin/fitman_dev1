@@ -80,12 +80,6 @@ class TrainerDashboard extends ConsumerWidget {
         leading: showBackButton ? const BackButton() : null,
         title: const Text('Главное'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () {
-              // Создание новой тренировки
-            },
-          ),
           if (trainer == null) const LogoutButton(),
         ],
       ),

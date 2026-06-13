@@ -1,3 +1,4 @@
+import '../widgets/logout_button.dart';
 import '../modules/groups/screens/analytic/analytic_groups_screen.dart';
 import '../modules/groups/screens/training/training_groups_screen.dart';
 import 'package:fitman_app/screens/shared/profile_screen.dart';
@@ -171,6 +172,9 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
       child: Scaffold(
         appBar: AppBar(
           title: Text(_titles[_selectedIndex]),
+          actions: const [
+            LogoutButton(),
+          ],
         ),
         drawer: _buildDrawer(context, ref),
         body: IndexedStack(index: _selectedIndex, children: views),

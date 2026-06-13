@@ -1,3 +1,9 @@
+import 'package:fitman_app/modules/clients/screens/calorie_tracking_page.dart';
+import 'package:fitman_app/modules/clients/screens/my_instructor_page.dart';
+import 'package:fitman_app/modules/clients/screens/my_manager_page.dart';
+import 'package:fitman_app/modules/clients/screens/my_trainer_page.dart';
+import 'package:fitman_app/modules/clients/screens/progress_page.dart';
+import 'package:fitman_app/modules/clients/screens/sessions_page.dart';
 import 'package:fl_chart/fl_chart.dart';
 
 import '../../../screens/shared/profile_screen.dart';
@@ -8,16 +14,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:fitman_common/fitman_common.dart';
-import 'my_trainer_screen.dart';
-import 'my_instructor_screen.dart';
-import 'my_manager_screen.dart';
 import 'anthropometry_screen.dart';
-import 'sessions_screen.dart';
-import 'calorie_tracking_screen.dart';
-import 'progress_screen.dart';
 import '../../chat/screens/chat_list_screen.dart';
-
-final clientDashboardIndexProvider = StateProvider<int>((ref) => 0);
 
 Future<void> _showLogoutDialog(BuildContext context, WidgetRef ref) async {
   final confirmed = await showDialog<bool>(
@@ -53,70 +51,27 @@ class ClientDashboard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // The null check is removed because AuthNavigator now guarantees a non-null user.
     final user = client ?? ref.watch(authProvider).value!.user!;
-
-    // Now we pass the user ID to the family provider.
     final dashboardData = ref.watch(dashboardDataProvider(user.id));
-    final selectedIndex = ref.watch(clientDashboardIndexProvider);
 
-    final List<String> titles = [
-      user.fullName, // Используем ФИО пользователя
-      'Профиль',
-      'Мой тренер',
-      'Мой инструктор',
-      'Мой менеджер',
-      'Антропометрия',
-      'Занятия',
-      'Калории',
-      'Прогресс',
-      'Чаты', // New menu item
-    ];
+    void navigateTo(Widget page) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => page),
+      );
+    }
 
-    final List<Widget> views = [
-      // Главное - это основное содержимое дашборда
-      dashboardData.when(
-        data: (data) => RefreshIndicator(
-          onRefresh: () => ref.refresh(dashboardDataProvider(user.id).future),
-          child: ListView(
-            padding: const EdgeInsets.all(16.0),
-            children: [
-              if (data.nextTraining != null)
-                _buildNextTrainingWidget(context, data.nextTraining!),
-              const SizedBox(height: 16),
-              // Add the new progress chart here
-              _ProgressChart(measurements: data.recentMeasurements ?? []),
-              const SizedBox(height: 16),
-              if (data.trainingProgress != null)
-                _buildTrainingProgressWidget(context, data.trainingProgress!),
-              const SizedBox(height: 16),
-              if (data.goalProgress != null)
-                _buildGoalProgressWidget(context, data.goalProgress!),
-              const SizedBox(height: 16),
-              _buildAchievementsWidget(context, data.achievements),
-              const SizedBox(height: 16),
-              _buildQuickMenu(context, ref),
-            ],
-          ),
-        ),
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stackTrace) => Center(child: Text('Ошибка: $error')),
-      ),
-      ProfileScreen(user: user), // Профиль
-      const MyTrainerScreen(),
-      const MyInstructorScreen(),
-      const MyManagerScreen(),
-      AnthropometryScreen(clientId: user.id.toString(), isEmbedded: true),
-      const SessionsScreen(),
-      const CalorieTrackingScreen(),
-      const ProgressScreen(),
-      const ChatListScreen(), // New chat list screen
-    ];
+    void handleDrawerTap(Widget? page) {
+      Navigator.pop(context); // Close drawer first
+      if (page != null) {
+        navigateTo(page);
+      }
+    }
 
     return Scaffold(
       appBar: AppBar(
         leading: showBackButton ? const BackButton() : null,
-        title: Text(titles[selectedIndex]),
+        title: Text(client == null ? 'Главное' : user.fullName),
         actions: [
           IconButton(icon: const Icon(Icons.notifications), onPressed: () {}),
           if (client == null) const LogoutButton(),
@@ -149,92 +104,53 @@ class ClientDashboard extends ConsumerWidget {
             ListTile(
               leading: const Icon(Icons.home),
               title: const Text('Главное'),
-              selected: selectedIndex == 0,
-              onTap: () {
-                ref.read(clientDashboardIndexProvider.notifier).state = 0;
-                Navigator.pop(context);
-              },
+              onTap: () => Navigator.pop(context),
             ),
             ListTile(
               leading: const Icon(Icons.account_circle),
               title: const Text('Профиль'),
-              selected: selectedIndex == 1,
-              onTap: () {
-                ref.read(clientDashboardIndexProvider.notifier).state = 1;
-                Navigator.pop(context);
-              },
+              onTap: () => handleDrawerTap(ProfileScreen(user: user)),
             ),
             ListTile(
               leading: const Icon(Icons.sports_baseball),
               title: const Text('Тренер'),
-              selected: selectedIndex == 2,
-              onTap: () {
-                ref.read(clientDashboardIndexProvider.notifier).state = 2;
-                Navigator.pop(context);
-              },
+              onTap: () => handleDrawerTap(const MyTrainerPage()),
             ),
             ListTile(
               leading: const Icon(Icons.sports_handball),
               title: const Text('Инструктор'),
-              selected: selectedIndex == 3,
-              onTap: () {
-                ref.read(clientDashboardIndexProvider.notifier).state = 3;
-                Navigator.pop(context);
-              },
+              onTap: () => handleDrawerTap(const MyInstructorPage()),
             ),
             ListTile(
               leading: const Icon(Icons.business_center),
               title: const Text('Менеджер'),
-              selected: selectedIndex == 4,
-              onTap: () {
-                ref.read(clientDashboardIndexProvider.notifier).state = 4;
-                Navigator.pop(context);
-              },
+              onTap: () => handleDrawerTap(const MyManagerPage()),
             ),
             ListTile(
               leading: const Icon(Icons.accessibility),
               title: const Text('Антропометрия'),
-              selected: selectedIndex == 5,
-              onTap: () {
-                ref.read(clientDashboardIndexProvider.notifier).state = 5;
-                Navigator.pop(context);
-              },
+              onTap: () => handleDrawerTap(
+                  AnthropometryScreen(clientId: user.id.toString())),
             ),
             ListTile(
               leading: const Icon(Icons.fitness_center),
               title: const Text('Занятия'),
-              selected: selectedIndex == 6,
-              onTap: () {
-                ref.read(clientDashboardIndexProvider.notifier).state = 6;
-                Navigator.pop(context);
-              },
+              onTap: () => handleDrawerTap(const SessionsPage()),
             ),
             ListTile(
               leading: const Icon(Icons.track_changes),
               title: const Text('Калории'),
-              selected: selectedIndex == 7,
-              onTap: () {
-                ref.read(clientDashboardIndexProvider.notifier).state = 7;
-                Navigator.pop(context);
-              },
+              onTap: () => handleDrawerTap(const CalorieTrackingPage()),
             ),
             ListTile(
               leading: const Icon(Icons.show_chart),
               title: const Text('Прогресс'),
-              selected: selectedIndex == 8,
-              onTap: () {
-                ref.read(clientDashboardIndexProvider.notifier).state = 8;
-                Navigator.pop(context);
-              },
+              onTap: () => handleDrawerTap(const ProgressPage()),
             ),
             ListTile(
               leading: const Icon(Icons.chat_bubble),
               title: const Text('Чаты'),
-              selected: selectedIndex == 9, // New index for chats
-              onTap: () {
-                ref.read(clientDashboardIndexProvider.notifier).state = 9; // New index for chats
-                Navigator.pop(context);
-              },
+              onTap: () => handleDrawerTap(const ChatListScreen()),
             ),
             const Divider(),
             ListTile(
@@ -248,7 +164,32 @@ class ClientDashboard extends ConsumerWidget {
           ],
         ),
       ),
-      body: IndexedStack(index: selectedIndex, children: views),
+      body: dashboardData.when(
+        data: (data) => RefreshIndicator(
+          onRefresh: () => ref.refresh(dashboardDataProvider(user.id).future),
+          child: ListView(
+            padding: const EdgeInsets.all(16.0),
+            children: [
+              if (data.nextTraining != null)
+                _buildNextTrainingWidget(context, data.nextTraining!),
+              const SizedBox(height: 16),
+              _ProgressChart(measurements: data.recentMeasurements ?? []),
+              const SizedBox(height: 16),
+              if (data.trainingProgress != null)
+                _buildTrainingProgressWidget(context, data.trainingProgress!),
+              const SizedBox(height: 16),
+              if (data.goalProgress != null)
+                _buildGoalProgressWidget(context, data.goalProgress!),
+              const SizedBox(height: 16),
+              _buildAchievementsWidget(context, data.achievements),
+              const SizedBox(height: 16),
+              _buildQuickMenu(context, navigateTo),
+            ],
+          ),
+        ),
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, stackTrace) => Center(child: Text('Ошибка: $error')),
+      ),
     );
   }
 
@@ -398,15 +339,14 @@ class ClientDashboard extends ConsumerWidget {
     );
   }
 
-  Widget _buildQuickMenu(BuildContext context, WidgetRef ref) {
+  Widget _buildQuickMenu(
+      BuildContext context, void Function(Widget) navigateTo) {
     return Row(
       children: [
         Expanded(
           child: Card(
             child: InkWell(
-              onTap: () {
-                ref.read(clientDashboardIndexProvider.notifier).state = 6;
-              },
+              onTap: () => navigateTo(const SessionsPage()),
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
@@ -427,7 +367,7 @@ class ClientDashboard extends ConsumerWidget {
         Expanded(
           child: Card(
             child: InkWell(
-              onTap: () {},
+              onTap: () => navigateTo(const CalorieTrackingPage()),
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
@@ -537,13 +477,6 @@ class _ProgressChart extends StatelessWidget {
                       belowBarData: BarAreaData(show: false),
                     ),
                   ],
-                  // Handling two Y-axes requires a bit more setup;
-                  // For a simple dashboard view, we can normalize the data or show them separately.
-                  // Given the goal of a quick glance, let's normalize for simplicity.
-                  // This part is complex, will simplify for now by not using dual-axis
-                  // and relying on the user to understand the trend.
-                  // A proper implementation would use a library that supports dual-axis
-                  // or manual calculation to map both to a 0-1 range.
                 ),
               ),
             ),
