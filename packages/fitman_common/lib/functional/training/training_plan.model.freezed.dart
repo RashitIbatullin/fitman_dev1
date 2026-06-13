@@ -12,7 +12,8 @@ part of 'training_plan.model.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
+  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
+);
 
 TrainingPlan _$TrainingPlanFromJson(Map<String, dynamic> json) {
   return _TrainingPlan.fromJson(json);
@@ -41,17 +42,19 @@ mixin _$TrainingPlan {
 /// @nodoc
 abstract class $TrainingPlanCopyWith<$Res> {
   factory $TrainingPlanCopyWith(
-          TrainingPlan value, $Res Function(TrainingPlan) then) =
-      _$TrainingPlanCopyWithImpl<$Res, TrainingPlan>;
+    TrainingPlan value,
+    $Res Function(TrainingPlan) then,
+  ) = _$TrainingPlanCopyWithImpl<$Res, TrainingPlan>;
   @useResult
-  $Res call(
-      {String id,
-      String name,
-      String goal,
-      String level,
-      String description,
-      DateTime createdAt,
-      DateTime updatedAt});
+  $Res call({
+    String id,
+    String name,
+    String goal,
+    String level,
+    String description,
+    DateTime createdAt,
+    DateTime updatedAt,
+  });
 }
 
 /// @nodoc
@@ -77,36 +80,39 @@ class _$TrainingPlanCopyWithImpl<$Res, $Val extends TrainingPlan>
     Object? createdAt = null,
     Object? updatedAt = null,
   }) {
-    return _then(_value.copyWith(
-      id: null == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as String,
-      name: null == name
-          ? _value.name
-          : name // ignore: cast_nullable_to_non_nullable
-              as String,
-      goal: null == goal
-          ? _value.goal
-          : goal // ignore: cast_nullable_to_non_nullable
-              as String,
-      level: null == level
-          ? _value.level
-          : level // ignore: cast_nullable_to_non_nullable
-              as String,
-      description: null == description
-          ? _value.description
-          : description // ignore: cast_nullable_to_non_nullable
-              as String,
-      createdAt: null == createdAt
-          ? _value.createdAt
-          : createdAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      updatedAt: null == updatedAt
-          ? _value.updatedAt
-          : updatedAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-    ) as $Val);
+    return _then(
+      _value.copyWith(
+            id: null == id
+                ? _value.id
+                : id // ignore: cast_nullable_to_non_nullable
+                      as String,
+            name: null == name
+                ? _value.name
+                : name // ignore: cast_nullable_to_non_nullable
+                      as String,
+            goal: null == goal
+                ? _value.goal
+                : goal // ignore: cast_nullable_to_non_nullable
+                      as String,
+            level: null == level
+                ? _value.level
+                : level // ignore: cast_nullable_to_non_nullable
+                      as String,
+            description: null == description
+                ? _value.description
+                : description // ignore: cast_nullable_to_non_nullable
+                      as String,
+            createdAt: null == createdAt
+                ? _value.createdAt
+                : createdAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime,
+            updatedAt: null == updatedAt
+                ? _value.updatedAt
+                : updatedAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime,
+          )
+          as $Val,
+    );
   }
 }
 
@@ -114,18 +120,20 @@ class _$TrainingPlanCopyWithImpl<$Res, $Val extends TrainingPlan>
 abstract class _$$TrainingPlanImplCopyWith<$Res>
     implements $TrainingPlanCopyWith<$Res> {
   factory _$$TrainingPlanImplCopyWith(
-          _$TrainingPlanImpl value, $Res Function(_$TrainingPlanImpl) then) =
-      __$$TrainingPlanImplCopyWithImpl<$Res>;
+    _$TrainingPlanImpl value,
+    $Res Function(_$TrainingPlanImpl) then,
+  ) = __$$TrainingPlanImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call(
-      {String id,
-      String name,
-      String goal,
-      String level,
-      String description,
-      DateTime createdAt,
-      DateTime updatedAt});
+  $Res call({
+    String id,
+    String name,
+    String goal,
+    String level,
+    String description,
+    DateTime createdAt,
+    DateTime updatedAt,
+  });
 }
 
 /// @nodoc
@@ -133,8 +141,9 @@ class __$$TrainingPlanImplCopyWithImpl<$Res>
     extends _$TrainingPlanCopyWithImpl<$Res, _$TrainingPlanImpl>
     implements _$$TrainingPlanImplCopyWith<$Res> {
   __$$TrainingPlanImplCopyWithImpl(
-      _$TrainingPlanImpl _value, $Res Function(_$TrainingPlanImpl) _then)
-      : super(_value, _then);
+    _$TrainingPlanImpl _value,
+    $Res Function(_$TrainingPlanImpl) _then,
+  ) : super(_value, _then);
 
   /// Create a copy of TrainingPlan
   /// with the given fields replaced by the non-null parameter values.
@@ -149,50 +158,53 @@ class __$$TrainingPlanImplCopyWithImpl<$Res>
     Object? createdAt = null,
     Object? updatedAt = null,
   }) {
-    return _then(_$TrainingPlanImpl(
-      id: null == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as String,
-      name: null == name
-          ? _value.name
-          : name // ignore: cast_nullable_to_non_nullable
-              as String,
-      goal: null == goal
-          ? _value.goal
-          : goal // ignore: cast_nullable_to_non_nullable
-              as String,
-      level: null == level
-          ? _value.level
-          : level // ignore: cast_nullable_to_non_nullable
-              as String,
-      description: null == description
-          ? _value.description
-          : description // ignore: cast_nullable_to_non_nullable
-              as String,
-      createdAt: null == createdAt
-          ? _value.createdAt
-          : createdAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      updatedAt: null == updatedAt
-          ? _value.updatedAt
-          : updatedAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-    ));
+    return _then(
+      _$TrainingPlanImpl(
+        id: null == id
+            ? _value.id
+            : id // ignore: cast_nullable_to_non_nullable
+                  as String,
+        name: null == name
+            ? _value.name
+            : name // ignore: cast_nullable_to_non_nullable
+                  as String,
+        goal: null == goal
+            ? _value.goal
+            : goal // ignore: cast_nullable_to_non_nullable
+                  as String,
+        level: null == level
+            ? _value.level
+            : level // ignore: cast_nullable_to_non_nullable
+                  as String,
+        description: null == description
+            ? _value.description
+            : description // ignore: cast_nullable_to_non_nullable
+                  as String,
+        createdAt: null == createdAt
+            ? _value.createdAt
+            : createdAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime,
+        updatedAt: null == updatedAt
+            ? _value.updatedAt
+            : updatedAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime,
+      ),
+    );
   }
 }
 
 /// @nodoc
 @JsonSerializable()
 class _$TrainingPlanImpl implements _TrainingPlan {
-  const _$TrainingPlanImpl(
-      {required this.id,
-      required this.name,
-      required this.goal,
-      required this.level,
-      required this.description,
-      required this.createdAt,
-      required this.updatedAt});
+  const _$TrainingPlanImpl({
+    required this.id,
+    required this.name,
+    required this.goal,
+    required this.level,
+    required this.description,
+    required this.createdAt,
+    required this.updatedAt,
+  });
 
   factory _$TrainingPlanImpl.fromJson(Map<String, dynamic> json) =>
       _$$TrainingPlanImplFromJson(json);
@@ -237,7 +249,15 @@ class _$TrainingPlanImpl implements _TrainingPlan {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
-      runtimeType, id, name, goal, level, description, createdAt, updatedAt);
+    runtimeType,
+    id,
+    name,
+    goal,
+    level,
+    description,
+    createdAt,
+    updatedAt,
+  );
 
   /// Create a copy of TrainingPlan
   /// with the given fields replaced by the non-null parameter values.
@@ -249,21 +269,20 @@ class _$TrainingPlanImpl implements _TrainingPlan {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$TrainingPlanImplToJson(
-      this,
-    );
+    return _$$TrainingPlanImplToJson(this);
   }
 }
 
 abstract class _TrainingPlan implements TrainingPlan {
-  const factory _TrainingPlan(
-      {required final String id,
-      required final String name,
-      required final String goal,
-      required final String level,
-      required final String description,
-      required final DateTime createdAt,
-      required final DateTime updatedAt}) = _$TrainingPlanImpl;
+  const factory _TrainingPlan({
+    required final String id,
+    required final String name,
+    required final String goal,
+    required final String level,
+    required final String description,
+    required final DateTime createdAt,
+    required final DateTime updatedAt,
+  }) = _$TrainingPlanImpl;
 
   factory _TrainingPlan.fromJson(Map<String, dynamic> json) =
       _$TrainingPlanImpl.fromJson;

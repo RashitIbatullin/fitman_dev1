@@ -12,7 +12,8 @@ part of 'training_catalogs.model.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
+  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
+);
 
 GoalTraining _$GoalTrainingFromJson(Map<String, dynamic> json) {
   return _GoalTraining.fromJson(json);
@@ -36,8 +37,9 @@ mixin _$GoalTraining {
 /// @nodoc
 abstract class $GoalTrainingCopyWith<$Res> {
   factory $GoalTrainingCopyWith(
-          GoalTraining value, $Res Function(GoalTraining) then) =
-      _$GoalTrainingCopyWithImpl<$Res, GoalTraining>;
+    GoalTraining value,
+    $Res Function(GoalTraining) then,
+  ) = _$GoalTrainingCopyWithImpl<$Res, GoalTraining>;
   @useResult
   $Res call({String id, String name});
 }
@@ -56,20 +58,20 @@ class _$GoalTrainingCopyWithImpl<$Res, $Val extends GoalTraining>
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({
-    Object? id = null,
-    Object? name = null,
-  }) {
-    return _then(_value.copyWith(
-      id: null == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as String,
-      name: null == name
-          ? _value.name
-          : name // ignore: cast_nullable_to_non_nullable
-              as String,
-    ) as $Val);
+  $Res call({Object? id = null, Object? name = null}) {
+    return _then(
+      _value.copyWith(
+            id: null == id
+                ? _value.id
+                : id // ignore: cast_nullable_to_non_nullable
+                      as String,
+            name: null == name
+                ? _value.name
+                : name // ignore: cast_nullable_to_non_nullable
+                      as String,
+          )
+          as $Val,
+    );
   }
 }
 
@@ -77,8 +79,9 @@ class _$GoalTrainingCopyWithImpl<$Res, $Val extends GoalTraining>
 abstract class _$$GoalTrainingImplCopyWith<$Res>
     implements $GoalTrainingCopyWith<$Res> {
   factory _$$GoalTrainingImplCopyWith(
-          _$GoalTrainingImpl value, $Res Function(_$GoalTrainingImpl) then) =
-      __$$GoalTrainingImplCopyWithImpl<$Res>;
+    _$GoalTrainingImpl value,
+    $Res Function(_$GoalTrainingImpl) then,
+  ) = __$$GoalTrainingImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call({String id, String name});
@@ -89,27 +92,27 @@ class __$$GoalTrainingImplCopyWithImpl<$Res>
     extends _$GoalTrainingCopyWithImpl<$Res, _$GoalTrainingImpl>
     implements _$$GoalTrainingImplCopyWith<$Res> {
   __$$GoalTrainingImplCopyWithImpl(
-      _$GoalTrainingImpl _value, $Res Function(_$GoalTrainingImpl) _then)
-      : super(_value, _then);
+    _$GoalTrainingImpl _value,
+    $Res Function(_$GoalTrainingImpl) _then,
+  ) : super(_value, _then);
 
   /// Create a copy of GoalTraining
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({
-    Object? id = null,
-    Object? name = null,
-  }) {
-    return _then(_$GoalTrainingImpl(
-      id: null == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as String,
-      name: null == name
-          ? _value.name
-          : name // ignore: cast_nullable_to_non_nullable
-              as String,
-    ));
+  $Res call({Object? id = null, Object? name = null}) {
+    return _then(
+      _$GoalTrainingImpl(
+        id: null == id
+            ? _value.id
+            : id // ignore: cast_nullable_to_non_nullable
+                  as String,
+        name: null == name
+            ? _value.name
+            : name // ignore: cast_nullable_to_non_nullable
+                  as String,
+      ),
+    );
   }
 }
 
@@ -154,16 +157,15 @@ class _$GoalTrainingImpl implements _GoalTraining {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$GoalTrainingImplToJson(
-      this,
-    );
+    return _$$GoalTrainingImplToJson(this);
   }
 }
 
 abstract class _GoalTraining implements GoalTraining {
-  const factory _GoalTraining(
-      {required final String id,
-      required final String name}) = _$GoalTrainingImpl;
+  const factory _GoalTraining({
+    required final String id,
+    required final String name,
+  }) = _$GoalTrainingImpl;
 
   factory _GoalTraining.fromJson(Map<String, dynamic> json) =
       _$GoalTrainingImpl.fromJson;
@@ -203,8 +205,9 @@ mixin _$LevelTraining {
 /// @nodoc
 abstract class $LevelTrainingCopyWith<$Res> {
   factory $LevelTrainingCopyWith(
-          LevelTraining value, $Res Function(LevelTraining) then) =
-      _$LevelTrainingCopyWithImpl<$Res, LevelTraining>;
+    LevelTraining value,
+    $Res Function(LevelTraining) then,
+  ) = _$LevelTrainingCopyWithImpl<$Res, LevelTraining>;
   @useResult
   $Res call({String id, String name});
 }
@@ -223,20 +226,20 @@ class _$LevelTrainingCopyWithImpl<$Res, $Val extends LevelTraining>
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({
-    Object? id = null,
-    Object? name = null,
-  }) {
-    return _then(_value.copyWith(
-      id: null == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as String,
-      name: null == name
-          ? _value.name
-          : name // ignore: cast_nullable_to_non_nullable
-              as String,
-    ) as $Val);
+  $Res call({Object? id = null, Object? name = null}) {
+    return _then(
+      _value.copyWith(
+            id: null == id
+                ? _value.id
+                : id // ignore: cast_nullable_to_non_nullable
+                      as String,
+            name: null == name
+                ? _value.name
+                : name // ignore: cast_nullable_to_non_nullable
+                      as String,
+          )
+          as $Val,
+    );
   }
 }
 
@@ -244,8 +247,9 @@ class _$LevelTrainingCopyWithImpl<$Res, $Val extends LevelTraining>
 abstract class _$$LevelTrainingImplCopyWith<$Res>
     implements $LevelTrainingCopyWith<$Res> {
   factory _$$LevelTrainingImplCopyWith(
-          _$LevelTrainingImpl value, $Res Function(_$LevelTrainingImpl) then) =
-      __$$LevelTrainingImplCopyWithImpl<$Res>;
+    _$LevelTrainingImpl value,
+    $Res Function(_$LevelTrainingImpl) then,
+  ) = __$$LevelTrainingImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call({String id, String name});
@@ -256,27 +260,27 @@ class __$$LevelTrainingImplCopyWithImpl<$Res>
     extends _$LevelTrainingCopyWithImpl<$Res, _$LevelTrainingImpl>
     implements _$$LevelTrainingImplCopyWith<$Res> {
   __$$LevelTrainingImplCopyWithImpl(
-      _$LevelTrainingImpl _value, $Res Function(_$LevelTrainingImpl) _then)
-      : super(_value, _then);
+    _$LevelTrainingImpl _value,
+    $Res Function(_$LevelTrainingImpl) _then,
+  ) : super(_value, _then);
 
   /// Create a copy of LevelTraining
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({
-    Object? id = null,
-    Object? name = null,
-  }) {
-    return _then(_$LevelTrainingImpl(
-      id: null == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as String,
-      name: null == name
-          ? _value.name
-          : name // ignore: cast_nullable_to_non_nullable
-              as String,
-    ));
+  $Res call({Object? id = null, Object? name = null}) {
+    return _then(
+      _$LevelTrainingImpl(
+        id: null == id
+            ? _value.id
+            : id // ignore: cast_nullable_to_non_nullable
+                  as String,
+        name: null == name
+            ? _value.name
+            : name // ignore: cast_nullable_to_non_nullable
+                  as String,
+      ),
+    );
   }
 }
 
@@ -321,16 +325,15 @@ class _$LevelTrainingImpl implements _LevelTraining {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$LevelTrainingImplToJson(
-      this,
-    );
+    return _$$LevelTrainingImplToJson(this);
   }
 }
 
 abstract class _LevelTraining implements LevelTraining {
-  const factory _LevelTraining(
-      {required final String id,
-      required final String name}) = _$LevelTrainingImpl;
+  const factory _LevelTraining({
+    required final String id,
+    required final String name,
+  }) = _$LevelTrainingImpl;
 
   factory _LevelTraining.fromJson(Map<String, dynamic> json) =
       _$LevelTrainingImpl.fromJson;

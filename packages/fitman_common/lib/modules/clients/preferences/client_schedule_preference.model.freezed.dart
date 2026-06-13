@@ -12,10 +12,12 @@ part of 'client_schedule_preference.model.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
+  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
+);
 
 ClientSchedulePreference _$ClientSchedulePreferenceFromJson(
-    Map<String, dynamic> json) {
+  Map<String, dynamic> json,
+) {
   return _ClientSchedulePreference.fromJson(json);
 }
 
@@ -39,21 +41,25 @@ mixin _$ClientSchedulePreference {
 
 /// @nodoc
 abstract class $ClientSchedulePreferenceCopyWith<$Res> {
-  factory $ClientSchedulePreferenceCopyWith(ClientSchedulePreference value,
-          $Res Function(ClientSchedulePreference) then) =
-      _$ClientSchedulePreferenceCopyWithImpl<$Res, ClientSchedulePreference>;
+  factory $ClientSchedulePreferenceCopyWith(
+    ClientSchedulePreference value,
+    $Res Function(ClientSchedulePreference) then,
+  ) = _$ClientSchedulePreferenceCopyWithImpl<$Res, ClientSchedulePreference>;
   @useResult
-  $Res call(
-      {int? id,
-      int clientId,
-      int dayOfWeek,
-      String preferredStartTime,
-      String preferredEndTime});
+  $Res call({
+    int? id,
+    int clientId,
+    int dayOfWeek,
+    String preferredStartTime,
+    String preferredEndTime,
+  });
 }
 
 /// @nodoc
-class _$ClientSchedulePreferenceCopyWithImpl<$Res,
-        $Val extends ClientSchedulePreference>
+class _$ClientSchedulePreferenceCopyWithImpl<
+  $Res,
+  $Val extends ClientSchedulePreference
+>
     implements $ClientSchedulePreferenceCopyWith<$Res> {
   _$ClientSchedulePreferenceCopyWithImpl(this._value, this._then);
 
@@ -73,28 +79,31 @@ class _$ClientSchedulePreferenceCopyWithImpl<$Res,
     Object? preferredStartTime = null,
     Object? preferredEndTime = null,
   }) {
-    return _then(_value.copyWith(
-      id: freezed == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as int?,
-      clientId: null == clientId
-          ? _value.clientId
-          : clientId // ignore: cast_nullable_to_non_nullable
-              as int,
-      dayOfWeek: null == dayOfWeek
-          ? _value.dayOfWeek
-          : dayOfWeek // ignore: cast_nullable_to_non_nullable
-              as int,
-      preferredStartTime: null == preferredStartTime
-          ? _value.preferredStartTime
-          : preferredStartTime // ignore: cast_nullable_to_non_nullable
-              as String,
-      preferredEndTime: null == preferredEndTime
-          ? _value.preferredEndTime
-          : preferredEndTime // ignore: cast_nullable_to_non_nullable
-              as String,
-    ) as $Val);
+    return _then(
+      _value.copyWith(
+            id: freezed == id
+                ? _value.id
+                : id // ignore: cast_nullable_to_non_nullable
+                      as int?,
+            clientId: null == clientId
+                ? _value.clientId
+                : clientId // ignore: cast_nullable_to_non_nullable
+                      as int,
+            dayOfWeek: null == dayOfWeek
+                ? _value.dayOfWeek
+                : dayOfWeek // ignore: cast_nullable_to_non_nullable
+                      as int,
+            preferredStartTime: null == preferredStartTime
+                ? _value.preferredStartTime
+                : preferredStartTime // ignore: cast_nullable_to_non_nullable
+                      as String,
+            preferredEndTime: null == preferredEndTime
+                ? _value.preferredEndTime
+                : preferredEndTime // ignore: cast_nullable_to_non_nullable
+                      as String,
+          )
+          as $Val,
+    );
   }
 }
 
@@ -102,28 +111,32 @@ class _$ClientSchedulePreferenceCopyWithImpl<$Res,
 abstract class _$$ClientSchedulePreferenceImplCopyWith<$Res>
     implements $ClientSchedulePreferenceCopyWith<$Res> {
   factory _$$ClientSchedulePreferenceImplCopyWith(
-          _$ClientSchedulePreferenceImpl value,
-          $Res Function(_$ClientSchedulePreferenceImpl) then) =
-      __$$ClientSchedulePreferenceImplCopyWithImpl<$Res>;
+    _$ClientSchedulePreferenceImpl value,
+    $Res Function(_$ClientSchedulePreferenceImpl) then,
+  ) = __$$ClientSchedulePreferenceImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call(
-      {int? id,
-      int clientId,
-      int dayOfWeek,
-      String preferredStartTime,
-      String preferredEndTime});
+  $Res call({
+    int? id,
+    int clientId,
+    int dayOfWeek,
+    String preferredStartTime,
+    String preferredEndTime,
+  });
 }
 
 /// @nodoc
 class __$$ClientSchedulePreferenceImplCopyWithImpl<$Res>
-    extends _$ClientSchedulePreferenceCopyWithImpl<$Res,
-        _$ClientSchedulePreferenceImpl>
+    extends
+        _$ClientSchedulePreferenceCopyWithImpl<
+          $Res,
+          _$ClientSchedulePreferenceImpl
+        >
     implements _$$ClientSchedulePreferenceImplCopyWith<$Res> {
   __$$ClientSchedulePreferenceImplCopyWithImpl(
-      _$ClientSchedulePreferenceImpl _value,
-      $Res Function(_$ClientSchedulePreferenceImpl) _then)
-      : super(_value, _then);
+    _$ClientSchedulePreferenceImpl _value,
+    $Res Function(_$ClientSchedulePreferenceImpl) _then,
+  ) : super(_value, _then);
 
   /// Create a copy of ClientSchedulePreference
   /// with the given fields replaced by the non-null parameter values.
@@ -136,40 +149,43 @@ class __$$ClientSchedulePreferenceImplCopyWithImpl<$Res>
     Object? preferredStartTime = null,
     Object? preferredEndTime = null,
   }) {
-    return _then(_$ClientSchedulePreferenceImpl(
-      id: freezed == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as int?,
-      clientId: null == clientId
-          ? _value.clientId
-          : clientId // ignore: cast_nullable_to_non_nullable
-              as int,
-      dayOfWeek: null == dayOfWeek
-          ? _value.dayOfWeek
-          : dayOfWeek // ignore: cast_nullable_to_non_nullable
-              as int,
-      preferredStartTime: null == preferredStartTime
-          ? _value.preferredStartTime
-          : preferredStartTime // ignore: cast_nullable_to_non_nullable
-              as String,
-      preferredEndTime: null == preferredEndTime
-          ? _value.preferredEndTime
-          : preferredEndTime // ignore: cast_nullable_to_non_nullable
-              as String,
-    ));
+    return _then(
+      _$ClientSchedulePreferenceImpl(
+        id: freezed == id
+            ? _value.id
+            : id // ignore: cast_nullable_to_non_nullable
+                  as int?,
+        clientId: null == clientId
+            ? _value.clientId
+            : clientId // ignore: cast_nullable_to_non_nullable
+                  as int,
+        dayOfWeek: null == dayOfWeek
+            ? _value.dayOfWeek
+            : dayOfWeek // ignore: cast_nullable_to_non_nullable
+                  as int,
+        preferredStartTime: null == preferredStartTime
+            ? _value.preferredStartTime
+            : preferredStartTime // ignore: cast_nullable_to_non_nullable
+                  as String,
+        preferredEndTime: null == preferredEndTime
+            ? _value.preferredEndTime
+            : preferredEndTime // ignore: cast_nullable_to_non_nullable
+                  as String,
+      ),
+    );
   }
 }
 
 /// @nodoc
 @JsonSerializable()
 class _$ClientSchedulePreferenceImpl implements _ClientSchedulePreference {
-  const _$ClientSchedulePreferenceImpl(
-      {this.id,
-      required this.clientId,
-      required this.dayOfWeek,
-      required this.preferredStartTime,
-      required this.preferredEndTime});
+  const _$ClientSchedulePreferenceImpl({
+    this.id,
+    required this.clientId,
+    required this.dayOfWeek,
+    required this.preferredStartTime,
+    required this.preferredEndTime,
+  });
 
   factory _$ClientSchedulePreferenceImpl.fromJson(Map<String, dynamic> json) =>
       _$$ClientSchedulePreferenceImplFromJson(json);
@@ -208,8 +224,14 @@ class _$ClientSchedulePreferenceImpl implements _ClientSchedulePreference {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, clientId, dayOfWeek,
-      preferredStartTime, preferredEndTime);
+  int get hashCode => Object.hash(
+    runtimeType,
+    id,
+    clientId,
+    dayOfWeek,
+    preferredStartTime,
+    preferredEndTime,
+  );
 
   /// Create a copy of ClientSchedulePreference
   /// with the given fields replaced by the non-null parameter values.
@@ -217,24 +239,25 @@ class _$ClientSchedulePreferenceImpl implements _ClientSchedulePreference {
   @override
   @pragma('vm:prefer-inline')
   _$$ClientSchedulePreferenceImplCopyWith<_$ClientSchedulePreferenceImpl>
-      get copyWith => __$$ClientSchedulePreferenceImplCopyWithImpl<
-          _$ClientSchedulePreferenceImpl>(this, _$identity);
+  get copyWith =>
+      __$$ClientSchedulePreferenceImplCopyWithImpl<
+        _$ClientSchedulePreferenceImpl
+      >(this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$ClientSchedulePreferenceImplToJson(
-      this,
-    );
+    return _$$ClientSchedulePreferenceImplToJson(this);
   }
 }
 
 abstract class _ClientSchedulePreference implements ClientSchedulePreference {
-  const factory _ClientSchedulePreference(
-      {final int? id,
-      required final int clientId,
-      required final int dayOfWeek,
-      required final String preferredStartTime,
-      required final String preferredEndTime}) = _$ClientSchedulePreferenceImpl;
+  const factory _ClientSchedulePreference({
+    final int? id,
+    required final int clientId,
+    required final int dayOfWeek,
+    required final String preferredStartTime,
+    required final String preferredEndTime,
+  }) = _$ClientSchedulePreferenceImpl;
 
   factory _ClientSchedulePreference.fromJson(Map<String, dynamic> json) =
       _$ClientSchedulePreferenceImpl.fromJson;
@@ -255,5 +278,5 @@ abstract class _ClientSchedulePreference implements ClientSchedulePreference {
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
   _$$ClientSchedulePreferenceImplCopyWith<_$ClientSchedulePreferenceImpl>
-      get copyWith => throw _privateConstructorUsedError;
+  get copyWith => throw _privateConstructorUsedError;
 }

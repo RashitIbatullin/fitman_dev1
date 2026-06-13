@@ -223,6 +223,110 @@ class _TrainingGroupEditScreenState
     });
   }
 
+  void _handleMoveMember(String memberId) {
+    final member = _members.firstWhere((m) => m.id == memberId);
+    _showMoveMemberDialog(member);
+  }
+
+  Future<void> _showMoveMemberDialog(User member) async {
+    final allGroups = await ref.read(trainingGroupsProvider().future);
+    
+    if (!context.mounted) return;
+
+    final otherGroups = allGroups.where((g) => g.id != _groupId).toList();
+    
+    String? destinationGroupId;
+    final reasonController = TextEditingController();
+    final dialogFormKey = GlobalKey<FormState>();
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Переместить ${member.fullName}'),
+          content: Form(
+            key: dialogFormKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                DropdownButtonFormField<String>(
+                  decoration: const InputDecoration(labelText: 'В группу'),
+                  items: otherGroups.map((group) {
+                    return DropdownMenuItem(
+                      value: group.id,
+                      child: Text(group.name),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    destinationGroupId = value;
+                  },
+                  validator: (value) => value == null ? 'Выберите группу' : null,
+                ),
+                TextFormField(
+                  controller: reasonController,
+                  decoration: const InputDecoration(labelText: 'Причина перемещения'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Укажите причину';
+                    }
+                    if (value.length < 5) {
+                      return 'Причина должна быть не менее 5 символов';
+                    }
+                    return null;
+                  },
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Отмена'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (dialogFormKey.currentState!.validate()) {
+                  Navigator.of(context).pop(true);
+                }
+              },
+              child: const Text('Переместить'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed == true && destinationGroupId != null) {
+      setState(() => _isLoading = true);
+      try {
+        await ApiService.moveClient(
+              clientId: member.id,
+              fromGroupId: _groupId!,
+              toGroupId: destinationGroupId!,
+              reason: reasonController.text,
+            );
+        
+        setState(() {
+          _members.removeWhere((m) => m.id == member.id);
+        });
+
+        if (!context.mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Клиент успешно перемещен.')),
+        );
+      } catch (e) {
+        if (!context.mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Ошибка перемещения: $e')),
+        );
+      } finally {
+        if(mounted) {
+          setState(() => _isLoading = false);
+        }
+      }
+    }
+  }
+
   void _showAddMemberDialog() {
     final currentMemberIds = _members.map((u) => u.id).toList();
     final availableClients = _allUsers.where((user) {
@@ -490,6 +594,7 @@ class _TrainingGroupEditScreenState
                       members: _members,
                       onAdd: _showAddMemberDialog,
                       onRemove: _handleRemoveMember,
+                      onMove: _handleMoveMember,
                     ),
 
                     const Divider(),

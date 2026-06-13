@@ -12,7 +12,8 @@ part of 'room_schedule.model.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
+  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
+);
 
 RoomSchedule _$RoomScheduleFromJson(Map<String, dynamic> json) {
   return _RoomSchedule.fromJson(json);
@@ -44,20 +45,22 @@ mixin _$RoomSchedule {
 /// @nodoc
 abstract class $RoomScheduleCopyWith<$Res> {
   factory $RoomScheduleCopyWith(
-          RoomSchedule value, $Res Function(RoomSchedule) then) =
-      _$RoomScheduleCopyWithImpl<$Res, RoomSchedule>;
+    RoomSchedule value,
+    $Res Function(RoomSchedule) then,
+  ) = _$RoomScheduleCopyWithImpl<$Res, RoomSchedule>;
   @useResult
-  $Res call(
-      {String id,
-      String roomId,
-      int dayOfWeek,
-      bool isWorkingDay,
-      TimeOfDayCustom? openTime,
-      TimeOfDayCustom? closeTime,
-      DateTime? createdAt,
-      DateTime? updatedAt,
-      String? createdBy,
-      String? updatedBy});
+  $Res call({
+    String id,
+    String roomId,
+    int dayOfWeek,
+    bool isWorkingDay,
+    TimeOfDayCustom? openTime,
+    TimeOfDayCustom? closeTime,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    String? createdBy,
+    String? updatedBy,
+  });
 }
 
 /// @nodoc
@@ -86,48 +89,51 @@ class _$RoomScheduleCopyWithImpl<$Res, $Val extends RoomSchedule>
     Object? createdBy = freezed,
     Object? updatedBy = freezed,
   }) {
-    return _then(_value.copyWith(
-      id: null == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as String,
-      roomId: null == roomId
-          ? _value.roomId
-          : roomId // ignore: cast_nullable_to_non_nullable
-              as String,
-      dayOfWeek: null == dayOfWeek
-          ? _value.dayOfWeek
-          : dayOfWeek // ignore: cast_nullable_to_non_nullable
-              as int,
-      isWorkingDay: null == isWorkingDay
-          ? _value.isWorkingDay
-          : isWorkingDay // ignore: cast_nullable_to_non_nullable
-              as bool,
-      openTime: freezed == openTime
-          ? _value.openTime
-          : openTime // ignore: cast_nullable_to_non_nullable
-              as TimeOfDayCustom?,
-      closeTime: freezed == closeTime
-          ? _value.closeTime
-          : closeTime // ignore: cast_nullable_to_non_nullable
-              as TimeOfDayCustom?,
-      createdAt: freezed == createdAt
-          ? _value.createdAt
-          : createdAt // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
-      updatedAt: freezed == updatedAt
-          ? _value.updatedAt
-          : updatedAt // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
-      createdBy: freezed == createdBy
-          ? _value.createdBy
-          : createdBy // ignore: cast_nullable_to_non_nullable
-              as String?,
-      updatedBy: freezed == updatedBy
-          ? _value.updatedBy
-          : updatedBy // ignore: cast_nullable_to_non_nullable
-              as String?,
-    ) as $Val);
+    return _then(
+      _value.copyWith(
+            id: null == id
+                ? _value.id
+                : id // ignore: cast_nullable_to_non_nullable
+                      as String,
+            roomId: null == roomId
+                ? _value.roomId
+                : roomId // ignore: cast_nullable_to_non_nullable
+                      as String,
+            dayOfWeek: null == dayOfWeek
+                ? _value.dayOfWeek
+                : dayOfWeek // ignore: cast_nullable_to_non_nullable
+                      as int,
+            isWorkingDay: null == isWorkingDay
+                ? _value.isWorkingDay
+                : isWorkingDay // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            openTime: freezed == openTime
+                ? _value.openTime
+                : openTime // ignore: cast_nullable_to_non_nullable
+                      as TimeOfDayCustom?,
+            closeTime: freezed == closeTime
+                ? _value.closeTime
+                : closeTime // ignore: cast_nullable_to_non_nullable
+                      as TimeOfDayCustom?,
+            createdAt: freezed == createdAt
+                ? _value.createdAt
+                : createdAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime?,
+            updatedAt: freezed == updatedAt
+                ? _value.updatedAt
+                : updatedAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime?,
+            createdBy: freezed == createdBy
+                ? _value.createdBy
+                : createdBy // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            updatedBy: freezed == updatedBy
+                ? _value.updatedBy
+                : updatedBy // ignore: cast_nullable_to_non_nullable
+                      as String?,
+          )
+          as $Val,
+    );
   }
 }
 
@@ -135,21 +141,23 @@ class _$RoomScheduleCopyWithImpl<$Res, $Val extends RoomSchedule>
 abstract class _$$RoomScheduleImplCopyWith<$Res>
     implements $RoomScheduleCopyWith<$Res> {
   factory _$$RoomScheduleImplCopyWith(
-          _$RoomScheduleImpl value, $Res Function(_$RoomScheduleImpl) then) =
-      __$$RoomScheduleImplCopyWithImpl<$Res>;
+    _$RoomScheduleImpl value,
+    $Res Function(_$RoomScheduleImpl) then,
+  ) = __$$RoomScheduleImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call(
-      {String id,
-      String roomId,
-      int dayOfWeek,
-      bool isWorkingDay,
-      TimeOfDayCustom? openTime,
-      TimeOfDayCustom? closeTime,
-      DateTime? createdAt,
-      DateTime? updatedAt,
-      String? createdBy,
-      String? updatedBy});
+  $Res call({
+    String id,
+    String roomId,
+    int dayOfWeek,
+    bool isWorkingDay,
+    TimeOfDayCustom? openTime,
+    TimeOfDayCustom? closeTime,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    String? createdBy,
+    String? updatedBy,
+  });
 }
 
 /// @nodoc
@@ -157,8 +165,9 @@ class __$$RoomScheduleImplCopyWithImpl<$Res>
     extends _$RoomScheduleCopyWithImpl<$Res, _$RoomScheduleImpl>
     implements _$$RoomScheduleImplCopyWith<$Res> {
   __$$RoomScheduleImplCopyWithImpl(
-      _$RoomScheduleImpl _value, $Res Function(_$RoomScheduleImpl) _then)
-      : super(_value, _then);
+    _$RoomScheduleImpl _value,
+    $Res Function(_$RoomScheduleImpl) _then,
+  ) : super(_value, _then);
 
   /// Create a copy of RoomSchedule
   /// with the given fields replaced by the non-null parameter values.
@@ -176,65 +185,68 @@ class __$$RoomScheduleImplCopyWithImpl<$Res>
     Object? createdBy = freezed,
     Object? updatedBy = freezed,
   }) {
-    return _then(_$RoomScheduleImpl(
-      id: null == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as String,
-      roomId: null == roomId
-          ? _value.roomId
-          : roomId // ignore: cast_nullable_to_non_nullable
-              as String,
-      dayOfWeek: null == dayOfWeek
-          ? _value.dayOfWeek
-          : dayOfWeek // ignore: cast_nullable_to_non_nullable
-              as int,
-      isWorkingDay: null == isWorkingDay
-          ? _value.isWorkingDay
-          : isWorkingDay // ignore: cast_nullable_to_non_nullable
-              as bool,
-      openTime: freezed == openTime
-          ? _value.openTime
-          : openTime // ignore: cast_nullable_to_non_nullable
-              as TimeOfDayCustom?,
-      closeTime: freezed == closeTime
-          ? _value.closeTime
-          : closeTime // ignore: cast_nullable_to_non_nullable
-              as TimeOfDayCustom?,
-      createdAt: freezed == createdAt
-          ? _value.createdAt
-          : createdAt // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
-      updatedAt: freezed == updatedAt
-          ? _value.updatedAt
-          : updatedAt // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
-      createdBy: freezed == createdBy
-          ? _value.createdBy
-          : createdBy // ignore: cast_nullable_to_non_nullable
-              as String?,
-      updatedBy: freezed == updatedBy
-          ? _value.updatedBy
-          : updatedBy // ignore: cast_nullable_to_non_nullable
-              as String?,
-    ));
+    return _then(
+      _$RoomScheduleImpl(
+        id: null == id
+            ? _value.id
+            : id // ignore: cast_nullable_to_non_nullable
+                  as String,
+        roomId: null == roomId
+            ? _value.roomId
+            : roomId // ignore: cast_nullable_to_non_nullable
+                  as String,
+        dayOfWeek: null == dayOfWeek
+            ? _value.dayOfWeek
+            : dayOfWeek // ignore: cast_nullable_to_non_nullable
+                  as int,
+        isWorkingDay: null == isWorkingDay
+            ? _value.isWorkingDay
+            : isWorkingDay // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        openTime: freezed == openTime
+            ? _value.openTime
+            : openTime // ignore: cast_nullable_to_non_nullable
+                  as TimeOfDayCustom?,
+        closeTime: freezed == closeTime
+            ? _value.closeTime
+            : closeTime // ignore: cast_nullable_to_non_nullable
+                  as TimeOfDayCustom?,
+        createdAt: freezed == createdAt
+            ? _value.createdAt
+            : createdAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
+        updatedAt: freezed == updatedAt
+            ? _value.updatedAt
+            : updatedAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
+        createdBy: freezed == createdBy
+            ? _value.createdBy
+            : createdBy // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        updatedBy: freezed == updatedBy
+            ? _value.updatedBy
+            : updatedBy // ignore: cast_nullable_to_non_nullable
+                  as String?,
+      ),
+    );
   }
 }
 
 /// @nodoc
 @JsonSerializable()
 class _$RoomScheduleImpl implements _RoomSchedule {
-  const _$RoomScheduleImpl(
-      {required this.id,
-      required this.roomId,
-      required this.dayOfWeek,
-      this.isWorkingDay = true,
-      this.openTime,
-      this.closeTime,
-      this.createdAt,
-      this.updatedAt,
-      this.createdBy,
-      this.updatedBy});
+  const _$RoomScheduleImpl({
+    required this.id,
+    required this.roomId,
+    required this.dayOfWeek,
+    this.isWorkingDay = true,
+    this.openTime,
+    this.closeTime,
+    this.createdAt,
+    this.updatedAt,
+    this.createdBy,
+    this.updatedBy,
+  });
 
   factory _$RoomScheduleImpl.fromJson(Map<String, dynamic> json) =>
       _$$RoomScheduleImplFromJson(json);
@@ -294,17 +306,18 @@ class _$RoomScheduleImpl implements _RoomSchedule {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
-      runtimeType,
-      id,
-      roomId,
-      dayOfWeek,
-      isWorkingDay,
-      openTime,
-      closeTime,
-      createdAt,
-      updatedAt,
-      createdBy,
-      updatedBy);
+    runtimeType,
+    id,
+    roomId,
+    dayOfWeek,
+    isWorkingDay,
+    openTime,
+    closeTime,
+    createdAt,
+    updatedAt,
+    createdBy,
+    updatedBy,
+  );
 
   /// Create a copy of RoomSchedule
   /// with the given fields replaced by the non-null parameter values.
@@ -316,24 +329,23 @@ class _$RoomScheduleImpl implements _RoomSchedule {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$RoomScheduleImplToJson(
-      this,
-    );
+    return _$$RoomScheduleImplToJson(this);
   }
 }
 
 abstract class _RoomSchedule implements RoomSchedule {
-  const factory _RoomSchedule(
-      {required final String id,
-      required final String roomId,
-      required final int dayOfWeek,
-      final bool isWorkingDay,
-      final TimeOfDayCustom? openTime,
-      final TimeOfDayCustom? closeTime,
-      final DateTime? createdAt,
-      final DateTime? updatedAt,
-      final String? createdBy,
-      final String? updatedBy}) = _$RoomScheduleImpl;
+  const factory _RoomSchedule({
+    required final String id,
+    required final String roomId,
+    required final int dayOfWeek,
+    final bool isWorkingDay,
+    final TimeOfDayCustom? openTime,
+    final TimeOfDayCustom? closeTime,
+    final DateTime? createdAt,
+    final DateTime? updatedAt,
+    final String? createdBy,
+    final String? updatedBy,
+  }) = _$RoomScheduleImpl;
 
   factory _RoomSchedule.fromJson(Map<String, dynamic> json) =
       _$RoomScheduleImpl.fromJson;

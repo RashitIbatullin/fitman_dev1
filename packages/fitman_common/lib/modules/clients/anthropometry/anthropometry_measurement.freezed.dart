@@ -12,10 +12,12 @@ part of 'anthropometry_measurement.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
+  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
+);
 
 AnthropometryMeasurement _$AnthropometryMeasurementFromJson(
-    Map<String, dynamic> json) {
+  Map<String, dynamic> json,
+) {
   return _AnthropometryMeasurement.fromJson(json);
 }
 
@@ -52,34 +54,38 @@ mixin _$AnthropometryMeasurement {
 
 /// @nodoc
 abstract class $AnthropometryMeasurementCopyWith<$Res> {
-  factory $AnthropometryMeasurementCopyWith(AnthropometryMeasurement value,
-          $Res Function(AnthropometryMeasurement) then) =
-      _$AnthropometryMeasurementCopyWithImpl<$Res, AnthropometryMeasurement>;
+  factory $AnthropometryMeasurementCopyWith(
+    AnthropometryMeasurement value,
+    $Res Function(AnthropometryMeasurement) then,
+  ) = _$AnthropometryMeasurementCopyWithImpl<$Res, AnthropometryMeasurement>;
   @useResult
-  $Res call(
-      {String? id,
-      String userId,
-      DateTime dateTime,
-      double weight,
-      int shouldersCirc,
-      int breastCirc,
-      int waistCirc,
-      int hipsCirc,
-      double? fatPercentage,
-      double? muscleMass,
-      String? companyId,
-      DateTime? createdAt,
-      DateTime? updatedAt,
-      String? createdBy,
-      String? updatedBy,
-      DateTime? archivedAt,
-      String? archivedBy,
-      String? archivedReason});
+  $Res call({
+    String? id,
+    String userId,
+    DateTime dateTime,
+    double weight,
+    int shouldersCirc,
+    int breastCirc,
+    int waistCirc,
+    int hipsCirc,
+    double? fatPercentage,
+    double? muscleMass,
+    String? companyId,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    String? createdBy,
+    String? updatedBy,
+    DateTime? archivedAt,
+    String? archivedBy,
+    String? archivedReason,
+  });
 }
 
 /// @nodoc
-class _$AnthropometryMeasurementCopyWithImpl<$Res,
-        $Val extends AnthropometryMeasurement>
+class _$AnthropometryMeasurementCopyWithImpl<
+  $Res,
+  $Val extends AnthropometryMeasurement
+>
     implements $AnthropometryMeasurementCopyWith<$Res> {
   _$AnthropometryMeasurementCopyWithImpl(this._value, this._then);
 
@@ -112,80 +118,83 @@ class _$AnthropometryMeasurementCopyWithImpl<$Res,
     Object? archivedBy = freezed,
     Object? archivedReason = freezed,
   }) {
-    return _then(_value.copyWith(
-      id: freezed == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as String?,
-      userId: null == userId
-          ? _value.userId
-          : userId // ignore: cast_nullable_to_non_nullable
-              as String,
-      dateTime: null == dateTime
-          ? _value.dateTime
-          : dateTime // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      weight: null == weight
-          ? _value.weight
-          : weight // ignore: cast_nullable_to_non_nullable
-              as double,
-      shouldersCirc: null == shouldersCirc
-          ? _value.shouldersCirc
-          : shouldersCirc // ignore: cast_nullable_to_non_nullable
-              as int,
-      breastCirc: null == breastCirc
-          ? _value.breastCirc
-          : breastCirc // ignore: cast_nullable_to_non_nullable
-              as int,
-      waistCirc: null == waistCirc
-          ? _value.waistCirc
-          : waistCirc // ignore: cast_nullable_to_non_nullable
-              as int,
-      hipsCirc: null == hipsCirc
-          ? _value.hipsCirc
-          : hipsCirc // ignore: cast_nullable_to_non_nullable
-              as int,
-      fatPercentage: freezed == fatPercentage
-          ? _value.fatPercentage
-          : fatPercentage // ignore: cast_nullable_to_non_nullable
-              as double?,
-      muscleMass: freezed == muscleMass
-          ? _value.muscleMass
-          : muscleMass // ignore: cast_nullable_to_non_nullable
-              as double?,
-      companyId: freezed == companyId
-          ? _value.companyId
-          : companyId // ignore: cast_nullable_to_non_nullable
-              as String?,
-      createdAt: freezed == createdAt
-          ? _value.createdAt
-          : createdAt // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
-      updatedAt: freezed == updatedAt
-          ? _value.updatedAt
-          : updatedAt // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
-      createdBy: freezed == createdBy
-          ? _value.createdBy
-          : createdBy // ignore: cast_nullable_to_non_nullable
-              as String?,
-      updatedBy: freezed == updatedBy
-          ? _value.updatedBy
-          : updatedBy // ignore: cast_nullable_to_non_nullable
-              as String?,
-      archivedAt: freezed == archivedAt
-          ? _value.archivedAt
-          : archivedAt // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
-      archivedBy: freezed == archivedBy
-          ? _value.archivedBy
-          : archivedBy // ignore: cast_nullable_to_non_nullable
-              as String?,
-      archivedReason: freezed == archivedReason
-          ? _value.archivedReason
-          : archivedReason // ignore: cast_nullable_to_non_nullable
-              as String?,
-    ) as $Val);
+    return _then(
+      _value.copyWith(
+            id: freezed == id
+                ? _value.id
+                : id // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            userId: null == userId
+                ? _value.userId
+                : userId // ignore: cast_nullable_to_non_nullable
+                      as String,
+            dateTime: null == dateTime
+                ? _value.dateTime
+                : dateTime // ignore: cast_nullable_to_non_nullable
+                      as DateTime,
+            weight: null == weight
+                ? _value.weight
+                : weight // ignore: cast_nullable_to_non_nullable
+                      as double,
+            shouldersCirc: null == shouldersCirc
+                ? _value.shouldersCirc
+                : shouldersCirc // ignore: cast_nullable_to_non_nullable
+                      as int,
+            breastCirc: null == breastCirc
+                ? _value.breastCirc
+                : breastCirc // ignore: cast_nullable_to_non_nullable
+                      as int,
+            waistCirc: null == waistCirc
+                ? _value.waistCirc
+                : waistCirc // ignore: cast_nullable_to_non_nullable
+                      as int,
+            hipsCirc: null == hipsCirc
+                ? _value.hipsCirc
+                : hipsCirc // ignore: cast_nullable_to_non_nullable
+                      as int,
+            fatPercentage: freezed == fatPercentage
+                ? _value.fatPercentage
+                : fatPercentage // ignore: cast_nullable_to_non_nullable
+                      as double?,
+            muscleMass: freezed == muscleMass
+                ? _value.muscleMass
+                : muscleMass // ignore: cast_nullable_to_non_nullable
+                      as double?,
+            companyId: freezed == companyId
+                ? _value.companyId
+                : companyId // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            createdAt: freezed == createdAt
+                ? _value.createdAt
+                : createdAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime?,
+            updatedAt: freezed == updatedAt
+                ? _value.updatedAt
+                : updatedAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime?,
+            createdBy: freezed == createdBy
+                ? _value.createdBy
+                : createdBy // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            updatedBy: freezed == updatedBy
+                ? _value.updatedBy
+                : updatedBy // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            archivedAt: freezed == archivedAt
+                ? _value.archivedAt
+                : archivedAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime?,
+            archivedBy: freezed == archivedBy
+                ? _value.archivedBy
+                : archivedBy // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            archivedReason: freezed == archivedReason
+                ? _value.archivedReason
+                : archivedReason // ignore: cast_nullable_to_non_nullable
+                      as String?,
+          )
+          as $Val,
+    );
   }
 }
 
@@ -193,41 +202,45 @@ class _$AnthropometryMeasurementCopyWithImpl<$Res,
 abstract class _$$AnthropometryMeasurementImplCopyWith<$Res>
     implements $AnthropometryMeasurementCopyWith<$Res> {
   factory _$$AnthropometryMeasurementImplCopyWith(
-          _$AnthropometryMeasurementImpl value,
-          $Res Function(_$AnthropometryMeasurementImpl) then) =
-      __$$AnthropometryMeasurementImplCopyWithImpl<$Res>;
+    _$AnthropometryMeasurementImpl value,
+    $Res Function(_$AnthropometryMeasurementImpl) then,
+  ) = __$$AnthropometryMeasurementImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call(
-      {String? id,
-      String userId,
-      DateTime dateTime,
-      double weight,
-      int shouldersCirc,
-      int breastCirc,
-      int waistCirc,
-      int hipsCirc,
-      double? fatPercentage,
-      double? muscleMass,
-      String? companyId,
-      DateTime? createdAt,
-      DateTime? updatedAt,
-      String? createdBy,
-      String? updatedBy,
-      DateTime? archivedAt,
-      String? archivedBy,
-      String? archivedReason});
+  $Res call({
+    String? id,
+    String userId,
+    DateTime dateTime,
+    double weight,
+    int shouldersCirc,
+    int breastCirc,
+    int waistCirc,
+    int hipsCirc,
+    double? fatPercentage,
+    double? muscleMass,
+    String? companyId,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    String? createdBy,
+    String? updatedBy,
+    DateTime? archivedAt,
+    String? archivedBy,
+    String? archivedReason,
+  });
 }
 
 /// @nodoc
 class __$$AnthropometryMeasurementImplCopyWithImpl<$Res>
-    extends _$AnthropometryMeasurementCopyWithImpl<$Res,
-        _$AnthropometryMeasurementImpl>
+    extends
+        _$AnthropometryMeasurementCopyWithImpl<
+          $Res,
+          _$AnthropometryMeasurementImpl
+        >
     implements _$$AnthropometryMeasurementImplCopyWith<$Res> {
   __$$AnthropometryMeasurementImplCopyWithImpl(
-      _$AnthropometryMeasurementImpl _value,
-      $Res Function(_$AnthropometryMeasurementImpl) _then)
-      : super(_value, _then);
+    _$AnthropometryMeasurementImpl _value,
+    $Res Function(_$AnthropometryMeasurementImpl) _then,
+  ) : super(_value, _then);
 
   /// Create a copy of AnthropometryMeasurement
   /// with the given fields replaced by the non-null parameter values.
@@ -253,105 +266,108 @@ class __$$AnthropometryMeasurementImplCopyWithImpl<$Res>
     Object? archivedBy = freezed,
     Object? archivedReason = freezed,
   }) {
-    return _then(_$AnthropometryMeasurementImpl(
-      id: freezed == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as String?,
-      userId: null == userId
-          ? _value.userId
-          : userId // ignore: cast_nullable_to_non_nullable
-              as String,
-      dateTime: null == dateTime
-          ? _value.dateTime
-          : dateTime // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      weight: null == weight
-          ? _value.weight
-          : weight // ignore: cast_nullable_to_non_nullable
-              as double,
-      shouldersCirc: null == shouldersCirc
-          ? _value.shouldersCirc
-          : shouldersCirc // ignore: cast_nullable_to_non_nullable
-              as int,
-      breastCirc: null == breastCirc
-          ? _value.breastCirc
-          : breastCirc // ignore: cast_nullable_to_non_nullable
-              as int,
-      waistCirc: null == waistCirc
-          ? _value.waistCirc
-          : waistCirc // ignore: cast_nullable_to_non_nullable
-              as int,
-      hipsCirc: null == hipsCirc
-          ? _value.hipsCirc
-          : hipsCirc // ignore: cast_nullable_to_non_nullable
-              as int,
-      fatPercentage: freezed == fatPercentage
-          ? _value.fatPercentage
-          : fatPercentage // ignore: cast_nullable_to_non_nullable
-              as double?,
-      muscleMass: freezed == muscleMass
-          ? _value.muscleMass
-          : muscleMass // ignore: cast_nullable_to_non_nullable
-              as double?,
-      companyId: freezed == companyId
-          ? _value.companyId
-          : companyId // ignore: cast_nullable_to_non_nullable
-              as String?,
-      createdAt: freezed == createdAt
-          ? _value.createdAt
-          : createdAt // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
-      updatedAt: freezed == updatedAt
-          ? _value.updatedAt
-          : updatedAt // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
-      createdBy: freezed == createdBy
-          ? _value.createdBy
-          : createdBy // ignore: cast_nullable_to_non_nullable
-              as String?,
-      updatedBy: freezed == updatedBy
-          ? _value.updatedBy
-          : updatedBy // ignore: cast_nullable_to_non_nullable
-              as String?,
-      archivedAt: freezed == archivedAt
-          ? _value.archivedAt
-          : archivedAt // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
-      archivedBy: freezed == archivedBy
-          ? _value.archivedBy
-          : archivedBy // ignore: cast_nullable_to_non_nullable
-              as String?,
-      archivedReason: freezed == archivedReason
-          ? _value.archivedReason
-          : archivedReason // ignore: cast_nullable_to_non_nullable
-              as String?,
-    ));
+    return _then(
+      _$AnthropometryMeasurementImpl(
+        id: freezed == id
+            ? _value.id
+            : id // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        userId: null == userId
+            ? _value.userId
+            : userId // ignore: cast_nullable_to_non_nullable
+                  as String,
+        dateTime: null == dateTime
+            ? _value.dateTime
+            : dateTime // ignore: cast_nullable_to_non_nullable
+                  as DateTime,
+        weight: null == weight
+            ? _value.weight
+            : weight // ignore: cast_nullable_to_non_nullable
+                  as double,
+        shouldersCirc: null == shouldersCirc
+            ? _value.shouldersCirc
+            : shouldersCirc // ignore: cast_nullable_to_non_nullable
+                  as int,
+        breastCirc: null == breastCirc
+            ? _value.breastCirc
+            : breastCirc // ignore: cast_nullable_to_non_nullable
+                  as int,
+        waistCirc: null == waistCirc
+            ? _value.waistCirc
+            : waistCirc // ignore: cast_nullable_to_non_nullable
+                  as int,
+        hipsCirc: null == hipsCirc
+            ? _value.hipsCirc
+            : hipsCirc // ignore: cast_nullable_to_non_nullable
+                  as int,
+        fatPercentage: freezed == fatPercentage
+            ? _value.fatPercentage
+            : fatPercentage // ignore: cast_nullable_to_non_nullable
+                  as double?,
+        muscleMass: freezed == muscleMass
+            ? _value.muscleMass
+            : muscleMass // ignore: cast_nullable_to_non_nullable
+                  as double?,
+        companyId: freezed == companyId
+            ? _value.companyId
+            : companyId // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        createdAt: freezed == createdAt
+            ? _value.createdAt
+            : createdAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
+        updatedAt: freezed == updatedAt
+            ? _value.updatedAt
+            : updatedAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
+        createdBy: freezed == createdBy
+            ? _value.createdBy
+            : createdBy // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        updatedBy: freezed == updatedBy
+            ? _value.updatedBy
+            : updatedBy // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        archivedAt: freezed == archivedAt
+            ? _value.archivedAt
+            : archivedAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
+        archivedBy: freezed == archivedBy
+            ? _value.archivedBy
+            : archivedBy // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        archivedReason: freezed == archivedReason
+            ? _value.archivedReason
+            : archivedReason // ignore: cast_nullable_to_non_nullable
+                  as String?,
+      ),
+    );
   }
 }
 
 /// @nodoc
 @JsonSerializable()
 class _$AnthropometryMeasurementImpl implements _AnthropometryMeasurement {
-  const _$AnthropometryMeasurementImpl(
-      {this.id,
-      required this.userId,
-      required this.dateTime,
-      required this.weight,
-      required this.shouldersCirc,
-      required this.breastCirc,
-      required this.waistCirc,
-      required this.hipsCirc,
-      this.fatPercentage,
-      this.muscleMass,
-      this.companyId,
-      this.createdAt,
-      this.updatedAt,
-      this.createdBy,
-      this.updatedBy,
-      this.archivedAt,
-      this.archivedBy,
-      this.archivedReason});
+  const _$AnthropometryMeasurementImpl({
+    this.id,
+    required this.userId,
+    required this.dateTime,
+    required this.weight,
+    required this.shouldersCirc,
+    required this.breastCirc,
+    required this.waistCirc,
+    required this.hipsCirc,
+    this.fatPercentage,
+    this.muscleMass,
+    this.companyId,
+    this.createdAt,
+    this.updatedAt,
+    this.createdBy,
+    this.updatedBy,
+    this.archivedAt,
+    this.archivedBy,
+    this.archivedReason,
+  });
 
   factory _$AnthropometryMeasurementImpl.fromJson(Map<String, dynamic> json) =>
       _$$AnthropometryMeasurementImplFromJson(json);
@@ -441,25 +457,26 @@ class _$AnthropometryMeasurementImpl implements _AnthropometryMeasurement {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
-      runtimeType,
-      id,
-      userId,
-      dateTime,
-      weight,
-      shouldersCirc,
-      breastCirc,
-      waistCirc,
-      hipsCirc,
-      fatPercentage,
-      muscleMass,
-      companyId,
-      createdAt,
-      updatedAt,
-      createdBy,
-      updatedBy,
-      archivedAt,
-      archivedBy,
-      archivedReason);
+    runtimeType,
+    id,
+    userId,
+    dateTime,
+    weight,
+    shouldersCirc,
+    breastCirc,
+    waistCirc,
+    hipsCirc,
+    fatPercentage,
+    muscleMass,
+    companyId,
+    createdAt,
+    updatedAt,
+    createdBy,
+    updatedBy,
+    archivedAt,
+    archivedBy,
+    archivedReason,
+  );
 
   /// Create a copy of AnthropometryMeasurement
   /// with the given fields replaced by the non-null parameter values.
@@ -467,37 +484,38 @@ class _$AnthropometryMeasurementImpl implements _AnthropometryMeasurement {
   @override
   @pragma('vm:prefer-inline')
   _$$AnthropometryMeasurementImplCopyWith<_$AnthropometryMeasurementImpl>
-      get copyWith => __$$AnthropometryMeasurementImplCopyWithImpl<
-          _$AnthropometryMeasurementImpl>(this, _$identity);
+  get copyWith =>
+      __$$AnthropometryMeasurementImplCopyWithImpl<
+        _$AnthropometryMeasurementImpl
+      >(this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$AnthropometryMeasurementImplToJson(
-      this,
-    );
+    return _$$AnthropometryMeasurementImplToJson(this);
   }
 }
 
 abstract class _AnthropometryMeasurement implements AnthropometryMeasurement {
-  const factory _AnthropometryMeasurement(
-      {final String? id,
-      required final String userId,
-      required final DateTime dateTime,
-      required final double weight,
-      required final int shouldersCirc,
-      required final int breastCirc,
-      required final int waistCirc,
-      required final int hipsCirc,
-      final double? fatPercentage,
-      final double? muscleMass,
-      final String? companyId,
-      final DateTime? createdAt,
-      final DateTime? updatedAt,
-      final String? createdBy,
-      final String? updatedBy,
-      final DateTime? archivedAt,
-      final String? archivedBy,
-      final String? archivedReason}) = _$AnthropometryMeasurementImpl;
+  const factory _AnthropometryMeasurement({
+    final String? id,
+    required final String userId,
+    required final DateTime dateTime,
+    required final double weight,
+    required final int shouldersCirc,
+    required final int breastCirc,
+    required final int waistCirc,
+    required final int hipsCirc,
+    final double? fatPercentage,
+    final double? muscleMass,
+    final String? companyId,
+    final DateTime? createdAt,
+    final DateTime? updatedAt,
+    final String? createdBy,
+    final String? updatedBy,
+    final DateTime? archivedAt,
+    final String? archivedBy,
+    final String? archivedReason,
+  }) = _$AnthropometryMeasurementImpl;
 
   factory _AnthropometryMeasurement.fromJson(Map<String, dynamic> json) =
       _$AnthropometryMeasurementImpl.fromJson;
@@ -544,5 +562,5 @@ abstract class _AnthropometryMeasurement implements AnthropometryMeasurement {
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
   _$$AnthropometryMeasurementImplCopyWith<_$AnthropometryMeasurementImpl>
-      get copyWith => throw _privateConstructorUsedError;
+  get copyWith => throw _privateConstructorUsedError;
 }

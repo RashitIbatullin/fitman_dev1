@@ -296,6 +296,26 @@ class ApiService {
 
   static Future<List<TrainingGroupType>> getAllTrainingGroupTypes() => _groupsApi.getAllTrainingGroupTypes();
 
+  // --- Group Movement Methods ---
+  static Future<void> moveClient({
+    required String clientId,
+    String? fromGroupId,
+    String? toGroupId,
+    required String reason,
+  }) =>
+      _groupsApi.moveClient(
+        clientId: clientId,
+        fromGroupId: fromGroupId,
+        toGroupId: toGroupId,
+        reason: reason,
+      );
+
+  static Future<List<GroupMovement>> getGroupMovements(String groupId) =>
+      _groupsApi.getGroupMovements(groupId);
+
+  static Future<List<GroupMovement>> getUserMovements(String userId) =>
+      _groupsApi.getUserMovements(userId);
+
 
   // --- Chat Methods ---
   static Future<List<Chat>> getChats() => _chatApi.getChats();

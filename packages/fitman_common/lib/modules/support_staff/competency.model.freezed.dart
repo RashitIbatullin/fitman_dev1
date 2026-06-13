@@ -12,7 +12,8 @@ part of 'competency.model.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
+  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
+);
 
 Competency _$CompetencyFromJson(Map<String, dynamic> json) {
   return _Competency.fromJson(json);
@@ -42,18 +43,20 @@ mixin _$Competency {
 /// @nodoc
 abstract class $CompetencyCopyWith<$Res> {
   factory $CompetencyCopyWith(
-          Competency value, $Res Function(Competency) then) =
-      _$CompetencyCopyWithImpl<$Res, Competency>;
+    Competency value,
+    $Res Function(Competency) then,
+  ) = _$CompetencyCopyWithImpl<$Res, Competency>;
   @useResult
-  $Res call(
-      {String id,
-      String competentId,
-      ExecutorType executorType,
-      String name,
-      CompetencyLevel level,
-      String? certificateUrl,
-      DateTime? verifiedAt,
-      String? verifiedBy});
+  $Res call({
+    String id,
+    String competentId,
+    ExecutorType executorType,
+    String name,
+    CompetencyLevel level,
+    String? certificateUrl,
+    DateTime? verifiedAt,
+    String? verifiedBy,
+  });
 }
 
 /// @nodoc
@@ -80,40 +83,43 @@ class _$CompetencyCopyWithImpl<$Res, $Val extends Competency>
     Object? verifiedAt = freezed,
     Object? verifiedBy = freezed,
   }) {
-    return _then(_value.copyWith(
-      id: null == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as String,
-      competentId: null == competentId
-          ? _value.competentId
-          : competentId // ignore: cast_nullable_to_non_nullable
-              as String,
-      executorType: null == executorType
-          ? _value.executorType
-          : executorType // ignore: cast_nullable_to_non_nullable
-              as ExecutorType,
-      name: null == name
-          ? _value.name
-          : name // ignore: cast_nullable_to_non_nullable
-              as String,
-      level: null == level
-          ? _value.level
-          : level // ignore: cast_nullable_to_non_nullable
-              as CompetencyLevel,
-      certificateUrl: freezed == certificateUrl
-          ? _value.certificateUrl
-          : certificateUrl // ignore: cast_nullable_to_non_nullable
-              as String?,
-      verifiedAt: freezed == verifiedAt
-          ? _value.verifiedAt
-          : verifiedAt // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
-      verifiedBy: freezed == verifiedBy
-          ? _value.verifiedBy
-          : verifiedBy // ignore: cast_nullable_to_non_nullable
-              as String?,
-    ) as $Val);
+    return _then(
+      _value.copyWith(
+            id: null == id
+                ? _value.id
+                : id // ignore: cast_nullable_to_non_nullable
+                      as String,
+            competentId: null == competentId
+                ? _value.competentId
+                : competentId // ignore: cast_nullable_to_non_nullable
+                      as String,
+            executorType: null == executorType
+                ? _value.executorType
+                : executorType // ignore: cast_nullable_to_non_nullable
+                      as ExecutorType,
+            name: null == name
+                ? _value.name
+                : name // ignore: cast_nullable_to_non_nullable
+                      as String,
+            level: null == level
+                ? _value.level
+                : level // ignore: cast_nullable_to_non_nullable
+                      as CompetencyLevel,
+            certificateUrl: freezed == certificateUrl
+                ? _value.certificateUrl
+                : certificateUrl // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            verifiedAt: freezed == verifiedAt
+                ? _value.verifiedAt
+                : verifiedAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime?,
+            verifiedBy: freezed == verifiedBy
+                ? _value.verifiedBy
+                : verifiedBy // ignore: cast_nullable_to_non_nullable
+                      as String?,
+          )
+          as $Val,
+    );
   }
 }
 
@@ -121,19 +127,21 @@ class _$CompetencyCopyWithImpl<$Res, $Val extends Competency>
 abstract class _$$CompetencyImplCopyWith<$Res>
     implements $CompetencyCopyWith<$Res> {
   factory _$$CompetencyImplCopyWith(
-          _$CompetencyImpl value, $Res Function(_$CompetencyImpl) then) =
-      __$$CompetencyImplCopyWithImpl<$Res>;
+    _$CompetencyImpl value,
+    $Res Function(_$CompetencyImpl) then,
+  ) = __$$CompetencyImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call(
-      {String id,
-      String competentId,
-      ExecutorType executorType,
-      String name,
-      CompetencyLevel level,
-      String? certificateUrl,
-      DateTime? verifiedAt,
-      String? verifiedBy});
+  $Res call({
+    String id,
+    String competentId,
+    ExecutorType executorType,
+    String name,
+    CompetencyLevel level,
+    String? certificateUrl,
+    DateTime? verifiedAt,
+    String? verifiedBy,
+  });
 }
 
 /// @nodoc
@@ -141,8 +149,9 @@ class __$$CompetencyImplCopyWithImpl<$Res>
     extends _$CompetencyCopyWithImpl<$Res, _$CompetencyImpl>
     implements _$$CompetencyImplCopyWith<$Res> {
   __$$CompetencyImplCopyWithImpl(
-      _$CompetencyImpl _value, $Res Function(_$CompetencyImpl) _then)
-      : super(_value, _then);
+    _$CompetencyImpl _value,
+    $Res Function(_$CompetencyImpl) _then,
+  ) : super(_value, _then);
 
   /// Create a copy of Competency
   /// with the given fields replaced by the non-null parameter values.
@@ -158,55 +167,58 @@ class __$$CompetencyImplCopyWithImpl<$Res>
     Object? verifiedAt = freezed,
     Object? verifiedBy = freezed,
   }) {
-    return _then(_$CompetencyImpl(
-      id: null == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as String,
-      competentId: null == competentId
-          ? _value.competentId
-          : competentId // ignore: cast_nullable_to_non_nullable
-              as String,
-      executorType: null == executorType
-          ? _value.executorType
-          : executorType // ignore: cast_nullable_to_non_nullable
-              as ExecutorType,
-      name: null == name
-          ? _value.name
-          : name // ignore: cast_nullable_to_non_nullable
-              as String,
-      level: null == level
-          ? _value.level
-          : level // ignore: cast_nullable_to_non_nullable
-              as CompetencyLevel,
-      certificateUrl: freezed == certificateUrl
-          ? _value.certificateUrl
-          : certificateUrl // ignore: cast_nullable_to_non_nullable
-              as String?,
-      verifiedAt: freezed == verifiedAt
-          ? _value.verifiedAt
-          : verifiedAt // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
-      verifiedBy: freezed == verifiedBy
-          ? _value.verifiedBy
-          : verifiedBy // ignore: cast_nullable_to_non_nullable
-              as String?,
-    ));
+    return _then(
+      _$CompetencyImpl(
+        id: null == id
+            ? _value.id
+            : id // ignore: cast_nullable_to_non_nullable
+                  as String,
+        competentId: null == competentId
+            ? _value.competentId
+            : competentId // ignore: cast_nullable_to_non_nullable
+                  as String,
+        executorType: null == executorType
+            ? _value.executorType
+            : executorType // ignore: cast_nullable_to_non_nullable
+                  as ExecutorType,
+        name: null == name
+            ? _value.name
+            : name // ignore: cast_nullable_to_non_nullable
+                  as String,
+        level: null == level
+            ? _value.level
+            : level // ignore: cast_nullable_to_non_nullable
+                  as CompetencyLevel,
+        certificateUrl: freezed == certificateUrl
+            ? _value.certificateUrl
+            : certificateUrl // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        verifiedAt: freezed == verifiedAt
+            ? _value.verifiedAt
+            : verifiedAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
+        verifiedBy: freezed == verifiedBy
+            ? _value.verifiedBy
+            : verifiedBy // ignore: cast_nullable_to_non_nullable
+                  as String?,
+      ),
+    );
   }
 }
 
 /// @nodoc
 @JsonSerializable()
 class _$CompetencyImpl implements _Competency {
-  const _$CompetencyImpl(
-      {required this.id,
-      required this.competentId,
-      required this.executorType,
-      required this.name,
-      required this.level,
-      this.certificateUrl,
-      this.verifiedAt,
-      this.verifiedBy});
+  const _$CompetencyImpl({
+    required this.id,
+    required this.competentId,
+    required this.executorType,
+    required this.name,
+    required this.level,
+    this.certificateUrl,
+    this.verifiedAt,
+    this.verifiedBy,
+  });
 
   factory _$CompetencyImpl.fromJson(Map<String, dynamic> json) =>
       _$$CompetencyImplFromJson(json);
@@ -255,8 +267,17 @@ class _$CompetencyImpl implements _Competency {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, competentId, executorType,
-      name, level, certificateUrl, verifiedAt, verifiedBy);
+  int get hashCode => Object.hash(
+    runtimeType,
+    id,
+    competentId,
+    executorType,
+    name,
+    level,
+    certificateUrl,
+    verifiedAt,
+    verifiedBy,
+  );
 
   /// Create a copy of Competency
   /// with the given fields replaced by the non-null parameter values.
@@ -268,22 +289,21 @@ class _$CompetencyImpl implements _Competency {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$CompetencyImplToJson(
-      this,
-    );
+    return _$$CompetencyImplToJson(this);
   }
 }
 
 abstract class _Competency implements Competency {
-  const factory _Competency(
-      {required final String id,
-      required final String competentId,
-      required final ExecutorType executorType,
-      required final String name,
-      required final CompetencyLevel level,
-      final String? certificateUrl,
-      final DateTime? verifiedAt,
-      final String? verifiedBy}) = _$CompetencyImpl;
+  const factory _Competency({
+    required final String id,
+    required final String competentId,
+    required final ExecutorType executorType,
+    required final String name,
+    required final CompetencyLevel level,
+    final String? certificateUrl,
+    final DateTime? verifiedAt,
+    final String? verifiedBy,
+  }) = _$CompetencyImpl;
 
   factory _Competency.fromJson(Map<String, dynamic> json) =
       _$CompetencyImpl.fromJson;

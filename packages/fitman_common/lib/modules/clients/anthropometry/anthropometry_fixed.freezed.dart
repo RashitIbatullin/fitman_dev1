@@ -12,7 +12,8 @@ part of 'anthropometry_fixed.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
+  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
+);
 
 AnthropometryFixed _$AnthropometryFixedFromJson(Map<String, dynamic> json) {
   return _AnthropometryFixed.fromJson(json);
@@ -44,20 +45,22 @@ mixin _$AnthropometryFixed {
 /// @nodoc
 abstract class $AnthropometryFixedCopyWith<$Res> {
   factory $AnthropometryFixedCopyWith(
-          AnthropometryFixed value, $Res Function(AnthropometryFixed) then) =
-      _$AnthropometryFixedCopyWithImpl<$Res, AnthropometryFixed>;
+    AnthropometryFixed value,
+    $Res Function(AnthropometryFixed) then,
+  ) = _$AnthropometryFixedCopyWithImpl<$Res, AnthropometryFixed>;
   @useResult
-  $Res call(
-      {String? id,
-      String userId,
-      int height,
-      int wristCirc,
-      int ankleCirc,
-      String? companyId,
-      DateTime createdAt,
-      DateTime? updatedAt,
-      String? createdBy,
-      String? updatedBy});
+  $Res call({
+    String? id,
+    String userId,
+    int height,
+    int wristCirc,
+    int ankleCirc,
+    String? companyId,
+    DateTime createdAt,
+    DateTime? updatedAt,
+    String? createdBy,
+    String? updatedBy,
+  });
 }
 
 /// @nodoc
@@ -86,79 +89,85 @@ class _$AnthropometryFixedCopyWithImpl<$Res, $Val extends AnthropometryFixed>
     Object? createdBy = freezed,
     Object? updatedBy = freezed,
   }) {
-    return _then(_value.copyWith(
-      id: freezed == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as String?,
-      userId: null == userId
-          ? _value.userId
-          : userId // ignore: cast_nullable_to_non_nullable
-              as String,
-      height: null == height
-          ? _value.height
-          : height // ignore: cast_nullable_to_non_nullable
-              as int,
-      wristCirc: null == wristCirc
-          ? _value.wristCirc
-          : wristCirc // ignore: cast_nullable_to_non_nullable
-              as int,
-      ankleCirc: null == ankleCirc
-          ? _value.ankleCirc
-          : ankleCirc // ignore: cast_nullable_to_non_nullable
-              as int,
-      companyId: freezed == companyId
-          ? _value.companyId
-          : companyId // ignore: cast_nullable_to_non_nullable
-              as String?,
-      createdAt: null == createdAt
-          ? _value.createdAt
-          : createdAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      updatedAt: freezed == updatedAt
-          ? _value.updatedAt
-          : updatedAt // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
-      createdBy: freezed == createdBy
-          ? _value.createdBy
-          : createdBy // ignore: cast_nullable_to_non_nullable
-              as String?,
-      updatedBy: freezed == updatedBy
-          ? _value.updatedBy
-          : updatedBy // ignore: cast_nullable_to_non_nullable
-              as String?,
-    ) as $Val);
+    return _then(
+      _value.copyWith(
+            id: freezed == id
+                ? _value.id
+                : id // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            userId: null == userId
+                ? _value.userId
+                : userId // ignore: cast_nullable_to_non_nullable
+                      as String,
+            height: null == height
+                ? _value.height
+                : height // ignore: cast_nullable_to_non_nullable
+                      as int,
+            wristCirc: null == wristCirc
+                ? _value.wristCirc
+                : wristCirc // ignore: cast_nullable_to_non_nullable
+                      as int,
+            ankleCirc: null == ankleCirc
+                ? _value.ankleCirc
+                : ankleCirc // ignore: cast_nullable_to_non_nullable
+                      as int,
+            companyId: freezed == companyId
+                ? _value.companyId
+                : companyId // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            createdAt: null == createdAt
+                ? _value.createdAt
+                : createdAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime,
+            updatedAt: freezed == updatedAt
+                ? _value.updatedAt
+                : updatedAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime?,
+            createdBy: freezed == createdBy
+                ? _value.createdBy
+                : createdBy // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            updatedBy: freezed == updatedBy
+                ? _value.updatedBy
+                : updatedBy // ignore: cast_nullable_to_non_nullable
+                      as String?,
+          )
+          as $Val,
+    );
   }
 }
 
 /// @nodoc
 abstract class _$$AnthropometryFixedImplCopyWith<$Res>
     implements $AnthropometryFixedCopyWith<$Res> {
-  factory _$$AnthropometryFixedImplCopyWith(_$AnthropometryFixedImpl value,
-          $Res Function(_$AnthropometryFixedImpl) then) =
-      __$$AnthropometryFixedImplCopyWithImpl<$Res>;
+  factory _$$AnthropometryFixedImplCopyWith(
+    _$AnthropometryFixedImpl value,
+    $Res Function(_$AnthropometryFixedImpl) then,
+  ) = __$$AnthropometryFixedImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call(
-      {String? id,
-      String userId,
-      int height,
-      int wristCirc,
-      int ankleCirc,
-      String? companyId,
-      DateTime createdAt,
-      DateTime? updatedAt,
-      String? createdBy,
-      String? updatedBy});
+  $Res call({
+    String? id,
+    String userId,
+    int height,
+    int wristCirc,
+    int ankleCirc,
+    String? companyId,
+    DateTime createdAt,
+    DateTime? updatedAt,
+    String? createdBy,
+    String? updatedBy,
+  });
 }
 
 /// @nodoc
 class __$$AnthropometryFixedImplCopyWithImpl<$Res>
     extends _$AnthropometryFixedCopyWithImpl<$Res, _$AnthropometryFixedImpl>
     implements _$$AnthropometryFixedImplCopyWith<$Res> {
-  __$$AnthropometryFixedImplCopyWithImpl(_$AnthropometryFixedImpl _value,
-      $Res Function(_$AnthropometryFixedImpl) _then)
-      : super(_value, _then);
+  __$$AnthropometryFixedImplCopyWithImpl(
+    _$AnthropometryFixedImpl _value,
+    $Res Function(_$AnthropometryFixedImpl) _then,
+  ) : super(_value, _then);
 
   /// Create a copy of AnthropometryFixed
   /// with the given fields replaced by the non-null parameter values.
@@ -176,65 +185,68 @@ class __$$AnthropometryFixedImplCopyWithImpl<$Res>
     Object? createdBy = freezed,
     Object? updatedBy = freezed,
   }) {
-    return _then(_$AnthropometryFixedImpl(
-      id: freezed == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as String?,
-      userId: null == userId
-          ? _value.userId
-          : userId // ignore: cast_nullable_to_non_nullable
-              as String,
-      height: null == height
-          ? _value.height
-          : height // ignore: cast_nullable_to_non_nullable
-              as int,
-      wristCirc: null == wristCirc
-          ? _value.wristCirc
-          : wristCirc // ignore: cast_nullable_to_non_nullable
-              as int,
-      ankleCirc: null == ankleCirc
-          ? _value.ankleCirc
-          : ankleCirc // ignore: cast_nullable_to_non_nullable
-              as int,
-      companyId: freezed == companyId
-          ? _value.companyId
-          : companyId // ignore: cast_nullable_to_non_nullable
-              as String?,
-      createdAt: null == createdAt
-          ? _value.createdAt
-          : createdAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      updatedAt: freezed == updatedAt
-          ? _value.updatedAt
-          : updatedAt // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
-      createdBy: freezed == createdBy
-          ? _value.createdBy
-          : createdBy // ignore: cast_nullable_to_non_nullable
-              as String?,
-      updatedBy: freezed == updatedBy
-          ? _value.updatedBy
-          : updatedBy // ignore: cast_nullable_to_non_nullable
-              as String?,
-    ));
+    return _then(
+      _$AnthropometryFixedImpl(
+        id: freezed == id
+            ? _value.id
+            : id // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        userId: null == userId
+            ? _value.userId
+            : userId // ignore: cast_nullable_to_non_nullable
+                  as String,
+        height: null == height
+            ? _value.height
+            : height // ignore: cast_nullable_to_non_nullable
+                  as int,
+        wristCirc: null == wristCirc
+            ? _value.wristCirc
+            : wristCirc // ignore: cast_nullable_to_non_nullable
+                  as int,
+        ankleCirc: null == ankleCirc
+            ? _value.ankleCirc
+            : ankleCirc // ignore: cast_nullable_to_non_nullable
+                  as int,
+        companyId: freezed == companyId
+            ? _value.companyId
+            : companyId // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        createdAt: null == createdAt
+            ? _value.createdAt
+            : createdAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime,
+        updatedAt: freezed == updatedAt
+            ? _value.updatedAt
+            : updatedAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
+        createdBy: freezed == createdBy
+            ? _value.createdBy
+            : createdBy // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        updatedBy: freezed == updatedBy
+            ? _value.updatedBy
+            : updatedBy // ignore: cast_nullable_to_non_nullable
+                  as String?,
+      ),
+    );
   }
 }
 
 /// @nodoc
 @JsonSerializable()
 class _$AnthropometryFixedImpl implements _AnthropometryFixed {
-  const _$AnthropometryFixedImpl(
-      {this.id,
-      required this.userId,
-      required this.height,
-      required this.wristCirc,
-      required this.ankleCirc,
-      this.companyId,
-      required this.createdAt,
-      this.updatedAt,
-      this.createdBy,
-      this.updatedBy});
+  const _$AnthropometryFixedImpl({
+    this.id,
+    required this.userId,
+    required this.height,
+    required this.wristCirc,
+    required this.ankleCirc,
+    this.companyId,
+    required this.createdAt,
+    this.updatedAt,
+    this.createdBy,
+    this.updatedBy,
+  });
 
   factory _$AnthropometryFixedImpl.fromJson(Map<String, dynamic> json) =>
       _$$AnthropometryFixedImplFromJson(json);
@@ -291,8 +303,19 @@ class _$AnthropometryFixedImpl implements _AnthropometryFixed {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, userId, height, wristCirc,
-      ankleCirc, companyId, createdAt, updatedAt, createdBy, updatedBy);
+  int get hashCode => Object.hash(
+    runtimeType,
+    id,
+    userId,
+    height,
+    wristCirc,
+    ankleCirc,
+    companyId,
+    createdAt,
+    updatedAt,
+    createdBy,
+    updatedBy,
+  );
 
   /// Create a copy of AnthropometryFixed
   /// with the given fields replaced by the non-null parameter values.
@@ -301,28 +324,29 @@ class _$AnthropometryFixedImpl implements _AnthropometryFixed {
   @pragma('vm:prefer-inline')
   _$$AnthropometryFixedImplCopyWith<_$AnthropometryFixedImpl> get copyWith =>
       __$$AnthropometryFixedImplCopyWithImpl<_$AnthropometryFixedImpl>(
-          this, _$identity);
+        this,
+        _$identity,
+      );
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$AnthropometryFixedImplToJson(
-      this,
-    );
+    return _$$AnthropometryFixedImplToJson(this);
   }
 }
 
 abstract class _AnthropometryFixed implements AnthropometryFixed {
-  const factory _AnthropometryFixed(
-      {final String? id,
-      required final String userId,
-      required final int height,
-      required final int wristCirc,
-      required final int ankleCirc,
-      final String? companyId,
-      required final DateTime createdAt,
-      final DateTime? updatedAt,
-      final String? createdBy,
-      final String? updatedBy}) = _$AnthropometryFixedImpl;
+  const factory _AnthropometryFixed({
+    final String? id,
+    required final String userId,
+    required final int height,
+    required final int wristCirc,
+    required final int ankleCirc,
+    final String? companyId,
+    required final DateTime createdAt,
+    final DateTime? updatedAt,
+    final String? createdBy,
+    final String? updatedBy,
+  }) = _$AnthropometryFixedImpl;
 
   factory _AnthropometryFixed.fromJson(Map<String, dynamic> json) =
       _$AnthropometryFixedImpl.fromJson;

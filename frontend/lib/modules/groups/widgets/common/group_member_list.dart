@@ -8,12 +8,14 @@ class GroupMemberList extends StatelessWidget {
   final List<User> members;
   final VoidCallback onAdd;
   final ValueChanged<String> onRemove;
+  final ValueChanged<String> onMove;
 
   const GroupMemberList({
     super.key,
     required this.members,
     required this.onAdd,
     required this.onRemove,
+    required this.onMove,
   });
 
   @override
@@ -36,6 +38,7 @@ class GroupMemberList extends StatelessWidget {
               return _MemberListItem(
                 member: member,
                 onRemove: () => onRemove(member.id),
+                onMove: () => onMove(member.id),
               );
             },
           ),
@@ -55,8 +58,13 @@ class GroupMemberList extends StatelessWidget {
 class _MemberListItem extends StatefulWidget {
   final User member;
   final VoidCallback onRemove;
+  final VoidCallback onMove;
 
-  const _MemberListItem({required this.member, required this.onRemove});
+  const _MemberListItem({
+    required this.member,
+    required this.onRemove,
+    required this.onMove,
+  });
 
   @override
   State<_MemberListItem> createState() => _MemberListItemState();
@@ -135,6 +143,8 @@ class _MemberListItemState extends State<_MemberListItem> {
               );
             } else if (value == 'delete') {
               _confirmRemoveMember(context);
+            } else if (value == 'move') {
+              widget.onMove();
             }
           },
           itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
@@ -142,6 +152,11 @@ class _MemberListItemState extends State<_MemberListItem> {
               value: 'edit',
               child: Text('Редактировать'),
             ),
+            const PopupMenuItem<String>(
+              value: 'move',
+              child: Text('Переместить'),
+            ),
+            const PopupMenuDivider(),
             const PopupMenuItem<String>(
               value: 'delete',
               child: Text('Удалить'),

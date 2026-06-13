@@ -12,7 +12,8 @@ part of 'progress_data.model.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
+  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
+);
 
 ProgressData _$ProgressDataFromJson(Map<String, dynamic> json) {
   return _ProgressData.fromJson(json);
@@ -39,15 +40,17 @@ mixin _$ProgressData {
 /// @nodoc
 abstract class $ProgressDataCopyWith<$Res> {
   factory $ProgressDataCopyWith(
-          ProgressData value, $Res Function(ProgressData) then) =
-      _$ProgressDataCopyWithImpl<$Res, ProgressData>;
+    ProgressData value,
+    $Res Function(ProgressData) then,
+  ) = _$ProgressDataCopyWithImpl<$Res, ProgressData>;
   @useResult
-  $Res call(
-      {List<ChartDataPoint> weight,
-      List<ChartDataPoint> calories,
-      List<ChartDataPoint> balance,
-      KpiData kpi,
-      String recommendations});
+  $Res call({
+    List<ChartDataPoint> weight,
+    List<ChartDataPoint> calories,
+    List<ChartDataPoint> balance,
+    KpiData kpi,
+    String recommendations,
+  });
 
   $KpiDataCopyWith<$Res> get kpi;
 }
@@ -73,28 +76,31 @@ class _$ProgressDataCopyWithImpl<$Res, $Val extends ProgressData>
     Object? kpi = null,
     Object? recommendations = null,
   }) {
-    return _then(_value.copyWith(
-      weight: null == weight
-          ? _value.weight
-          : weight // ignore: cast_nullable_to_non_nullable
-              as List<ChartDataPoint>,
-      calories: null == calories
-          ? _value.calories
-          : calories // ignore: cast_nullable_to_non_nullable
-              as List<ChartDataPoint>,
-      balance: null == balance
-          ? _value.balance
-          : balance // ignore: cast_nullable_to_non_nullable
-              as List<ChartDataPoint>,
-      kpi: null == kpi
-          ? _value.kpi
-          : kpi // ignore: cast_nullable_to_non_nullable
-              as KpiData,
-      recommendations: null == recommendations
-          ? _value.recommendations
-          : recommendations // ignore: cast_nullable_to_non_nullable
-              as String,
-    ) as $Val);
+    return _then(
+      _value.copyWith(
+            weight: null == weight
+                ? _value.weight
+                : weight // ignore: cast_nullable_to_non_nullable
+                      as List<ChartDataPoint>,
+            calories: null == calories
+                ? _value.calories
+                : calories // ignore: cast_nullable_to_non_nullable
+                      as List<ChartDataPoint>,
+            balance: null == balance
+                ? _value.balance
+                : balance // ignore: cast_nullable_to_non_nullable
+                      as List<ChartDataPoint>,
+            kpi: null == kpi
+                ? _value.kpi
+                : kpi // ignore: cast_nullable_to_non_nullable
+                      as KpiData,
+            recommendations: null == recommendations
+                ? _value.recommendations
+                : recommendations // ignore: cast_nullable_to_non_nullable
+                      as String,
+          )
+          as $Val,
+    );
   }
 
   /// Create a copy of ProgressData
@@ -112,16 +118,18 @@ class _$ProgressDataCopyWithImpl<$Res, $Val extends ProgressData>
 abstract class _$$ProgressDataImplCopyWith<$Res>
     implements $ProgressDataCopyWith<$Res> {
   factory _$$ProgressDataImplCopyWith(
-          _$ProgressDataImpl value, $Res Function(_$ProgressDataImpl) then) =
-      __$$ProgressDataImplCopyWithImpl<$Res>;
+    _$ProgressDataImpl value,
+    $Res Function(_$ProgressDataImpl) then,
+  ) = __$$ProgressDataImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call(
-      {List<ChartDataPoint> weight,
-      List<ChartDataPoint> calories,
-      List<ChartDataPoint> balance,
-      KpiData kpi,
-      String recommendations});
+  $Res call({
+    List<ChartDataPoint> weight,
+    List<ChartDataPoint> calories,
+    List<ChartDataPoint> balance,
+    KpiData kpi,
+    String recommendations,
+  });
 
   @override
   $KpiDataCopyWith<$Res> get kpi;
@@ -132,8 +140,9 @@ class __$$ProgressDataImplCopyWithImpl<$Res>
     extends _$ProgressDataCopyWithImpl<$Res, _$ProgressDataImpl>
     implements _$$ProgressDataImplCopyWith<$Res> {
   __$$ProgressDataImplCopyWithImpl(
-      _$ProgressDataImpl _value, $Res Function(_$ProgressDataImpl) _then)
-      : super(_value, _then);
+    _$ProgressDataImpl _value,
+    $Res Function(_$ProgressDataImpl) _then,
+  ) : super(_value, _then);
 
   /// Create a copy of ProgressData
   /// with the given fields replaced by the non-null parameter values.
@@ -146,43 +155,45 @@ class __$$ProgressDataImplCopyWithImpl<$Res>
     Object? kpi = null,
     Object? recommendations = null,
   }) {
-    return _then(_$ProgressDataImpl(
-      weight: null == weight
-          ? _value._weight
-          : weight // ignore: cast_nullable_to_non_nullable
-              as List<ChartDataPoint>,
-      calories: null == calories
-          ? _value._calories
-          : calories // ignore: cast_nullable_to_non_nullable
-              as List<ChartDataPoint>,
-      balance: null == balance
-          ? _value._balance
-          : balance // ignore: cast_nullable_to_non_nullable
-              as List<ChartDataPoint>,
-      kpi: null == kpi
-          ? _value.kpi
-          : kpi // ignore: cast_nullable_to_non_nullable
-              as KpiData,
-      recommendations: null == recommendations
-          ? _value.recommendations
-          : recommendations // ignore: cast_nullable_to_non_nullable
-              as String,
-    ));
+    return _then(
+      _$ProgressDataImpl(
+        weight: null == weight
+            ? _value._weight
+            : weight // ignore: cast_nullable_to_non_nullable
+                  as List<ChartDataPoint>,
+        calories: null == calories
+            ? _value._calories
+            : calories // ignore: cast_nullable_to_non_nullable
+                  as List<ChartDataPoint>,
+        balance: null == balance
+            ? _value._balance
+            : balance // ignore: cast_nullable_to_non_nullable
+                  as List<ChartDataPoint>,
+        kpi: null == kpi
+            ? _value.kpi
+            : kpi // ignore: cast_nullable_to_non_nullable
+                  as KpiData,
+        recommendations: null == recommendations
+            ? _value.recommendations
+            : recommendations // ignore: cast_nullable_to_non_nullable
+                  as String,
+      ),
+    );
   }
 }
 
 /// @nodoc
 @JsonSerializable()
 class _$ProgressDataImpl implements _ProgressData {
-  const _$ProgressDataImpl(
-      {required final List<ChartDataPoint> weight,
-      required final List<ChartDataPoint> calories,
-      required final List<ChartDataPoint> balance,
-      required this.kpi,
-      required this.recommendations})
-      : _weight = weight,
-        _calories = calories,
-        _balance = balance;
+  const _$ProgressDataImpl({
+    required final List<ChartDataPoint> weight,
+    required final List<ChartDataPoint> calories,
+    required final List<ChartDataPoint> balance,
+    required this.kpi,
+    required this.recommendations,
+  }) : _weight = weight,
+       _calories = calories,
+       _balance = balance;
 
   factory _$ProgressDataImpl.fromJson(Map<String, dynamic> json) =>
       _$$ProgressDataImplFromJson(json);
@@ -237,12 +248,13 @@ class _$ProgressDataImpl implements _ProgressData {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
-      runtimeType,
-      const DeepCollectionEquality().hash(_weight),
-      const DeepCollectionEquality().hash(_calories),
-      const DeepCollectionEquality().hash(_balance),
-      kpi,
-      recommendations);
+    runtimeType,
+    const DeepCollectionEquality().hash(_weight),
+    const DeepCollectionEquality().hash(_calories),
+    const DeepCollectionEquality().hash(_balance),
+    kpi,
+    recommendations,
+  );
 
   /// Create a copy of ProgressData
   /// with the given fields replaced by the non-null parameter values.
@@ -254,19 +266,18 @@ class _$ProgressDataImpl implements _ProgressData {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$ProgressDataImplToJson(
-      this,
-    );
+    return _$$ProgressDataImplToJson(this);
   }
 }
 
 abstract class _ProgressData implements ProgressData {
-  const factory _ProgressData(
-      {required final List<ChartDataPoint> weight,
-      required final List<ChartDataPoint> calories,
-      required final List<ChartDataPoint> balance,
-      required final KpiData kpi,
-      required final String recommendations}) = _$ProgressDataImpl;
+  const factory _ProgressData({
+    required final List<ChartDataPoint> weight,
+    required final List<ChartDataPoint> calories,
+    required final List<ChartDataPoint> balance,
+    required final KpiData kpi,
+    required final String recommendations,
+  }) = _$ProgressDataImpl;
 
   factory _ProgressData.fromJson(Map<String, dynamic> json) =
       _$ProgressDataImpl.fromJson;
@@ -312,8 +323,9 @@ mixin _$ChartDataPoint {
 /// @nodoc
 abstract class $ChartDataPointCopyWith<$Res> {
   factory $ChartDataPointCopyWith(
-          ChartDataPoint value, $Res Function(ChartDataPoint) then) =
-      _$ChartDataPointCopyWithImpl<$Res, ChartDataPoint>;
+    ChartDataPoint value,
+    $Res Function(ChartDataPoint) then,
+  ) = _$ChartDataPointCopyWithImpl<$Res, ChartDataPoint>;
   @useResult
   $Res call({DateTime date, double value});
 }
@@ -332,29 +344,30 @@ class _$ChartDataPointCopyWithImpl<$Res, $Val extends ChartDataPoint>
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({
-    Object? date = null,
-    Object? value = null,
-  }) {
-    return _then(_value.copyWith(
-      date: null == date
-          ? _value.date
-          : date // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      value: null == value
-          ? _value.value
-          : value // ignore: cast_nullable_to_non_nullable
-              as double,
-    ) as $Val);
+  $Res call({Object? date = null, Object? value = null}) {
+    return _then(
+      _value.copyWith(
+            date: null == date
+                ? _value.date
+                : date // ignore: cast_nullable_to_non_nullable
+                      as DateTime,
+            value: null == value
+                ? _value.value
+                : value // ignore: cast_nullable_to_non_nullable
+                      as double,
+          )
+          as $Val,
+    );
   }
 }
 
 /// @nodoc
 abstract class _$$ChartDataPointImplCopyWith<$Res>
     implements $ChartDataPointCopyWith<$Res> {
-  factory _$$ChartDataPointImplCopyWith(_$ChartDataPointImpl value,
-          $Res Function(_$ChartDataPointImpl) then) =
-      __$$ChartDataPointImplCopyWithImpl<$Res>;
+  factory _$$ChartDataPointImplCopyWith(
+    _$ChartDataPointImpl value,
+    $Res Function(_$ChartDataPointImpl) then,
+  ) = __$$ChartDataPointImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call({DateTime date, double value});
@@ -365,27 +378,27 @@ class __$$ChartDataPointImplCopyWithImpl<$Res>
     extends _$ChartDataPointCopyWithImpl<$Res, _$ChartDataPointImpl>
     implements _$$ChartDataPointImplCopyWith<$Res> {
   __$$ChartDataPointImplCopyWithImpl(
-      _$ChartDataPointImpl _value, $Res Function(_$ChartDataPointImpl) _then)
-      : super(_value, _then);
+    _$ChartDataPointImpl _value,
+    $Res Function(_$ChartDataPointImpl) _then,
+  ) : super(_value, _then);
 
   /// Create a copy of ChartDataPoint
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({
-    Object? date = null,
-    Object? value = null,
-  }) {
-    return _then(_$ChartDataPointImpl(
-      date: null == date
-          ? _value.date
-          : date // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      value: null == value
-          ? _value.value
-          : value // ignore: cast_nullable_to_non_nullable
-              as double,
-    ));
+  $Res call({Object? date = null, Object? value = null}) {
+    return _then(
+      _$ChartDataPointImpl(
+        date: null == date
+            ? _value.date
+            : date // ignore: cast_nullable_to_non_nullable
+                  as DateTime,
+        value: null == value
+            ? _value.value
+            : value // ignore: cast_nullable_to_non_nullable
+                  as double,
+      ),
+    );
   }
 }
 
@@ -427,20 +440,21 @@ class _$ChartDataPointImpl implements _ChartDataPoint {
   @pragma('vm:prefer-inline')
   _$$ChartDataPointImplCopyWith<_$ChartDataPointImpl> get copyWith =>
       __$$ChartDataPointImplCopyWithImpl<_$ChartDataPointImpl>(
-          this, _$identity);
+        this,
+        _$identity,
+      );
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$ChartDataPointImplToJson(
-      this,
-    );
+    return _$$ChartDataPointImplToJson(this);
   }
 }
 
 abstract class _ChartDataPoint implements ChartDataPoint {
-  const factory _ChartDataPoint(
-      {required final DateTime date,
-      required final double value}) = _$ChartDataPointImpl;
+  const factory _ChartDataPoint({
+    required final DateTime date,
+    required final double value,
+  }) = _$ChartDataPointImpl;
 
   factory _ChartDataPoint.fromJson(Map<String, dynamic> json) =
       _$ChartDataPointImpl.fromJson;
@@ -504,28 +518,32 @@ class _$KpiDataCopyWithImpl<$Res, $Val extends KpiData>
     Object? weightChange = freezed,
     Object? avgCalories = freezed,
   }) {
-    return _then(_value.copyWith(
-      avgWeight: freezed == avgWeight
-          ? _value.avgWeight
-          : avgWeight // ignore: cast_nullable_to_non_nullable
-              as double?,
-      weightChange: freezed == weightChange
-          ? _value.weightChange
-          : weightChange // ignore: cast_nullable_to_non_nullable
-              as double?,
-      avgCalories: freezed == avgCalories
-          ? _value.avgCalories
-          : avgCalories // ignore: cast_nullable_to_non_nullable
-              as int?,
-    ) as $Val);
+    return _then(
+      _value.copyWith(
+            avgWeight: freezed == avgWeight
+                ? _value.avgWeight
+                : avgWeight // ignore: cast_nullable_to_non_nullable
+                      as double?,
+            weightChange: freezed == weightChange
+                ? _value.weightChange
+                : weightChange // ignore: cast_nullable_to_non_nullable
+                      as double?,
+            avgCalories: freezed == avgCalories
+                ? _value.avgCalories
+                : avgCalories // ignore: cast_nullable_to_non_nullable
+                      as int?,
+          )
+          as $Val,
+    );
   }
 }
 
 /// @nodoc
 abstract class _$$KpiDataImplCopyWith<$Res> implements $KpiDataCopyWith<$Res> {
   factory _$$KpiDataImplCopyWith(
-          _$KpiDataImpl value, $Res Function(_$KpiDataImpl) then) =
-      __$$KpiDataImplCopyWithImpl<$Res>;
+    _$KpiDataImpl value,
+    $Res Function(_$KpiDataImpl) then,
+  ) = __$$KpiDataImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call({double? avgWeight, double? weightChange, int? avgCalories});
@@ -536,8 +554,9 @@ class __$$KpiDataImplCopyWithImpl<$Res>
     extends _$KpiDataCopyWithImpl<$Res, _$KpiDataImpl>
     implements _$$KpiDataImplCopyWith<$Res> {
   __$$KpiDataImplCopyWithImpl(
-      _$KpiDataImpl _value, $Res Function(_$KpiDataImpl) _then)
-      : super(_value, _then);
+    _$KpiDataImpl _value,
+    $Res Function(_$KpiDataImpl) _then,
+  ) : super(_value, _then);
 
   /// Create a copy of KpiData
   /// with the given fields replaced by the non-null parameter values.
@@ -548,20 +567,22 @@ class __$$KpiDataImplCopyWithImpl<$Res>
     Object? weightChange = freezed,
     Object? avgCalories = freezed,
   }) {
-    return _then(_$KpiDataImpl(
-      avgWeight: freezed == avgWeight
-          ? _value.avgWeight
-          : avgWeight // ignore: cast_nullable_to_non_nullable
-              as double?,
-      weightChange: freezed == weightChange
-          ? _value.weightChange
-          : weightChange // ignore: cast_nullable_to_non_nullable
-              as double?,
-      avgCalories: freezed == avgCalories
-          ? _value.avgCalories
-          : avgCalories // ignore: cast_nullable_to_non_nullable
-              as int?,
-    ));
+    return _then(
+      _$KpiDataImpl(
+        avgWeight: freezed == avgWeight
+            ? _value.avgWeight
+            : avgWeight // ignore: cast_nullable_to_non_nullable
+                  as double?,
+        weightChange: freezed == weightChange
+            ? _value.weightChange
+            : weightChange // ignore: cast_nullable_to_non_nullable
+                  as double?,
+        avgCalories: freezed == avgCalories
+            ? _value.avgCalories
+            : avgCalories // ignore: cast_nullable_to_non_nullable
+                  as int?,
+      ),
+    );
   }
 }
 
@@ -613,17 +634,16 @@ class _$KpiDataImpl implements _KpiData {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$KpiDataImplToJson(
-      this,
-    );
+    return _$$KpiDataImplToJson(this);
   }
 }
 
 abstract class _KpiData implements KpiData {
-  const factory _KpiData(
-      {final double? avgWeight,
-      final double? weightChange,
-      final int? avgCalories}) = _$KpiDataImpl;
+  const factory _KpiData({
+    final double? avgWeight,
+    final double? weightChange,
+    final int? avgCalories,
+  }) = _$KpiDataImpl;
 
   factory _KpiData.fromJson(Map<String, dynamic> json) = _$KpiDataImpl.fromJson;
 

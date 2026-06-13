@@ -12,7 +12,8 @@ part of 'trainer_profile.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
+  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
+);
 
 TrainerProfile _$TrainerProfileFromJson(Map<String, dynamic> json) {
   return _TrainerProfile.fromJson(json);
@@ -35,8 +36,9 @@ mixin _$TrainerProfile {
 /// @nodoc
 abstract class $TrainerProfileCopyWith<$Res> {
   factory $TrainerProfileCopyWith(
-          TrainerProfile value, $Res Function(TrainerProfile) then) =
-      _$TrainerProfileCopyWithImpl<$Res, TrainerProfile>;
+    TrainerProfile value,
+    $Res Function(TrainerProfile) then,
+  ) = _$TrainerProfileCopyWithImpl<$Res, TrainerProfile>;
   @useResult
   $Res call({String userId});
 }
@@ -55,24 +57,26 @@ class _$TrainerProfileCopyWithImpl<$Res, $Val extends TrainerProfile>
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({
-    Object? userId = null,
-  }) {
-    return _then(_value.copyWith(
-      userId: null == userId
-          ? _value.userId
-          : userId // ignore: cast_nullable_to_non_nullable
-              as String,
-    ) as $Val);
+  $Res call({Object? userId = null}) {
+    return _then(
+      _value.copyWith(
+            userId: null == userId
+                ? _value.userId
+                : userId // ignore: cast_nullable_to_non_nullable
+                      as String,
+          )
+          as $Val,
+    );
   }
 }
 
 /// @nodoc
 abstract class _$$TrainerProfileImplCopyWith<$Res>
     implements $TrainerProfileCopyWith<$Res> {
-  factory _$$TrainerProfileImplCopyWith(_$TrainerProfileImpl value,
-          $Res Function(_$TrainerProfileImpl) then) =
-      __$$TrainerProfileImplCopyWithImpl<$Res>;
+  factory _$$TrainerProfileImplCopyWith(
+    _$TrainerProfileImpl value,
+    $Res Function(_$TrainerProfileImpl) then,
+  ) = __$$TrainerProfileImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call({String userId});
@@ -83,22 +87,23 @@ class __$$TrainerProfileImplCopyWithImpl<$Res>
     extends _$TrainerProfileCopyWithImpl<$Res, _$TrainerProfileImpl>
     implements _$$TrainerProfileImplCopyWith<$Res> {
   __$$TrainerProfileImplCopyWithImpl(
-      _$TrainerProfileImpl _value, $Res Function(_$TrainerProfileImpl) _then)
-      : super(_value, _then);
+    _$TrainerProfileImpl _value,
+    $Res Function(_$TrainerProfileImpl) _then,
+  ) : super(_value, _then);
 
   /// Create a copy of TrainerProfile
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({
-    Object? userId = null,
-  }) {
-    return _then(_$TrainerProfileImpl(
-      userId: null == userId
-          ? _value.userId
-          : userId // ignore: cast_nullable_to_non_nullable
-              as String,
-    ));
+  $Res call({Object? userId = null}) {
+    return _then(
+      _$TrainerProfileImpl(
+        userId: null == userId
+            ? _value.userId
+            : userId // ignore: cast_nullable_to_non_nullable
+                  as String,
+      ),
+    );
   }
 }
 
@@ -137,13 +142,13 @@ class _$TrainerProfileImpl implements _TrainerProfile {
   @pragma('vm:prefer-inline')
   _$$TrainerProfileImplCopyWith<_$TrainerProfileImpl> get copyWith =>
       __$$TrainerProfileImplCopyWithImpl<_$TrainerProfileImpl>(
-          this, _$identity);
+        this,
+        _$identity,
+      );
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$TrainerProfileImplToJson(
-      this,
-    );
+    return _$$TrainerProfileImplToJson(this);
   }
 }
 

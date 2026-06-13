@@ -12,7 +12,8 @@ part of 'building_model.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
+  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
+);
 
 Building _$BuildingFromJson(Map<String, dynamic> json) {
   return _Building.fromJson(json);
@@ -51,19 +52,20 @@ abstract class $BuildingCopyWith<$Res> {
   factory $BuildingCopyWith(Building value, $Res Function(Building) then) =
       _$BuildingCopyWithImpl<$Res, Building>;
   @useResult
-  $Res call(
-      {String id,
-      String name,
-      String address,
-      String? note,
-      @NullableDateTimeConverter() DateTime? createdAt,
-      @NullableDateTimeConverter() DateTime? updatedAt,
-      String? createdBy,
-      String? updatedBy,
-      @NullableDateTimeConverter() DateTime? archivedAt,
-      String? archivedBy,
-      String? archivedByName,
-      String? archivedReason});
+  $Res call({
+    String id,
+    String name,
+    String address,
+    String? note,
+    @NullableDateTimeConverter() DateTime? createdAt,
+    @NullableDateTimeConverter() DateTime? updatedAt,
+    String? createdBy,
+    String? updatedBy,
+    @NullableDateTimeConverter() DateTime? archivedAt,
+    String? archivedBy,
+    String? archivedByName,
+    String? archivedReason,
+  });
 }
 
 /// @nodoc
@@ -94,56 +96,59 @@ class _$BuildingCopyWithImpl<$Res, $Val extends Building>
     Object? archivedByName = freezed,
     Object? archivedReason = freezed,
   }) {
-    return _then(_value.copyWith(
-      id: null == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as String,
-      name: null == name
-          ? _value.name
-          : name // ignore: cast_nullable_to_non_nullable
-              as String,
-      address: null == address
-          ? _value.address
-          : address // ignore: cast_nullable_to_non_nullable
-              as String,
-      note: freezed == note
-          ? _value.note
-          : note // ignore: cast_nullable_to_non_nullable
-              as String?,
-      createdAt: freezed == createdAt
-          ? _value.createdAt
-          : createdAt // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
-      updatedAt: freezed == updatedAt
-          ? _value.updatedAt
-          : updatedAt // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
-      createdBy: freezed == createdBy
-          ? _value.createdBy
-          : createdBy // ignore: cast_nullable_to_non_nullable
-              as String?,
-      updatedBy: freezed == updatedBy
-          ? _value.updatedBy
-          : updatedBy // ignore: cast_nullable_to_non_nullable
-              as String?,
-      archivedAt: freezed == archivedAt
-          ? _value.archivedAt
-          : archivedAt // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
-      archivedBy: freezed == archivedBy
-          ? _value.archivedBy
-          : archivedBy // ignore: cast_nullable_to_non_nullable
-              as String?,
-      archivedByName: freezed == archivedByName
-          ? _value.archivedByName
-          : archivedByName // ignore: cast_nullable_to_non_nullable
-              as String?,
-      archivedReason: freezed == archivedReason
-          ? _value.archivedReason
-          : archivedReason // ignore: cast_nullable_to_non_nullable
-              as String?,
-    ) as $Val);
+    return _then(
+      _value.copyWith(
+            id: null == id
+                ? _value.id
+                : id // ignore: cast_nullable_to_non_nullable
+                      as String,
+            name: null == name
+                ? _value.name
+                : name // ignore: cast_nullable_to_non_nullable
+                      as String,
+            address: null == address
+                ? _value.address
+                : address // ignore: cast_nullable_to_non_nullable
+                      as String,
+            note: freezed == note
+                ? _value.note
+                : note // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            createdAt: freezed == createdAt
+                ? _value.createdAt
+                : createdAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime?,
+            updatedAt: freezed == updatedAt
+                ? _value.updatedAt
+                : updatedAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime?,
+            createdBy: freezed == createdBy
+                ? _value.createdBy
+                : createdBy // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            updatedBy: freezed == updatedBy
+                ? _value.updatedBy
+                : updatedBy // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            archivedAt: freezed == archivedAt
+                ? _value.archivedAt
+                : archivedAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime?,
+            archivedBy: freezed == archivedBy
+                ? _value.archivedBy
+                : archivedBy // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            archivedByName: freezed == archivedByName
+                ? _value.archivedByName
+                : archivedByName // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            archivedReason: freezed == archivedReason
+                ? _value.archivedReason
+                : archivedReason // ignore: cast_nullable_to_non_nullable
+                      as String?,
+          )
+          as $Val,
+    );
   }
 }
 
@@ -151,23 +156,25 @@ class _$BuildingCopyWithImpl<$Res, $Val extends Building>
 abstract class _$$BuildingImplCopyWith<$Res>
     implements $BuildingCopyWith<$Res> {
   factory _$$BuildingImplCopyWith(
-          _$BuildingImpl value, $Res Function(_$BuildingImpl) then) =
-      __$$BuildingImplCopyWithImpl<$Res>;
+    _$BuildingImpl value,
+    $Res Function(_$BuildingImpl) then,
+  ) = __$$BuildingImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call(
-      {String id,
-      String name,
-      String address,
-      String? note,
-      @NullableDateTimeConverter() DateTime? createdAt,
-      @NullableDateTimeConverter() DateTime? updatedAt,
-      String? createdBy,
-      String? updatedBy,
-      @NullableDateTimeConverter() DateTime? archivedAt,
-      String? archivedBy,
-      String? archivedByName,
-      String? archivedReason});
+  $Res call({
+    String id,
+    String name,
+    String address,
+    String? note,
+    @NullableDateTimeConverter() DateTime? createdAt,
+    @NullableDateTimeConverter() DateTime? updatedAt,
+    String? createdBy,
+    String? updatedBy,
+    @NullableDateTimeConverter() DateTime? archivedAt,
+    String? archivedBy,
+    String? archivedByName,
+    String? archivedReason,
+  });
 }
 
 /// @nodoc
@@ -175,8 +182,9 @@ class __$$BuildingImplCopyWithImpl<$Res>
     extends _$BuildingCopyWithImpl<$Res, _$BuildingImpl>
     implements _$$BuildingImplCopyWith<$Res> {
   __$$BuildingImplCopyWithImpl(
-      _$BuildingImpl _value, $Res Function(_$BuildingImpl) _then)
-      : super(_value, _then);
+    _$BuildingImpl _value,
+    $Res Function(_$BuildingImpl) _then,
+  ) : super(_value, _then);
 
   /// Create a copy of Building
   /// with the given fields replaced by the non-null parameter values.
@@ -196,75 +204,78 @@ class __$$BuildingImplCopyWithImpl<$Res>
     Object? archivedByName = freezed,
     Object? archivedReason = freezed,
   }) {
-    return _then(_$BuildingImpl(
-      id: null == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as String,
-      name: null == name
-          ? _value.name
-          : name // ignore: cast_nullable_to_non_nullable
-              as String,
-      address: null == address
-          ? _value.address
-          : address // ignore: cast_nullable_to_non_nullable
-              as String,
-      note: freezed == note
-          ? _value.note
-          : note // ignore: cast_nullable_to_non_nullable
-              as String?,
-      createdAt: freezed == createdAt
-          ? _value.createdAt
-          : createdAt // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
-      updatedAt: freezed == updatedAt
-          ? _value.updatedAt
-          : updatedAt // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
-      createdBy: freezed == createdBy
-          ? _value.createdBy
-          : createdBy // ignore: cast_nullable_to_non_nullable
-              as String?,
-      updatedBy: freezed == updatedBy
-          ? _value.updatedBy
-          : updatedBy // ignore: cast_nullable_to_non_nullable
-              as String?,
-      archivedAt: freezed == archivedAt
-          ? _value.archivedAt
-          : archivedAt // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
-      archivedBy: freezed == archivedBy
-          ? _value.archivedBy
-          : archivedBy // ignore: cast_nullable_to_non_nullable
-              as String?,
-      archivedByName: freezed == archivedByName
-          ? _value.archivedByName
-          : archivedByName // ignore: cast_nullable_to_non_nullable
-              as String?,
-      archivedReason: freezed == archivedReason
-          ? _value.archivedReason
-          : archivedReason // ignore: cast_nullable_to_non_nullable
-              as String?,
-    ));
+    return _then(
+      _$BuildingImpl(
+        id: null == id
+            ? _value.id
+            : id // ignore: cast_nullable_to_non_nullable
+                  as String,
+        name: null == name
+            ? _value.name
+            : name // ignore: cast_nullable_to_non_nullable
+                  as String,
+        address: null == address
+            ? _value.address
+            : address // ignore: cast_nullable_to_non_nullable
+                  as String,
+        note: freezed == note
+            ? _value.note
+            : note // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        createdAt: freezed == createdAt
+            ? _value.createdAt
+            : createdAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
+        updatedAt: freezed == updatedAt
+            ? _value.updatedAt
+            : updatedAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
+        createdBy: freezed == createdBy
+            ? _value.createdBy
+            : createdBy // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        updatedBy: freezed == updatedBy
+            ? _value.updatedBy
+            : updatedBy // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        archivedAt: freezed == archivedAt
+            ? _value.archivedAt
+            : archivedAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
+        archivedBy: freezed == archivedBy
+            ? _value.archivedBy
+            : archivedBy // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        archivedByName: freezed == archivedByName
+            ? _value.archivedByName
+            : archivedByName // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        archivedReason: freezed == archivedReason
+            ? _value.archivedReason
+            : archivedReason // ignore: cast_nullable_to_non_nullable
+                  as String?,
+      ),
+    );
   }
 }
 
 /// @nodoc
 @JsonSerializable()
 class _$BuildingImpl implements _Building {
-  const _$BuildingImpl(
-      {required this.id,
-      required this.name,
-      required this.address,
-      this.note,
-      @NullableDateTimeConverter() this.createdAt,
-      @NullableDateTimeConverter() this.updatedAt,
-      this.createdBy,
-      this.updatedBy,
-      @NullableDateTimeConverter() this.archivedAt,
-      this.archivedBy,
-      this.archivedByName,
-      this.archivedReason});
+  const _$BuildingImpl({
+    required this.id,
+    required this.name,
+    required this.address,
+    this.note,
+    @NullableDateTimeConverter() this.createdAt,
+    @NullableDateTimeConverter() this.updatedAt,
+    this.createdBy,
+    this.updatedBy,
+    @NullableDateTimeConverter() this.archivedAt,
+    this.archivedBy,
+    this.archivedByName,
+    this.archivedReason,
+  });
 
   factory _$BuildingImpl.fromJson(Map<String, dynamic> json) =>
       _$$BuildingImplFromJson(json);
@@ -332,19 +343,20 @@ class _$BuildingImpl implements _Building {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
-      runtimeType,
-      id,
-      name,
-      address,
-      note,
-      createdAt,
-      updatedAt,
-      createdBy,
-      updatedBy,
-      archivedAt,
-      archivedBy,
-      archivedByName,
-      archivedReason);
+    runtimeType,
+    id,
+    name,
+    address,
+    note,
+    createdAt,
+    updatedAt,
+    createdBy,
+    updatedBy,
+    archivedAt,
+    archivedBy,
+    archivedByName,
+    archivedReason,
+  );
 
   /// Create a copy of Building
   /// with the given fields replaced by the non-null parameter values.
@@ -356,26 +368,25 @@ class _$BuildingImpl implements _Building {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$BuildingImplToJson(
-      this,
-    );
+    return _$$BuildingImplToJson(this);
   }
 }
 
 abstract class _Building implements Building {
-  const factory _Building(
-      {required final String id,
-      required final String name,
-      required final String address,
-      final String? note,
-      @NullableDateTimeConverter() final DateTime? createdAt,
-      @NullableDateTimeConverter() final DateTime? updatedAt,
-      final String? createdBy,
-      final String? updatedBy,
-      @NullableDateTimeConverter() final DateTime? archivedAt,
-      final String? archivedBy,
-      final String? archivedByName,
-      final String? archivedReason}) = _$BuildingImpl;
+  const factory _Building({
+    required final String id,
+    required final String name,
+    required final String address,
+    final String? note,
+    @NullableDateTimeConverter() final DateTime? createdAt,
+    @NullableDateTimeConverter() final DateTime? updatedAt,
+    final String? createdBy,
+    final String? updatedBy,
+    @NullableDateTimeConverter() final DateTime? archivedAt,
+    final String? archivedBy,
+    final String? archivedByName,
+    final String? archivedReason,
+  }) = _$BuildingImpl;
 
   factory _Building.fromJson(Map<String, dynamic> json) =
       _$BuildingImpl.fromJson;

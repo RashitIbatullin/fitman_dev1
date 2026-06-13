@@ -2,6 +2,7 @@ import 'package:fitman_common/modules/groups/analytic_group.model.dart';
 import 'package:fitman_common/modules/groups/group_schedule.model.dart';
 import 'package:fitman_common/modules/groups/training_group.model.dart';
 import 'package:fitman_common/modules/groups/training_group_type.model.dart';
+import 'package:fitman_common/modules/groups/group_movement.model.dart';
 import 'base_api.dart';
 
 /// Service class for group-related APIs (Training, Analytic, Schedules, Members).
@@ -122,5 +123,34 @@ class GroupsApiService extends BaseApiService {
   Future<List<TrainingGroupType>> getAllTrainingGroupTypes() async {
     final data = await get('/api/training_group_types');
     return (data as List).map((json) => TrainingGroupType.fromJson(json)).toList();
+  }
+
+  // --- Group Movement Methods ---
+
+  Future<void> moveClient({
+    required String clientId,
+    String? fromGroupId,
+    String? toGroupId,
+    required String reason,
+  }) async {
+    await post(
+      '/api/training_groups/move-client',
+      body: {
+        'clientId': clientId,
+        'fromGroupId': fromGroupId,
+        'toGroupId': toGroupId,
+        'reason': reason,
+      },
+    );
+  }
+
+  Future<List<GroupMovement>> getGroupMovements(String groupId) async {
+    final data = await get('/api/training_groups/$groupId/movements');
+    return (data as List).map((json) => GroupMovement.fromJson(json)).toList();
+  }
+
+  Future<List<GroupMovement>> getUserMovements(String userId) async {
+    final data = await get('/api/training_groups/user/$userId/movements');
+    return (data as List).map((json) => GroupMovement.fromJson(json)).toList();
   }
 }

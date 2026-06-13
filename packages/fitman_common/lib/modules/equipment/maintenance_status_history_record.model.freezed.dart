@@ -12,10 +12,12 @@ part of 'maintenance_status_history_record.model.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
+  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
+);
 
 MaintenanceStatusHistoryRecord _$MaintenanceStatusHistoryRecordFromJson(
-    Map<String, dynamic> json) {
+  Map<String, dynamic> json,
+) {
   return _MaintenanceStatusHistoryRecord.fromJson(json);
 }
 
@@ -37,31 +39,37 @@ mixin _$MaintenanceStatusHistoryRecord {
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   $MaintenanceStatusHistoryRecordCopyWith<MaintenanceStatusHistoryRecord>
-      get copyWith => throw _privateConstructorUsedError;
+  get copyWith => throw _privateConstructorUsedError;
 }
 
 /// @nodoc
 abstract class $MaintenanceStatusHistoryRecordCopyWith<$Res> {
   factory $MaintenanceStatusHistoryRecordCopyWith(
-          MaintenanceStatusHistoryRecord value,
-          $Res Function(MaintenanceStatusHistoryRecord) then) =
-      _$MaintenanceStatusHistoryRecordCopyWithImpl<$Res,
-          MaintenanceStatusHistoryRecord>;
+    MaintenanceStatusHistoryRecord value,
+    $Res Function(MaintenanceStatusHistoryRecord) then,
+  ) =
+      _$MaintenanceStatusHistoryRecordCopyWithImpl<
+        $Res,
+        MaintenanceStatusHistoryRecord
+      >;
   @useResult
-  $Res call(
-      {String id,
-      String maintenanceId,
-      MaintenanceStatus? oldStatus,
-      MaintenanceStatus newStatus,
-      String? comment,
-      DateTime changedAt,
-      String changedBy,
-      String? changedByName});
+  $Res call({
+    String id,
+    String maintenanceId,
+    MaintenanceStatus? oldStatus,
+    MaintenanceStatus newStatus,
+    String? comment,
+    DateTime changedAt,
+    String changedBy,
+    String? changedByName,
+  });
 }
 
 /// @nodoc
-class _$MaintenanceStatusHistoryRecordCopyWithImpl<$Res,
-        $Val extends MaintenanceStatusHistoryRecord>
+class _$MaintenanceStatusHistoryRecordCopyWithImpl<
+  $Res,
+  $Val extends MaintenanceStatusHistoryRecord
+>
     implements $MaintenanceStatusHistoryRecordCopyWith<$Res> {
   _$MaintenanceStatusHistoryRecordCopyWithImpl(this._value, this._then);
 
@@ -84,40 +92,43 @@ class _$MaintenanceStatusHistoryRecordCopyWithImpl<$Res,
     Object? changedBy = null,
     Object? changedByName = freezed,
   }) {
-    return _then(_value.copyWith(
-      id: null == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as String,
-      maintenanceId: null == maintenanceId
-          ? _value.maintenanceId
-          : maintenanceId // ignore: cast_nullable_to_non_nullable
-              as String,
-      oldStatus: freezed == oldStatus
-          ? _value.oldStatus
-          : oldStatus // ignore: cast_nullable_to_non_nullable
-              as MaintenanceStatus?,
-      newStatus: null == newStatus
-          ? _value.newStatus
-          : newStatus // ignore: cast_nullable_to_non_nullable
-              as MaintenanceStatus,
-      comment: freezed == comment
-          ? _value.comment
-          : comment // ignore: cast_nullable_to_non_nullable
-              as String?,
-      changedAt: null == changedAt
-          ? _value.changedAt
-          : changedAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      changedBy: null == changedBy
-          ? _value.changedBy
-          : changedBy // ignore: cast_nullable_to_non_nullable
-              as String,
-      changedByName: freezed == changedByName
-          ? _value.changedByName
-          : changedByName // ignore: cast_nullable_to_non_nullable
-              as String?,
-    ) as $Val);
+    return _then(
+      _value.copyWith(
+            id: null == id
+                ? _value.id
+                : id // ignore: cast_nullable_to_non_nullable
+                      as String,
+            maintenanceId: null == maintenanceId
+                ? _value.maintenanceId
+                : maintenanceId // ignore: cast_nullable_to_non_nullable
+                      as String,
+            oldStatus: freezed == oldStatus
+                ? _value.oldStatus
+                : oldStatus // ignore: cast_nullable_to_non_nullable
+                      as MaintenanceStatus?,
+            newStatus: null == newStatus
+                ? _value.newStatus
+                : newStatus // ignore: cast_nullable_to_non_nullable
+                      as MaintenanceStatus,
+            comment: freezed == comment
+                ? _value.comment
+                : comment // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            changedAt: null == changedAt
+                ? _value.changedAt
+                : changedAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime,
+            changedBy: null == changedBy
+                ? _value.changedBy
+                : changedBy // ignore: cast_nullable_to_non_nullable
+                      as String,
+            changedByName: freezed == changedByName
+                ? _value.changedByName
+                : changedByName // ignore: cast_nullable_to_non_nullable
+                      as String?,
+          )
+          as $Val,
+    );
   }
 }
 
@@ -125,31 +136,35 @@ class _$MaintenanceStatusHistoryRecordCopyWithImpl<$Res,
 abstract class _$$MaintenanceStatusHistoryRecordImplCopyWith<$Res>
     implements $MaintenanceStatusHistoryRecordCopyWith<$Res> {
   factory _$$MaintenanceStatusHistoryRecordImplCopyWith(
-          _$MaintenanceStatusHistoryRecordImpl value,
-          $Res Function(_$MaintenanceStatusHistoryRecordImpl) then) =
-      __$$MaintenanceStatusHistoryRecordImplCopyWithImpl<$Res>;
+    _$MaintenanceStatusHistoryRecordImpl value,
+    $Res Function(_$MaintenanceStatusHistoryRecordImpl) then,
+  ) = __$$MaintenanceStatusHistoryRecordImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call(
-      {String id,
-      String maintenanceId,
-      MaintenanceStatus? oldStatus,
-      MaintenanceStatus newStatus,
-      String? comment,
-      DateTime changedAt,
-      String changedBy,
-      String? changedByName});
+  $Res call({
+    String id,
+    String maintenanceId,
+    MaintenanceStatus? oldStatus,
+    MaintenanceStatus newStatus,
+    String? comment,
+    DateTime changedAt,
+    String changedBy,
+    String? changedByName,
+  });
 }
 
 /// @nodoc
 class __$$MaintenanceStatusHistoryRecordImplCopyWithImpl<$Res>
-    extends _$MaintenanceStatusHistoryRecordCopyWithImpl<$Res,
-        _$MaintenanceStatusHistoryRecordImpl>
+    extends
+        _$MaintenanceStatusHistoryRecordCopyWithImpl<
+          $Res,
+          _$MaintenanceStatusHistoryRecordImpl
+        >
     implements _$$MaintenanceStatusHistoryRecordImplCopyWith<$Res> {
   __$$MaintenanceStatusHistoryRecordImplCopyWithImpl(
-      _$MaintenanceStatusHistoryRecordImpl _value,
-      $Res Function(_$MaintenanceStatusHistoryRecordImpl) _then)
-      : super(_value, _then);
+    _$MaintenanceStatusHistoryRecordImpl _value,
+    $Res Function(_$MaintenanceStatusHistoryRecordImpl) _then,
+  ) : super(_value, _then);
 
   /// Create a copy of MaintenanceStatusHistoryRecord
   /// with the given fields replaced by the non-null parameter values.
@@ -165,40 +180,42 @@ class __$$MaintenanceStatusHistoryRecordImplCopyWithImpl<$Res>
     Object? changedBy = null,
     Object? changedByName = freezed,
   }) {
-    return _then(_$MaintenanceStatusHistoryRecordImpl(
-      id: null == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as String,
-      maintenanceId: null == maintenanceId
-          ? _value.maintenanceId
-          : maintenanceId // ignore: cast_nullable_to_non_nullable
-              as String,
-      oldStatus: freezed == oldStatus
-          ? _value.oldStatus
-          : oldStatus // ignore: cast_nullable_to_non_nullable
-              as MaintenanceStatus?,
-      newStatus: null == newStatus
-          ? _value.newStatus
-          : newStatus // ignore: cast_nullable_to_non_nullable
-              as MaintenanceStatus,
-      comment: freezed == comment
-          ? _value.comment
-          : comment // ignore: cast_nullable_to_non_nullable
-              as String?,
-      changedAt: null == changedAt
-          ? _value.changedAt
-          : changedAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      changedBy: null == changedBy
-          ? _value.changedBy
-          : changedBy // ignore: cast_nullable_to_non_nullable
-              as String,
-      changedByName: freezed == changedByName
-          ? _value.changedByName
-          : changedByName // ignore: cast_nullable_to_non_nullable
-              as String?,
-    ));
+    return _then(
+      _$MaintenanceStatusHistoryRecordImpl(
+        id: null == id
+            ? _value.id
+            : id // ignore: cast_nullable_to_non_nullable
+                  as String,
+        maintenanceId: null == maintenanceId
+            ? _value.maintenanceId
+            : maintenanceId // ignore: cast_nullable_to_non_nullable
+                  as String,
+        oldStatus: freezed == oldStatus
+            ? _value.oldStatus
+            : oldStatus // ignore: cast_nullable_to_non_nullable
+                  as MaintenanceStatus?,
+        newStatus: null == newStatus
+            ? _value.newStatus
+            : newStatus // ignore: cast_nullable_to_non_nullable
+                  as MaintenanceStatus,
+        comment: freezed == comment
+            ? _value.comment
+            : comment // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        changedAt: null == changedAt
+            ? _value.changedAt
+            : changedAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime,
+        changedBy: null == changedBy
+            ? _value.changedBy
+            : changedBy // ignore: cast_nullable_to_non_nullable
+                  as String,
+        changedByName: freezed == changedByName
+            ? _value.changedByName
+            : changedByName // ignore: cast_nullable_to_non_nullable
+                  as String?,
+      ),
+    );
   }
 }
 
@@ -206,19 +223,20 @@ class __$$MaintenanceStatusHistoryRecordImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$MaintenanceStatusHistoryRecordImpl
     implements _MaintenanceStatusHistoryRecord {
-  const _$MaintenanceStatusHistoryRecordImpl(
-      {required this.id,
-      required this.maintenanceId,
-      this.oldStatus,
-      required this.newStatus,
-      this.comment,
-      required this.changedAt,
-      required this.changedBy,
-      this.changedByName});
+  const _$MaintenanceStatusHistoryRecordImpl({
+    required this.id,
+    required this.maintenanceId,
+    this.oldStatus,
+    required this.newStatus,
+    this.comment,
+    required this.changedAt,
+    required this.changedBy,
+    this.changedByName,
+  });
 
   factory _$MaintenanceStatusHistoryRecordImpl.fromJson(
-          Map<String, dynamic> json) =>
-      _$$MaintenanceStatusHistoryRecordImplFromJson(json);
+    Map<String, dynamic> json,
+  ) => _$$MaintenanceStatusHistoryRecordImplFromJson(json);
 
   @override
   final String id;
@@ -265,8 +283,17 @@ class _$MaintenanceStatusHistoryRecordImpl
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, maintenanceId, oldStatus,
-      newStatus, comment, changedAt, changedBy, changedByName);
+  int get hashCode => Object.hash(
+    runtimeType,
+    id,
+    maintenanceId,
+    oldStatus,
+    newStatus,
+    comment,
+    changedAt,
+    changedBy,
+    changedByName,
+  );
 
   /// Create a copy of MaintenanceStatusHistoryRecord
   /// with the given fields replaced by the non-null parameter values.
@@ -274,29 +301,31 @@ class _$MaintenanceStatusHistoryRecordImpl
   @override
   @pragma('vm:prefer-inline')
   _$$MaintenanceStatusHistoryRecordImplCopyWith<
-          _$MaintenanceStatusHistoryRecordImpl>
-      get copyWith => __$$MaintenanceStatusHistoryRecordImplCopyWithImpl<
-          _$MaintenanceStatusHistoryRecordImpl>(this, _$identity);
+    _$MaintenanceStatusHistoryRecordImpl
+  >
+  get copyWith =>
+      __$$MaintenanceStatusHistoryRecordImplCopyWithImpl<
+        _$MaintenanceStatusHistoryRecordImpl
+      >(this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$MaintenanceStatusHistoryRecordImplToJson(
-      this,
-    );
+    return _$$MaintenanceStatusHistoryRecordImplToJson(this);
   }
 }
 
 abstract class _MaintenanceStatusHistoryRecord
     implements MaintenanceStatusHistoryRecord {
-  const factory _MaintenanceStatusHistoryRecord(
-      {required final String id,
-      required final String maintenanceId,
-      final MaintenanceStatus? oldStatus,
-      required final MaintenanceStatus newStatus,
-      final String? comment,
-      required final DateTime changedAt,
-      required final String changedBy,
-      final String? changedByName}) = _$MaintenanceStatusHistoryRecordImpl;
+  const factory _MaintenanceStatusHistoryRecord({
+    required final String id,
+    required final String maintenanceId,
+    final MaintenanceStatus? oldStatus,
+    required final MaintenanceStatus newStatus,
+    final String? comment,
+    required final DateTime changedAt,
+    required final String changedBy,
+    final String? changedByName,
+  }) = _$MaintenanceStatusHistoryRecordImpl;
 
   factory _MaintenanceStatusHistoryRecord.fromJson(Map<String, dynamic> json) =
       _$MaintenanceStatusHistoryRecordImpl.fromJson;
@@ -323,6 +352,7 @@ abstract class _MaintenanceStatusHistoryRecord
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
   _$$MaintenanceStatusHistoryRecordImplCopyWith<
-          _$MaintenanceStatusHistoryRecordImpl>
-      get copyWith => throw _privateConstructorUsedError;
+    _$MaintenanceStatusHistoryRecordImpl
+  >
+  get copyWith => throw _privateConstructorUsedError;
 }

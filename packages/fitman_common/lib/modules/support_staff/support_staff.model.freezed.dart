@@ -12,7 +12,8 @@ part of 'support_staff.model.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
+  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
+);
 
 SupportStaff _$SupportStaffFromJson(Map<String, dynamic> json) {
   return _SupportStaff.fromJson(json);
@@ -55,30 +56,32 @@ mixin _$SupportStaff {
 /// @nodoc
 abstract class $SupportStaffCopyWith<$Res> {
   factory $SupportStaffCopyWith(
-          SupportStaff value, $Res Function(SupportStaff) then) =
-      _$SupportStaffCopyWithImpl<$Res, SupportStaff>;
+    SupportStaff value,
+    $Res Function(SupportStaff) then,
+  ) = _$SupportStaffCopyWithImpl<$Res, SupportStaff>;
   @useResult
-  $Res call(
-      {String id,
-      String firstName,
-      String lastName,
-      String? middleName,
-      String? phone,
-      String? email,
-      EmploymentType employmentType,
-      StaffCategory category,
-      List<Competency>? competencies,
-      List<String>? accessibleEquipmentTypes,
-      bool canMaintainEquipment,
-      String? companyName,
-      String? contractNumber,
-      DateTime? contractExpiryDate,
-      String? notes,
-      DateTime createdAt,
-      DateTime updatedAt,
-      DateTime? archivedAt,
-      String? archivedBy,
-      String? archivedReason});
+  $Res call({
+    String id,
+    String firstName,
+    String lastName,
+    String? middleName,
+    String? phone,
+    String? email,
+    EmploymentType employmentType,
+    StaffCategory category,
+    List<Competency>? competencies,
+    List<String>? accessibleEquipmentTypes,
+    bool canMaintainEquipment,
+    String? companyName,
+    String? contractNumber,
+    DateTime? contractExpiryDate,
+    String? notes,
+    DateTime createdAt,
+    DateTime updatedAt,
+    DateTime? archivedAt,
+    String? archivedBy,
+    String? archivedReason,
+  });
 }
 
 /// @nodoc
@@ -117,88 +120,91 @@ class _$SupportStaffCopyWithImpl<$Res, $Val extends SupportStaff>
     Object? archivedBy = freezed,
     Object? archivedReason = freezed,
   }) {
-    return _then(_value.copyWith(
-      id: null == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as String,
-      firstName: null == firstName
-          ? _value.firstName
-          : firstName // ignore: cast_nullable_to_non_nullable
-              as String,
-      lastName: null == lastName
-          ? _value.lastName
-          : lastName // ignore: cast_nullable_to_non_nullable
-              as String,
-      middleName: freezed == middleName
-          ? _value.middleName
-          : middleName // ignore: cast_nullable_to_non_nullable
-              as String?,
-      phone: freezed == phone
-          ? _value.phone
-          : phone // ignore: cast_nullable_to_non_nullable
-              as String?,
-      email: freezed == email
-          ? _value.email
-          : email // ignore: cast_nullable_to_non_nullable
-              as String?,
-      employmentType: null == employmentType
-          ? _value.employmentType
-          : employmentType // ignore: cast_nullable_to_non_nullable
-              as EmploymentType,
-      category: null == category
-          ? _value.category
-          : category // ignore: cast_nullable_to_non_nullable
-              as StaffCategory,
-      competencies: freezed == competencies
-          ? _value.competencies
-          : competencies // ignore: cast_nullable_to_non_nullable
-              as List<Competency>?,
-      accessibleEquipmentTypes: freezed == accessibleEquipmentTypes
-          ? _value.accessibleEquipmentTypes
-          : accessibleEquipmentTypes // ignore: cast_nullable_to_non_nullable
-              as List<String>?,
-      canMaintainEquipment: null == canMaintainEquipment
-          ? _value.canMaintainEquipment
-          : canMaintainEquipment // ignore: cast_nullable_to_non_nullable
-              as bool,
-      companyName: freezed == companyName
-          ? _value.companyName
-          : companyName // ignore: cast_nullable_to_non_nullable
-              as String?,
-      contractNumber: freezed == contractNumber
-          ? _value.contractNumber
-          : contractNumber // ignore: cast_nullable_to_non_nullable
-              as String?,
-      contractExpiryDate: freezed == contractExpiryDate
-          ? _value.contractExpiryDate
-          : contractExpiryDate // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
-      notes: freezed == notes
-          ? _value.notes
-          : notes // ignore: cast_nullable_to_non_nullable
-              as String?,
-      createdAt: null == createdAt
-          ? _value.createdAt
-          : createdAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      updatedAt: null == updatedAt
-          ? _value.updatedAt
-          : updatedAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      archivedAt: freezed == archivedAt
-          ? _value.archivedAt
-          : archivedAt // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
-      archivedBy: freezed == archivedBy
-          ? _value.archivedBy
-          : archivedBy // ignore: cast_nullable_to_non_nullable
-              as String?,
-      archivedReason: freezed == archivedReason
-          ? _value.archivedReason
-          : archivedReason // ignore: cast_nullable_to_non_nullable
-              as String?,
-    ) as $Val);
+    return _then(
+      _value.copyWith(
+            id: null == id
+                ? _value.id
+                : id // ignore: cast_nullable_to_non_nullable
+                      as String,
+            firstName: null == firstName
+                ? _value.firstName
+                : firstName // ignore: cast_nullable_to_non_nullable
+                      as String,
+            lastName: null == lastName
+                ? _value.lastName
+                : lastName // ignore: cast_nullable_to_non_nullable
+                      as String,
+            middleName: freezed == middleName
+                ? _value.middleName
+                : middleName // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            phone: freezed == phone
+                ? _value.phone
+                : phone // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            email: freezed == email
+                ? _value.email
+                : email // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            employmentType: null == employmentType
+                ? _value.employmentType
+                : employmentType // ignore: cast_nullable_to_non_nullable
+                      as EmploymentType,
+            category: null == category
+                ? _value.category
+                : category // ignore: cast_nullable_to_non_nullable
+                      as StaffCategory,
+            competencies: freezed == competencies
+                ? _value.competencies
+                : competencies // ignore: cast_nullable_to_non_nullable
+                      as List<Competency>?,
+            accessibleEquipmentTypes: freezed == accessibleEquipmentTypes
+                ? _value.accessibleEquipmentTypes
+                : accessibleEquipmentTypes // ignore: cast_nullable_to_non_nullable
+                      as List<String>?,
+            canMaintainEquipment: null == canMaintainEquipment
+                ? _value.canMaintainEquipment
+                : canMaintainEquipment // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            companyName: freezed == companyName
+                ? _value.companyName
+                : companyName // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            contractNumber: freezed == contractNumber
+                ? _value.contractNumber
+                : contractNumber // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            contractExpiryDate: freezed == contractExpiryDate
+                ? _value.contractExpiryDate
+                : contractExpiryDate // ignore: cast_nullable_to_non_nullable
+                      as DateTime?,
+            notes: freezed == notes
+                ? _value.notes
+                : notes // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            createdAt: null == createdAt
+                ? _value.createdAt
+                : createdAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime,
+            updatedAt: null == updatedAt
+                ? _value.updatedAt
+                : updatedAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime,
+            archivedAt: freezed == archivedAt
+                ? _value.archivedAt
+                : archivedAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime?,
+            archivedBy: freezed == archivedBy
+                ? _value.archivedBy
+                : archivedBy // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            archivedReason: freezed == archivedReason
+                ? _value.archivedReason
+                : archivedReason // ignore: cast_nullable_to_non_nullable
+                      as String?,
+          )
+          as $Val,
+    );
   }
 }
 
@@ -206,31 +212,33 @@ class _$SupportStaffCopyWithImpl<$Res, $Val extends SupportStaff>
 abstract class _$$SupportStaffImplCopyWith<$Res>
     implements $SupportStaffCopyWith<$Res> {
   factory _$$SupportStaffImplCopyWith(
-          _$SupportStaffImpl value, $Res Function(_$SupportStaffImpl) then) =
-      __$$SupportStaffImplCopyWithImpl<$Res>;
+    _$SupportStaffImpl value,
+    $Res Function(_$SupportStaffImpl) then,
+  ) = __$$SupportStaffImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call(
-      {String id,
-      String firstName,
-      String lastName,
-      String? middleName,
-      String? phone,
-      String? email,
-      EmploymentType employmentType,
-      StaffCategory category,
-      List<Competency>? competencies,
-      List<String>? accessibleEquipmentTypes,
-      bool canMaintainEquipment,
-      String? companyName,
-      String? contractNumber,
-      DateTime? contractExpiryDate,
-      String? notes,
-      DateTime createdAt,
-      DateTime updatedAt,
-      DateTime? archivedAt,
-      String? archivedBy,
-      String? archivedReason});
+  $Res call({
+    String id,
+    String firstName,
+    String lastName,
+    String? middleName,
+    String? phone,
+    String? email,
+    EmploymentType employmentType,
+    StaffCategory category,
+    List<Competency>? competencies,
+    List<String>? accessibleEquipmentTypes,
+    bool canMaintainEquipment,
+    String? companyName,
+    String? contractNumber,
+    DateTime? contractExpiryDate,
+    String? notes,
+    DateTime createdAt,
+    DateTime updatedAt,
+    DateTime? archivedAt,
+    String? archivedBy,
+    String? archivedReason,
+  });
 }
 
 /// @nodoc
@@ -238,8 +246,9 @@ class __$$SupportStaffImplCopyWithImpl<$Res>
     extends _$SupportStaffCopyWithImpl<$Res, _$SupportStaffImpl>
     implements _$$SupportStaffImplCopyWith<$Res> {
   __$$SupportStaffImplCopyWithImpl(
-      _$SupportStaffImpl _value, $Res Function(_$SupportStaffImpl) _then)
-      : super(_value, _then);
+    _$SupportStaffImpl _value,
+    $Res Function(_$SupportStaffImpl) _then,
+  ) : super(_value, _then);
 
   /// Create a copy of SupportStaff
   /// with the given fields replaced by the non-null parameter values.
@@ -267,117 +276,119 @@ class __$$SupportStaffImplCopyWithImpl<$Res>
     Object? archivedBy = freezed,
     Object? archivedReason = freezed,
   }) {
-    return _then(_$SupportStaffImpl(
-      id: null == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as String,
-      firstName: null == firstName
-          ? _value.firstName
-          : firstName // ignore: cast_nullable_to_non_nullable
-              as String,
-      lastName: null == lastName
-          ? _value.lastName
-          : lastName // ignore: cast_nullable_to_non_nullable
-              as String,
-      middleName: freezed == middleName
-          ? _value.middleName
-          : middleName // ignore: cast_nullable_to_non_nullable
-              as String?,
-      phone: freezed == phone
-          ? _value.phone
-          : phone // ignore: cast_nullable_to_non_nullable
-              as String?,
-      email: freezed == email
-          ? _value.email
-          : email // ignore: cast_nullable_to_non_nullable
-              as String?,
-      employmentType: null == employmentType
-          ? _value.employmentType
-          : employmentType // ignore: cast_nullable_to_non_nullable
-              as EmploymentType,
-      category: null == category
-          ? _value.category
-          : category // ignore: cast_nullable_to_non_nullable
-              as StaffCategory,
-      competencies: freezed == competencies
-          ? _value._competencies
-          : competencies // ignore: cast_nullable_to_non_nullable
-              as List<Competency>?,
-      accessibleEquipmentTypes: freezed == accessibleEquipmentTypes
-          ? _value._accessibleEquipmentTypes
-          : accessibleEquipmentTypes // ignore: cast_nullable_to_non_nullable
-              as List<String>?,
-      canMaintainEquipment: null == canMaintainEquipment
-          ? _value.canMaintainEquipment
-          : canMaintainEquipment // ignore: cast_nullable_to_non_nullable
-              as bool,
-      companyName: freezed == companyName
-          ? _value.companyName
-          : companyName // ignore: cast_nullable_to_non_nullable
-              as String?,
-      contractNumber: freezed == contractNumber
-          ? _value.contractNumber
-          : contractNumber // ignore: cast_nullable_to_non_nullable
-              as String?,
-      contractExpiryDate: freezed == contractExpiryDate
-          ? _value.contractExpiryDate
-          : contractExpiryDate // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
-      notes: freezed == notes
-          ? _value.notes
-          : notes // ignore: cast_nullable_to_non_nullable
-              as String?,
-      createdAt: null == createdAt
-          ? _value.createdAt
-          : createdAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      updatedAt: null == updatedAt
-          ? _value.updatedAt
-          : updatedAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      archivedAt: freezed == archivedAt
-          ? _value.archivedAt
-          : archivedAt // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
-      archivedBy: freezed == archivedBy
-          ? _value.archivedBy
-          : archivedBy // ignore: cast_nullable_to_non_nullable
-              as String?,
-      archivedReason: freezed == archivedReason
-          ? _value.archivedReason
-          : archivedReason // ignore: cast_nullable_to_non_nullable
-              as String?,
-    ));
+    return _then(
+      _$SupportStaffImpl(
+        id: null == id
+            ? _value.id
+            : id // ignore: cast_nullable_to_non_nullable
+                  as String,
+        firstName: null == firstName
+            ? _value.firstName
+            : firstName // ignore: cast_nullable_to_non_nullable
+                  as String,
+        lastName: null == lastName
+            ? _value.lastName
+            : lastName // ignore: cast_nullable_to_non_nullable
+                  as String,
+        middleName: freezed == middleName
+            ? _value.middleName
+            : middleName // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        phone: freezed == phone
+            ? _value.phone
+            : phone // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        email: freezed == email
+            ? _value.email
+            : email // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        employmentType: null == employmentType
+            ? _value.employmentType
+            : employmentType // ignore: cast_nullable_to_non_nullable
+                  as EmploymentType,
+        category: null == category
+            ? _value.category
+            : category // ignore: cast_nullable_to_non_nullable
+                  as StaffCategory,
+        competencies: freezed == competencies
+            ? _value._competencies
+            : competencies // ignore: cast_nullable_to_non_nullable
+                  as List<Competency>?,
+        accessibleEquipmentTypes: freezed == accessibleEquipmentTypes
+            ? _value._accessibleEquipmentTypes
+            : accessibleEquipmentTypes // ignore: cast_nullable_to_non_nullable
+                  as List<String>?,
+        canMaintainEquipment: null == canMaintainEquipment
+            ? _value.canMaintainEquipment
+            : canMaintainEquipment // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        companyName: freezed == companyName
+            ? _value.companyName
+            : companyName // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        contractNumber: freezed == contractNumber
+            ? _value.contractNumber
+            : contractNumber // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        contractExpiryDate: freezed == contractExpiryDate
+            ? _value.contractExpiryDate
+            : contractExpiryDate // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
+        notes: freezed == notes
+            ? _value.notes
+            : notes // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        createdAt: null == createdAt
+            ? _value.createdAt
+            : createdAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime,
+        updatedAt: null == updatedAt
+            ? _value.updatedAt
+            : updatedAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime,
+        archivedAt: freezed == archivedAt
+            ? _value.archivedAt
+            : archivedAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
+        archivedBy: freezed == archivedBy
+            ? _value.archivedBy
+            : archivedBy // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        archivedReason: freezed == archivedReason
+            ? _value.archivedReason
+            : archivedReason // ignore: cast_nullable_to_non_nullable
+                  as String?,
+      ),
+    );
   }
 }
 
 /// @nodoc
 @JsonSerializable()
 class _$SupportStaffImpl implements _SupportStaff {
-  const _$SupportStaffImpl(
-      {required this.id,
-      required this.firstName,
-      required this.lastName,
-      this.middleName,
-      this.phone,
-      this.email,
-      required this.employmentType,
-      required this.category,
-      final List<Competency>? competencies,
-      final List<String>? accessibleEquipmentTypes,
-      required this.canMaintainEquipment,
-      this.companyName,
-      this.contractNumber,
-      this.contractExpiryDate,
-      this.notes,
-      required this.createdAt,
-      required this.updatedAt,
-      this.archivedAt,
-      this.archivedBy,
-      this.archivedReason})
-      : _competencies = competencies,
-        _accessibleEquipmentTypes = accessibleEquipmentTypes;
+  const _$SupportStaffImpl({
+    required this.id,
+    required this.firstName,
+    required this.lastName,
+    this.middleName,
+    this.phone,
+    this.email,
+    required this.employmentType,
+    required this.category,
+    final List<Competency>? competencies,
+    final List<String>? accessibleEquipmentTypes,
+    required this.canMaintainEquipment,
+    this.companyName,
+    this.contractNumber,
+    this.contractExpiryDate,
+    this.notes,
+    required this.createdAt,
+    required this.updatedAt,
+    this.archivedAt,
+    this.archivedBy,
+    this.archivedReason,
+  }) : _competencies = competencies,
+       _accessibleEquipmentTypes = accessibleEquipmentTypes;
 
   factory _$SupportStaffImpl.fromJson(Map<String, dynamic> json) =>
       _$$SupportStaffImplFromJson(json);
@@ -463,10 +474,14 @@ class _$SupportStaffImpl implements _SupportStaff {
                 other.employmentType == employmentType) &&
             (identical(other.category, category) ||
                 other.category == category) &&
-            const DeepCollectionEquality()
-                .equals(other._competencies, _competencies) &&
             const DeepCollectionEquality().equals(
-                other._accessibleEquipmentTypes, _accessibleEquipmentTypes) &&
+              other._competencies,
+              _competencies,
+            ) &&
+            const DeepCollectionEquality().equals(
+              other._accessibleEquipmentTypes,
+              _accessibleEquipmentTypes,
+            ) &&
             (identical(other.canMaintainEquipment, canMaintainEquipment) ||
                 other.canMaintainEquipment == canMaintainEquipment) &&
             (identical(other.companyName, companyName) ||
@@ -491,28 +506,28 @@ class _$SupportStaffImpl implements _SupportStaff {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hashAll([
-        runtimeType,
-        id,
-        firstName,
-        lastName,
-        middleName,
-        phone,
-        email,
-        employmentType,
-        category,
-        const DeepCollectionEquality().hash(_competencies),
-        const DeepCollectionEquality().hash(_accessibleEquipmentTypes),
-        canMaintainEquipment,
-        companyName,
-        contractNumber,
-        contractExpiryDate,
-        notes,
-        createdAt,
-        updatedAt,
-        archivedAt,
-        archivedBy,
-        archivedReason
-      ]);
+    runtimeType,
+    id,
+    firstName,
+    lastName,
+    middleName,
+    phone,
+    email,
+    employmentType,
+    category,
+    const DeepCollectionEquality().hash(_competencies),
+    const DeepCollectionEquality().hash(_accessibleEquipmentTypes),
+    canMaintainEquipment,
+    companyName,
+    contractNumber,
+    contractExpiryDate,
+    notes,
+    createdAt,
+    updatedAt,
+    archivedAt,
+    archivedBy,
+    archivedReason,
+  ]);
 
   /// Create a copy of SupportStaff
   /// with the given fields replaced by the non-null parameter values.
@@ -524,34 +539,33 @@ class _$SupportStaffImpl implements _SupportStaff {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$SupportStaffImplToJson(
-      this,
-    );
+    return _$$SupportStaffImplToJson(this);
   }
 }
 
 abstract class _SupportStaff implements SupportStaff {
-  const factory _SupportStaff(
-      {required final String id,
-      required final String firstName,
-      required final String lastName,
-      final String? middleName,
-      final String? phone,
-      final String? email,
-      required final EmploymentType employmentType,
-      required final StaffCategory category,
-      final List<Competency>? competencies,
-      final List<String>? accessibleEquipmentTypes,
-      required final bool canMaintainEquipment,
-      final String? companyName,
-      final String? contractNumber,
-      final DateTime? contractExpiryDate,
-      final String? notes,
-      required final DateTime createdAt,
-      required final DateTime updatedAt,
-      final DateTime? archivedAt,
-      final String? archivedBy,
-      final String? archivedReason}) = _$SupportStaffImpl;
+  const factory _SupportStaff({
+    required final String id,
+    required final String firstName,
+    required final String lastName,
+    final String? middleName,
+    final String? phone,
+    final String? email,
+    required final EmploymentType employmentType,
+    required final StaffCategory category,
+    final List<Competency>? competencies,
+    final List<String>? accessibleEquipmentTypes,
+    required final bool canMaintainEquipment,
+    final String? companyName,
+    final String? contractNumber,
+    final DateTime? contractExpiryDate,
+    final String? notes,
+    required final DateTime createdAt,
+    required final DateTime updatedAt,
+    final DateTime? archivedAt,
+    final String? archivedBy,
+    final String? archivedReason,
+  }) = _$SupportStaffImpl;
 
   factory _SupportStaff.fromJson(Map<String, dynamic> json) =
       _$SupportStaffImpl.fromJson;

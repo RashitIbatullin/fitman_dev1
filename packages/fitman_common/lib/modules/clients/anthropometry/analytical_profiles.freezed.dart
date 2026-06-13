@@ -12,7 +12,8 @@ part of 'analytical_profiles.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
+  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
+);
 
 WhtrProfile _$WhtrProfileFromJson(Map<String, dynamic> json) {
   return _WhtrProfile.fromJson(json);
@@ -36,8 +37,9 @@ mixin _$WhtrProfile {
 /// @nodoc
 abstract class $WhtrProfileCopyWith<$Res> {
   factory $WhtrProfileCopyWith(
-          WhtrProfile value, $Res Function(WhtrProfile) then) =
-      _$WhtrProfileCopyWithImpl<$Res, WhtrProfile>;
+    WhtrProfile value,
+    $Res Function(WhtrProfile) then,
+  ) = _$WhtrProfileCopyWithImpl<$Res, WhtrProfile>;
   @useResult
   $Res call({double ratio, String gradation});
 }
@@ -56,20 +58,20 @@ class _$WhtrProfileCopyWithImpl<$Res, $Val extends WhtrProfile>
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({
-    Object? ratio = null,
-    Object? gradation = null,
-  }) {
-    return _then(_value.copyWith(
-      ratio: null == ratio
-          ? _value.ratio
-          : ratio // ignore: cast_nullable_to_non_nullable
-              as double,
-      gradation: null == gradation
-          ? _value.gradation
-          : gradation // ignore: cast_nullable_to_non_nullable
-              as String,
-    ) as $Val);
+  $Res call({Object? ratio = null, Object? gradation = null}) {
+    return _then(
+      _value.copyWith(
+            ratio: null == ratio
+                ? _value.ratio
+                : ratio // ignore: cast_nullable_to_non_nullable
+                      as double,
+            gradation: null == gradation
+                ? _value.gradation
+                : gradation // ignore: cast_nullable_to_non_nullable
+                      as String,
+          )
+          as $Val,
+    );
   }
 }
 
@@ -77,8 +79,9 @@ class _$WhtrProfileCopyWithImpl<$Res, $Val extends WhtrProfile>
 abstract class _$$WhtrProfileImplCopyWith<$Res>
     implements $WhtrProfileCopyWith<$Res> {
   factory _$$WhtrProfileImplCopyWith(
-          _$WhtrProfileImpl value, $Res Function(_$WhtrProfileImpl) then) =
-      __$$WhtrProfileImplCopyWithImpl<$Res>;
+    _$WhtrProfileImpl value,
+    $Res Function(_$WhtrProfileImpl) then,
+  ) = __$$WhtrProfileImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call({double ratio, String gradation});
@@ -89,27 +92,27 @@ class __$$WhtrProfileImplCopyWithImpl<$Res>
     extends _$WhtrProfileCopyWithImpl<$Res, _$WhtrProfileImpl>
     implements _$$WhtrProfileImplCopyWith<$Res> {
   __$$WhtrProfileImplCopyWithImpl(
-      _$WhtrProfileImpl _value, $Res Function(_$WhtrProfileImpl) _then)
-      : super(_value, _then);
+    _$WhtrProfileImpl _value,
+    $Res Function(_$WhtrProfileImpl) _then,
+  ) : super(_value, _then);
 
   /// Create a copy of WhtrProfile
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({
-    Object? ratio = null,
-    Object? gradation = null,
-  }) {
-    return _then(_$WhtrProfileImpl(
-      ratio: null == ratio
-          ? _value.ratio
-          : ratio // ignore: cast_nullable_to_non_nullable
-              as double,
-      gradation: null == gradation
-          ? _value.gradation
-          : gradation // ignore: cast_nullable_to_non_nullable
-              as String,
-    ));
+  $Res call({Object? ratio = null, Object? gradation = null}) {
+    return _then(
+      _$WhtrProfileImpl(
+        ratio: null == ratio
+            ? _value.ratio
+            : ratio // ignore: cast_nullable_to_non_nullable
+                  as double,
+        gradation: null == gradation
+            ? _value.gradation
+            : gradation // ignore: cast_nullable_to_non_nullable
+                  as String,
+      ),
+    );
   }
 }
 
@@ -155,16 +158,15 @@ class _$WhtrProfileImpl implements _WhtrProfile {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$WhtrProfileImplToJson(
-      this,
-    );
+    return _$$WhtrProfileImplToJson(this);
   }
 }
 
 abstract class _WhtrProfile implements WhtrProfile {
-  const factory _WhtrProfile(
-      {required final double ratio,
-      required final String gradation}) = _$WhtrProfileImpl;
+  const factory _WhtrProfile({
+    required final double ratio,
+    required final String gradation,
+  }) = _$WhtrProfileImpl;
 
   factory _WhtrProfile.fromJson(Map<String, dynamic> json) =
       _$WhtrProfileImpl.fromJson;
@@ -204,8 +206,9 @@ mixin _$MetabolicProfile {
 /// @nodoc
 abstract class $MetabolicProfileCopyWith<$Res> {
   factory $MetabolicProfileCopyWith(
-          MetabolicProfile value, $Res Function(MetabolicProfile) then) =
-      _$MetabolicProfileCopyWithImpl<$Res, MetabolicProfile>;
+    MetabolicProfile value,
+    $Res Function(MetabolicProfile) then,
+  ) = _$MetabolicProfileCopyWithImpl<$Res, MetabolicProfile>;
   @useResult
   $Res call({double bmr, double tdee});
 }
@@ -224,29 +227,30 @@ class _$MetabolicProfileCopyWithImpl<$Res, $Val extends MetabolicProfile>
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({
-    Object? bmr = null,
-    Object? tdee = null,
-  }) {
-    return _then(_value.copyWith(
-      bmr: null == bmr
-          ? _value.bmr
-          : bmr // ignore: cast_nullable_to_non_nullable
-              as double,
-      tdee: null == tdee
-          ? _value.tdee
-          : tdee // ignore: cast_nullable_to_non_nullable
-              as double,
-    ) as $Val);
+  $Res call({Object? bmr = null, Object? tdee = null}) {
+    return _then(
+      _value.copyWith(
+            bmr: null == bmr
+                ? _value.bmr
+                : bmr // ignore: cast_nullable_to_non_nullable
+                      as double,
+            tdee: null == tdee
+                ? _value.tdee
+                : tdee // ignore: cast_nullable_to_non_nullable
+                      as double,
+          )
+          as $Val,
+    );
   }
 }
 
 /// @nodoc
 abstract class _$$MetabolicProfileImplCopyWith<$Res>
     implements $MetabolicProfileCopyWith<$Res> {
-  factory _$$MetabolicProfileImplCopyWith(_$MetabolicProfileImpl value,
-          $Res Function(_$MetabolicProfileImpl) then) =
-      __$$MetabolicProfileImplCopyWithImpl<$Res>;
+  factory _$$MetabolicProfileImplCopyWith(
+    _$MetabolicProfileImpl value,
+    $Res Function(_$MetabolicProfileImpl) then,
+  ) = __$$MetabolicProfileImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call({double bmr, double tdee});
@@ -256,28 +260,28 @@ abstract class _$$MetabolicProfileImplCopyWith<$Res>
 class __$$MetabolicProfileImplCopyWithImpl<$Res>
     extends _$MetabolicProfileCopyWithImpl<$Res, _$MetabolicProfileImpl>
     implements _$$MetabolicProfileImplCopyWith<$Res> {
-  __$$MetabolicProfileImplCopyWithImpl(_$MetabolicProfileImpl _value,
-      $Res Function(_$MetabolicProfileImpl) _then)
-      : super(_value, _then);
+  __$$MetabolicProfileImplCopyWithImpl(
+    _$MetabolicProfileImpl _value,
+    $Res Function(_$MetabolicProfileImpl) _then,
+  ) : super(_value, _then);
 
   /// Create a copy of MetabolicProfile
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({
-    Object? bmr = null,
-    Object? tdee = null,
-  }) {
-    return _then(_$MetabolicProfileImpl(
-      bmr: null == bmr
-          ? _value.bmr
-          : bmr // ignore: cast_nullable_to_non_nullable
-              as double,
-      tdee: null == tdee
-          ? _value.tdee
-          : tdee // ignore: cast_nullable_to_non_nullable
-              as double,
-    ));
+  $Res call({Object? bmr = null, Object? tdee = null}) {
+    return _then(
+      _$MetabolicProfileImpl(
+        bmr: null == bmr
+            ? _value.bmr
+            : bmr // ignore: cast_nullable_to_non_nullable
+                  as double,
+        tdee: null == tdee
+            ? _value.tdee
+            : tdee // ignore: cast_nullable_to_non_nullable
+                  as double,
+      ),
+    );
   }
 }
 
@@ -319,20 +323,21 @@ class _$MetabolicProfileImpl implements _MetabolicProfile {
   @pragma('vm:prefer-inline')
   _$$MetabolicProfileImplCopyWith<_$MetabolicProfileImpl> get copyWith =>
       __$$MetabolicProfileImplCopyWithImpl<_$MetabolicProfileImpl>(
-          this, _$identity);
+        this,
+        _$identity,
+      );
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$MetabolicProfileImplToJson(
-      this,
-    );
+    return _$$MetabolicProfileImplToJson(this);
   }
 }
 
 abstract class _MetabolicProfile implements MetabolicProfile {
-  const factory _MetabolicProfile(
-      {required final double bmr,
-      required final double tdee}) = _$MetabolicProfileImpl;
+  const factory _MetabolicProfile({
+    required final double bmr,
+    required final double tdee,
+  }) = _$MetabolicProfileImpl;
 
   factory _MetabolicProfile.fromJson(Map<String, dynamic> json) =
       _$MetabolicProfileImpl.fromJson;

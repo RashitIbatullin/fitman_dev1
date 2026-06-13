@@ -23,6 +23,11 @@ class TrainingGroupsController {
     router.get('/<id>/members', _getTrainingGroupMembers);
     router.post('/<id>/members', _addTrainingGroupMember);
     router.delete('/<id>/members/<userId>', _removeTrainingGroupMember);
+
+    // Movement routes
+    router.post('/move-client', _moveClient);
+    router.get('/<id>/movements', _getGroupMovements);
+    router.get('/user/<userId>/movements', _getUserMovements);
     
     return router;
   }
@@ -142,6 +147,73 @@ class TrainingGroupsController {
       final uId = userId;
       await _db.groups.removeTrainingGroupMember(gId, uId);
       return Response(204);
+    } catch (e) {
+      return Response.internalServerError(body: jsonEncode({'error': e.toString()}));
+    }
+  }
+
+  // --- Movement Methods ---
+
+  Future<Response> _moveClient(Request request) async {
+    try {
+      final user = request.context['user'] as User;
+      // Authorization
+      if (!user.roles.any((r) => r.name == 'admin' || r.name == 'manager')) {
+        return Response.forbidden(jsonEncode({'error': 'Insufficient permissions.'}));
+      }
+      
+      final payload = jsonDecode(await request.readAsString());
+      final String clientId = payload['clientId'] as String;
+      final String? fromGroupId = payload['fromGroupId'] as String?;
+      final String? toGroupId = payload['toGroupId'] as String?;
+      final String reason = payload['reason'] as String;
+      
+      // Basic validation
+      if (fromGroupId == null && toGroupId == null) {
+        return Response.badRequest(body: jsonEncode({'error': 'Either fromGroupId or toGroupId must be provided.'}));
+      }
+      if (reason.length < 5) {
+        return Response.badRequest(body: jsonEncode({'error': 'A reason of at least 5 characters is required.'}));
+      }
+      
+      await _db.groups.moveClient(
+        clientId: clientId,
+        fromGroupId: fromGroupId,
+        toGroupId: toGroupId,
+        reason: reason,
+        movedByUserId: user.id,
+      );
+
+      return Response.ok(jsonEncode({'message': 'Client moved successfully.'}));
+    } on ArgumentError catch (e) {
+      return Response.notFound(jsonEncode({'error': e.message}));
+    } on StateError catch(e) {
+      return Response(409, body: jsonEncode({'error': e.message})); // 409 Conflict
+    } catch (e) {
+      return Response.internalServerError(body: jsonEncode({'error': e.toString()}));
+    }
+  }
+
+  Future<Response> _getGroupMovements(Request request, String id) async {
+    try {
+      // Authorization can be enhanced here later
+      final movements = await _db.groups.getMovementsForGroup(id);
+      return Response.ok(jsonEncode(movements.map((e) => e.toJson()).toList()));
+    } catch (e) {
+      return Response.internalServerError(body: jsonEncode({'error': e.toString()}));
+    }
+  }
+
+  Future<Response> _getUserMovements(Request request, String userId) async {
+    try {
+      final user = request.context['user'] as User;
+      // Authorization: Allow user to see their own movements, or admin/manager to see anyone's
+      if (user.id != userId && !user.roles.any((r) => r.name == 'admin' || r.name == 'manager')) {
+        return Response.forbidden(jsonEncode({'error': 'You can only view your own movement history.'}));
+      }
+
+      final movements = await _db.groups.getMovementsForUser(userId);
+      return Response.ok(jsonEncode(movements.map((e) => e.toJson()).toList()));
     } catch (e) {
       return Response.internalServerError(body: jsonEncode({'error': e.toString()}));
     }

@@ -107,3 +107,30 @@ CREATE INDEX idx_group_schedule_slots_group_id ON group_schedule_slots(group_id)
 CREATE INDEX idx_training_group_members_user_id ON training_group_members(user_id);
 CREATE INDEX idx_analytic_groups_company_id ON analytic_groups(company_id);
 CREATE INDEX idx_analytic_groups_is_auto_update ON analytic_groups(is_auto_update);
+
+-- Таблица для хранения истории перемещений участников групп
+CREATE TABLE group_member_movements (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES users(id),
+  user_role VARCHAR(50) NOT NULL, -- 'client', 'trainer', 'instructor', 'manager'
+  
+  from_group_id UUID REFERENCES training_groups(id), -- Может быть NULL, если это первое вступление
+  to_group_id UUID REFERENCES training_groups(id),   -- Может быть NULL, если это выход из последней группы
+  
+  movement_date TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  reason TEXT, -- Основание для перемещения (свободный текст не менее 5 символов)
+  
+  moved_by_user_id UUID NOT NULL REFERENCES users(id), -- Кто инициировал перемещение
+  
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Добавляем индексы для ускорения поиска
+CREATE INDEX idx_group_movements_user ON group_member_movements(user_id);
+CREATE INDEX idx_group_movements_from_group ON group_member_movements(from_group_id);
+CREATE INDEX idx_group_movements_to_group ON group_member_movements(to_group_id);
+
+-- Убедимся, что одно из полей from/to не NULL
+ALTER TABLE group_member_movements 
+ADD CONSTRAINT chk_from_to_not_both_null
+CHECK (from_group_id IS NOT NULL OR to_group_id IS NOT NULL);

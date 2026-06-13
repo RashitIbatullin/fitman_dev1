@@ -12,7 +12,8 @@ part of 'calorie_tracking_data.model.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
+  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
+);
 
 CalorieTrackingData _$CalorieTrackingDataFromJson(Map<String, dynamic> json) {
   return _CalorieTrackingData.fromJson(json);
@@ -39,11 +40,17 @@ mixin _$CalorieTrackingData {
 /// @nodoc
 abstract class $CalorieTrackingDataCopyWith<$Res> {
   factory $CalorieTrackingDataCopyWith(
-          CalorieTrackingData value, $Res Function(CalorieTrackingData) then) =
-      _$CalorieTrackingDataCopyWithImpl<$Res, CalorieTrackingData>;
+    CalorieTrackingData value,
+    $Res Function(CalorieTrackingData) then,
+  ) = _$CalorieTrackingDataCopyWithImpl<$Res, CalorieTrackingData>;
   @useResult
-  $Res call(
-      {DateTime date, String training, int consumed, int burned, int balance});
+  $Res call({
+    DateTime date,
+    String training,
+    int consumed,
+    int burned,
+    int balance,
+  });
 }
 
 /// @nodoc
@@ -67,50 +74,60 @@ class _$CalorieTrackingDataCopyWithImpl<$Res, $Val extends CalorieTrackingData>
     Object? burned = null,
     Object? balance = null,
   }) {
-    return _then(_value.copyWith(
-      date: null == date
-          ? _value.date
-          : date // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      training: null == training
-          ? _value.training
-          : training // ignore: cast_nullable_to_non_nullable
-              as String,
-      consumed: null == consumed
-          ? _value.consumed
-          : consumed // ignore: cast_nullable_to_non_nullable
-              as int,
-      burned: null == burned
-          ? _value.burned
-          : burned // ignore: cast_nullable_to_non_nullable
-              as int,
-      balance: null == balance
-          ? _value.balance
-          : balance // ignore: cast_nullable_to_non_nullable
-              as int,
-    ) as $Val);
+    return _then(
+      _value.copyWith(
+            date: null == date
+                ? _value.date
+                : date // ignore: cast_nullable_to_non_nullable
+                      as DateTime,
+            training: null == training
+                ? _value.training
+                : training // ignore: cast_nullable_to_non_nullable
+                      as String,
+            consumed: null == consumed
+                ? _value.consumed
+                : consumed // ignore: cast_nullable_to_non_nullable
+                      as int,
+            burned: null == burned
+                ? _value.burned
+                : burned // ignore: cast_nullable_to_non_nullable
+                      as int,
+            balance: null == balance
+                ? _value.balance
+                : balance // ignore: cast_nullable_to_non_nullable
+                      as int,
+          )
+          as $Val,
+    );
   }
 }
 
 /// @nodoc
 abstract class _$$CalorieTrackingDataImplCopyWith<$Res>
     implements $CalorieTrackingDataCopyWith<$Res> {
-  factory _$$CalorieTrackingDataImplCopyWith(_$CalorieTrackingDataImpl value,
-          $Res Function(_$CalorieTrackingDataImpl) then) =
-      __$$CalorieTrackingDataImplCopyWithImpl<$Res>;
+  factory _$$CalorieTrackingDataImplCopyWith(
+    _$CalorieTrackingDataImpl value,
+    $Res Function(_$CalorieTrackingDataImpl) then,
+  ) = __$$CalorieTrackingDataImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call(
-      {DateTime date, String training, int consumed, int burned, int balance});
+  $Res call({
+    DateTime date,
+    String training,
+    int consumed,
+    int burned,
+    int balance,
+  });
 }
 
 /// @nodoc
 class __$$CalorieTrackingDataImplCopyWithImpl<$Res>
     extends _$CalorieTrackingDataCopyWithImpl<$Res, _$CalorieTrackingDataImpl>
     implements _$$CalorieTrackingDataImplCopyWith<$Res> {
-  __$$CalorieTrackingDataImplCopyWithImpl(_$CalorieTrackingDataImpl _value,
-      $Res Function(_$CalorieTrackingDataImpl) _then)
-      : super(_value, _then);
+  __$$CalorieTrackingDataImplCopyWithImpl(
+    _$CalorieTrackingDataImpl _value,
+    $Res Function(_$CalorieTrackingDataImpl) _then,
+  ) : super(_value, _then);
 
   /// Create a copy of CalorieTrackingData
   /// with the given fields replaced by the non-null parameter values.
@@ -123,40 +140,43 @@ class __$$CalorieTrackingDataImplCopyWithImpl<$Res>
     Object? burned = null,
     Object? balance = null,
   }) {
-    return _then(_$CalorieTrackingDataImpl(
-      date: null == date
-          ? _value.date
-          : date // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      training: null == training
-          ? _value.training
-          : training // ignore: cast_nullable_to_non_nullable
-              as String,
-      consumed: null == consumed
-          ? _value.consumed
-          : consumed // ignore: cast_nullable_to_non_nullable
-              as int,
-      burned: null == burned
-          ? _value.burned
-          : burned // ignore: cast_nullable_to_non_nullable
-              as int,
-      balance: null == balance
-          ? _value.balance
-          : balance // ignore: cast_nullable_to_non_nullable
-              as int,
-    ));
+    return _then(
+      _$CalorieTrackingDataImpl(
+        date: null == date
+            ? _value.date
+            : date // ignore: cast_nullable_to_non_nullable
+                  as DateTime,
+        training: null == training
+            ? _value.training
+            : training // ignore: cast_nullable_to_non_nullable
+                  as String,
+        consumed: null == consumed
+            ? _value.consumed
+            : consumed // ignore: cast_nullable_to_non_nullable
+                  as int,
+        burned: null == burned
+            ? _value.burned
+            : burned // ignore: cast_nullable_to_non_nullable
+                  as int,
+        balance: null == balance
+            ? _value.balance
+            : balance // ignore: cast_nullable_to_non_nullable
+                  as int,
+      ),
+    );
   }
 }
 
 /// @nodoc
 @JsonSerializable()
 class _$CalorieTrackingDataImpl implements _CalorieTrackingData {
-  const _$CalorieTrackingDataImpl(
-      {required this.date,
-      required this.training,
-      required this.consumed,
-      required this.burned,
-      required this.balance});
+  const _$CalorieTrackingDataImpl({
+    required this.date,
+    required this.training,
+    required this.consumed,
+    required this.burned,
+    required this.balance,
+  });
 
   factory _$CalorieTrackingDataImpl.fromJson(Map<String, dynamic> json) =>
       _$$CalorieTrackingDataImplFromJson(json);
@@ -203,23 +223,24 @@ class _$CalorieTrackingDataImpl implements _CalorieTrackingData {
   @pragma('vm:prefer-inline')
   _$$CalorieTrackingDataImplCopyWith<_$CalorieTrackingDataImpl> get copyWith =>
       __$$CalorieTrackingDataImplCopyWithImpl<_$CalorieTrackingDataImpl>(
-          this, _$identity);
+        this,
+        _$identity,
+      );
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$CalorieTrackingDataImplToJson(
-      this,
-    );
+    return _$$CalorieTrackingDataImplToJson(this);
   }
 }
 
 abstract class _CalorieTrackingData implements CalorieTrackingData {
-  const factory _CalorieTrackingData(
-      {required final DateTime date,
-      required final String training,
-      required final int consumed,
-      required final int burned,
-      required final int balance}) = _$CalorieTrackingDataImpl;
+  const factory _CalorieTrackingData({
+    required final DateTime date,
+    required final String training,
+    required final int consumed,
+    required final int burned,
+    required final int balance,
+  }) = _$CalorieTrackingDataImpl;
 
   factory _CalorieTrackingData.fromJson(Map<String, dynamic> json) =
       _$CalorieTrackingDataImpl.fromJson;

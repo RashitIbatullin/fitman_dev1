@@ -12,10 +12,12 @@ part of 'visualization_data_point.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
+  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
+);
 
 VisualizationDataPoint _$VisualizationDataPointFromJson(
-    Map<String, dynamic> json) {
+  Map<String, dynamic> json,
+) {
   return _VisualizationDataPoint.fromJson(json);
 }
 
@@ -46,27 +48,31 @@ mixin _$VisualizationDataPoint {
 
 /// @nodoc
 abstract class $VisualizationDataPointCopyWith<$Res> {
-  factory $VisualizationDataPointCopyWith(VisualizationDataPoint value,
-          $Res Function(VisualizationDataPoint) then) =
-      _$VisualizationDataPointCopyWithImpl<$Res, VisualizationDataPoint>;
+  factory $VisualizationDataPointCopyWith(
+    VisualizationDataPoint value,
+    $Res Function(VisualizationDataPoint) then,
+  ) = _$VisualizationDataPointCopyWithImpl<$Res, VisualizationDataPoint>;
   @useResult
-  $Res call(
-      {DateTime dateTime,
-      double weight,
-      int shouldersCirc,
-      int breastCirc,
-      int waistCirc,
-      int hipsCirc,
-      double? fatPercentage,
-      double? muscleMass,
-      double? whtrRatio,
-      double? bmr,
-      double? tdee});
+  $Res call({
+    DateTime dateTime,
+    double weight,
+    int shouldersCirc,
+    int breastCirc,
+    int waistCirc,
+    int hipsCirc,
+    double? fatPercentage,
+    double? muscleMass,
+    double? whtrRatio,
+    double? bmr,
+    double? tdee,
+  });
 }
 
 /// @nodoc
-class _$VisualizationDataPointCopyWithImpl<$Res,
-        $Val extends VisualizationDataPoint>
+class _$VisualizationDataPointCopyWithImpl<
+  $Res,
+  $Val extends VisualizationDataPoint
+>
     implements $VisualizationDataPointCopyWith<$Res> {
   _$VisualizationDataPointCopyWithImpl(this._value, this._then);
 
@@ -92,52 +98,55 @@ class _$VisualizationDataPointCopyWithImpl<$Res,
     Object? bmr = freezed,
     Object? tdee = freezed,
   }) {
-    return _then(_value.copyWith(
-      dateTime: null == dateTime
-          ? _value.dateTime
-          : dateTime // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      weight: null == weight
-          ? _value.weight
-          : weight // ignore: cast_nullable_to_non_nullable
-              as double,
-      shouldersCirc: null == shouldersCirc
-          ? _value.shouldersCirc
-          : shouldersCirc // ignore: cast_nullable_to_non_nullable
-              as int,
-      breastCirc: null == breastCirc
-          ? _value.breastCirc
-          : breastCirc // ignore: cast_nullable_to_non_nullable
-              as int,
-      waistCirc: null == waistCirc
-          ? _value.waistCirc
-          : waistCirc // ignore: cast_nullable_to_non_nullable
-              as int,
-      hipsCirc: null == hipsCirc
-          ? _value.hipsCirc
-          : hipsCirc // ignore: cast_nullable_to_non_nullable
-              as int,
-      fatPercentage: freezed == fatPercentage
-          ? _value.fatPercentage
-          : fatPercentage // ignore: cast_nullable_to_non_nullable
-              as double?,
-      muscleMass: freezed == muscleMass
-          ? _value.muscleMass
-          : muscleMass // ignore: cast_nullable_to_non_nullable
-              as double?,
-      whtrRatio: freezed == whtrRatio
-          ? _value.whtrRatio
-          : whtrRatio // ignore: cast_nullable_to_non_nullable
-              as double?,
-      bmr: freezed == bmr
-          ? _value.bmr
-          : bmr // ignore: cast_nullable_to_non_nullable
-              as double?,
-      tdee: freezed == tdee
-          ? _value.tdee
-          : tdee // ignore: cast_nullable_to_non_nullable
-              as double?,
-    ) as $Val);
+    return _then(
+      _value.copyWith(
+            dateTime: null == dateTime
+                ? _value.dateTime
+                : dateTime // ignore: cast_nullable_to_non_nullable
+                      as DateTime,
+            weight: null == weight
+                ? _value.weight
+                : weight // ignore: cast_nullable_to_non_nullable
+                      as double,
+            shouldersCirc: null == shouldersCirc
+                ? _value.shouldersCirc
+                : shouldersCirc // ignore: cast_nullable_to_non_nullable
+                      as int,
+            breastCirc: null == breastCirc
+                ? _value.breastCirc
+                : breastCirc // ignore: cast_nullable_to_non_nullable
+                      as int,
+            waistCirc: null == waistCirc
+                ? _value.waistCirc
+                : waistCirc // ignore: cast_nullable_to_non_nullable
+                      as int,
+            hipsCirc: null == hipsCirc
+                ? _value.hipsCirc
+                : hipsCirc // ignore: cast_nullable_to_non_nullable
+                      as int,
+            fatPercentage: freezed == fatPercentage
+                ? _value.fatPercentage
+                : fatPercentage // ignore: cast_nullable_to_non_nullable
+                      as double?,
+            muscleMass: freezed == muscleMass
+                ? _value.muscleMass
+                : muscleMass // ignore: cast_nullable_to_non_nullable
+                      as double?,
+            whtrRatio: freezed == whtrRatio
+                ? _value.whtrRatio
+                : whtrRatio // ignore: cast_nullable_to_non_nullable
+                      as double?,
+            bmr: freezed == bmr
+                ? _value.bmr
+                : bmr // ignore: cast_nullable_to_non_nullable
+                      as double?,
+            tdee: freezed == tdee
+                ? _value.tdee
+                : tdee // ignore: cast_nullable_to_non_nullable
+                      as double?,
+          )
+          as $Val,
+    );
   }
 }
 
@@ -145,34 +154,35 @@ class _$VisualizationDataPointCopyWithImpl<$Res,
 abstract class _$$VisualizationDataPointImplCopyWith<$Res>
     implements $VisualizationDataPointCopyWith<$Res> {
   factory _$$VisualizationDataPointImplCopyWith(
-          _$VisualizationDataPointImpl value,
-          $Res Function(_$VisualizationDataPointImpl) then) =
-      __$$VisualizationDataPointImplCopyWithImpl<$Res>;
+    _$VisualizationDataPointImpl value,
+    $Res Function(_$VisualizationDataPointImpl) then,
+  ) = __$$VisualizationDataPointImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call(
-      {DateTime dateTime,
-      double weight,
-      int shouldersCirc,
-      int breastCirc,
-      int waistCirc,
-      int hipsCirc,
-      double? fatPercentage,
-      double? muscleMass,
-      double? whtrRatio,
-      double? bmr,
-      double? tdee});
+  $Res call({
+    DateTime dateTime,
+    double weight,
+    int shouldersCirc,
+    int breastCirc,
+    int waistCirc,
+    int hipsCirc,
+    double? fatPercentage,
+    double? muscleMass,
+    double? whtrRatio,
+    double? bmr,
+    double? tdee,
+  });
 }
 
 /// @nodoc
 class __$$VisualizationDataPointImplCopyWithImpl<$Res>
-    extends _$VisualizationDataPointCopyWithImpl<$Res,
-        _$VisualizationDataPointImpl>
+    extends
+        _$VisualizationDataPointCopyWithImpl<$Res, _$VisualizationDataPointImpl>
     implements _$$VisualizationDataPointImplCopyWith<$Res> {
   __$$VisualizationDataPointImplCopyWithImpl(
-      _$VisualizationDataPointImpl _value,
-      $Res Function(_$VisualizationDataPointImpl) _then)
-      : super(_value, _then);
+    _$VisualizationDataPointImpl _value,
+    $Res Function(_$VisualizationDataPointImpl) _then,
+  ) : super(_value, _then);
 
   /// Create a copy of VisualizationDataPoint
   /// with the given fields replaced by the non-null parameter values.
@@ -191,70 +201,73 @@ class __$$VisualizationDataPointImplCopyWithImpl<$Res>
     Object? bmr = freezed,
     Object? tdee = freezed,
   }) {
-    return _then(_$VisualizationDataPointImpl(
-      dateTime: null == dateTime
-          ? _value.dateTime
-          : dateTime // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      weight: null == weight
-          ? _value.weight
-          : weight // ignore: cast_nullable_to_non_nullable
-              as double,
-      shouldersCirc: null == shouldersCirc
-          ? _value.shouldersCirc
-          : shouldersCirc // ignore: cast_nullable_to_non_nullable
-              as int,
-      breastCirc: null == breastCirc
-          ? _value.breastCirc
-          : breastCirc // ignore: cast_nullable_to_non_nullable
-              as int,
-      waistCirc: null == waistCirc
-          ? _value.waistCirc
-          : waistCirc // ignore: cast_nullable_to_non_nullable
-              as int,
-      hipsCirc: null == hipsCirc
-          ? _value.hipsCirc
-          : hipsCirc // ignore: cast_nullable_to_non_nullable
-              as int,
-      fatPercentage: freezed == fatPercentage
-          ? _value.fatPercentage
-          : fatPercentage // ignore: cast_nullable_to_non_nullable
-              as double?,
-      muscleMass: freezed == muscleMass
-          ? _value.muscleMass
-          : muscleMass // ignore: cast_nullable_to_non_nullable
-              as double?,
-      whtrRatio: freezed == whtrRatio
-          ? _value.whtrRatio
-          : whtrRatio // ignore: cast_nullable_to_non_nullable
-              as double?,
-      bmr: freezed == bmr
-          ? _value.bmr
-          : bmr // ignore: cast_nullable_to_non_nullable
-              as double?,
-      tdee: freezed == tdee
-          ? _value.tdee
-          : tdee // ignore: cast_nullable_to_non_nullable
-              as double?,
-    ));
+    return _then(
+      _$VisualizationDataPointImpl(
+        dateTime: null == dateTime
+            ? _value.dateTime
+            : dateTime // ignore: cast_nullable_to_non_nullable
+                  as DateTime,
+        weight: null == weight
+            ? _value.weight
+            : weight // ignore: cast_nullable_to_non_nullable
+                  as double,
+        shouldersCirc: null == shouldersCirc
+            ? _value.shouldersCirc
+            : shouldersCirc // ignore: cast_nullable_to_non_nullable
+                  as int,
+        breastCirc: null == breastCirc
+            ? _value.breastCirc
+            : breastCirc // ignore: cast_nullable_to_non_nullable
+                  as int,
+        waistCirc: null == waistCirc
+            ? _value.waistCirc
+            : waistCirc // ignore: cast_nullable_to_non_nullable
+                  as int,
+        hipsCirc: null == hipsCirc
+            ? _value.hipsCirc
+            : hipsCirc // ignore: cast_nullable_to_non_nullable
+                  as int,
+        fatPercentage: freezed == fatPercentage
+            ? _value.fatPercentage
+            : fatPercentage // ignore: cast_nullable_to_non_nullable
+                  as double?,
+        muscleMass: freezed == muscleMass
+            ? _value.muscleMass
+            : muscleMass // ignore: cast_nullable_to_non_nullable
+                  as double?,
+        whtrRatio: freezed == whtrRatio
+            ? _value.whtrRatio
+            : whtrRatio // ignore: cast_nullable_to_non_nullable
+                  as double?,
+        bmr: freezed == bmr
+            ? _value.bmr
+            : bmr // ignore: cast_nullable_to_non_nullable
+                  as double?,
+        tdee: freezed == tdee
+            ? _value.tdee
+            : tdee // ignore: cast_nullable_to_non_nullable
+                  as double?,
+      ),
+    );
   }
 }
 
 /// @nodoc
 @JsonSerializable()
 class _$VisualizationDataPointImpl implements _VisualizationDataPoint {
-  const _$VisualizationDataPointImpl(
-      {required this.dateTime,
-      required this.weight,
-      required this.shouldersCirc,
-      required this.breastCirc,
-      required this.waistCirc,
-      required this.hipsCirc,
-      this.fatPercentage,
-      this.muscleMass,
-      this.whtrRatio,
-      this.bmr,
-      this.tdee});
+  const _$VisualizationDataPointImpl({
+    required this.dateTime,
+    required this.weight,
+    required this.shouldersCirc,
+    required this.breastCirc,
+    required this.waistCirc,
+    required this.hipsCirc,
+    this.fatPercentage,
+    this.muscleMass,
+    this.whtrRatio,
+    this.bmr,
+    this.tdee,
+  });
 
   factory _$VisualizationDataPointImpl.fromJson(Map<String, dynamic> json) =>
       _$$VisualizationDataPointImplFromJson(json);
@@ -275,7 +288,7 @@ class _$VisualizationDataPointImpl implements _VisualizationDataPoint {
   final double? fatPercentage;
   @override
   final double? muscleMass;
-// Calculated values
+  // Calculated values
   @override
   final double? whtrRatio;
   @override
@@ -317,18 +330,19 @@ class _$VisualizationDataPointImpl implements _VisualizationDataPoint {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
-      runtimeType,
-      dateTime,
-      weight,
-      shouldersCirc,
-      breastCirc,
-      waistCirc,
-      hipsCirc,
-      fatPercentage,
-      muscleMass,
-      whtrRatio,
-      bmr,
-      tdee);
+    runtimeType,
+    dateTime,
+    weight,
+    shouldersCirc,
+    breastCirc,
+    waistCirc,
+    hipsCirc,
+    fatPercentage,
+    muscleMass,
+    whtrRatio,
+    bmr,
+    tdee,
+  );
 
   /// Create a copy of VisualizationDataPoint
   /// with the given fields replaced by the non-null parameter values.
@@ -336,30 +350,32 @@ class _$VisualizationDataPointImpl implements _VisualizationDataPoint {
   @override
   @pragma('vm:prefer-inline')
   _$$VisualizationDataPointImplCopyWith<_$VisualizationDataPointImpl>
-      get copyWith => __$$VisualizationDataPointImplCopyWithImpl<
-          _$VisualizationDataPointImpl>(this, _$identity);
+  get copyWith =>
+      __$$VisualizationDataPointImplCopyWithImpl<_$VisualizationDataPointImpl>(
+        this,
+        _$identity,
+      );
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$VisualizationDataPointImplToJson(
-      this,
-    );
+    return _$$VisualizationDataPointImplToJson(this);
   }
 }
 
 abstract class _VisualizationDataPoint implements VisualizationDataPoint {
-  const factory _VisualizationDataPoint(
-      {required final DateTime dateTime,
-      required final double weight,
-      required final int shouldersCirc,
-      required final int breastCirc,
-      required final int waistCirc,
-      required final int hipsCirc,
-      final double? fatPercentage,
-      final double? muscleMass,
-      final double? whtrRatio,
-      final double? bmr,
-      final double? tdee}) = _$VisualizationDataPointImpl;
+  const factory _VisualizationDataPoint({
+    required final DateTime dateTime,
+    required final double weight,
+    required final int shouldersCirc,
+    required final int breastCirc,
+    required final int waistCirc,
+    required final int hipsCirc,
+    final double? fatPercentage,
+    final double? muscleMass,
+    final double? whtrRatio,
+    final double? bmr,
+    final double? tdee,
+  }) = _$VisualizationDataPointImpl;
 
   factory _VisualizationDataPoint.fromJson(Map<String, dynamic> json) =
       _$VisualizationDataPointImpl.fromJson;
@@ -392,5 +408,5 @@ abstract class _VisualizationDataPoint implements VisualizationDataPoint {
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
   _$$VisualizationDataPointImplCopyWith<_$VisualizationDataPointImpl>
-      get copyWith => throw _privateConstructorUsedError;
+  get copyWith => throw _privateConstructorUsedError;
 }

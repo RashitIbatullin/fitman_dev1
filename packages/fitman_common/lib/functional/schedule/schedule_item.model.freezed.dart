@@ -12,7 +12,8 @@ part of 'schedule_item.model.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
+  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
+);
 
 ScheduleItem _$ScheduleItemFromJson(Map<String, dynamic> json) {
   return _ScheduleItem.fromJson(json);
@@ -40,16 +41,18 @@ mixin _$ScheduleItem {
 /// @nodoc
 abstract class $ScheduleItemCopyWith<$Res> {
   factory $ScheduleItemCopyWith(
-          ScheduleItem value, $Res Function(ScheduleItem) then) =
-      _$ScheduleItemCopyWithImpl<$Res, ScheduleItem>;
+    ScheduleItem value,
+    $Res Function(ScheduleItem) then,
+  ) = _$ScheduleItemCopyWithImpl<$Res, ScheduleItem>;
   @useResult
-  $Res call(
-      {String id,
-      String trainingPlanName,
-      DateTime startTime,
-      DateTime endTime,
-      String status,
-      String trainerName});
+  $Res call({
+    String id,
+    String trainingPlanName,
+    DateTime startTime,
+    DateTime endTime,
+    String status,
+    String trainerName,
+  });
 }
 
 /// @nodoc
@@ -74,32 +77,35 @@ class _$ScheduleItemCopyWithImpl<$Res, $Val extends ScheduleItem>
     Object? status = null,
     Object? trainerName = null,
   }) {
-    return _then(_value.copyWith(
-      id: null == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as String,
-      trainingPlanName: null == trainingPlanName
-          ? _value.trainingPlanName
-          : trainingPlanName // ignore: cast_nullable_to_non_nullable
-              as String,
-      startTime: null == startTime
-          ? _value.startTime
-          : startTime // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      endTime: null == endTime
-          ? _value.endTime
-          : endTime // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      status: null == status
-          ? _value.status
-          : status // ignore: cast_nullable_to_non_nullable
-              as String,
-      trainerName: null == trainerName
-          ? _value.trainerName
-          : trainerName // ignore: cast_nullable_to_non_nullable
-              as String,
-    ) as $Val);
+    return _then(
+      _value.copyWith(
+            id: null == id
+                ? _value.id
+                : id // ignore: cast_nullable_to_non_nullable
+                      as String,
+            trainingPlanName: null == trainingPlanName
+                ? _value.trainingPlanName
+                : trainingPlanName // ignore: cast_nullable_to_non_nullable
+                      as String,
+            startTime: null == startTime
+                ? _value.startTime
+                : startTime // ignore: cast_nullable_to_non_nullable
+                      as DateTime,
+            endTime: null == endTime
+                ? _value.endTime
+                : endTime // ignore: cast_nullable_to_non_nullable
+                      as DateTime,
+            status: null == status
+                ? _value.status
+                : status // ignore: cast_nullable_to_non_nullable
+                      as String,
+            trainerName: null == trainerName
+                ? _value.trainerName
+                : trainerName // ignore: cast_nullable_to_non_nullable
+                      as String,
+          )
+          as $Val,
+    );
   }
 }
 
@@ -107,17 +113,19 @@ class _$ScheduleItemCopyWithImpl<$Res, $Val extends ScheduleItem>
 abstract class _$$ScheduleItemImplCopyWith<$Res>
     implements $ScheduleItemCopyWith<$Res> {
   factory _$$ScheduleItemImplCopyWith(
-          _$ScheduleItemImpl value, $Res Function(_$ScheduleItemImpl) then) =
-      __$$ScheduleItemImplCopyWithImpl<$Res>;
+    _$ScheduleItemImpl value,
+    $Res Function(_$ScheduleItemImpl) then,
+  ) = __$$ScheduleItemImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call(
-      {String id,
-      String trainingPlanName,
-      DateTime startTime,
-      DateTime endTime,
-      String status,
-      String trainerName});
+  $Res call({
+    String id,
+    String trainingPlanName,
+    DateTime startTime,
+    DateTime endTime,
+    String status,
+    String trainerName,
+  });
 }
 
 /// @nodoc
@@ -125,8 +133,9 @@ class __$$ScheduleItemImplCopyWithImpl<$Res>
     extends _$ScheduleItemCopyWithImpl<$Res, _$ScheduleItemImpl>
     implements _$$ScheduleItemImplCopyWith<$Res> {
   __$$ScheduleItemImplCopyWithImpl(
-      _$ScheduleItemImpl _value, $Res Function(_$ScheduleItemImpl) _then)
-      : super(_value, _then);
+    _$ScheduleItemImpl _value,
+    $Res Function(_$ScheduleItemImpl) _then,
+  ) : super(_value, _then);
 
   /// Create a copy of ScheduleItem
   /// with the given fields replaced by the non-null parameter values.
@@ -140,45 +149,48 @@ class __$$ScheduleItemImplCopyWithImpl<$Res>
     Object? status = null,
     Object? trainerName = null,
   }) {
-    return _then(_$ScheduleItemImpl(
-      id: null == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as String,
-      trainingPlanName: null == trainingPlanName
-          ? _value.trainingPlanName
-          : trainingPlanName // ignore: cast_nullable_to_non_nullable
-              as String,
-      startTime: null == startTime
-          ? _value.startTime
-          : startTime // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      endTime: null == endTime
-          ? _value.endTime
-          : endTime // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      status: null == status
-          ? _value.status
-          : status // ignore: cast_nullable_to_non_nullable
-              as String,
-      trainerName: null == trainerName
-          ? _value.trainerName
-          : trainerName // ignore: cast_nullable_to_non_nullable
-              as String,
-    ));
+    return _then(
+      _$ScheduleItemImpl(
+        id: null == id
+            ? _value.id
+            : id // ignore: cast_nullable_to_non_nullable
+                  as String,
+        trainingPlanName: null == trainingPlanName
+            ? _value.trainingPlanName
+            : trainingPlanName // ignore: cast_nullable_to_non_nullable
+                  as String,
+        startTime: null == startTime
+            ? _value.startTime
+            : startTime // ignore: cast_nullable_to_non_nullable
+                  as DateTime,
+        endTime: null == endTime
+            ? _value.endTime
+            : endTime // ignore: cast_nullable_to_non_nullable
+                  as DateTime,
+        status: null == status
+            ? _value.status
+            : status // ignore: cast_nullable_to_non_nullable
+                  as String,
+        trainerName: null == trainerName
+            ? _value.trainerName
+            : trainerName // ignore: cast_nullable_to_non_nullable
+                  as String,
+      ),
+    );
   }
 }
 
 /// @nodoc
 @JsonSerializable()
 class _$ScheduleItemImpl implements _ScheduleItem {
-  const _$ScheduleItemImpl(
-      {required this.id,
-      required this.trainingPlanName,
-      required this.startTime,
-      required this.endTime,
-      required this.status,
-      required this.trainerName});
+  const _$ScheduleItemImpl({
+    required this.id,
+    required this.trainingPlanName,
+    required this.startTime,
+    required this.endTime,
+    required this.status,
+    required this.trainerName,
+  });
 
   factory _$ScheduleItemImpl.fromJson(Map<String, dynamic> json) =>
       _$$ScheduleItemImplFromJson(json);
@@ -219,8 +231,15 @@ class _$ScheduleItemImpl implements _ScheduleItem {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, trainingPlanName, startTime,
-      endTime, status, trainerName);
+  int get hashCode => Object.hash(
+    runtimeType,
+    id,
+    trainingPlanName,
+    startTime,
+    endTime,
+    status,
+    trainerName,
+  );
 
   /// Create a copy of ScheduleItem
   /// with the given fields replaced by the non-null parameter values.
@@ -232,20 +251,19 @@ class _$ScheduleItemImpl implements _ScheduleItem {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$ScheduleItemImplToJson(
-      this,
-    );
+    return _$$ScheduleItemImplToJson(this);
   }
 }
 
 abstract class _ScheduleItem implements ScheduleItem {
-  const factory _ScheduleItem(
-      {required final String id,
-      required final String trainingPlanName,
-      required final DateTime startTime,
-      required final DateTime endTime,
-      required final String status,
-      required final String trainerName}) = _$ScheduleItemImpl;
+  const factory _ScheduleItem({
+    required final String id,
+    required final String trainingPlanName,
+    required final DateTime startTime,
+    required final DateTime endTime,
+    required final String status,
+    required final String trainerName,
+  }) = _$ScheduleItemImpl;
 
   factory _ScheduleItem.fromJson(Map<String, dynamic> json) =
       _$ScheduleItemImpl.fromJson;

@@ -4,6 +4,7 @@ import 'package:fitman_common/modules/groups/analytic_group.model.dart';
 import 'package:fitman_common/modules/groups/group_schedule.model.dart';
 import 'package:fitman_common/modules/groups/training_group.model.dart';
 import 'package:fitman_common/modules/groups/training_group_type.model.dart';
+import 'package:fitman_common/modules/groups/group_movement.model.dart';
 
 class GroupRepository {
   final Database _db;
@@ -359,6 +360,134 @@ class GroupRepository {
       '''),
       parameters: {'groupId': groupId, 'userId': userId},
     );
+  }
+
+  // --- Group Movement Methods ---
+
+  Future<void> logMovement(GroupMovement movement) async {
+    final conn = await _db.connection;
+    await conn.execute(
+      Sql.named(r'''
+        INSERT INTO group_member_movements (
+          user_id, user_role, from_group_id, to_group_id,
+          movement_date, reason, moved_by_user_id
+        )
+        VALUES (
+          @userId, @userRole, @fromGroupId, @toGroupId,
+          @movementDate, @reason, @movedByUserId
+        )
+      '''),
+      parameters: {
+        'userId': movement.userId,
+        'userRole': movement.userRole,
+        'fromGroupId': movement.fromGroupId,
+        'toGroupId': movement.toGroupId,
+        'movementDate': movement.movementDate.toIso8601String(),
+        'reason': movement.reason,
+        'movedByUserId': movement.movedByUserId,
+      },
+    );
+  }
+
+  Future<List<GroupMovement>> getMovementsForUser(String userId) async {
+    final conn = await _db.connection;
+    final results = await conn.execute(
+      Sql.named('''
+        SELECT * FROM group_member_movements
+        WHERE user_id = @userId
+        ORDER BY movement_date DESC
+      '''),
+      parameters: {'userId': userId},
+    );
+    return results
+        .map((row) => GroupMovement.fromJson(row.toColumnMap()))
+        .toList();
+  }
+
+  Future<List<GroupMovement>> getMovementsForGroup(String groupId) async {
+    final conn = await _db.connection;
+    final results = await conn.execute(
+      Sql.named('''
+        SELECT * FROM group_member_movements
+        WHERE from_group_id = @groupId OR to_group_id = @groupId
+        ORDER BY movement_date DESC
+      '''),
+      parameters: {'groupId': groupId},
+    );
+    return results
+        .map((row) => GroupMovement.fromJson(row.toColumnMap()))
+        .toList();
+  }
+
+  Future<void> moveClient({
+    required String clientId,
+    String? fromGroupId,
+    String? toGroupId,
+    required String reason,
+    required String movedByUserId,
+  }) async {
+    final conn = await _db.connection;
+    return conn.runTx((session) async {
+      // 1. Validation: Check capacity of the target group
+      if (toGroupId != null) {
+        final toGroupResult = await session.execute(
+          Sql.named('SELECT max_participants FROM training_groups WHERE id = @id'),
+          parameters: {'id': toGroupId},
+        );
+
+        if (toGroupResult.isEmpty) {
+          throw ArgumentError('Target group not found.');
+        }
+        final maxParticipants = toGroupResult.first.toColumnMap()['max_participants'] as int;
+
+        final currentMembersResult = await session.execute(
+          Sql.named('SELECT COUNT(*) as count FROM training_group_members WHERE training_group_id = @id'),
+          parameters: {'id': toGroupId},
+        );
+        final currentParticipants = currentMembersResult.first.toColumnMap()['count'] as int;
+
+        if (currentParticipants >= maxParticipants) {
+          throw StateError('The target group is already full.');
+        }
+      }
+
+      // 2. Update membership
+      if (fromGroupId != null) {
+        await session.execute(
+          Sql.named('DELETE FROM training_group_members WHERE training_group_id = @fromGroupId AND user_id = @clientId'),
+          parameters: {'fromGroupId': fromGroupId, 'clientId': clientId},
+        );
+      }
+      if (toGroupId != null) {
+        await session.execute(
+          Sql.named('INSERT INTO training_group_members (training_group_id, user_id, added_by) VALUES (@toGroupId, @clientId, @addedBy)'),
+          parameters: {'toGroupId': toGroupId, 'clientId': clientId, 'addedBy': movedByUserId},
+        );
+      }
+      
+      // 3. Log the movement
+      await session.execute(
+        Sql.named(r'''
+          INSERT INTO group_member_movements (
+            user_id, user_role, from_group_id, to_group_id,
+            movement_date, reason, moved_by_user_id
+          )
+          VALUES (
+            @userId, @userRole, @fromGroupId, @toGroupId,
+            @movementDate, @reason, @movedByUserId
+          )
+        '''),
+        parameters: {
+          'userId': clientId,
+          'userRole': 'client',
+          'fromGroupId': fromGroupId,
+          'toGroupId': toGroupId,
+          'movementDate': DateTime.now().toUtc(),
+          'reason': reason,
+          'movedByUserId': movedByUserId,
+        },
+      );
+    });
   }
 
   // --- Group Schedule Slot Methods ---

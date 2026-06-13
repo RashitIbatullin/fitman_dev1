@@ -12,7 +12,8 @@ part of 'room_model.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
+  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
+);
 
 Room _$RoomFromJson(Map<String, dynamic> json) {
   return _Room.fromJson(json);
@@ -58,29 +59,30 @@ abstract class $RoomCopyWith<$Res> {
   factory $RoomCopyWith(Room value, $Res Function(Room) then) =
       _$RoomCopyWithImpl<$Res, Room>;
   @useResult
-  $Res call(
-      {String id,
-      String name,
-      String? description,
-      String? roomNumber,
-      @RoomTypeConverter() RoomType type,
-      int? floor,
-      String buildingId,
-      String? buildingName,
-      int maxCapacity,
-      double? area,
-      bool isActive,
-      String? deactivateReason,
-      DateTime? deactivateAt,
-      String? deactivateBy,
-      List<String> photoUrls,
-      String? floorPlanUrl,
-      String? note,
-      DateTime? archivedAt,
-      String? archivedReason,
-      String? updatedBy,
-      String? archivedBy,
-      String? archivedByName});
+  $Res call({
+    String id,
+    String name,
+    String? description,
+    String? roomNumber,
+    @RoomTypeConverter() RoomType type,
+    int? floor,
+    String buildingId,
+    String? buildingName,
+    int maxCapacity,
+    double? area,
+    bool isActive,
+    String? deactivateReason,
+    DateTime? deactivateAt,
+    String? deactivateBy,
+    List<String> photoUrls,
+    String? floorPlanUrl,
+    String? note,
+    DateTime? archivedAt,
+    String? archivedReason,
+    String? updatedBy,
+    String? archivedBy,
+    String? archivedByName,
+  });
 }
 
 /// @nodoc
@@ -121,129 +123,134 @@ class _$RoomCopyWithImpl<$Res, $Val extends Room>
     Object? archivedBy = freezed,
     Object? archivedByName = freezed,
   }) {
-    return _then(_value.copyWith(
-      id: null == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as String,
-      name: null == name
-          ? _value.name
-          : name // ignore: cast_nullable_to_non_nullable
-              as String,
-      description: freezed == description
-          ? _value.description
-          : description // ignore: cast_nullable_to_non_nullable
-              as String?,
-      roomNumber: freezed == roomNumber
-          ? _value.roomNumber
-          : roomNumber // ignore: cast_nullable_to_non_nullable
-              as String?,
-      type: null == type
-          ? _value.type
-          : type // ignore: cast_nullable_to_non_nullable
-              as RoomType,
-      floor: freezed == floor
-          ? _value.floor
-          : floor // ignore: cast_nullable_to_non_nullable
-              as int?,
-      buildingId: null == buildingId
-          ? _value.buildingId
-          : buildingId // ignore: cast_nullable_to_non_nullable
-              as String,
-      buildingName: freezed == buildingName
-          ? _value.buildingName
-          : buildingName // ignore: cast_nullable_to_non_nullable
-              as String?,
-      maxCapacity: null == maxCapacity
-          ? _value.maxCapacity
-          : maxCapacity // ignore: cast_nullable_to_non_nullable
-              as int,
-      area: freezed == area
-          ? _value.area
-          : area // ignore: cast_nullable_to_non_nullable
-              as double?,
-      isActive: null == isActive
-          ? _value.isActive
-          : isActive // ignore: cast_nullable_to_non_nullable
-              as bool,
-      deactivateReason: freezed == deactivateReason
-          ? _value.deactivateReason
-          : deactivateReason // ignore: cast_nullable_to_non_nullable
-              as String?,
-      deactivateAt: freezed == deactivateAt
-          ? _value.deactivateAt
-          : deactivateAt // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
-      deactivateBy: freezed == deactivateBy
-          ? _value.deactivateBy
-          : deactivateBy // ignore: cast_nullable_to_non_nullable
-              as String?,
-      photoUrls: null == photoUrls
-          ? _value.photoUrls
-          : photoUrls // ignore: cast_nullable_to_non_nullable
-              as List<String>,
-      floorPlanUrl: freezed == floorPlanUrl
-          ? _value.floorPlanUrl
-          : floorPlanUrl // ignore: cast_nullable_to_non_nullable
-              as String?,
-      note: freezed == note
-          ? _value.note
-          : note // ignore: cast_nullable_to_non_nullable
-              as String?,
-      archivedAt: freezed == archivedAt
-          ? _value.archivedAt
-          : archivedAt // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
-      archivedReason: freezed == archivedReason
-          ? _value.archivedReason
-          : archivedReason // ignore: cast_nullable_to_non_nullable
-              as String?,
-      updatedBy: freezed == updatedBy
-          ? _value.updatedBy
-          : updatedBy // ignore: cast_nullable_to_non_nullable
-              as String?,
-      archivedBy: freezed == archivedBy
-          ? _value.archivedBy
-          : archivedBy // ignore: cast_nullable_to_non_nullable
-              as String?,
-      archivedByName: freezed == archivedByName
-          ? _value.archivedByName
-          : archivedByName // ignore: cast_nullable_to_non_nullable
-              as String?,
-    ) as $Val);
+    return _then(
+      _value.copyWith(
+            id: null == id
+                ? _value.id
+                : id // ignore: cast_nullable_to_non_nullable
+                      as String,
+            name: null == name
+                ? _value.name
+                : name // ignore: cast_nullable_to_non_nullable
+                      as String,
+            description: freezed == description
+                ? _value.description
+                : description // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            roomNumber: freezed == roomNumber
+                ? _value.roomNumber
+                : roomNumber // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            type: null == type
+                ? _value.type
+                : type // ignore: cast_nullable_to_non_nullable
+                      as RoomType,
+            floor: freezed == floor
+                ? _value.floor
+                : floor // ignore: cast_nullable_to_non_nullable
+                      as int?,
+            buildingId: null == buildingId
+                ? _value.buildingId
+                : buildingId // ignore: cast_nullable_to_non_nullable
+                      as String,
+            buildingName: freezed == buildingName
+                ? _value.buildingName
+                : buildingName // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            maxCapacity: null == maxCapacity
+                ? _value.maxCapacity
+                : maxCapacity // ignore: cast_nullable_to_non_nullable
+                      as int,
+            area: freezed == area
+                ? _value.area
+                : area // ignore: cast_nullable_to_non_nullable
+                      as double?,
+            isActive: null == isActive
+                ? _value.isActive
+                : isActive // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            deactivateReason: freezed == deactivateReason
+                ? _value.deactivateReason
+                : deactivateReason // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            deactivateAt: freezed == deactivateAt
+                ? _value.deactivateAt
+                : deactivateAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime?,
+            deactivateBy: freezed == deactivateBy
+                ? _value.deactivateBy
+                : deactivateBy // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            photoUrls: null == photoUrls
+                ? _value.photoUrls
+                : photoUrls // ignore: cast_nullable_to_non_nullable
+                      as List<String>,
+            floorPlanUrl: freezed == floorPlanUrl
+                ? _value.floorPlanUrl
+                : floorPlanUrl // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            note: freezed == note
+                ? _value.note
+                : note // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            archivedAt: freezed == archivedAt
+                ? _value.archivedAt
+                : archivedAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime?,
+            archivedReason: freezed == archivedReason
+                ? _value.archivedReason
+                : archivedReason // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            updatedBy: freezed == updatedBy
+                ? _value.updatedBy
+                : updatedBy // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            archivedBy: freezed == archivedBy
+                ? _value.archivedBy
+                : archivedBy // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            archivedByName: freezed == archivedByName
+                ? _value.archivedByName
+                : archivedByName // ignore: cast_nullable_to_non_nullable
+                      as String?,
+          )
+          as $Val,
+    );
   }
 }
 
 /// @nodoc
 abstract class _$$RoomImplCopyWith<$Res> implements $RoomCopyWith<$Res> {
   factory _$$RoomImplCopyWith(
-          _$RoomImpl value, $Res Function(_$RoomImpl) then) =
-      __$$RoomImplCopyWithImpl<$Res>;
+    _$RoomImpl value,
+    $Res Function(_$RoomImpl) then,
+  ) = __$$RoomImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call(
-      {String id,
-      String name,
-      String? description,
-      String? roomNumber,
-      @RoomTypeConverter() RoomType type,
-      int? floor,
-      String buildingId,
-      String? buildingName,
-      int maxCapacity,
-      double? area,
-      bool isActive,
-      String? deactivateReason,
-      DateTime? deactivateAt,
-      String? deactivateBy,
-      List<String> photoUrls,
-      String? floorPlanUrl,
-      String? note,
-      DateTime? archivedAt,
-      String? archivedReason,
-      String? updatedBy,
-      String? archivedBy,
-      String? archivedByName});
+  $Res call({
+    String id,
+    String name,
+    String? description,
+    String? roomNumber,
+    @RoomTypeConverter() RoomType type,
+    int? floor,
+    String buildingId,
+    String? buildingName,
+    int maxCapacity,
+    double? area,
+    bool isActive,
+    String? deactivateReason,
+    DateTime? deactivateAt,
+    String? deactivateBy,
+    List<String> photoUrls,
+    String? floorPlanUrl,
+    String? note,
+    DateTime? archivedAt,
+    String? archivedReason,
+    String? updatedBy,
+    String? archivedBy,
+    String? archivedByName,
+  });
 }
 
 /// @nodoc
@@ -251,7 +258,7 @@ class __$$RoomImplCopyWithImpl<$Res>
     extends _$RoomCopyWithImpl<$Res, _$RoomImpl>
     implements _$$RoomImplCopyWith<$Res> {
   __$$RoomImplCopyWithImpl(_$RoomImpl _value, $Res Function(_$RoomImpl) _then)
-      : super(_value, _then);
+    : super(_value, _then);
 
   /// Create a copy of Room
   /// with the given fields replaced by the non-null parameter values.
@@ -281,126 +288,128 @@ class __$$RoomImplCopyWithImpl<$Res>
     Object? archivedBy = freezed,
     Object? archivedByName = freezed,
   }) {
-    return _then(_$RoomImpl(
-      id: null == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as String,
-      name: null == name
-          ? _value.name
-          : name // ignore: cast_nullable_to_non_nullable
-              as String,
-      description: freezed == description
-          ? _value.description
-          : description // ignore: cast_nullable_to_non_nullable
-              as String?,
-      roomNumber: freezed == roomNumber
-          ? _value.roomNumber
-          : roomNumber // ignore: cast_nullable_to_non_nullable
-              as String?,
-      type: null == type
-          ? _value.type
-          : type // ignore: cast_nullable_to_non_nullable
-              as RoomType,
-      floor: freezed == floor
-          ? _value.floor
-          : floor // ignore: cast_nullable_to_non_nullable
-              as int?,
-      buildingId: null == buildingId
-          ? _value.buildingId
-          : buildingId // ignore: cast_nullable_to_non_nullable
-              as String,
-      buildingName: freezed == buildingName
-          ? _value.buildingName
-          : buildingName // ignore: cast_nullable_to_non_nullable
-              as String?,
-      maxCapacity: null == maxCapacity
-          ? _value.maxCapacity
-          : maxCapacity // ignore: cast_nullable_to_non_nullable
-              as int,
-      area: freezed == area
-          ? _value.area
-          : area // ignore: cast_nullable_to_non_nullable
-              as double?,
-      isActive: null == isActive
-          ? _value.isActive
-          : isActive // ignore: cast_nullable_to_non_nullable
-              as bool,
-      deactivateReason: freezed == deactivateReason
-          ? _value.deactivateReason
-          : deactivateReason // ignore: cast_nullable_to_non_nullable
-              as String?,
-      deactivateAt: freezed == deactivateAt
-          ? _value.deactivateAt
-          : deactivateAt // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
-      deactivateBy: freezed == deactivateBy
-          ? _value.deactivateBy
-          : deactivateBy // ignore: cast_nullable_to_non_nullable
-              as String?,
-      photoUrls: null == photoUrls
-          ? _value._photoUrls
-          : photoUrls // ignore: cast_nullable_to_non_nullable
-              as List<String>,
-      floorPlanUrl: freezed == floorPlanUrl
-          ? _value.floorPlanUrl
-          : floorPlanUrl // ignore: cast_nullable_to_non_nullable
-              as String?,
-      note: freezed == note
-          ? _value.note
-          : note // ignore: cast_nullable_to_non_nullable
-              as String?,
-      archivedAt: freezed == archivedAt
-          ? _value.archivedAt
-          : archivedAt // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
-      archivedReason: freezed == archivedReason
-          ? _value.archivedReason
-          : archivedReason // ignore: cast_nullable_to_non_nullable
-              as String?,
-      updatedBy: freezed == updatedBy
-          ? _value.updatedBy
-          : updatedBy // ignore: cast_nullable_to_non_nullable
-              as String?,
-      archivedBy: freezed == archivedBy
-          ? _value.archivedBy
-          : archivedBy // ignore: cast_nullable_to_non_nullable
-              as String?,
-      archivedByName: freezed == archivedByName
-          ? _value.archivedByName
-          : archivedByName // ignore: cast_nullable_to_non_nullable
-              as String?,
-    ));
+    return _then(
+      _$RoomImpl(
+        id: null == id
+            ? _value.id
+            : id // ignore: cast_nullable_to_non_nullable
+                  as String,
+        name: null == name
+            ? _value.name
+            : name // ignore: cast_nullable_to_non_nullable
+                  as String,
+        description: freezed == description
+            ? _value.description
+            : description // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        roomNumber: freezed == roomNumber
+            ? _value.roomNumber
+            : roomNumber // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        type: null == type
+            ? _value.type
+            : type // ignore: cast_nullable_to_non_nullable
+                  as RoomType,
+        floor: freezed == floor
+            ? _value.floor
+            : floor // ignore: cast_nullable_to_non_nullable
+                  as int?,
+        buildingId: null == buildingId
+            ? _value.buildingId
+            : buildingId // ignore: cast_nullable_to_non_nullable
+                  as String,
+        buildingName: freezed == buildingName
+            ? _value.buildingName
+            : buildingName // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        maxCapacity: null == maxCapacity
+            ? _value.maxCapacity
+            : maxCapacity // ignore: cast_nullable_to_non_nullable
+                  as int,
+        area: freezed == area
+            ? _value.area
+            : area // ignore: cast_nullable_to_non_nullable
+                  as double?,
+        isActive: null == isActive
+            ? _value.isActive
+            : isActive // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        deactivateReason: freezed == deactivateReason
+            ? _value.deactivateReason
+            : deactivateReason // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        deactivateAt: freezed == deactivateAt
+            ? _value.deactivateAt
+            : deactivateAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
+        deactivateBy: freezed == deactivateBy
+            ? _value.deactivateBy
+            : deactivateBy // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        photoUrls: null == photoUrls
+            ? _value._photoUrls
+            : photoUrls // ignore: cast_nullable_to_non_nullable
+                  as List<String>,
+        floorPlanUrl: freezed == floorPlanUrl
+            ? _value.floorPlanUrl
+            : floorPlanUrl // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        note: freezed == note
+            ? _value.note
+            : note // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        archivedAt: freezed == archivedAt
+            ? _value.archivedAt
+            : archivedAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
+        archivedReason: freezed == archivedReason
+            ? _value.archivedReason
+            : archivedReason // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        updatedBy: freezed == updatedBy
+            ? _value.updatedBy
+            : updatedBy // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        archivedBy: freezed == archivedBy
+            ? _value.archivedBy
+            : archivedBy // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        archivedByName: freezed == archivedByName
+            ? _value.archivedByName
+            : archivedByName // ignore: cast_nullable_to_non_nullable
+                  as String?,
+      ),
+    );
   }
 }
 
 /// @nodoc
 @JsonSerializable()
 class _$RoomImpl implements _Room {
-  const _$RoomImpl(
-      {required this.id,
-      required this.name,
-      this.description,
-      this.roomNumber,
-      @RoomTypeConverter() required this.type,
-      this.floor,
-      required this.buildingId,
-      this.buildingName,
-      this.maxCapacity = 30,
-      this.area,
-      this.isActive = true,
-      this.deactivateReason,
-      this.deactivateAt,
-      this.deactivateBy,
-      final List<String> photoUrls = const [],
-      this.floorPlanUrl,
-      this.note,
-      this.archivedAt,
-      this.archivedReason,
-      this.updatedBy,
-      this.archivedBy,
-      this.archivedByName})
-      : _photoUrls = photoUrls;
+  const _$RoomImpl({
+    required this.id,
+    required this.name,
+    this.description,
+    this.roomNumber,
+    @RoomTypeConverter() required this.type,
+    this.floor,
+    required this.buildingId,
+    this.buildingName,
+    this.maxCapacity = 30,
+    this.area,
+    this.isActive = true,
+    this.deactivateReason,
+    this.deactivateAt,
+    this.deactivateBy,
+    final List<String> photoUrls = const [],
+    this.floorPlanUrl,
+    this.note,
+    this.archivedAt,
+    this.archivedReason,
+    this.updatedBy,
+    this.archivedBy,
+    this.archivedByName,
+  }) : _photoUrls = photoUrls;
 
   factory _$RoomImpl.fromJson(Map<String, dynamic> json) =>
       _$$RoomImplFromJson(json);
@@ -493,8 +502,10 @@ class _$RoomImpl implements _Room {
                 other.deactivateAt == deactivateAt) &&
             (identical(other.deactivateBy, deactivateBy) ||
                 other.deactivateBy == deactivateBy) &&
-            const DeepCollectionEquality()
-                .equals(other._photoUrls, _photoUrls) &&
+            const DeepCollectionEquality().equals(
+              other._photoUrls,
+              _photoUrls,
+            ) &&
             (identical(other.floorPlanUrl, floorPlanUrl) ||
                 other.floorPlanUrl == floorPlanUrl) &&
             (identical(other.note, note) || other.note == note) &&
@@ -513,30 +524,30 @@ class _$RoomImpl implements _Room {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hashAll([
-        runtimeType,
-        id,
-        name,
-        description,
-        roomNumber,
-        type,
-        floor,
-        buildingId,
-        buildingName,
-        maxCapacity,
-        area,
-        isActive,
-        deactivateReason,
-        deactivateAt,
-        deactivateBy,
-        const DeepCollectionEquality().hash(_photoUrls),
-        floorPlanUrl,
-        note,
-        archivedAt,
-        archivedReason,
-        updatedBy,
-        archivedBy,
-        archivedByName
-      ]);
+    runtimeType,
+    id,
+    name,
+    description,
+    roomNumber,
+    type,
+    floor,
+    buildingId,
+    buildingName,
+    maxCapacity,
+    area,
+    isActive,
+    deactivateReason,
+    deactivateAt,
+    deactivateBy,
+    const DeepCollectionEquality().hash(_photoUrls),
+    floorPlanUrl,
+    note,
+    archivedAt,
+    archivedReason,
+    updatedBy,
+    archivedBy,
+    archivedByName,
+  ]);
 
   /// Create a copy of Room
   /// with the given fields replaced by the non-null parameter values.
@@ -548,36 +559,35 @@ class _$RoomImpl implements _Room {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$RoomImplToJson(
-      this,
-    );
+    return _$$RoomImplToJson(this);
   }
 }
 
 abstract class _Room implements Room {
-  const factory _Room(
-      {required final String id,
-      required final String name,
-      final String? description,
-      final String? roomNumber,
-      @RoomTypeConverter() required final RoomType type,
-      final int? floor,
-      required final String buildingId,
-      final String? buildingName,
-      final int maxCapacity,
-      final double? area,
-      final bool isActive,
-      final String? deactivateReason,
-      final DateTime? deactivateAt,
-      final String? deactivateBy,
-      final List<String> photoUrls,
-      final String? floorPlanUrl,
-      final String? note,
-      final DateTime? archivedAt,
-      final String? archivedReason,
-      final String? updatedBy,
-      final String? archivedBy,
-      final String? archivedByName}) = _$RoomImpl;
+  const factory _Room({
+    required final String id,
+    required final String name,
+    final String? description,
+    final String? roomNumber,
+    @RoomTypeConverter() required final RoomType type,
+    final int? floor,
+    required final String buildingId,
+    final String? buildingName,
+    final int maxCapacity,
+    final double? area,
+    final bool isActive,
+    final String? deactivateReason,
+    final DateTime? deactivateAt,
+    final String? deactivateBy,
+    final List<String> photoUrls,
+    final String? floorPlanUrl,
+    final String? note,
+    final DateTime? archivedAt,
+    final String? archivedReason,
+    final String? updatedBy,
+    final String? archivedBy,
+    final String? archivedByName,
+  }) = _$RoomImpl;
 
   factory _Room.fromJson(Map<String, dynamic> json) = _$RoomImpl.fromJson;
 
