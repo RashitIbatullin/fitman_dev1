@@ -7,36 +7,37 @@ part of 'room_model.dart';
 // **************************************************************************
 
 _$RoomImpl _$$RoomImplFromJson(Map<String, dynamic> json) => _$RoomImpl(
-      id: json['id'] as String,
-      name: json['name'] as String,
-      description: json['description'] as String?,
-      roomNumber: json['room_number'] as String?,
-      type: const RoomTypeConverter().fromJson((json['type'] as num).toInt()),
-      floor: (json['floor'] as num?)?.toInt(),
-      buildingId: json['building_id'] as String,
-      buildingName: json['building_name'] as String?,
-      maxCapacity: (json['max_capacity'] as num?)?.toInt() ?? 30,
-      area: (json['area'] as num?)?.toDouble(),
-      isActive: json['is_active'] as bool? ?? true,
-      deactivateReason: json['deactivate_reason'] as String?,
-      deactivateAt: json['deactivate_at'] == null
-          ? null
-          : DateTime.parse(json['deactivate_at'] as String),
-      deactivateBy: json['deactivate_by'] as String?,
-      photoUrls: (json['photo_urls'] as List<dynamic>?)
-              ?.map((e) => e as String)
-              .toList() ??
-          const [],
-      floorPlanUrl: json['floor_plan_url'] as String?,
-      note: json['note'] as String?,
-      archivedAt: json['archived_at'] == null
-          ? null
-          : DateTime.parse(json['archived_at'] as String),
-      archivedReason: json['archived_reason'] as String?,
-      updatedBy: json['updated_by'] as String?,
-      archivedBy: json['archived_by'] as String?,
-      archivedByName: json['archived_by_name'] as String?,
-    );
+  id: json['id'] as String,
+  name: json['name'] as String,
+  description: json['description'] as String?,
+  roomNumber: json['room_number'] as String?,
+  type: const RoomTypeConverter().fromJson((json['type'] as num).toInt()),
+  floor: (json['floor'] as num?)?.toInt(),
+  buildingId: json['building_id'] as String,
+  buildingName: json['building_name'] as String?,
+  maxCapacity: (json['max_capacity'] as num?)?.toInt() ?? 30,
+  area: (json['area'] as num?)?.toDouble(),
+  isActive: json['is_active'] as bool? ?? true,
+  deactivateReason: json['deactivate_reason'] as String?,
+  deactivateAt: json['deactivate_at'] == null
+      ? null
+      : DateTime.parse(json['deactivate_at'] as String),
+  deactivateBy: json['deactivate_by'] as String?,
+  photoUrls:
+      (json['photo_urls'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList() ??
+      const [],
+  floorPlanUrl: json['floor_plan_url'] as String?,
+  note: json['note'] as String?,
+  archivedAt: json['archived_at'] == null
+      ? null
+      : DateTime.parse(json['archived_at'] as String),
+  archivedReason: json['archived_reason'] as String?,
+  updatedBy: json['updated_by'] as String?,
+  archivedBy: json['archived_by'] as String?,
+  archivedByName: json['archived_by_name'] as String?,
+);
 
 Map<String, dynamic> _$$RoomImplToJson(_$RoomImpl instance) =>
     <String, dynamic>{

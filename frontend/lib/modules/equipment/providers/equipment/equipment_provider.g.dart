@@ -24,7 +24,7 @@ final equipmentStatsProvider = AutoDisposeProvider<EquipmentStats>.internal(
 // ignore: unused_element
 typedef EquipmentStatsRef = AutoDisposeProviderRef<EquipmentStats>;
 String _$filteredDashboardEquipmentHash() =>
-    r'b98d4d3c4dbe50683d11ea3a5871b16973cf62e3';
+    r'4c615824eae5d1bad7b9d8ea99964f4538167b20';
 
 /// See also [filteredDashboardEquipment].
 @ProviderFor(filteredDashboardEquipment)
@@ -43,7 +43,7 @@ final filteredDashboardEquipmentProvider =
 // ignore: unused_element
 typedef FilteredDashboardEquipmentRef =
     AutoDisposeProviderRef<List<EquipmentItem>>;
-String _$equipmentHash() => r'98101741a359db7fff2f4496a841818ea34d87f3';
+String _$equipmentHash() => r'ef004fd1de845f5cff1426831c67fed8cab6700c';
 
 /// See also [Equipment].
 @ProviderFor(Equipment)

@@ -13,10 +13,7 @@ _$WhtrProfileImpl _$$WhtrProfileImplFromJson(Map<String, dynamic> json) =>
     );
 
 Map<String, dynamic> _$$WhtrProfileImplToJson(_$WhtrProfileImpl instance) =>
-    <String, dynamic>{
-      'ratio': instance.ratio,
-      'gradation': instance.gradation,
-    };
+    <String, dynamic>{'ratio': instance.ratio, 'gradation': instance.gradation};
 
 _$WhtrProfilesImpl _$$WhtrProfilesImplFromJson(Map<String, dynamic> json) =>
     _$WhtrProfilesImpl(
@@ -25,21 +22,15 @@ _$WhtrProfilesImpl _$$WhtrProfilesImplFromJson(Map<String, dynamic> json) =>
     );
 
 Map<String, dynamic> _$$WhtrProfilesImplToJson(_$WhtrProfilesImpl instance) =>
-    <String, dynamic>{
-      'start': instance.start,
-      'finish': instance.finish,
-    };
+    <String, dynamic>{'start': instance.start, 'finish': instance.finish};
 
 _$MetabolicProfileImpl _$$MetabolicProfileImplFromJson(
-        Map<String, dynamic> json) =>
-    _$MetabolicProfileImpl(
-      bmr: (json['bmr'] as num).toDouble(),
-      tdee: (json['tdee'] as num).toDouble(),
-    );
+  Map<String, dynamic> json,
+) => _$MetabolicProfileImpl(
+  bmr: (json['bmr'] as num).toDouble(),
+  tdee: (json['tdee'] as num).toDouble(),
+);
 
 Map<String, dynamic> _$$MetabolicProfileImplToJson(
-        _$MetabolicProfileImpl instance) =>
-    <String, dynamic>{
-      'bmr': instance.bmr,
-      'tdee': instance.tdee,
-    };
+  _$MetabolicProfileImpl instance,
+) => <String, dynamic>{'bmr': instance.bmr, 'tdee': instance.tdee};

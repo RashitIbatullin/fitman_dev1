@@ -6,28 +6,27 @@ part of 'dashboard_data.model.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$DashboardDataImpl _$$DashboardDataImplFromJson(Map<String, dynamic> json) =>
-    _$DashboardDataImpl(
-      nextTraining: json['next_training'] == null
-          ? null
-          : NextTraining.fromJson(
-              json['next_training'] as Map<String, dynamic>),
-      trainingProgress: json['training_progress'] == null
-          ? null
-          : TrainingProgress.fromJson(
-              json['training_progress'] as Map<String, dynamic>),
-      goalProgress: json['goal_progress'] == null
-          ? null
-          : GoalProgress.fromJson(
-              json['goal_progress'] as Map<String, dynamic>),
-      achievements: (json['achievements'] as List<dynamic>)
-          .map((e) => Achievement.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      recentMeasurements: (json['recent_measurements'] as List<dynamic>?)
-          ?.map((e) =>
-              AnthropometryMeasurement.fromJson(e as Map<String, dynamic>))
-          .toList(),
-    );
+_$DashboardDataImpl _$$DashboardDataImplFromJson(
+  Map<String, dynamic> json,
+) => _$DashboardDataImpl(
+  nextTraining: json['next_training'] == null
+      ? null
+      : NextTraining.fromJson(json['next_training'] as Map<String, dynamic>),
+  trainingProgress: json['training_progress'] == null
+      ? null
+      : TrainingProgress.fromJson(
+          json['training_progress'] as Map<String, dynamic>,
+        ),
+  goalProgress: json['goal_progress'] == null
+      ? null
+      : GoalProgress.fromJson(json['goal_progress'] as Map<String, dynamic>),
+  achievements: (json['achievements'] as List<dynamic>)
+      .map((e) => Achievement.fromJson(e as Map<String, dynamic>))
+      .toList(),
+  recentMeasurements: (json['recent_measurements'] as List<dynamic>?)
+      ?.map((e) => AnthropometryMeasurement.fromJson(e as Map<String, dynamic>))
+      .toList(),
+);
 
 Map<String, dynamic> _$$DashboardDataImplToJson(_$DashboardDataImpl instance) =>
     <String, dynamic>{
@@ -51,22 +50,22 @@ Map<String, dynamic> _$$NextTrainingImplToJson(_$NextTrainingImpl instance) =>
     };
 
 _$TrainingProgressImpl _$$TrainingProgressImplFromJson(
-        Map<String, dynamic> json) =>
-    _$TrainingProgressImpl(
-      completed: (json['completed'] as num).toInt(),
-      total: (json['total'] as num).toInt(),
-      caloriesBurned: (json['calories_burned'] as num).toInt(),
-      attendance: (json['attendance'] as num).toInt(),
-    );
+  Map<String, dynamic> json,
+) => _$TrainingProgressImpl(
+  completed: (json['completed'] as num).toInt(),
+  total: (json['total'] as num).toInt(),
+  caloriesBurned: (json['calories_burned'] as num).toInt(),
+  attendance: (json['attendance'] as num).toInt(),
+);
 
 Map<String, dynamic> _$$TrainingProgressImplToJson(
-        _$TrainingProgressImpl instance) =>
-    <String, dynamic>{
-      'completed': instance.completed,
-      'total': instance.total,
-      'calories_burned': instance.caloriesBurned,
-      'attendance': instance.attendance,
-    };
+  _$TrainingProgressImpl instance,
+) => <String, dynamic>{
+  'completed': instance.completed,
+  'total': instance.total,
+  'calories_burned': instance.caloriesBurned,
+  'attendance': instance.attendance,
+};
 
 _$GoalProgressImpl _$$GoalProgressImplFromJson(Map<String, dynamic> json) =>
     _$GoalProgressImpl(
@@ -91,7 +90,4 @@ _$AchievementImpl _$$AchievementImplFromJson(Map<String, dynamic> json) =>
     );
 
 Map<String, dynamic> _$$AchievementImplToJson(_$AchievementImpl instance) =>
-    <String, dynamic>{
-      'icon': instance.icon,
-      'color': instance.color,
-    };
+    <String, dynamic>{'icon': instance.icon, 'color': instance.color};

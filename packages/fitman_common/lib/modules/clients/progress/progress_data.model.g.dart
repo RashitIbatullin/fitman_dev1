@@ -37,11 +37,11 @@ _$ChartDataPointImpl _$$ChartDataPointImplFromJson(Map<String, dynamic> json) =>
     );
 
 Map<String, dynamic> _$$ChartDataPointImplToJson(
-        _$ChartDataPointImpl instance) =>
-    <String, dynamic>{
-      'date': instance.date.toIso8601String(),
-      'value': instance.value,
-    };
+  _$ChartDataPointImpl instance,
+) => <String, dynamic>{
+  'date': instance.date.toIso8601String(),
+  'value': instance.value,
+};
 
 _$KpiDataImpl _$$KpiDataImplFromJson(Map<String, dynamic> json) =>
     _$KpiDataImpl(

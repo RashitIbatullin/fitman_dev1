@@ -206,7 +206,7 @@ class _AnalyticGroupsProviderElement
   bool? get isArchived => (origin as AnalyticGroupsProvider).isArchived;
 }
 
-String _$trainingGroupsHash() => r'310694b3ac3c1021d6f15daf267545d6036c83dd';
+String _$trainingGroupsHash() => r'0b684cb1c1315a993721e12bbc8f63ad3e21cb31';
 
 abstract class _$TrainingGroups
     extends BuildlessAsyncNotifier<List<TrainingGroup>> {

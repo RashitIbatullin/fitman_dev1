@@ -17,7 +17,6 @@ class TrainingGroup extends Equatable {
   final String? responsibleManagerId; // Ответственный менеджер
 
   // СОСТАВ ГРУППЫ (фиксированный)
-  @JsonKey(defaultValue: [])
   final List<String> clientIds; // Фиксированный состав участников
 
   // РАСПИСАНИЕ ЗАНЯТИЙ - This will be fetched separately or populated by a service
