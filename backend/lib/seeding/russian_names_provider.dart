@@ -1,11 +1,8 @@
 import 'dart:math';
-import 'package:faker_dart/src/name.dart';
 
-// Расширяем возможности стандартного класса Name через Extension
-extension RussianNameExtension on Name {
-  static final _random = Random();
+class RussianNames {
+  final _random = Random();
 
-  // Реальные базы данных фамилий (мужские и женские)
   static const _maleLastNames = [
     'Смирнов', 'Иванов', 'Кузнецов', 'Соколов', 'Попов', 'Лебедев', 'Козлов', 'Новиков', 'Морозов', 'Петров',
     'Волков', 'Соловьёв', 'Васильев', 'Зайцев', 'Павлов', 'Семёнов', 'Голубев', 'Виноградов', 'Богданов', 'Воробьёв',
@@ -21,7 +18,6 @@ extension RussianNameExtension on Name {
     'Яковлева', 'Сорокина', 'Сергеева', 'Романова', 'Захарова', 'Борисова', 'Королёва', 'Герасимова', 'Пономарёва', 'Григорьева'
   ];
 
-  // Базы данных имен
   static const _maleFirstNames = [
     'Александр', 'Дмитрий', 'Максим', 'Сергей', 'Андрей', 'Алексей', 'Артём', 'Илья', 'Кирилл', 'Михаил',
     'Никита', 'Матвей', 'Роман', 'Егор', 'Арсений', 'Иван', 'Денис', 'Евгений', 'Даниил', 'Тимофей',
@@ -37,20 +33,17 @@ extension RussianNameExtension on Name {
     'Инна', 'Антонина', 'Кира', 'Ева', 'Диана', 'Элина', 'Регина', 'Сабина', 'Карина', 'Василиса'
   ];
 
-  // Кастомный метод для генерации имени с учетом пола
-  String russianFirstName({bool isMale = true}) {
+  String firstName({bool isMale = true}) {
     final list = isMale ? _maleFirstNames : _femaleFirstNames;
     return list[_random.nextInt(list.length)];
   }
 
-  // Кастомный метод для генерации фамилии с учетом пола
-  String russianLastName({bool isMale = true}) {
+  String lastName({bool isMale = true}) {
     final list = isMale ? _maleLastNames : _femaleLastNames;
     return list[_random.nextInt(list.length)];
   }
 
-  // Кастомный метод для полного ФИО
-  String russianFullName({bool isMale = true}) {
-    return '${russianFirstName(isMale: isMale)} ${russianLastName(isMale: isMale)}';
+  String fullName({bool isMale = true}) {
+    return '${firstName(isMale: isMale)} ${lastName(isMale: isMale)}';
   }
 }
