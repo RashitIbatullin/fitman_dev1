@@ -298,6 +298,15 @@ class _TrainingGroupEditScreenState
 
     if (confirmed == true && destinationGroupId != null) {
       setState(() => _isLoading = true);
+      
+      final logData = {
+        'clientId': member.id,
+        'fromGroupId': _groupId,
+        'toGroupId': destinationGroupId,
+        'reason': reasonController.text,
+      };
+      print('[MOVE CLIENT] Attempting to move client with data: $logData');
+
       try {
         await ApiService.moveClient(
               clientId: member.id,
@@ -306,6 +315,7 @@ class _TrainingGroupEditScreenState
               reason: reasonController.text,
             );
         
+        print('[MOVE CLIENT] API call successful.');
         setState(() {
           _members.removeWhere((m) => m.id == member.id);
         });
@@ -315,9 +325,25 @@ class _TrainingGroupEditScreenState
           const SnackBar(content: Text('Клиент успешно перемещен.')),
         );
       } catch (e) {
+        print('[MOVE CLIENT] Error during move client: $e');
         if (!context.mounted) return;
+
+        String errorMessage = 'Произошла неизвестная ошибка.';
+        final eString = e.toString().toLowerCase();
+
+        if (eString.contains('target group is already full')) {
+          errorMessage = 'Целевая группа уже заполнена.';
+        } else if (eString.contains('target group not found')) {
+          errorMessage = 'Целевая группа не найдена.';
+        } else {
+          errorMessage = 'Ошибка перемещения: $e';
+        }
+
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Ошибка перемещения: $e')),
+          SnackBar(
+            content: Text(errorMessage),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
         );
       } finally {
         if(mounted) {
@@ -410,213 +436,309 @@ class _TrainingGroupEditScreenState
 
   @override
   Widget build(BuildContext context) {
-     return Scaffold(
-      appBar: AppBar(
-        title: Text(_groupId == null ? 'Создать тренировочную группу' : 'Редактировать тренировочную группу'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.save),
-            onPressed: _isLoading ? null : _saveForm,
-          ),
-        ],
-      ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    TextFormField(
-                      controller: _nameController,
-                      style: Theme.of(context).textTheme.bodySmall,
-                      decoration: InputDecoration(labelText: 'Название группы *', labelStyle: Theme.of(context).textTheme.labelMedium),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Пожалуйста, введите название';
-                        }
-                        return null;
-                      },
-                    ),
-                    TextFormField(
-                      controller: _descriptionController,
-                      style: Theme.of(context).textTheme.bodySmall,
-                      decoration: InputDecoration(labelText: 'Описание', labelStyle: Theme.of(context).textTheme.labelMedium),
-                      maxLines: 1,
-                    ),
-                    ref.watch(trainingGroupTypesProvider).when(
-                      data: (types) => DropdownButtonFormField<String>(
-                        initialValue: _selectedGroupTypeId,
-                        style: Theme.of(context).textTheme.bodySmall,
-                        decoration: InputDecoration(labelText: 'Тип группы', labelStyle: Theme.of(context).textTheme.labelMedium),
-                        items: types.map((type) {
-                          return DropdownMenuItem(
-                            value: type.id,
-                            child: Text(type.title, style: Theme.of(context).textTheme.bodySmall),
-                          );
-                        }).toList(),
-                        onChanged: (value) {
-                          setState(() {
-                            _selectedGroupTypeId = value;
-                          });
-                        },
-                        validator: (value) {
-                          if (value == null) {
-                            return 'Пожалуйста, выберите тип группы';
-                          }
-                          return null;
-                        },
-                      ),
-                      loading: () => const SizedBox.shrink(),
-                      error: (err, stack) => Center(child: Text('Ошибка: $err')),
-                    ),
-                    DropdownButtonFormField<String?>(
-                      initialValue: _selectedPrimaryTrainerId,
-                      style: Theme.of(context).textTheme.bodySmall,
-                      decoration: InputDecoration(labelText: 'Основной тренер', labelStyle: Theme.of(context).textTheme.labelMedium),
-                      items: [
-                        DropdownMenuItem<String?>(
-                          value: null,
-                          child: Text('Не назначен', style: Theme.of(context).textTheme.bodySmall),
-                        ),
-                        ..._trainers.map((user) {
-                          return DropdownMenuItem<String?>(
-                            value: user.id,
-                            child: Text(user.fullName, style: Theme.of(context).textTheme.bodySmall),
-                          );
-                        }),
-                      ],
-                      onChanged: (value) {
-                        setState(() {
-                          _selectedPrimaryTrainerId = value;
-                        });
-                      },
-                    ),
-                    DropdownButtonFormField<String?>(
-                      initialValue: _selectedPrimaryInstructorId,
-                      style: Theme.of(context).textTheme.bodySmall,
-                      decoration: InputDecoration(labelText: 'Основной инструктор (опционально)', labelStyle: Theme.of(context).textTheme.labelMedium),
-                      items: [
-                        DropdownMenuItem<String?>(value: null, child: Text('Нет', style: Theme.of(context).textTheme.bodySmall)),
-                        ..._instructors.map((user) {
-                          return DropdownMenuItem<String?>(
-                            value: user.id,
-                            child: Text(user.fullName, style: Theme.of(context).textTheme.bodySmall),
-                          );
-                        }),
-                      ],
-                      onChanged: (value) {
-                        setState(() {
-                          _selectedPrimaryInstructorId = value;
-                        });
-                      },
-                    ),
-                    DropdownButtonFormField<String?>(
-                      initialValue: _selectedResponsibleManagerId,
-                      style: Theme.of(context).textTheme.bodySmall,
-                      decoration: InputDecoration(labelText: 'Ответственный менеджер (опционально)', labelStyle: Theme.of(context).textTheme.labelMedium),
-                      items: [
-                        DropdownMenuItem<String?>(value: null, child: Text('Нет', style: Theme.of(context).textTheme.bodySmall)),
-                        ..._managers.map((user) {
-                          return DropdownMenuItem<String?>(
-                            value: user.id,
-                            child: Text(user.fullName, style: Theme.of(context).textTheme.bodySmall),
-                          );
-                        }),
-                      ],
-                      onChanged: (value) {
-                        setState(() {
-                          _selectedResponsibleManagerId = value;
-                        });
-                      },
-                    ),
-                    TextFormField(
-                      controller: _maxParticipantsController,
-                      style: Theme.of(context).textTheme.bodySmall,
-                      decoration: InputDecoration(labelText: 'Макс. участников', labelStyle: Theme.of(context).textTheme.labelMedium),
-                      keyboardType: TextInputType.number,
-                      validator: (value) {
-                        if (value == null || int.tryParse(value) == null) {
-                          return 'Пожалуйста, введите число';
-                        }
-                        return null;
-                      },
-                    ),
-                    ListTile(
-                      title: Text('Дата начала: ${DateFormat('dd.MM.yyyy').format(_startDate)}', style: Theme.of(context).textTheme.bodySmall),
-                      trailing: const Icon(Icons.calendar_today),
-                      onTap: () async {
-                        final pickedDate = await showDatePicker(
-                          context: context,
-                          initialDate: _startDate,
-                          firstDate: DateTime(2000),
-                          lastDate: DateTime(2100),
-                        );
-                        if (pickedDate != null) {
-                          setState(() {
-                            _startDate = pickedDate;
-                          });
-                        }
-                      },
-                    ),
-                    ListTile(
-                      title: Text('Дата окончания: ${_endDate != null ? DateFormat('dd.MM.yyyy').format(_endDate!) : 'Не указана'}', style: Theme.of(context).textTheme.bodySmall),
-                      trailing: const Icon(Icons.calendar_today),
-                      onTap: () async {
-                        final pickedDate = await showDatePicker(
-                          context: context,
-                          initialDate: _endDate ?? _startDate.add(const Duration(days: 365)),
-                          firstDate: _startDate,
-                          lastDate: DateTime(2100),
-                        );
-                        if (pickedDate != null) {
-                          setState(() {
-                            _endDate = pickedDate;
-                          });
-                        }
-                      },
-                    ),
-                    SwitchListTile(
-                      title: Text('Активна', style: Theme.of(context).textTheme.bodySmall),
-                      value: _isActive,
-                      onChanged: (value) {
-                        setState(() {
-                          _isActive = value;
-                        });
-                      },
-                    ),
-                    const Divider(),
-                    Text('Члены группы', style: Theme.of(context).textTheme.titleMedium),
-                    
-                    GroupMemberList(
-                      members: _members,
-                      onAdd: _showAddMemberDialog,
-                      onRemove: _handleRemoveMember,
-                      onMove: _handleMoveMember,
-                    ),
+     final isEditing = _groupId != null;
 
-                    const Divider(),
-                    Text('Расписание группы',
-                        style: Theme.of(context).textTheme.titleMedium),
-                    if (_groupId != null) ...[
-                      const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 16.0),
-                        child: Text(
-                            'Расписание можно настроить после создания группы.'),
-                      ),
-                    ] else ...[
-                      const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 16.0),
-                        child: Text(
-                            'Расписание можно настроить после создания группы.'),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
+     return DefaultTabController(
+      length: isEditing ? 2 : 1,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(isEditing ? 'Редактировать группу' : 'Создать группу'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.save),
+              onPressed: _isLoading ? null : _saveForm,
             ),
+          ],
+          bottom: isEditing
+              ? const TabBar(
+                  tabs: [
+                    Tab(text: 'Основное'),
+                    Tab(text: 'Перемещения'),
+                  ],
+                )
+              : null,
+        ),
+        body: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : TabBarView(
+              children: [
+                SingleChildScrollView(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        TextFormField(
+                          controller: _nameController,
+                          style: Theme.of(context).textTheme.bodySmall,
+                          decoration: InputDecoration(labelText: 'Название группы *', labelStyle: Theme.of(context).textTheme.labelMedium),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Пожалуйста, введите название';
+                            }
+                            return null;
+                          },
+                        ),
+                        TextFormField(
+                          controller: _descriptionController,
+                          style: Theme.of(context).textTheme.bodySmall,
+                          decoration: InputDecoration(labelText: 'Описание', labelStyle: Theme.of(context).textTheme.labelMedium),
+                          maxLines: 1,
+                        ),
+                        ref.watch(trainingGroupTypesProvider).when(
+                          data: (types) => DropdownButtonFormField<String>(
+                            initialValue: _selectedGroupTypeId,
+                            style: Theme.of(context).textTheme.bodySmall,
+                            decoration: InputDecoration(labelText: 'Тип группы', labelStyle: Theme.of(context).textTheme.labelMedium),
+                            items: types.map((type) {
+                              return DropdownMenuItem(
+                                value: type.id,
+                                child: Text(type.title, style: Theme.of(context).textTheme.bodySmall),
+                              );
+                            }).toList(),
+                            onChanged: (value) {
+                              setState(() {
+                                _selectedGroupTypeId = value;
+                              });
+                            },
+                            validator: (value) {
+                              if (value == null) {
+                                return 'Пожалуйста, выберите тип группы';
+                              }
+                              return null;
+                            },
+                          ),
+                          loading: () => const SizedBox.shrink(),
+                          error: (err, stack) => Center(child: Text('Ошибка: $err')),
+                        ),
+                        DropdownButtonFormField<String?>(
+                          initialValue: _selectedPrimaryTrainerId,
+                          style: Theme.of(context).textTheme.bodySmall,
+                          decoration: InputDecoration(labelText: 'Основной тренер', labelStyle: Theme.of(context).textTheme.labelMedium),
+                          items: [
+                            DropdownMenuItem<String?>(
+                              value: null,
+                              child: Text('Не назначен', style: Theme.of(context).textTheme.bodySmall),
+                            ),
+                            ..._trainers.map((user) {
+                              return DropdownMenuItem<String?>(
+                                value: user.id,
+                                child: Text(user.fullName, style: Theme.of(context).textTheme.bodySmall),
+                              );
+                            }),
+                          ],
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedPrimaryTrainerId = value;
+                            });
+                          },
+                        ),
+                        DropdownButtonFormField<String?>(
+                          initialValue: _selectedPrimaryInstructorId,
+                          style: Theme.of(context).textTheme.bodySmall,
+                          decoration: InputDecoration(labelText: 'Основной инструктор (опционально)', labelStyle: Theme.of(context).textTheme.labelMedium),
+                          items: [
+                            DropdownMenuItem<String?>(value: null, child: Text('Нет', style: Theme.of(context).textTheme.bodySmall)),
+                            ..._instructors.map((user) {
+                              return DropdownMenuItem<String?>(
+                                value: user.id,
+                                child: Text(user.fullName, style: Theme.of(context).textTheme.bodySmall),
+                              );
+                            }),
+                          ],
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedPrimaryInstructorId = value;
+                            });
+                          },
+                        ),
+                        DropdownButtonFormField<String?>(
+                          initialValue: _selectedResponsibleManagerId,
+                          style: Theme.of(context).textTheme.bodySmall,
+                          decoration: InputDecoration(labelText: 'Ответственный менеджер (опционально)', labelStyle: Theme.of(context).textTheme.labelMedium),
+                          items: [
+                            DropdownMenuItem<String?>(value: null, child: Text('Нет', style: Theme.of(context).textTheme.bodySmall)),
+                            ..._managers.map((user) {
+                              return DropdownMenuItem<String?>(
+                                value: user.id,
+                                child: Text(user.fullName, style: Theme.of(context).textTheme.bodySmall),
+                              );
+                            }),
+                          ],
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedResponsibleManagerId = value;
+                            });
+                          },
+                        ),
+                        TextFormField(
+                          controller: _maxParticipantsController,
+                          style: Theme.of(context).textTheme.bodySmall,
+                          decoration: InputDecoration(labelText: 'Макс. участников', labelStyle: Theme.of(context).textTheme.labelMedium),
+                          keyboardType: TextInputType.number,
+                          validator: (value) {
+                            if (value == null || int.tryParse(value) == null) {
+                              return 'Пожалуйста, введите число';
+                            }
+                            return null;
+                          },
+                        ),
+                        ListTile(
+                          title: Text('Дата начала: ${DateFormat('dd.MM.yyyy').format(_startDate)}', style: Theme.of(context).textTheme.bodySmall),
+                          trailing: const Icon(Icons.calendar_today),
+                          onTap: () async {
+                            final pickedDate = await showDatePicker(
+                              context: context,
+                              initialDate: _startDate,
+                              firstDate: DateTime(2000),
+                              lastDate: DateTime(2100),
+                            );
+                            if (pickedDate != null) {
+                              setState(() {
+                                _startDate = pickedDate;
+                              });
+                            }
+                          },
+                        ),
+                        ListTile(
+                          title: Text('Дата окончания: ${_endDate != null ? DateFormat('dd.MM.yyyy').format(_endDate!) : 'Не указана'}', style: Theme.of(context).textTheme.bodySmall),
+                          trailing: const Icon(Icons.calendar_today),
+                          onTap: () async {
+                            final pickedDate = await showDatePicker(
+                              context: context,
+                              initialDate: _endDate ?? _startDate.add(const Duration(days: 365)),
+                              firstDate: _startDate,
+                              lastDate: DateTime(2100),
+                            );
+                            if (pickedDate != null) {
+                              setState(() {
+                                _endDate = pickedDate;
+                              });
+                            }
+                          },
+                        ),
+                        SwitchListTile(
+                          title: Text('Активна', style: Theme.of(context).textTheme.bodySmall),
+                          value: _isActive,
+                          onChanged: (value) {
+                            setState(() {
+                              _isActive = value;
+                            });
+                          },
+                        ),
+                        const Divider(),
+                        Text('Члены группы', style: Theme.of(context).textTheme.titleMedium),
+                        
+                        GroupMemberList(
+                          members: _members,
+                          onAdd: _showAddMemberDialog,
+                          onRemove: _handleRemoveMember,
+                          onMove: _handleMoveMember,
+                        ),
+
+                        const Divider(),
+                        Text('Расписание группы',
+                            style: Theme.of(context).textTheme.titleMedium),
+                        if (_groupId != null) ...[
+                          const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 16.0),
+                            child: Text(
+                                'Расписание можно настроить после создания группы.'),
+                          ),
+                        ] else ...[
+                          const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 16.0),
+                            child: Text(
+                                'Расписание можно настроить после создания группы.'),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ),
+                if (isEditing)
+                  _MovementHistoryView(groupId: _groupId),
+              ],
+            ),
+      ),
+    );
+  }
+}
+
+class _MovementHistoryView extends ConsumerWidget {
+  final String groupId;
+
+  const _MovementHistoryView({required this.groupId});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final movementsAsync = ref.watch(groupMovementsProvider(groupId));
+    final allUsers = ref.watch(usersProvider).users;
+    // Also watch all groups to resolve names
+    final allGroupsAsync = ref.watch(trainingGroupsProvider());
+
+    String getUserName(String userId) {
+      final user = allUsers.firstWhere((u) => u.id == userId, orElse: () => User.fromJson({'id': userId, 'first_name': 'Неизвестный', 'last_name': 'Пользователь'}));
+      return user.fullName;
+    }
+
+    return allGroupsAsync.when(
+      data: (allGroups) {
+        String getGroupName(String? groupId) {
+          if (groupId == null) return 'N/A';
+          final group = allGroups.firstWhere((g) => g.id == groupId, orElse: () => TrainingGroup(id: groupId, name: 'Неизвестная группа', trainingGroupTypeId: '', maxParticipants: 0, startDate: DateTime.now()));
+          return group.name;
+        }
+
+        return movementsAsync.when(
+          data: (movements) {
+            if (movements.isEmpty) {
+              return const Center(child: Text('История перемещений пуста.'));
+            }
+            return ListView.builder(
+              itemCount: movements.length,
+              itemBuilder: (context, index) {
+                final movement = movements[index];
+                final movedUser = getUserName(movement.userId);
+                final movedBy = getUserName(movement.movedByUserId);
+                
+                String title = '$movedUser';
+                String subtitle = '';
+
+                if (movement.fromGroupId != null && movement.toGroupId != null) {
+                  title += ' перемещен';
+                  subtitle = 'Из: ${getGroupName(movement.fromGroupId)}\nВ: ${getGroupName(movement.toGroupId)}';
+                } else if (movement.toGroupId != null) {
+                  title += ' добавлен в группу';
+                  subtitle = 'В: ${getGroupName(movement.toGroupId)}';
+                } else {
+                  title += ' удален из группы';
+                  subtitle = 'Из: ${getGroupName(movement.fromGroupId)}';
+                }
+                subtitle += '\nДата: ${DateFormat('dd.MM.yyyy HH:mm').format(movement.movementDate.toLocal())}';
+                if (movement.reason != null && movement.reason!.isNotEmpty) {
+                  subtitle += '\nПричина: ${movement.reason}';
+                }
+                subtitle += '\nИнициатор: $movedBy';
+
+
+                return Card(
+                  margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  child: ListTile(
+                    title: Text(title),
+                    subtitle: Text(subtitle),
+                  ),
+                );
+              },
+            );
+          },
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (error, stack) => Center(child: Text('Ошибка загрузки истории: $error')),
+        );
+      },
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (error, stack) => Center(child: Text('Ошибка загрузки групп: $error')),
     );
   }
 }

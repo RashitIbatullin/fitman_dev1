@@ -7,7 +7,8 @@ DROP TABLE IF EXISTS
 "client_groups",
 "training_group_types",
 "training_groups",
-"analytic_groups"	
+"analytic_groups",
+"group_member_movements"	
 CASCADE;
 
 -- Типы тренировочных групп

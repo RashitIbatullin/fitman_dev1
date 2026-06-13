@@ -25,7 +25,7 @@ final trainingGroupTypesProvider =
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef TrainingGroupTypesRef = FutureProviderRef<List<TrainingGroupType>>;
-String _$analyticGroupsHash() => r'6136b61aea60a6eaeba5c48039244677f04ce200';
+String _$groupMovementsHash() => r'cb02af446e343ae6b72e8367854c304dc2ae3a69';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -47,6 +47,246 @@ class _SystemHash {
     return 0x1fffffff & (hash + ((0x00003fff & hash) << 15));
   }
 }
+
+/// See also [groupMovements].
+@ProviderFor(groupMovements)
+const groupMovementsProvider = GroupMovementsFamily();
+
+/// See also [groupMovements].
+class GroupMovementsFamily extends Family<AsyncValue<List<GroupMovement>>> {
+  /// See also [groupMovements].
+  const GroupMovementsFamily();
+
+  /// See also [groupMovements].
+  GroupMovementsProvider call(String groupId) {
+    return GroupMovementsProvider(groupId);
+  }
+
+  @override
+  GroupMovementsProvider getProviderOverride(
+    covariant GroupMovementsProvider provider,
+  ) {
+    return call(provider.groupId);
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'groupMovementsProvider';
+}
+
+/// See also [groupMovements].
+class GroupMovementsProvider extends FutureProvider<List<GroupMovement>> {
+  /// See also [groupMovements].
+  GroupMovementsProvider(String groupId)
+    : this._internal(
+        (ref) => groupMovements(ref as GroupMovementsRef, groupId),
+        from: groupMovementsProvider,
+        name: r'groupMovementsProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$groupMovementsHash,
+        dependencies: GroupMovementsFamily._dependencies,
+        allTransitiveDependencies:
+            GroupMovementsFamily._allTransitiveDependencies,
+        groupId: groupId,
+      );
+
+  GroupMovementsProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.groupId,
+  }) : super.internal();
+
+  final String groupId;
+
+  @override
+  Override overrideWith(
+    FutureOr<List<GroupMovement>> Function(GroupMovementsRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: GroupMovementsProvider._internal(
+        (ref) => create(ref as GroupMovementsRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        groupId: groupId,
+      ),
+    );
+  }
+
+  @override
+  FutureProviderElement<List<GroupMovement>> createElement() {
+    return _GroupMovementsProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is GroupMovementsProvider && other.groupId == groupId;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, groupId.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin GroupMovementsRef on FutureProviderRef<List<GroupMovement>> {
+  /// The parameter `groupId` of this provider.
+  String get groupId;
+}
+
+class _GroupMovementsProviderElement
+    extends FutureProviderElement<List<GroupMovement>>
+    with GroupMovementsRef {
+  _GroupMovementsProviderElement(super.provider);
+
+  @override
+  String get groupId => (origin as GroupMovementsProvider).groupId;
+}
+
+String _$userMovementsHash() => r'7eabfcf045e0bfb166ef2fa9ffb62adaac8506dc';
+
+/// See also [userMovements].
+@ProviderFor(userMovements)
+const userMovementsProvider = UserMovementsFamily();
+
+/// See also [userMovements].
+class UserMovementsFamily extends Family<AsyncValue<List<GroupMovement>>> {
+  /// See also [userMovements].
+  const UserMovementsFamily();
+
+  /// See also [userMovements].
+  UserMovementsProvider call(String userId) {
+    return UserMovementsProvider(userId);
+  }
+
+  @override
+  UserMovementsProvider getProviderOverride(
+    covariant UserMovementsProvider provider,
+  ) {
+    return call(provider.userId);
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'userMovementsProvider';
+}
+
+/// See also [userMovements].
+class UserMovementsProvider extends FutureProvider<List<GroupMovement>> {
+  /// See also [userMovements].
+  UserMovementsProvider(String userId)
+    : this._internal(
+        (ref) => userMovements(ref as UserMovementsRef, userId),
+        from: userMovementsProvider,
+        name: r'userMovementsProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$userMovementsHash,
+        dependencies: UserMovementsFamily._dependencies,
+        allTransitiveDependencies:
+            UserMovementsFamily._allTransitiveDependencies,
+        userId: userId,
+      );
+
+  UserMovementsProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.userId,
+  }) : super.internal();
+
+  final String userId;
+
+  @override
+  Override overrideWith(
+    FutureOr<List<GroupMovement>> Function(UserMovementsRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: UserMovementsProvider._internal(
+        (ref) => create(ref as UserMovementsRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        userId: userId,
+      ),
+    );
+  }
+
+  @override
+  FutureProviderElement<List<GroupMovement>> createElement() {
+    return _UserMovementsProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is UserMovementsProvider && other.userId == userId;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, userId.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin UserMovementsRef on FutureProviderRef<List<GroupMovement>> {
+  /// The parameter `userId` of this provider.
+  String get userId;
+}
+
+class _UserMovementsProviderElement
+    extends FutureProviderElement<List<GroupMovement>>
+    with UserMovementsRef {
+  _UserMovementsProviderElement(super.provider);
+
+  @override
+  String get userId => (origin as UserMovementsProvider).userId;
+}
+
+String _$analyticGroupsHash() => r'6136b61aea60a6eaeba5c48039244677f04ce200';
 
 abstract class _$AnalyticGroups
     extends BuildlessAsyncNotifier<List<AnalyticGroup>> {

@@ -6,6 +6,7 @@ import 'package:fitman_common/modules/groups/training_group.model.dart';
 import 'package:fitman_common/modules/groups/training_group_type.model.dart';
 import 'package:fitman_common/modules/groups/group_schedule.model.dart';
 import 'package:equatable/equatable.dart';
+import 'package:fitman_common/fitman_common.dart';
 
 part 'group_providers.g.dart';
 
@@ -231,4 +232,18 @@ class GroupMembers extends _$GroupMembers {
       state = AsyncValue.error(e, st);
     }
   }
+}
+
+// --- Group Movements ---
+
+@Riverpod(keepAlive: true)
+Future<List<GroupMovement>> groupMovements(
+    GroupMovementsRef ref, String groupId) async {
+  return ApiService.getGroupMovements(groupId);
+}
+
+@Riverpod(keepAlive: true)
+Future<List<GroupMovement>> userMovements(
+    UserMovementsRef ref, String userId) async {
+  return ApiService.getUserMovements(userId);
 }
