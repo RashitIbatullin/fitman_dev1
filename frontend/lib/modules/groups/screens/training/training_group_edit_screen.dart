@@ -478,7 +478,7 @@ class _TrainingGroupEditScreenState
                       children: [
                         TextFormField(
                           controller: _nameController,
-                          style: Theme.of(context).textTheme.bodySmall,
+                          style: Theme.of(context).textTheme.bodyMedium,
                           decoration: InputDecoration(labelText: 'Название группы *', labelStyle: Theme.of(context).textTheme.labelMedium),
                           validator: (value) {
                             if (value == null || value.isEmpty) {

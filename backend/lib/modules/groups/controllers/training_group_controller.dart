@@ -195,6 +195,7 @@ class TrainingGroupsController {
       
       await _db.groups.moveClient(
         clientId: clientId,
+        userRole: 'client',
         fromGroupId: fromGroupId,
         toGroupId: toGroupId,
         reason: reason,

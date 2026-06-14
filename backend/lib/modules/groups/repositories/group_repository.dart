@@ -147,49 +147,110 @@ class GroupRepository {
 
   Future<TrainingGroup> updateTrainingGroup(TrainingGroup group, String updaterId) async {
     final conn = await _db.connection;
-    final result = await conn.execute(
-      Sql.named('''
-        UPDATE training_groups
-        SET
-          name = @name,
-          description = @description,
-          training_group_type_id = @training_group_type_id,
-          primary_trainer_id = @primary_trainer_id,
-          primary_instructor_id = @primary_instructor_id,
-          responsible_manager_id = @responsible_manager_id,
-          program_id = @program_id,
-          goal_id = @goal_id,
-          level_id = @level_id,
-          max_participants = @max_participants,
-          start_date = @start_date,
-          end_date = @end_date,
-          is_active = @is_active,
-          chat_id = @chat_id,
-          updated_by = @updated_by,
-          updated_at = NOW()
-        WHERE id = @id
-        RETURNING *
-      '''),
-      parameters: {
-        'id': group.id,
-        'name': group.name,
-        'description': group.description,
-        'training_group_type_id': group.trainingGroupTypeId,
-        'primary_trainer_id': group.primaryTrainerId,
-        'primary_instructor_id': group.primaryInstructorId,
-        'responsible_manager_id': group.responsibleManagerId,
-        'program_id': group.programId,
-        'goal_id': group.goalId,
-        'level_id': group.levelId,
-        'max_participants': group.maxParticipants,
-        'start_date': group.startDate.toIso8601String(),
-        'end_date': group.endDate?.toIso8601String(),
-        'is_active': group.isActive,
-        'chat_id': group.chatId,
-        'updated_by': updaterId,
-      },
-    );
-    return TrainingGroup.fromJson(result.first.toColumnMap());
+    return conn.runTx((session) async {
+      // 1. Get current state of the group
+      final currentGroupResult = await session.execute(
+        Sql.named('SELECT primary_trainer_id, primary_instructor_id, responsible_manager_id FROM training_groups WHERE id = @id'),
+        parameters: {'id': group.id},
+      );
+      if (currentGroupResult.isEmpty) {
+        throw ArgumentError('Group not found.');
+      }
+      final currentGroup = currentGroupResult.first.toColumnMap();
+
+      // 2. Update the group
+      final result = await session.execute(
+        Sql.named('''
+          UPDATE training_groups
+          SET
+            name = @name,
+            description = @description,
+            training_group_type_id = @training_group_type_id,
+            primary_trainer_id = @primary_trainer_id,
+            primary_instructor_id = @primary_instructor_id,
+            responsible_manager_id = @responsible_manager_id,
+            program_id = @program_id,
+            goal_id = @goal_id,
+            level_id = @level_id,
+            max_participants = @max_participants,
+            start_date = @start_date,
+            end_date = @end_date,
+            is_active = @is_active,
+            chat_id = @chat_id,
+            updated_by = @updated_by,
+            updated_at = NOW()
+          WHERE id = @id
+          RETURNING *
+        '''),
+        parameters: {
+          'id': group.id,
+          'name': group.name,
+          'description': group.description,
+          'training_group_type_id': group.trainingGroupTypeId,
+          'primary_trainer_id': group.primaryTrainerId,
+          'primary_instructor_id': group.primaryInstructorId,
+          'responsible_manager_id': group.responsibleManagerId,
+          'program_id': group.programId,
+          'goal_id': group.goalId,
+          'level_id': group.levelId,
+          'max_participants': group.maxParticipants,
+          'start_date': group.startDate.toIso8601String(),
+          'end_date': group.endDate?.toIso8601String(),
+          'is_active': group.isActive,
+          'chat_id': group.chatId,
+          'updated_by': updaterId,
+        },
+      );
+      final updatedGroup = TrainingGroup.fromJson(result.first.toColumnMap());
+
+      // 3. Log changes in staff
+      final staffFields = {
+        'primary_trainer_id': 'trainer',
+        'primary_instructor_id': 'instructor',
+        'responsible_manager_id': 'manager',
+      };
+
+      for (final entry in staffFields.entries) {
+        final fieldName = entry.key;
+        final role = entry.value;
+        final oldStaffId = currentGroup[fieldName] as String?;
+        final newStaffId = _getStaffIdByField(group, fieldName);
+
+        if (oldStaffId != newStaffId) {
+          await session.execute(
+            Sql.named(r'''
+              INSERT INTO group_member_movements (
+                user_id, user_role, from_group_id, to_group_id,
+                movement_date, reason, moved_by_user_id
+              )
+              VALUES (
+                @userId, @userRole, @fromGroupId, @toGroupId,
+                NOW(), @reason, @movedByUserId
+              )
+            '''),
+            parameters: {
+              'userId': newStaffId ?? oldStaffId,
+              'userRole': role,
+              'fromGroupId': newStaffId == null ? group.id : null, // 'from' if removed
+              'toGroupId': newStaffId != null ? group.id : null,   // 'to' if added
+              'reason': 'Автоматическое обновление персонала группы',
+              'movedByUserId': updaterId,
+            },
+          );
+        }
+      }
+
+      return updatedGroup;
+    });
+  }
+
+  String? _getStaffIdByField(TrainingGroup group, String fieldName) {
+    switch (fieldName) {
+      case 'primary_trainer_id': return group.primaryTrainerId;
+      case 'primary_instructor_id': return group.primaryInstructorId;
+      case 'responsible_manager_id': return group.responsibleManagerId;
+      default: return null;
+    }
   }
 
   Future<void> deleteTrainingGroup(String id, String archiverId) async {
@@ -421,6 +482,7 @@ class GroupRepository {
 
   Future<void> moveClient({
     required String clientId,
+    required String userRole,
     String? fromGroupId,
     String? toGroupId,
     required String reason,
@@ -464,7 +526,7 @@ class GroupRepository {
           parameters: {'toGroupId': toGroupId, 'clientId': clientId, 'addedBy': movedByUserId},
         );
       }
-      
+
       // 3. Log the movement
       await session.execute(
         Sql.named(r'''
@@ -479,7 +541,7 @@ class GroupRepository {
         '''),
         parameters: {
           'userId': clientId,
-          'userRole': 'client',
+          'userRole': userRole,
           'fromGroupId': fromGroupId,
           'toGroupId': toGroupId,
           'movementDate': DateTime.now().toUtc(),
