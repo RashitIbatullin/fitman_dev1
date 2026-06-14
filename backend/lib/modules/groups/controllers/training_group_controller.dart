@@ -37,15 +37,32 @@ class TrainingGroupsController {
   Future<Response> _getAllTrainingGroups(Request request) async {
     try {
       final queryParams = request.url.queryParameters;
+      final user = request.context['user'] as User; // Get the authenticated user
       
       // Parse all filter parameters
       final String? searchQuery = queryParams['q'];
       final String? groupTypeId = queryParams['groupTypeId'];
       final bool? isActive = queryParams['isActive'] != null ? bool.parse(queryParams['isActive']!) : null;
       final bool? isArchived = queryParams['isArchived'] != null ? bool.parse(queryParams['isArchived']!) : null;
-      final String? trainerId = queryParams['trainerId'];
-      final String? instructorId = queryParams['instructorId'];
-      final String? managerId = queryParams['managerId'];
+
+      String? trainerId = queryParams['trainerId'];
+      String? instructorId = queryParams['instructorId'];
+      String? managerId = queryParams['managerId'];
+
+      // If no specific role-based filter is provided by the frontend,
+      // filter by the current user's ID if they are a manager, trainer, or instructor.
+      if (trainerId == null && instructorId == null && managerId == null) {
+        if (user.roles.any((r) => r.name == 'trainer')) {
+          trainerId = user.id;
+        }
+        if (user.roles.any((r) => r.name == 'instructor')) {
+          instructorId = user.id;
+        }
+        if (user.roles.any((r) => r.name == 'manager')) {
+          managerId = user.id;
+        }
+        // Admins see all groups by default, so no modification to filters needed for them here.
+      }
 
       final groups = await _db.groups.getAllTrainingGroups(
         searchQuery: searchQuery,

@@ -9,6 +9,7 @@ import '../modules/users/providers/auth_provider.dart';
 import 'manager/schedule_page.dart';
 import 'manager/user_list_page.dart';
 import 'manager/timesheet_page.dart';
+import 'package:fitman_app/modules/groups/screens/training/training_groups_screen.dart';
 
 class InstructorDashboard extends ConsumerWidget {
   final User? instructor;
@@ -121,6 +122,11 @@ class InstructorDashboard extends ConsumerWidget {
               leading: const Icon(Icons.access_time),
               title: const Text('Табель'),
               onTap: () => handleDrawerTap(const TimesheetPage()),
+            ),
+            ListTile(
+              leading: const Icon(Icons.group),
+              title: const Text('Группы тренинга'),
+              onTap: () => handleDrawerTap(TrainingGroupsScreen(userId: user.id, userRole: 'instructor')),
             ),
             ListTile(
               leading: const Icon(Icons.school),

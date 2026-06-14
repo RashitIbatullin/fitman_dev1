@@ -137,6 +137,22 @@ Handler _instructorHandler(Handler handler) {
   return requireAuth()(_requireInstructorOrAdmin()(handler));
 }
 
+Middleware _requireAnyEmployeeRoleOrAdmin() {
+  return (Handler innerHandler) {
+    return (Request request) {
+      final user = request.context['user'] as User?;
+      if (user == null || !user.roles.any((r) => r.name == 'admin' || r.name == 'manager' || r.name == 'trainer' || r.name == 'instructor')) {
+        return Response.forbidden('{"error": "Admin, Manager, Trainer or Instructor access required"}');
+      }
+      return innerHandler(request);
+    };
+  };
+}
+
+Handler _employeeRolesOrAdminHandler(Handler handler) {
+  return requireAuth()(_requireAnyEmployeeRoleOrAdmin()(handler));
+}
+
 final Router router = Router()
 // Public routes
   ..get('/api/health', (_) => Response.ok('{"status": "OK", "message": "FitMan Dart API MVP1"}'))
@@ -151,7 +167,7 @@ final Router router = Router()
   ..mount('/api/training_group_types', (Request request) => _protectedHandler(_trainingGroupTypesController.router.call)(request))
 
 // User management routes (только для админа)
-  ..get('/api/users', (Request request) => _adminHandler(UsersController.getUsers)(request))
+  ..get('/api/users', (Request request) => _employeeRolesOrAdminHandler(UsersController.getUsers)(request))
   ..post('/api/users', (Request request) => _adminHandler(UsersController.createUser)(request))
   ..get('/api/users/<id>', (Request request, String id) => _protectedHandler((Request req) => UsersController.getUserById(req, id))(request))
   ..put('/api/users/<id>', (Request request, String id) => _protectedHandler((Request req) => UsersController.updateUser(req, id))(request))
@@ -260,7 +276,7 @@ final Router router = Router()
   ..get('/api/chat/ws', (Request request) => _protectedHandler(ChatWsController.handler)(request))
 
 // Training Groups routes (Admin access)
-  ..mount('/api/training_groups', _adminHandler(_trainingGroupsController.router.call))
+  ..mount('/api/training_groups', _employeeRolesOrAdminHandler(_trainingGroupsController.router.call))
 // Analytic Groups routes (Admin access)
   ..mount('/api/analytic_groups', _adminHandler(_analyticGroupsController.router.call))
 // Group Schedule routes (Admin access)

@@ -351,7 +351,7 @@ class _TrainingGroupEditScreenState
           ),
         );
       } finally {
-        if(context.mounted) {
+        if(mounted) {
           setState(() => _isLoading = false);
         }
       }

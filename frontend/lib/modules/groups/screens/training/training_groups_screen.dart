@@ -7,11 +7,15 @@ import '../../widgets/training/training_group_card.dart';
 import 'package:fitman_common/modules/groups/training_group.model.dart';
 import 'package:fitman_app/services/api_service.dart';
 import 'package:fitman_common/fitman_common.dart';
+import 'package:collection/collection.dart'; // Import for firstWhereOrNull
 
 enum GroupStatusFilter { active, inactive, archived }
 
 class TrainingGroupsScreen extends ConsumerStatefulWidget {
-  const TrainingGroupsScreen({super.key});
+  final String? userId;
+  final String? userRole;
+
+  const TrainingGroupsScreen({super.key, this.userId, this.userRole});
 
   @override
   ConsumerState<TrainingGroupsScreen> createState() =>
@@ -35,10 +39,29 @@ class _TrainingGroupsScreenState extends ConsumerState<TrainingGroupsScreen> {
   @override
   void initState() {
     super.initState();
+
+    if (widget.userId != null && widget.userRole != null) {
+      _selectedEmployeeRole = widget.userRole;
+    }
+
     Future.microtask(() async {
       ref.read(usersProvider.notifier).fetchUsers();
       ref.read(trainingGroupTypesProvider);
       await _fetchUsersByRole();
+
+      if (widget.userId != null && _selectedEmployeeRole != null) {
+        final allUsers = [
+          ..._trainers,
+          ..._instructors,
+          ..._managers,
+        ];
+        final user = allUsers.firstWhereOrNull((u) => u.id == widget.userId);
+        if (user != null) {
+          setState(() {
+            _selectedEmployee = user;
+          });
+        }
+      }
     });
     _searchController.addListener(() {
       setState(() {
@@ -50,7 +73,7 @@ class _TrainingGroupsScreenState extends ConsumerState<TrainingGroupsScreen> {
   Future<void> _fetchUsersByRole() async {
     try {
       final allUsers = await ApiService.getUsers();
-      if (!mounted) return;
+      if (!context.mounted) return;
       setState(() {
         _trainers = allUsers
             .where((user) => user.roles.any((role) => role.name == 'trainer'))

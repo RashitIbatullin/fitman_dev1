@@ -8,6 +8,7 @@ import 'package:fitman_app/modules/employees/screens/competency_screen.dart';
 import '../modules/users/providers/auth_provider.dart';
 import 'manager/schedule_page.dart';
 import 'manager/user_list_page.dart';
+import 'package:fitman_app/modules/groups/screens/training/training_groups_screen.dart';
 
 class TrainerDashboard extends ConsumerWidget {
   final User? trainer;
@@ -112,6 +113,11 @@ class TrainerDashboard extends ConsumerWidget {
               leading: const Icon(Icons.schedule),
               title: const Text('Расписание'),
               onTap: () => handleDrawerTap(const SchedulePage()),
+            ),
+             ListTile(
+              leading: const Icon(Icons.group),
+              title: const Text('Группы тренинга'),
+              onTap: () => handleDrawerTap(TrainingGroupsScreen(userId: user.id, userRole: 'trainer')),
             ),
              ListTile(
               leading: const Icon(Icons.school),
