@@ -242,8 +242,9 @@ class _TrainingGroupEditScreenState
     final reasonController = TextEditingController();
     final dialogFormKey = GlobalKey<FormState>();
 
+    final dialogContext = context;
     final confirmed = await showDialog<bool>(
-      context: context,
+      context: dialogContext,
       builder: (context) {
         return AlertDialog(
           title: Text('Переместить ${member.fullName}'),
@@ -300,6 +301,7 @@ class _TrainingGroupEditScreenState
     );
 
     if (confirmed == true && destinationGroupId != null) {
+      if (!mounted) return;
       setState(() => _isLoading = true);
       
       final logData = {
@@ -319,10 +321,11 @@ class _TrainingGroupEditScreenState
             );
         
         print('[MOVE CLIENT] API call successful.');
+
+        if (!mounted) return;
         setState(() {
           _members.removeWhere((m) => m.id == member.id);
         });
-
 
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
@@ -331,7 +334,7 @@ class _TrainingGroupEditScreenState
       } catch (e) {
         print('[MOVE CLIENT] Error during move client: $e');
 
-
+        if (!mounted) return;
         String errorMessage = 'Произошла неизвестная ошибка.';
         final eString = e.toString().toLowerCase();
 
@@ -343,7 +346,6 @@ class _TrainingGroupEditScreenState
           errorMessage = 'Ошибка перемещения: $e';
         }
 
-        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(errorMessage),
@@ -351,7 +353,7 @@ class _TrainingGroupEditScreenState
           ),
         );
       } finally {
-        if(mounted) {
+        if (mounted) {
           setState(() => _isLoading = false);
         }
       }
