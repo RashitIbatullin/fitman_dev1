@@ -86,7 +86,6 @@ class _TrainingGroupEditScreenState
           _allUsers.where((u) => u.roles.any((r) => r.name == 'manager')).toList();
     } catch (e) {
       print('Failed to fetch users: $e');
-      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to fetch users: $e')),
       );
@@ -100,7 +99,6 @@ class _TrainingGroupEditScreenState
 
       final memberIds = await ref.read(groupMembersProvider(_groupId).future);
       if (!mounted) return;
-
       _initialGroup = group;
       _nameController.text = group.name;
       _descriptionController.text = group.description ?? '';
@@ -119,7 +117,6 @@ class _TrainingGroupEditScreenState
           _allUsers.where((user) => memberIds.contains(user.id)).toList();
     } catch (e) {
       print('Failed to load group data: $e');
-      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to load group: $e')),
       );
@@ -133,7 +130,18 @@ class _TrainingGroupEditScreenState
     _maxParticipantsController.dispose();
     super.dispose();
   }
+  void _handleSaveSuccess() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Группа успешно сохранена!')),
+    );
+    Navigator.of(context).pop(true); // Pop with success
+  }
 
+  void _handleSaveError(dynamic e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Ошибка сохранения группы: $e')),
+    );
+  }
   Future<void> _saveForm() async {
     if (!_formKey.currentState!.validate()) {
       return;
@@ -195,17 +203,12 @@ class _TrainingGroupEditScreenState
 
 
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Группа успешно сохранена!')),
-      );
-      Navigator.of(context).pop(true); // Pop with success
+      _handleSaveSuccess();
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Ошибка сохранения группы: $e')),
-      );
+      _handleSaveError(e);
     } finally {
-      if(mounted) {
+      if(context.mounted) {
         setState(() => _isLoading = false);
       }
     }
@@ -320,13 +323,14 @@ class _TrainingGroupEditScreenState
           _members.removeWhere((m) => m.id == member.id);
         });
 
-        if (!context.mounted) return;
+
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Клиент успешно перемещен.')),
         );
       } catch (e) {
         print('[MOVE CLIENT] Error during move client: $e');
-        if (!context.mounted) return;
+
 
         String errorMessage = 'Произошла неизвестная ошибка.';
         final eString = e.toString().toLowerCase();
@@ -339,6 +343,7 @@ class _TrainingGroupEditScreenState
           errorMessage = 'Ошибка перемещения: $e';
         }
 
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(errorMessage),
@@ -346,7 +351,7 @@ class _TrainingGroupEditScreenState
           ),
         );
       } finally {
-        if(mounted) {
+        if(context.mounted) {
           setState(() => _isLoading = false);
         }
       }
@@ -703,7 +708,7 @@ class _MovementHistoryView extends ConsumerWidget {
                 final movedUser = getUserName(movement.userId);
                 final movedBy = getUserName(movement.movedByUserId);
                 
-                String title = '$movedUser';
+                String title = movedUser;
                 String subtitle = '';
 
                 if (movement.fromGroupId != null && movement.toGroupId != null) {
