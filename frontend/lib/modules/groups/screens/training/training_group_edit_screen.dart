@@ -123,6 +123,211 @@ class _TrainingGroupEditScreenState
     }
   }
 
+  Future<void> _showSelectUserDialog({
+    required String title,
+    required List<User> users,
+    required Function(String) onSelected,
+  }) async {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        String searchQuery = '';
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setStateDialog) {
+            final filteredUsers = users.where((user) {
+              final query = searchQuery.toLowerCase();
+              return user.fullName.toLowerCase().contains(query) ||
+                  (user.phone?.contains(query) ?? false);
+            }).toList();
+
+            return AlertDialog(
+              title: Text(title),
+              content: SizedBox(
+                width: double.maxFinite,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      onChanged: (value) {
+                        setStateDialog(() {
+                          searchQuery = value;
+                        });
+                      },
+                      decoration: const InputDecoration(
+                        labelText: 'Поиск...',
+                        prefixIcon: Icon(Icons.search),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Expanded(
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: filteredUsers.length,
+                        itemBuilder: (context, index) {
+                          final user = filteredUsers[index];
+                          return ListTile(
+                            title: Text(user.fullName),
+                            onTap: () {
+                              onSelected(user.id);
+                              Navigator.of(context).pop();
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Future<void> _showMoveStaffDialog({
+    required String roleTitle,
+    required List<User> availableUsers,
+    required Function(String, String) onConfirm,
+  }) async {
+    String? selectedUserId;
+    final reasonController = TextEditingController();
+    final dialogFormKey = GlobalKey<FormState>();
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Заменить $roleTitle'),
+          content: Form(
+            key: dialogFormKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                DropdownButtonFormField<String>(
+                  decoration: const InputDecoration(labelText: 'Новый сотрудник'),
+                  items: availableUsers.map((user) {
+                    return DropdownMenuItem(
+                      value: user.id,
+                      child: Text(user.fullName),
+                    );
+                  }).toList(),
+                  onChanged: (value) => selectedUserId = value,
+                  validator: (value) => value == null ? 'Выберите сотрудника' : null,
+                ),
+                TextFormField(
+                  controller: reasonController,
+                  decoration: const InputDecoration(labelText: 'Причина замены'),
+                  validator: (value) {
+                    if (value == null || value.length < 5) {
+                      return 'Причина не менее 5 символов';
+                    }
+                    return null;
+                  },
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('Отмена')),
+            ElevatedButton(
+              onPressed: () {
+                if (dialogFormKey.currentState!.validate()) Navigator.of(context).pop(true);
+              },
+              child: const Text('Подтвердить'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed == true && selectedUserId != null) {
+      onConfirm(selectedUserId!, reasonController.text);
+    }
+  }
+
+  Widget _buildUserSelectionTile({
+    required String title,
+    required String? selectedUserId,
+    required List<User> availableUsers,
+    required Function(String?) onUserChanged,
+  }) {
+    final selectedUser = selectedUserId != null
+        ? _allUsers.firstWhere((u) => u.id == selectedUserId)
+        : null;
+
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      title: Text(title, style: Theme.of(context).textTheme.labelMedium),
+      subtitle: Text(selectedUser?.fullName ?? 'Не назначен',
+          style: Theme.of(context).textTheme.bodySmall),
+      trailing: PopupMenuButton<String>(
+        onSelected: (value) {
+          if (value == 'add') {
+            _showSelectUserDialog(
+              title: 'Выбрать ${title.toLowerCase()}',
+              users: availableUsers,
+              onSelected: onUserChanged,
+            );
+          } else if (value == 'move') {
+            _showMoveStaffDialog(
+              roleTitle: title.toLowerCase(),
+              availableUsers: availableUsers.where((u) => u.id != selectedUserId).toList(),
+              onConfirm: (userId, reason) async {
+                if (_groupId != null) {
+                  try {
+                    String? oldStaffId;
+                    String role = '';
+                    if (title.contains('тренер')) {
+                      oldStaffId = _selectedPrimaryTrainerId;
+                      role = 'trainer';
+                    } else if (title.contains('инструктор')) {
+                      oldStaffId = _selectedPrimaryInstructorId;
+                      role = 'instructor';
+                    } else if (title.contains('менеджер')) {
+                      oldStaffId = _selectedResponsibleManagerId;
+                      role = 'manager';
+                    }
+                    
+                    if (oldStaffId != null) {
+                      await ApiService.replaceStaff(
+                        groupId: _groupId,
+                        oldStaffId: oldStaffId,
+                        newStaffId: userId,
+                        role: role,
+                        reason: reason,
+                      );
+                      if (!mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Сотрудник успешно заменен')),
+                      );
+                    }
+                  } catch (e) {
+                    if (!mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Ошибка при замене сотрудника: $e')),
+                    );
+                    return;
+                  }
+                }
+                onUserChanged(userId);
+              },
+            );
+          } else if (value == 'remove') {
+            onUserChanged(null);
+          }
+        },
+        itemBuilder: (context) => [
+          const PopupMenuItem(value: 'add', child: Text('Добавить')),
+          if (selectedUserId != null) ...[
+            const PopupMenuItem(value: 'move', child: Text('Заменить')),
+            const PopupMenuItem(value: 'remove', child: Text('Удалить')),
+          ],
+        ],
+      ),
+    );
+  }
+
   @override
   void dispose() {
     _nameController.dispose();
@@ -519,65 +724,23 @@ class _TrainingGroupEditScreenState
                           loading: () => const SizedBox.shrink(),
                           error: (err, stack) => Center(child: Text('Ошибка: $err')),
                         ),
-                        DropdownButtonFormField<String?>(
-                          initialValue: _selectedPrimaryTrainerId,
-                          style: Theme.of(context).textTheme.bodySmall,
-                          decoration: InputDecoration(labelText: 'Основной тренер', labelStyle: Theme.of(context).textTheme.labelMedium),
-                          items: [
-                            DropdownMenuItem<String?>(
-                              value: null,
-                              child: Text('Не назначен', style: Theme.of(context).textTheme.bodySmall),
-                            ),
-                            ..._trainers.map((user) {
-                              return DropdownMenuItem<String?>(
-                                value: user.id,
-                                child: Text(user.fullName, style: Theme.of(context).textTheme.bodySmall),
-                              );
-                            }),
-                          ],
-                          onChanged: (value) {
-                            setState(() {
-                              _selectedPrimaryTrainerId = value;
-                            });
-                          },
+                        _buildUserSelectionTile(
+                          title: 'Основной тренер',
+                          selectedUserId: _selectedPrimaryTrainerId,
+                          availableUsers: _trainers,
+                          onUserChanged: (value) => setState(() => _selectedPrimaryTrainerId = value),
                         ),
-                        DropdownButtonFormField<String?>(
-                          initialValue: _selectedPrimaryInstructorId,
-                          style: Theme.of(context).textTheme.bodySmall,
-                          decoration: InputDecoration(labelText: 'Основной инструктор (опционально)', labelStyle: Theme.of(context).textTheme.labelMedium),
-                          items: [
-                            DropdownMenuItem<String?>(value: null, child: Text('Нет', style: Theme.of(context).textTheme.bodySmall)),
-                            ..._instructors.map((user) {
-                              return DropdownMenuItem<String?>(
-                                value: user.id,
-                                child: Text(user.fullName, style: Theme.of(context).textTheme.bodySmall),
-                              );
-                            }),
-                          ],
-                          onChanged: (value) {
-                            setState(() {
-                              _selectedPrimaryInstructorId = value;
-                            });
-                          },
+                        _buildUserSelectionTile(
+                          title: 'Основной инструктор (опционально)',
+                          selectedUserId: _selectedPrimaryInstructorId,
+                          availableUsers: _instructors,
+                          onUserChanged: (value) => setState(() => _selectedPrimaryInstructorId = value),
                         ),
-                        DropdownButtonFormField<String?>(
-                          initialValue: _selectedResponsibleManagerId,
-                          style: Theme.of(context).textTheme.bodySmall,
-                          decoration: InputDecoration(labelText: 'Ответственный менеджер (опционально)', labelStyle: Theme.of(context).textTheme.labelMedium),
-                          items: [
-                            DropdownMenuItem<String?>(value: null, child: Text('Нет', style: Theme.of(context).textTheme.bodySmall)),
-                            ..._managers.map((user) {
-                              return DropdownMenuItem<String?>(
-                                value: user.id,
-                                child: Text(user.fullName, style: Theme.of(context).textTheme.bodySmall),
-                              );
-                            }),
-                          ],
-                          onChanged: (value) {
-                            setState(() {
-                              _selectedResponsibleManagerId = value;
-                            });
-                          },
+                        _buildUserSelectionTile(
+                          title: 'Ответственный менеджер (опционально)',
+                          selectedUserId: _selectedResponsibleManagerId,
+                          availableUsers: _managers,
+                          onUserChanged: (value) => setState(() => _selectedResponsibleManagerId = value),
                         ),
                         TextFormField(
                           controller: _maxParticipantsController,
@@ -710,24 +873,55 @@ class _MovementHistoryView extends ConsumerWidget {
                 final movedUser = getUserName(movement.userId);
                 final movedBy = getUserName(movement.movedByUserId);
                 
-                String title = movedUser;
+                // Логика отображения
+                String title = '';
                 String subtitle = '';
 
-                if (movement.fromGroupId != null && movement.toGroupId != null) {
-                  title += ' перемещен';
-                  subtitle = 'Из: ${getGroupName(movement.fromGroupId)}\nВ: ${getGroupName(movement.toGroupId)}';
+                // Проверка, является ли это заменой сотрудника (содержит "REPLACE_STAFF:")
+                if (movement.reason != null && movement.reason!.startsWith('REPLACE_STAFF:')) {
+                  final parts = movement.reason!.split(':');
+                  if (parts.length >= 5) {
+                    final role = parts[1];
+                    final oldStaffId = parts[2];
+                    final newStaffId = parts[3];
+                    final actualReason = parts.sublist(4).join(':');
+
+                    final oldName = getUserName(oldStaffId);
+                    final newName = getUserName(newStaffId);
+                    
+                    String roleName = '';
+                    switch (role) {
+                      case 'trainer': roleName = 'Тренер'; break;
+                      case 'instructor': roleName = 'Инструктор'; break;
+                      case 'manager': roleName = 'Менеджер'; break;
+                      default: roleName = role;
+                    }
+                    
+                    title = '$roleName ($oldName) заменен на ($newName)';
+                    subtitle = 'Дата: ${DateFormat('dd.MM.yyyy HH:mm').format(movement.movementDate.toLocal())}\nПричина: $actualReason\nИнициатор: $movedBy';
+                  } else {
+                    title = 'Замена персонала';
+                    subtitle = movement.reason!;
+                  }
+                } else if (movement.fromGroupId != null && movement.toGroupId != null) {
+                  title = '$movedUser перемещен';
+                  subtitle = 'Из: ${getGroupName(movement.fromGroupId)}\nВ: ${getGroupName(movement.toGroupId)}'
+                             '\nДата: ${DateFormat('dd.MM.yyyy HH:mm').format(movement.movementDate.toLocal())}'
+                             '${(movement.reason != null && movement.reason!.isNotEmpty) ? '\nПричина: ${movement.reason}' : ''}'
+                             '\nИнициатор: $movedBy';
                 } else if (movement.toGroupId != null) {
-                  title += ' добавлен в группу';
-                  subtitle = 'В: ${getGroupName(movement.toGroupId)}';
+                  title = '$movedUser добавлен в группу';
+                  subtitle = 'В: ${getGroupName(movement.toGroupId)}'
+                             '\nДата: ${DateFormat('dd.MM.yyyy HH:mm').format(movement.movementDate.toLocal())}'
+                             '${(movement.reason != null && movement.reason!.isNotEmpty) ? '\nПричина: ${movement.reason}' : ''}'
+                             '\nИнициатор: $movedBy';
                 } else {
-                  title += ' удален из группы';
-                  subtitle = 'Из: ${getGroupName(movement.fromGroupId)}';
+                  title = '$movedUser удален из группы';
+                  subtitle = 'Из: ${getGroupName(movement.fromGroupId)}'
+                             '\nДата: ${DateFormat('dd.MM.yyyy HH:mm').format(movement.movementDate.toLocal())}'
+                             '${(movement.reason != null && movement.reason!.isNotEmpty) ? '\nПричина: ${movement.reason}' : ''}'
+                             '\nИнициатор: $movedBy';
                 }
-                subtitle += '\nДата: ${DateFormat('dd.MM.yyyy HH:mm').format(movement.movementDate.toLocal())}';
-                if (movement.reason != null && movement.reason!.isNotEmpty) {
-                  subtitle += '\nПричина: ${movement.reason}';
-                }
-                subtitle += '\nИнициатор: $movedBy';
 
 
                 return Card(

@@ -118,6 +118,25 @@ class GroupsApiService extends BaseApiService {
     await delete('/api/training_groups/$groupId/members/$userId');
   }
   
+  Future<void> replaceStaff({
+    required String groupId,
+    required String oldStaffId,
+    required String newStaffId,
+    required String role,
+    required String reason,
+  }) async {
+    await post(
+      '/api/training_groups/replace-staff',
+      body: {
+        'groupId': groupId,
+        'oldStaffId': oldStaffId,
+        'newStaffId': newStaffId,
+        'role': role,
+        'reason': reason,
+      },
+    );
+  }
+
   // --- Training Group Type Methods ---
 
   Future<List<TrainingGroupType>> getAllTrainingGroupTypes() async {

@@ -425,29 +425,48 @@ class GroupRepository {
 
   // --- Group Movement Methods ---
 
-  Future<void> logMovement(GroupMovement movement) async {
+  Future<void> replaceStaff({
+    required String groupId,
+    required String oldStaffId,
+    required String newStaffId,
+    required String role,
+    required String reason,
+    required String movedByUserId,
+  }) async {
     final conn = await _db.connection;
-    await conn.execute(
-      Sql.named(r'''
-        INSERT INTO group_member_movements (
-          user_id, user_role, from_group_id, to_group_id,
-          movement_date, reason, moved_by_user_id
-        )
-        VALUES (
-          @userId, @userRole, @fromGroupId, @toGroupId,
-          @movementDate, @reason, @movedByUserId
-        )
-      '''),
-      parameters: {
-        'userId': movement.userId,
-        'userRole': movement.userRole,
-        'fromGroupId': movement.fromGroupId,
-        'toGroupId': movement.toGroupId,
-        'movementDate': movement.movementDate.toIso8601String(),
-        'reason': movement.reason,
-        'movedByUserId': movement.movedByUserId,
-      },
-    );
+    return conn.runTx((session) async {
+      // 1. Update the group based on role
+      final column = role == 'trainer' ? 'primary_trainer_id' : 
+                     role == 'instructor' ? 'primary_instructor_id' : 
+                     'responsible_manager_id';
+      
+      await session.execute(
+        Sql.named('UPDATE training_groups SET $column = @newStaffId WHERE id = @groupId'),
+        parameters: {'newStaffId': newStaffId, 'groupId': groupId},
+      );
+
+      // 2. Log the replacement
+      await session.execute(
+        Sql.named(r'''
+          INSERT INTO group_member_movements (
+            user_id, user_role, from_group_id, to_group_id,
+            movement_date, reason, moved_by_user_id
+          )
+          VALUES (
+            @userId, @userRole, @fromGroupId, @toGroupId,
+            NOW(), @reason, @movedByUserId
+          )
+        '''),
+        parameters: {
+          'userId': newStaffId,
+          'userRole': role,
+          'fromGroupId': groupId, 
+          'toGroupId': groupId,   
+          'reason': 'REPLACE_STAFF:$role:$oldStaffId:$newStaffId:$reason',
+          'movedByUserId': movedByUserId,
+        },
+      );
+    });
   }
 
   Future<List<GroupMovement>> getMovementsForUser(String userId) async {

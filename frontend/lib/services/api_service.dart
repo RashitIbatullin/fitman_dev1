@@ -294,6 +294,20 @@ class ApiService {
   static Future<void> removeTrainingGroupMember(String groupId, String userId) =>
       _groupsApi.removeTrainingGroupMember(groupId, userId);
 
+  static Future<void> replaceStaff({
+    required String groupId,
+    required String oldStaffId,
+    required String newStaffId,
+    required String role,
+    required String reason,
+  }) => _groupsApi.replaceStaff(
+    groupId: groupId,
+    oldStaffId: oldStaffId,
+    newStaffId: newStaffId,
+    role: role,
+    reason: reason,
+  );
+
   static Future<List<TrainingGroupType>> getAllTrainingGroupTypes() => _groupsApi.getAllTrainingGroupTypes();
 
   // --- Group Movement Methods ---
