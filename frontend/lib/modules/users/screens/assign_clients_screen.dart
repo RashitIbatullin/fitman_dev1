@@ -75,7 +75,7 @@ class _AssignClientsScreenState extends ConsumerState<AssignClientsScreen> {
               final client = allClients[index];
               return CheckboxListTile(
                 title: Text(client.fullName),
-                subtitle: Text(client.email),
+                subtitle: Text(client.email ?? ''),
                 value: _selectedClientIds.contains(client.id),
                 onChanged: (bool? selected) {
                   setState(() {

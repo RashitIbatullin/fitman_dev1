@@ -7,7 +7,7 @@ import 'package:fitman_common/fitman_common.dart';
 class GroupMemberList extends StatelessWidget {
   final List<User> members;
   final VoidCallback onAdd;
-  final ValueChanged<String> onRemove;
+  final void Function(String userId, String reason) onRemove;
   final ValueChanged<String> onMove;
 
   const GroupMemberList({
@@ -37,7 +37,7 @@ class GroupMemberList extends StatelessWidget {
               final member = members[index];
               return _MemberListItem(
                 member: member,
-                onRemove: () => onRemove(member.id),
+                onRemove: (reason) => onRemove(member.id, reason),
                 onMove: () => onMove(member.id),
               );
             },
@@ -57,7 +57,7 @@ class GroupMemberList extends StatelessWidget {
 
 class _MemberListItem extends StatefulWidget {
   final User member;
-  final VoidCallback onRemove;
+  final void Function(String reason) onRemove;
   final VoidCallback onMove;
 
   const _MemberListItem({
@@ -70,22 +70,48 @@ class _MemberListItem extends StatefulWidget {
   State<_MemberListItem> createState() => _MemberListItemState();
 }
 
+
 class _MemberListItemState extends State<_MemberListItem> {
   bool _isHovering = false;
 
   Future<void> _confirmRemoveMember(BuildContext context) async {
+    final reasonController = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Подтверждение'),
-        content: Text("Удалить участника '${widget.member.fullName}' из группы?"),
+        content: Form(
+          key: formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text("Удалить участника '${widget.member.fullName}' из группы?"),
+              TextFormField(
+                controller: reasonController,
+                decoration: const InputDecoration(labelText: 'Причина удаления'),
+                validator: (value) {
+                  if (value == null || value.length < 5) {
+                    return 'Причина не менее 5 символов';
+                  }
+                  return null;
+                },
+              ),
+            ],
+          ),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
             child: const Text('Отмена'),
           ),
           TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
+            onPressed: () {
+              if (formKey.currentState!.validate()) {
+                Navigator.of(context).pop(true);
+              }
+            },
             child: const Text('Удалить'),
           ),
         ],
@@ -93,7 +119,7 @@ class _MemberListItemState extends State<_MemberListItem> {
     );
 
     if (confirmed == true) {
-      widget.onRemove();
+      widget.onRemove(reasonController.text);
     }
   }
 

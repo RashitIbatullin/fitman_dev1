@@ -166,6 +166,133 @@ class _GroupMovementsProviderElement
   String get groupId => (origin as GroupMovementsProvider).groupId;
 }
 
+String _$groupReplacementsHash() => r'21f68c6e543ba3af037218e375eea827b460e806';
+
+/// See also [groupReplacements].
+@ProviderFor(groupReplacements)
+const groupReplacementsProvider = GroupReplacementsFamily();
+
+/// See also [groupReplacements].
+class GroupReplacementsFamily
+    extends Family<AsyncValue<List<TrainingGroupReplacementEmployee>>> {
+  /// See also [groupReplacements].
+  const GroupReplacementsFamily();
+
+  /// See also [groupReplacements].
+  GroupReplacementsProvider call(String groupId) {
+    return GroupReplacementsProvider(groupId);
+  }
+
+  @override
+  GroupReplacementsProvider getProviderOverride(
+    covariant GroupReplacementsProvider provider,
+  ) {
+    return call(provider.groupId);
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'groupReplacementsProvider';
+}
+
+/// See also [groupReplacements].
+class GroupReplacementsProvider
+    extends FutureProvider<List<TrainingGroupReplacementEmployee>> {
+  /// See also [groupReplacements].
+  GroupReplacementsProvider(String groupId)
+    : this._internal(
+        (ref) => groupReplacements(ref as GroupReplacementsRef, groupId),
+        from: groupReplacementsProvider,
+        name: r'groupReplacementsProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$groupReplacementsHash,
+        dependencies: GroupReplacementsFamily._dependencies,
+        allTransitiveDependencies:
+            GroupReplacementsFamily._allTransitiveDependencies,
+        groupId: groupId,
+      );
+
+  GroupReplacementsProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.groupId,
+  }) : super.internal();
+
+  final String groupId;
+
+  @override
+  Override overrideWith(
+    FutureOr<List<TrainingGroupReplacementEmployee>> Function(
+      GroupReplacementsRef provider,
+    )
+    create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: GroupReplacementsProvider._internal(
+        (ref) => create(ref as GroupReplacementsRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        groupId: groupId,
+      ),
+    );
+  }
+
+  @override
+  FutureProviderElement<List<TrainingGroupReplacementEmployee>>
+  createElement() {
+    return _GroupReplacementsProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is GroupReplacementsProvider && other.groupId == groupId;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, groupId.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin GroupReplacementsRef
+    on FutureProviderRef<List<TrainingGroupReplacementEmployee>> {
+  /// The parameter `groupId` of this provider.
+  String get groupId;
+}
+
+class _GroupReplacementsProviderElement
+    extends FutureProviderElement<List<TrainingGroupReplacementEmployee>>
+    with GroupReplacementsRef {
+  _GroupReplacementsProviderElement(super.provider);
+
+  @override
+  String get groupId => (origin as GroupReplacementsProvider).groupId;
+}
+
 String _$userMovementsHash() => r'7eabfcf045e0bfb166ef2fa9ffb62adaac8506dc';
 
 /// See also [userMovements].

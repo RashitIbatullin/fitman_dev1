@@ -33,7 +33,7 @@ class MyTrainerView extends ConsumerWidget {
             return ListTile(
               leading: const Icon(Icons.person),
               title: Text(trainer.fullName),
-              subtitle: Text(trainer.email),
+              subtitle: Text(trainer.email ?? ''),
               onTap: () {
                 // TODO: Implement navigation to trainer details
               },

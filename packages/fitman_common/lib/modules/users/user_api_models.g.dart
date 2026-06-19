@@ -16,7 +16,7 @@ Map<String, dynamic> _$AuthResponseToJson(AuthResponse instance) =>
 
 CreateUserRequest _$CreateUserRequestFromJson(Map<String, dynamic> json) =>
     CreateUserRequest(
-      email: json['email'] as String,
+      email: json['email'] as String?,
       password: json['password'] as String,
       firstName: json['first_name'] as String,
       lastName: json['last_name'] as String,

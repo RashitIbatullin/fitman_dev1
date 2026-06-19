@@ -172,7 +172,7 @@ class _UserListScreenState extends ConsumerState<UserListScreen> {
     return allUsers.where((user) {
       return user.fullName.toLowerCase().contains(searchQuery) ||
           (user.phone?.toLowerCase().contains(searchQuery) ?? false) ||
-          user.email.toLowerCase().contains(searchQuery);
+          (user.email?.toLowerCase().contains(searchQuery) ?? false);
     }).toList();
   }
   
@@ -487,7 +487,7 @@ class _UserListScreenState extends ConsumerState<UserListScreen> {
                           crossAxisAlignment: WrapCrossAlignment.center,
                           children: [
                             Icon(Icons.email_outlined, size: 14, color: Theme.of(context).colorScheme.secondary),
-                            Text(user.email, style: Theme.of(context).textTheme.bodySmall),
+                            Text(user.email ?? 'Нет почты', style: Theme.of(context).textTheme.bodySmall),
                             const Text('•'),
                             Icon(Icons.phone_outlined, size: 14, color: Theme.of(context).colorScheme.secondary),
                             Text(user.phone ?? 'Нет телефона', style: Theme.of(context).textTheme.bodySmall),

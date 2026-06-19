@@ -9,7 +9,6 @@ class GroupMovement with _$GroupMovement {
   const factory GroupMovement({
     String? id,
     required String userId,
-    required String userRole,
     String? fromGroupId,
     String? toGroupId,
     @CustomDateTimeConverter() required DateTime movementDate,

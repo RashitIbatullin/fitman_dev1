@@ -27,13 +27,54 @@ class TrainingGroupsController {
     // Movement routes
     router.post('/move-client', _moveClient);
     router.post('/replace-staff', _replaceStaff);
+    router.post('/remove-staff', _removeStaff);
     router.get('/<id>/movements', _getGroupMovements);
+    router.get('/<id>/replacements', _getReplacementsForGroup);
     router.get('/user/<userId>/movements', _getUserMovements);
     
     return router;
   }
 
-  // --- Group Methods ---
+  Future<Response> _removeStaff(Request request) async {
+    try {
+      final user = request.context['user'] as User;
+      // Authorization
+      if (!user.roles.any((r) => r.name == 'admin' || r.name == 'manager')) {
+        return Response.forbidden(jsonEncode({'error': 'Insufficient permissions.'}));
+      }
+      
+      final payload = jsonDecode(await request.readAsString());
+      final String groupId = payload['groupId'] as String;
+      final String staffId = payload['staffId'] as String;
+      final String role = payload['role'] as String;
+      final String reason = payload['reason'] as String;
+      
+      if (reason.length < 5) {
+        return Response.badRequest(body: jsonEncode({'error': 'A reason of at least 5 characters is required.'}));
+      }
+      
+      await _db.groups.removeStaff(
+        groupId: groupId,
+        staffId: staffId,
+        role: role,
+        reason: reason,
+        initiatorId: user.id,
+      );
+
+      return Response.ok(jsonEncode({'message': 'Staff removed successfully.'}));
+    } catch (e) {
+      return Response.internalServerError(body: jsonEncode({'error': e.toString()}));
+    }
+  }
+
+  Future<Response> _getReplacementsForGroup(Request request, String id) async {
+    try {
+      final replacements = await _db.groups.getReplacementsForGroup(id);
+      return Response.ok(jsonEncode(replacements.map((e) => e.toJson()).toList()));
+    } catch (e) {
+      return Response.internalServerError(body: jsonEncode({'error': e.toString()}));
+    }
+  }
 
   Future<Response> _getAllTrainingGroups(Request request) async {
     try {
@@ -195,7 +236,7 @@ class TrainingGroupsController {
         newStaffId: newStaffId,
         role: role,
         reason: reason,
-        movedByUserId: user.id,
+        initiatorId: user.id,
       );
 
       return Response.ok(jsonEncode({'message': 'Staff replaced successfully.'}));
@@ -228,7 +269,6 @@ class TrainingGroupsController {
       
       await _db.groups.moveClient(
         clientId: clientId,
-        userRole: 'client',
         fromGroupId: fromGroupId,
         toGroupId: toGroupId,
         reason: reason,

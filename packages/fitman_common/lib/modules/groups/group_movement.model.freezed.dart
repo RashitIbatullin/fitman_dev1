@@ -23,7 +23,6 @@ GroupMovement _$GroupMovementFromJson(Map<String, dynamic> json) {
 mixin _$GroupMovement {
   String? get id => throw _privateConstructorUsedError;
   String get userId => throw _privateConstructorUsedError;
-  String get userRole => throw _privateConstructorUsedError;
   String? get fromGroupId => throw _privateConstructorUsedError;
   String? get toGroupId => throw _privateConstructorUsedError;
   @CustomDateTimeConverter()
@@ -53,7 +52,6 @@ abstract class $GroupMovementCopyWith<$Res> {
   $Res call({
     String? id,
     String userId,
-    String userRole,
     String? fromGroupId,
     String? toGroupId,
     @CustomDateTimeConverter() DateTime movementDate,
@@ -80,7 +78,6 @@ class _$GroupMovementCopyWithImpl<$Res, $Val extends GroupMovement>
   $Res call({
     Object? id = freezed,
     Object? userId = null,
-    Object? userRole = null,
     Object? fromGroupId = freezed,
     Object? toGroupId = freezed,
     Object? movementDate = null,
@@ -97,10 +94,6 @@ class _$GroupMovementCopyWithImpl<$Res, $Val extends GroupMovement>
             userId: null == userId
                 ? _value.userId
                 : userId // ignore: cast_nullable_to_non_nullable
-                      as String,
-            userRole: null == userRole
-                ? _value.userRole
-                : userRole // ignore: cast_nullable_to_non_nullable
                       as String,
             fromGroupId: freezed == fromGroupId
                 ? _value.fromGroupId
@@ -144,7 +137,6 @@ abstract class _$$GroupMovementImplCopyWith<$Res>
   $Res call({
     String? id,
     String userId,
-    String userRole,
     String? fromGroupId,
     String? toGroupId,
     @CustomDateTimeConverter() DateTime movementDate,
@@ -170,7 +162,6 @@ class __$$GroupMovementImplCopyWithImpl<$Res>
   $Res call({
     Object? id = freezed,
     Object? userId = null,
-    Object? userRole = null,
     Object? fromGroupId = freezed,
     Object? toGroupId = freezed,
     Object? movementDate = null,
@@ -187,10 +178,6 @@ class __$$GroupMovementImplCopyWithImpl<$Res>
         userId: null == userId
             ? _value.userId
             : userId // ignore: cast_nullable_to_non_nullable
-                  as String,
-        userRole: null == userRole
-            ? _value.userRole
-            : userRole // ignore: cast_nullable_to_non_nullable
                   as String,
         fromGroupId: freezed == fromGroupId
             ? _value.fromGroupId
@@ -227,7 +214,6 @@ class _$GroupMovementImpl implements _GroupMovement {
   const _$GroupMovementImpl({
     this.id,
     required this.userId,
-    required this.userRole,
     this.fromGroupId,
     this.toGroupId,
     @CustomDateTimeConverter() required this.movementDate,
@@ -243,8 +229,6 @@ class _$GroupMovementImpl implements _GroupMovement {
   final String? id;
   @override
   final String userId;
-  @override
-  final String userRole;
   @override
   final String? fromGroupId;
   @override
@@ -262,7 +246,7 @@ class _$GroupMovementImpl implements _GroupMovement {
 
   @override
   String toString() {
-    return 'GroupMovement(id: $id, userId: $userId, userRole: $userRole, fromGroupId: $fromGroupId, toGroupId: $toGroupId, movementDate: $movementDate, reason: $reason, movedByUserId: $movedByUserId, createdAt: $createdAt)';
+    return 'GroupMovement(id: $id, userId: $userId, fromGroupId: $fromGroupId, toGroupId: $toGroupId, movementDate: $movementDate, reason: $reason, movedByUserId: $movedByUserId, createdAt: $createdAt)';
   }
 
   @override
@@ -272,8 +256,6 @@ class _$GroupMovementImpl implements _GroupMovement {
             other is _$GroupMovementImpl &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.userId, userId) || other.userId == userId) &&
-            (identical(other.userRole, userRole) ||
-                other.userRole == userRole) &&
             (identical(other.fromGroupId, fromGroupId) ||
                 other.fromGroupId == fromGroupId) &&
             (identical(other.toGroupId, toGroupId) ||
@@ -293,7 +275,6 @@ class _$GroupMovementImpl implements _GroupMovement {
     runtimeType,
     id,
     userId,
-    userRole,
     fromGroupId,
     toGroupId,
     movementDate,
@@ -320,7 +301,6 @@ abstract class _GroupMovement implements GroupMovement {
   const factory _GroupMovement({
     final String? id,
     required final String userId,
-    required final String userRole,
     final String? fromGroupId,
     final String? toGroupId,
     @CustomDateTimeConverter() required final DateTime movementDate,
@@ -336,8 +316,6 @@ abstract class _GroupMovement implements GroupMovement {
   String? get id;
   @override
   String get userId;
-  @override
-  String get userRole;
   @override
   String? get fromGroupId;
   @override

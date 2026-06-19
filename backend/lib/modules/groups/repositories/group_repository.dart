@@ -4,6 +4,7 @@ import 'package:fitman_common/modules/groups/analytic_group.model.dart';
 import 'package:fitman_common/modules/groups/group_schedule.model.dart';
 import 'package:fitman_common/modules/groups/training_group.model.dart';
 import 'package:fitman_common/modules/groups/training_group_type.model.dart';
+import 'package:fitman_common/modules/groups/training_group_replacement_employee.model.dart';
 import 'package:fitman_common/modules/groups/group_movement.model.dart';
 
 class GroupRepository {
@@ -212,29 +213,26 @@ class GroupRepository {
 
       for (final entry in staffFields.entries) {
         final fieldName = entry.key;
-        final role = entry.value;
         final oldStaffId = currentGroup[fieldName] as String?;
         final newStaffId = _getStaffIdByField(group, fieldName);
 
         if (oldStaffId != newStaffId) {
+          // Для персонала используем таблицу training_group_replacement_employees
           await session.execute(
             Sql.named(r'''
-              INSERT INTO group_member_movements (
-                user_id, user_role, from_group_id, to_group_id,
-                movement_date, reason, moved_by_user_id
+              INSERT INTO training_group_replacement_employees (
+                group_id, old_employee_id, new_employee_id, date, reason, initiator_id
               )
               VALUES (
-                @userId, @userRole, @fromGroupId, @toGroupId,
-                NOW(), @reason, @movedByUserId
+                @groupId, @oldStaffId, @newStaffId, NOW(), @reason, @initiatorId
               )
             '''),
             parameters: {
-              'userId': newStaffId ?? oldStaffId,
-              'userRole': role,
-              'fromGroupId': newStaffId == null ? group.id : null, // 'from' if removed
-              'toGroupId': newStaffId != null ? group.id : null,   // 'to' if added
+              'groupId': group.id,
+              'oldStaffId': oldStaffId,
+              'newStaffId': newStaffId,
               'reason': 'Автоматическое обновление персонала группы',
-              'movedByUserId': updaterId,
+              'initiatorId': updaterId,
             },
           );
         }
@@ -425,17 +423,19 @@ class GroupRepository {
 
   // --- Group Movement Methods ---
 
+  // --- Replacement Methods ---
+
   Future<void> replaceStaff({
     required String groupId,
     required String oldStaffId,
     required String newStaffId,
     required String role,
     required String reason,
-    required String movedByUserId,
+    required String initiatorId,
   }) async {
     final conn = await _db.connection;
     return conn.runTx((session) async {
-      // 1. Update the group based on role
+      // 1. Update the group
       final column = role == 'trainer' ? 'primary_trainer_id' : 
                      role == 'instructor' ? 'primary_instructor_id' : 
                      'responsible_manager_id';
@@ -445,28 +445,79 @@ class GroupRepository {
         parameters: {'newStaffId': newStaffId, 'groupId': groupId},
       );
 
-      // 2. Log the replacement
+      // 2. Log the replacement in training_group_replacement_employees
       await session.execute(
         Sql.named(r'''
-          INSERT INTO group_member_movements (
-            user_id, user_role, from_group_id, to_group_id,
-            movement_date, reason, moved_by_user_id
+          INSERT INTO training_group_replacement_employees (
+            group_id, old_employee_id, new_employee_id, date, reason, initiator_id
           )
           VALUES (
-            @userId, @userRole, @fromGroupId, @toGroupId,
-            NOW(), @reason, @movedByUserId
+            @groupId, @oldEmployeeId, @newEmployeeId, NOW(), @reason, @initiatorId
           )
         '''),
         parameters: {
-          'userId': newStaffId,
-          'userRole': role,
-          'fromGroupId': groupId, 
-          'toGroupId': groupId,   
-          'reason': 'REPLACE_STAFF:$role:$oldStaffId:$newStaffId:$reason',
-          'movedByUserId': movedByUserId,
+          'groupId': groupId,
+          'oldEmployeeId': oldStaffId,
+          'newEmployeeId': newStaffId,
+          'reason': reason,
+          'initiatorId': initiatorId,
         },
       );
     });
+  }
+
+  Future<void> removeStaff({
+    required String groupId,
+    required String staffId,
+    required String role,
+    required String reason,
+    required String initiatorId,
+  }) async {
+    final conn = await _db.connection;
+    return conn.runTx((session) async {
+      // 1. Update the group (set to null)
+      final column = role == 'trainer' ? 'primary_trainer_id' : 
+                     role == 'instructor' ? 'primary_instructor_id' : 
+                     'responsible_manager_id';
+      
+      await session.execute(
+        Sql.named('UPDATE training_groups SET $column = NULL WHERE id = @groupId'),
+        parameters: {'groupId': groupId},
+      );
+
+      // 2. Log the removal in training_group_replacement_employees
+      await session.execute(
+        Sql.named(r'''
+          INSERT INTO training_group_replacement_employees (
+            group_id, old_employee_id, new_employee_id, date, reason, initiator_id
+          )
+          VALUES (
+            @groupId, @oldEmployeeId, NULL, NOW(), @reason, @initiatorId
+          )
+        '''),
+        parameters: {
+          'groupId': groupId,
+          'oldEmployeeId': staffId,
+          'reason': reason,
+          'initiatorId': initiatorId,
+        },
+      );
+    });
+  }
+
+  Future<List<TrainingGroupReplacementEmployee>> getReplacementsForGroup(String groupId) async {
+    final conn = await _db.connection;
+    final results = await conn.execute(
+      Sql.named('''
+        SELECT * FROM training_group_replacement_employees
+        WHERE group_id = @groupId
+        ORDER BY date DESC
+      '''),
+      parameters: {'groupId': groupId},
+    );
+    return results
+        .map((row) => TrainingGroupReplacementEmployee.fromJson(row.toColumnMap()))
+        .toList();
   }
 
   Future<List<GroupMovement>> getMovementsForUser(String userId) async {
@@ -501,7 +552,6 @@ class GroupRepository {
 
   Future<void> moveClient({
     required String clientId,
-    required String userRole,
     String? fromGroupId,
     String? toGroupId,
     required String reason,
@@ -550,17 +600,16 @@ class GroupRepository {
       await session.execute(
         Sql.named(r'''
           INSERT INTO group_member_movements (
-            user_id, user_role, from_group_id, to_group_id,
+            user_id, from_group_id, to_group_id,
             movement_date, reason, moved_by_user_id
           )
           VALUES (
-            @userId, @userRole, @fromGroupId, @toGroupId,
+            @userId, @fromGroupId, @toGroupId,
             @movementDate, @reason, @movedByUserId
           )
         '''),
         parameters: {
           'userId': clientId,
-          'userRole': userRole,
           'fromGroupId': fromGroupId,
           'toGroupId': toGroupId,
           'movementDate': DateTime.now().toUtc(),

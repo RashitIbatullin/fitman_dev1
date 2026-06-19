@@ -35,7 +35,7 @@ class MyManagerView extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 8),
-              Text(manager.email),
+              Text(manager.email ?? ''),
               // TODO: Add chat frame
             ],
           ),

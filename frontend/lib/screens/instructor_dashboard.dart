@@ -94,7 +94,7 @@ class InstructorDashboard extends ConsumerWidget {
           children: [
             UserAccountsDrawerHeader(
               accountName: Text(user.fullName),
-              accountEmail: Text(user.email),
+              accountEmail: Text(user.email ?? ''),
               currentAccountPicture: CircleAvatar(
                 backgroundImage:
                     user.photoUrl != null ? NetworkImage(user.photoUrl!) : null,

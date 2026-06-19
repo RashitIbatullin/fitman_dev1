@@ -36,7 +36,7 @@ class UnknownRoleScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                'Пользователь: ${user.email}',
+                'Пользователь: ${user.email ?? 'нет почты'}',
                 style: const TextStyle(fontSize: 16),
                 textAlign: TextAlign.center,
               ),

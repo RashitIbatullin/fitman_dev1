@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/group_providers.dart';
 import 'package:fitman_common/modules/groups/training_group.model.dart';
+import 'replacement_history_view.dart';
 import '../../widgets/common/group_member_list.dart';
 import 'package:fitman_app/services/api_service.dart';
 import 'package:fitman_common/fitman_common.dart';
@@ -185,7 +186,7 @@ class _TrainingGroupEditScreenState
     );
   }
 
-  Future<void> _showMoveStaffDialog({
+  Future<void> _showReplaceStaffDialog({
     required String roleTitle,
     required List<User> availableUsers,
     required Function(String, String) onConfirm,
@@ -246,6 +247,69 @@ class _TrainingGroupEditScreenState
     }
   }
 
+  Future<void> _showRemoveStaffDialog({
+    required String roleTitle,
+    required String? staffId,
+    required Function(String) onConfirm,
+  }) async {
+    final reasonController = TextEditingController();
+    final dialogFormKey = GlobalKey<FormState>();
+    
+    final staffName = staffId != null 
+        ? _allUsers.firstWhere((u) => u.id == staffId, orElse: () => User.fromJson({'id': staffId, 'first_name': 'Неизвестный', 'last_name': 'Сотрудник'})).fullName 
+        : 'сотрудника';
+
+    String roleName = 'сотрудника';
+    if (roleTitle.contains('тренер')) {
+      roleName = 'тренера';
+    } else if (roleTitle.contains('инструктор')) {
+      roleName = 'инструктора';
+    } else if (roleTitle.contains('менеджер')) {
+      roleName = 'менеджера';
+    }
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Удалить $roleName?'),
+          content: Form(
+            key: dialogFormKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text("Удалить '$staffName' из группы?"),
+                TextFormField(
+                  controller: reasonController,
+                  decoration: const InputDecoration(labelText: 'Причина удаления'),
+                  validator: (value) {
+                    if (value == null || value.length < 5) {
+                      return 'Причина не менее 5 символов';
+                    }
+                    return null;
+                  },
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('Отмена')),
+            ElevatedButton(
+              onPressed: () {
+                if (dialogFormKey.currentState!.validate()) Navigator.of(context).pop(true);
+              },
+              child: const Text('Удалить'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed == true) {
+      onConfirm(reasonController.text);
+    }
+  }
+
   Widget _buildUserSelectionTile({
     required String title,
     required String? selectedUserId,
@@ -262,7 +326,7 @@ class _TrainingGroupEditScreenState
       subtitle: Text(selectedUser?.fullName ?? 'Не назначен',
           style: Theme.of(context).textTheme.bodySmall),
       trailing: PopupMenuButton<String>(
-        onSelected: (value) {
+        onSelected: (value) async {
           if (value == 'add') {
             _showSelectUserDialog(
               title: 'Выбрать ${title.toLowerCase()}',
@@ -270,51 +334,78 @@ class _TrainingGroupEditScreenState
               onSelected: onUserChanged,
             );
           } else if (value == 'move') {
-            _showMoveStaffDialog(
+            _showReplaceStaffDialog(
               roleTitle: title.toLowerCase(),
               availableUsers: availableUsers.where((u) => u.id != selectedUserId).toList(),
               onConfirm: (userId, reason) async {
-                if (_groupId != null) {
+                if (_groupId != null && selectedUserId != null) {
                   try {
-                    String? oldStaffId;
                     String role = '';
                     if (title.contains('тренер')) {
-                      oldStaffId = _selectedPrimaryTrainerId;
                       role = 'trainer';
                     } else if (title.contains('инструктор')) {
-                      oldStaffId = _selectedPrimaryInstructorId;
                       role = 'instructor';
                     } else if (title.contains('менеджер')) {
-                      oldStaffId = _selectedResponsibleManagerId;
                       role = 'manager';
                     }
                     
-                    if (oldStaffId != null) {
-                      await ApiService.replaceStaff(
-                        groupId: _groupId,
-                        oldStaffId: oldStaffId,
-                        newStaffId: userId,
-                        role: role,
-                        reason: reason,
-                      );
-                      if (!mounted) return;
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Сотрудник успешно заменен')),
-                      );
-                    }
+                    await ApiService.replaceStaff(
+                      groupId: _groupId,
+                      oldStaffId: selectedUserId,
+                      newStaffId: userId,
+                      role: role,
+                      reason: reason,
+                    );
+                    if (!mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Сотрудник успешно заменен')),
+                    );
+                    onUserChanged(userId);
                   } catch (e) {
                     if (!mounted) return;
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('Ошибка при замене сотрудника: $e')),
                     );
-                    return;
                   }
                 }
-                onUserChanged(userId);
               },
             );
           } else if (value == 'remove') {
-            onUserChanged(null);
+            _showRemoveStaffDialog(
+              roleTitle: title.toLowerCase(),
+              staffId: selectedUserId,
+              onConfirm: (reason) async {
+                if (_groupId != null && selectedUserId != null) {
+                  try {
+                    String role = '';
+                    if (title.contains('тренер')) {
+                      role = 'trainer';
+                    } else if (title.contains('инструктор')) {
+                      role = 'instructor';
+                    } else if (title.contains('менеджер')) {
+                      role = 'manager';
+                    }
+                    
+                    await ApiService.removeStaff(
+                      groupId: _groupId,
+                      staffId: selectedUserId,
+                      role: role,
+                      reason: reason,
+                    );
+                    if (!mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Сотрудник успешно удален')),
+                    );
+                    onUserChanged(null);
+                  } catch (e) {
+                    if (!mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Ошибка при удалении сотрудника: $e')),
+                    );
+                  }
+                }
+              },
+            );
           }
         },
         itemBuilder: (context) => [
@@ -386,9 +477,9 @@ class _TrainingGroupEditScreenState
               ? null
               : _descriptionController.text,
           trainingGroupTypeId: _selectedGroupTypeId!,
-          primaryTrainerId: _selectedPrimaryTrainerId,
-          primaryInstructorId: _selectedPrimaryInstructorId,
-          responsibleManagerId: _selectedResponsibleManagerId,
+          primaryTrainerId: _selectedPrimaryTrainerId, // Pass null if it was cleared
+          primaryInstructorId: _selectedPrimaryInstructorId, // Pass null if it was cleared
+          responsibleManagerId: _selectedResponsibleManagerId, // Pass null if it was cleared
           maxParticipants: int.parse(_maxParticipantsController.text),
           startDate: _startDate,
           endDate: _endDate,
@@ -419,8 +510,29 @@ class _TrainingGroupEditScreenState
     }
   }
 
-  void _handleRemoveMember(String userId) {
-    print('[DEBUG] _handleRemoveMember called with userId: $userId');
+  Future<void> _handleRemoveMember(String userId, String reason) async {
+    print('[DEBUG] _handleRemoveMember called with userId: $userId, reason: $reason');
+    
+    // Call API to log removal
+    try {
+      await ApiService.moveClient(
+        clientId: userId,
+        fromGroupId: _groupId!,
+        toGroupId: null, // Indicates removal
+        reason: reason,
+      );
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Клиент успешно удален из группы')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Ошибка при удалении клиента: $e')),
+      );
+      return; // Do not update local state if API fails
+    }
+
     setState(() {
       _members.removeWhere((user) => user.id == userId);
       if (_membersToAdd.contains(userId)) {
@@ -651,7 +763,7 @@ class _TrainingGroupEditScreenState
      final isEditing = _groupId != null;
 
      return DefaultTabController(
-      length: isEditing ? 2 : 1,
+      length: isEditing ? 3 : 1,
       child: Scaffold(
         appBar: AppBar(
           title: Text(isEditing ? 'Редактировать группу' : 'Создать группу'),
@@ -666,6 +778,7 @@ class _TrainingGroupEditScreenState
                   tabs: [
                     Tab(text: 'Основное'),
                     Tab(text: 'Перемещения'),
+                    Tab(text: 'Замены'),
                   ],
                 )
               : null,
@@ -802,9 +915,9 @@ class _TrainingGroupEditScreenState
                         
                         GroupMemberList(
                           members: _members,
-                          onAdd: _showAddMemberDialog,
-                          onRemove: _handleRemoveMember,
-                          onMove: _handleMoveMember,
+                          onAdd: () => _showAddMemberDialog(),
+                          onRemove: (userId, reason) => _handleRemoveMember(userId, reason),
+                          onMove: (userId) => _handleMoveMember(userId),
                         ),
 
                         const Divider(),
@@ -827,8 +940,10 @@ class _TrainingGroupEditScreenState
                     ),
                   ),
                 ),
-                if (isEditing)
+                if (isEditing) ...[
                   _MovementHistoryView(groupId: _groupId),
+                  ReplacementHistoryView(groupId: _groupId),
+                ],
               ],
             ),
       ),

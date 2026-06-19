@@ -1,3 +1,4 @@
+import 'package:fitman_common/modules/groups/training_group_replacement_employee.model.dart';
 import 'package:fitman_common/modules/groups/analytic_group.model.dart';
 import 'package:fitman_common/modules/groups/group_schedule.model.dart';
 import 'package:fitman_common/modules/groups/training_group.model.dart';
@@ -118,6 +119,11 @@ class GroupsApiService extends BaseApiService {
     await delete('/api/training_groups/$groupId/members/$userId');
   }
   
+  Future<List<TrainingGroupReplacementEmployee>> getReplacementsForGroup(String groupId) async {
+    final data = await get('/api/training_groups/$groupId/replacements');
+    return (data as List).map((json) => TrainingGroupReplacementEmployee.fromJson(json)).toList();
+  }
+
   Future<void> replaceStaff({
     required String groupId,
     required String oldStaffId,
@@ -131,6 +137,23 @@ class GroupsApiService extends BaseApiService {
         'groupId': groupId,
         'oldStaffId': oldStaffId,
         'newStaffId': newStaffId,
+        'role': role,
+        'reason': reason,
+      },
+    );
+  }
+
+  Future<void> removeStaff({
+    required String groupId,
+    required String staffId,
+    required String role,
+    required String reason,
+  }) async {
+    await post(
+      '/api/training_groups/remove-staff',
+      body: {
+        'groupId': groupId,
+        'staffId': staffId,
         'role': role,
         'reason': reason,
       },

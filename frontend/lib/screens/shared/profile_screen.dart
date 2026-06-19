@@ -194,7 +194,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             _buildInfoRow(
                 label: 'Возраст',
                 value: widget.user.age?.toString() ?? 'не указан'),
-            _buildInfoRow(label: 'Email', value: widget.user.email),
+            _buildInfoRow(label: 'Email', value: widget.user.email ?? ''),
             if (widget.user.roles.length > 1 && widget.user.roles.every((r) => r.name != 'client'))
               _buildRolesSection(),
             const Divider(height: 30),

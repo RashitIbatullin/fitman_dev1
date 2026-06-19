@@ -74,7 +74,7 @@ class _AssignTrainersScreenState extends ConsumerState<AssignTrainersScreen> {
               final trainer = allTrainers[index];
               return CheckboxListTile(
                 title: Text(trainer.fullName),
-                subtitle: Text(trainer.email),
+                subtitle: Text(trainer.email ?? ''),
                 value: _selectedTrainerIds.contains(trainer.id),
                 onChanged: (bool? selected) {
                   setState(() {

@@ -64,7 +64,7 @@ class _EditEmployeeScreenState extends ConsumerState<EditEmployeeScreen> with Si
       _tabController = TabController(length: 2, vsync: this);
     }
     final user = widget.user;
-    _emailController.text = user.email;
+    _emailController.text = user.email ?? '';
     _firstNameController.text = user.firstName;
     _lastNameController.text = user.lastName;
     _middleNameController.text = user.middleName ?? '';

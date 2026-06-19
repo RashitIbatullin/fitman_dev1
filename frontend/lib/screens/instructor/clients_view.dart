@@ -34,7 +34,7 @@ class ClientsView extends ConsumerWidget {
             return ListTile(
               leading: const Icon(Icons.person),
               title: Text(client.fullName),
-              subtitle: Text(client.email),
+              subtitle: Text(client.email ?? ''),
               trailing: IconButton(
                 icon: const Icon(Icons.chat),
                 onPressed: () async {

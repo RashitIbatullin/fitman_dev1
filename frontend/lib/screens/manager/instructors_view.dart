@@ -41,7 +41,7 @@ class InstructorsView extends ConsumerWidget {
             return ListTile(
               leading: const Icon(Icons.person),
               title: Text(instructor.fullName),
-              subtitle: Text(instructor.email),
+              subtitle: Text(instructor.email ?? ''),
               onTap: () {
                 // TODO: Implement navigation to instructor details
               },

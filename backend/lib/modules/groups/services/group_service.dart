@@ -9,7 +9,6 @@ class GroupService {
 
   Future<void> moveClient({
     required String clientId,
-    required String userRole,
     String? fromGroupId,
     String? toGroupId,
     required String reason,
@@ -23,7 +22,6 @@ class GroupService {
     // Delegate the entire transactional operation to the repository
     await _groupRepository.moveClient(
       clientId: clientId,
-      userRole: userRole,
       fromGroupId: fromGroupId,
       toGroupId: toGroupId,
       reason: reason,

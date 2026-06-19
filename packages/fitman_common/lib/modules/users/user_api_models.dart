@@ -18,7 +18,7 @@ class AuthResponse {
 
 @JsonSerializable(explicitToJson: true)
 class CreateUserRequest {
-  final String email;
+  final String? email;
   final String password;
   final String firstName;
   final String lastName;
@@ -36,7 +36,7 @@ class CreateUserRequest {
   final Map<String, dynamic>? trainerProfile;
 
   CreateUserRequest({
-    required this.email,
+    this.email,
     required this.password,
     required this.firstName,
     required this.lastName,

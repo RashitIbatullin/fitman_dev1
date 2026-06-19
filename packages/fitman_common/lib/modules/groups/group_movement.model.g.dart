@@ -10,7 +10,6 @@ _$GroupMovementImpl _$$GroupMovementImplFromJson(Map<String, dynamic> json) =>
     _$GroupMovementImpl(
       id: json['id'] as String?,
       userId: json['user_id'] as String,
-      userRole: json['user_role'] as String,
       fromGroupId: json['from_group_id'] as String?,
       toGroupId: json['to_group_id'] as String?,
       movementDate: const CustomDateTimeConverter().fromJson(
@@ -27,7 +26,6 @@ Map<String, dynamic> _$$GroupMovementImplToJson(_$GroupMovementImpl instance) =>
     <String, dynamic>{
       'id': instance.id,
       'user_id': instance.userId,
-      'user_role': instance.userRole,
       'from_group_id': instance.fromGroupId,
       'to_group_id': instance.toGroupId,
       'movement_date': const CustomDateTimeConverter().toJson(

@@ -24,7 +24,7 @@ DateTime _parseDateTime(dynamic date, String fieldName) {
 // --- Main User Model ---
 class User {
   final String id;
-  final String email;
+  final String? email;
   final String passwordHash;
   final String firstName;
   final String lastName;
@@ -48,7 +48,7 @@ class User {
 
   User({
     required this.id,
-    required this.email,
+    this.email,
     required this.passwordHash,
     required this.firstName,
     required this.lastName,
@@ -74,13 +74,12 @@ class User {
   factory User.fromMap(Map<String, dynamic> map) => User.fromJson(map);
 
   factory User.fromJson(Map<String, dynamic> json) {
-    // This constructor assumes 'id' is present and roles are maps (from DB or direct API)
     return User(
-      id: json['id'] as String,
-      email: json['email'] as String,
-      passwordHash: json['password_hash'] as String? ?? '', // Provide default empty string
-      firstName: json['first_name'] as String? ?? '',       // Provide default empty string
-      lastName: json['last_name'] as String? ?? '',         // Provide default empty string
+      id: json['id'] as String? ?? '',
+      email: json['email'] as String?,
+      passwordHash: json['password_hash'] as String? ?? '',
+      firstName: json['first_name'] as String? ?? '',
+      lastName: json['last_name'] as String? ?? '',
       middleName: json['middle_name'] as String?,
       photoUrl: json['photo_url'] as String?,
       roles: (json['roles'] as List<dynamic>?)
@@ -115,16 +114,15 @@ class User {
   }
 
   factory User.fromJwt(Map<String, dynamic> json) {
-    // This constructor handles JWT-specific fields like 'userId' and 'roles' as string list
     return User(
-      id: json['userId'] as String, // From JWT payload
-      email: json['email'] as String,
-      passwordHash: json['password_hash'] ?? '', // JWT might not have passwordHash
-      firstName: json['firstName'] ?? '', // From JWT
-      lastName: json['lastName'] ?? '', // From JWT
-      middleName: json['middleName'] as String?, // From JWT
+      id: json['userId'] as String,
+      email: json['email'] as String?,
+      passwordHash: json['password_hash'] ?? '',
+      firstName: json['firstName'] ?? '',
+      lastName: json['lastName'] ?? '',
+      middleName: json['middleName'] as String?,
       photoUrl: json['photo_url'],
-      roles: (json['roles'] as List<dynamic>?) // From JWT payload as list of strings
+      roles: (json['roles'] as List<dynamic>?)
               ?.map((role) => Role(id: '', name: role as String, title: role))
               .toList() ??
           [],

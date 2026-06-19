@@ -75,7 +75,7 @@ class _AssignInstructorsScreenState
               final instructor = allInstructors[index];
               return CheckboxListTile(
                 title: Text(instructor.fullName),
-                subtitle: Text(instructor.email),
+                subtitle: Text(instructor.email ?? ''),
                 value: _selectedInstructorIds.contains(instructor.id),
                 onChanged: (bool? selected) {
                   setState(() {

@@ -157,7 +157,7 @@ class _CreateEmployeeScreenState extends ConsumerState<CreateEmployeeScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Пользователь ${request.email} успешно создан'),
+            content: Text('Пользователь ${request.email ?? 'без почты'} успешно создан'),
             backgroundColor: Colors.green,
           ),
         );
