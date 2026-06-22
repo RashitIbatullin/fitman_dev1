@@ -4,6 +4,8 @@ import 'package:equatable/equatable.dart';
 
 part 'training_group.model.g.dart';
 
+const _copyWithUnset = Object();
+
 @JsonSerializable()
 class TrainingGroup extends Equatable {
   final String? id;
@@ -118,17 +120,17 @@ class TrainingGroup extends Equatable {
   TrainingGroup copyWith({
     String? id,
     String? name,
-    String? description,
+    Object? description = _copyWithUnset,
     String? trainingGroupTypeId,
-    String? primaryTrainerId,
-    String? primaryInstructorId,
-    String? responsibleManagerId,
+    Object? primaryTrainerId = _copyWithUnset,
+    Object? primaryInstructorId = _copyWithUnset,
+    Object? responsibleManagerId = _copyWithUnset,
     List<String>? clientIds,
     String? programId,
     String? goalId,
     String? levelId,
     DateTime? startDate,
-    DateTime? endDate,
+    Object? endDate = _copyWithUnset,
     int? maxParticipants,
     int? currentParticipants,
     bool? isActive,
@@ -144,17 +146,27 @@ class TrainingGroup extends Equatable {
     return TrainingGroup(
       id: id ?? this.id,
       name: name ?? this.name,
-      description: description ?? this.description,
+      description: identical(description, _copyWithUnset)
+          ? this.description
+          : description as String?,
       trainingGroupTypeId: trainingGroupTypeId ?? this.trainingGroupTypeId,
-      primaryTrainerId: primaryTrainerId ?? this.primaryTrainerId,
-      primaryInstructorId: primaryInstructorId ?? this.primaryInstructorId,
-      responsibleManagerId: responsibleManagerId ?? this.responsibleManagerId,
+      primaryTrainerId: identical(primaryTrainerId, _copyWithUnset)
+          ? this.primaryTrainerId
+          : primaryTrainerId as String?,
+      primaryInstructorId: identical(primaryInstructorId, _copyWithUnset)
+          ? this.primaryInstructorId
+          : primaryInstructorId as String?,
+      responsibleManagerId: identical(responsibleManagerId, _copyWithUnset)
+          ? this.responsibleManagerId
+          : responsibleManagerId as String?,
       clientIds: clientIds ?? this.clientIds,
       programId: programId ?? this.programId,
       goalId: goalId ?? this.goalId,
       levelId: levelId ?? this.levelId,
       startDate: startDate ?? this.startDate,
-      endDate: endDate ?? this.endDate,
+      endDate: identical(endDate, _copyWithUnset)
+          ? this.endDate
+          : endDate as DateTime?,
       maxParticipants: maxParticipants ?? this.maxParticipants,
       currentParticipants: currentParticipants ?? this.currentParticipants,
       isActive: isActive ?? this.isActive,

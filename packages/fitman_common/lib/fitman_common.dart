@@ -35,3 +35,4 @@ export '/modules/equipment/maintenance_status_history_record.model.dart';
 export '/modules/equipment/booking/equipment_booking.model.dart';
 export '/modules/equipment/booking/booking_status.enum.dart';
 export 'modules/groups/group_movement.model.dart';
+export 'modules/groups/training_group_user_remove.model.dart';

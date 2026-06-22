@@ -293,6 +293,129 @@ class _GroupReplacementsProviderElement
   String get groupId => (origin as GroupReplacementsProvider).groupId;
 }
 
+String _$groupRemovalsHash() => r'1bffc2c81f1e94e0efe1b5e1adaab07a4777bb56';
+
+/// See also [groupRemovals].
+@ProviderFor(groupRemovals)
+const groupRemovalsProvider = GroupRemovalsFamily();
+
+/// See also [groupRemovals].
+class GroupRemovalsFamily
+    extends Family<AsyncValue<List<TrainingGroupUserRemove>>> {
+  /// See also [groupRemovals].
+  const GroupRemovalsFamily();
+
+  /// See also [groupRemovals].
+  GroupRemovalsProvider call(String groupId) {
+    return GroupRemovalsProvider(groupId);
+  }
+
+  @override
+  GroupRemovalsProvider getProviderOverride(
+    covariant GroupRemovalsProvider provider,
+  ) {
+    return call(provider.groupId);
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'groupRemovalsProvider';
+}
+
+/// See also [groupRemovals].
+class GroupRemovalsProvider
+    extends FutureProvider<List<TrainingGroupUserRemove>> {
+  /// See also [groupRemovals].
+  GroupRemovalsProvider(String groupId)
+    : this._internal(
+        (ref) => groupRemovals(ref as GroupRemovalsRef, groupId),
+        from: groupRemovalsProvider,
+        name: r'groupRemovalsProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$groupRemovalsHash,
+        dependencies: GroupRemovalsFamily._dependencies,
+        allTransitiveDependencies:
+            GroupRemovalsFamily._allTransitiveDependencies,
+        groupId: groupId,
+      );
+
+  GroupRemovalsProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.groupId,
+  }) : super.internal();
+
+  final String groupId;
+
+  @override
+  Override overrideWith(
+    FutureOr<List<TrainingGroupUserRemove>> Function(GroupRemovalsRef provider)
+    create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: GroupRemovalsProvider._internal(
+        (ref) => create(ref as GroupRemovalsRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        groupId: groupId,
+      ),
+    );
+  }
+
+  @override
+  FutureProviderElement<List<TrainingGroupUserRemove>> createElement() {
+    return _GroupRemovalsProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is GroupRemovalsProvider && other.groupId == groupId;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, groupId.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin GroupRemovalsRef on FutureProviderRef<List<TrainingGroupUserRemove>> {
+  /// The parameter `groupId` of this provider.
+  String get groupId;
+}
+
+class _GroupRemovalsProviderElement
+    extends FutureProviderElement<List<TrainingGroupUserRemove>>
+    with GroupRemovalsRef {
+  _GroupRemovalsProviderElement(super.provider);
+
+  @override
+  String get groupId => (origin as GroupRemovalsProvider).groupId;
+}
+
 String _$userMovementsHash() => r'7eabfcf045e0bfb166ef2fa9ffb62adaac8506dc';
 
 /// See also [userMovements].

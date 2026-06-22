@@ -26,24 +26,16 @@ class ReplacementHistoryView extends ConsumerWidget {
     return replacementsAsync.when(
       data: (replacements) {
         if (replacements.isEmpty) {
-          return const Center(child: Text('История замен и удалений пуста.'));
+          return const Center(child: Text('История замен пуста.'));
         }
         return ListView.builder(
           itemCount: replacements.length,
           itemBuilder: (context, index) {
             final replacement = replacements[index];
             final initiator = getUserName(replacement.initiatorId);
-            
-            String title = '';
-            
-            if (replacement.newEmployeeId != null) {
-              final oldName = getUserName(replacement.oldEmployeeId ?? '');
-              final newName = getUserName(replacement.newEmployeeId!);
-              title = 'Замена: $oldName на $newName';
-            } else {
-              final oldName = getUserName(replacement.oldEmployeeId ?? '');
-              title = 'Удаление: $oldName';
-            }
+            final oldName = getUserName(replacement.oldEmployeeId ?? '');
+            final newName = getUserName(replacement.newEmployeeId!);
+            final title = 'Замена сотрудника: $oldName на $newName';
 
             return Card(
               margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),

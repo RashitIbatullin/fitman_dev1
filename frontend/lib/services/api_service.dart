@@ -299,6 +299,10 @@ class ApiService {
           String groupId) =>
       _groupsApi.getReplacementsForGroup(groupId);
 
+  static Future<List<TrainingGroupUserRemove>> getRemovalsForGroup(
+          String groupId) =>
+      _groupsApi.getRemovalsForGroup(groupId);
+
   static Future<void> replaceStaff({
     required String groupId,
     required String oldStaffId,

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/group_providers.dart';
 import 'package:fitman_common/modules/groups/training_group.model.dart';
 import 'replacement_history_view.dart';
+import 'removal_history_view.dart';
 import '../../widgets/common/group_member_list.dart';
 import 'package:fitman_app/services/api_service.dart';
 import 'package:fitman_common/fitman_common.dart';
@@ -357,6 +358,7 @@ class _TrainingGroupEditScreenState
                       reason: reason,
                     );
                     if (!mounted) return;
+                    ref.invalidate(groupReplacementsProvider(_groupId));
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Сотрудник успешно заменен')),
                     );
@@ -393,6 +395,7 @@ class _TrainingGroupEditScreenState
                       reason: reason,
                     );
                     if (!mounted) return;
+                    ref.invalidate(groupRemovalsProvider(_groupId));
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Сотрудник успешно удален')),
                     );
@@ -522,6 +525,7 @@ class _TrainingGroupEditScreenState
         reason: reason,
       );
       if (!mounted) return;
+      ref.invalidate(groupRemovalsProvider(_groupId));
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Клиент успешно удален из группы')),
       );
@@ -640,6 +644,7 @@ class _TrainingGroupEditScreenState
         print('[MOVE CLIENT] API call successful.');
 
         if (!mounted) return;
+        ref.invalidate(groupMovementsProvider(_groupId));
         setState(() {
           _members.removeWhere((m) => m.id == member.id);
         });
@@ -763,10 +768,14 @@ class _TrainingGroupEditScreenState
      final isEditing = _groupId != null;
 
      return DefaultTabController(
-      length: isEditing ? 3 : 1,
+      length: isEditing ? 4 : 1,
       child: Scaffold(
         appBar: AppBar(
-          title: Text(isEditing ? 'Редактировать группу' : 'Создать группу'),
+          title: Text(
+            isEditing
+                ? 'Редактировать группу: ${_nameController.text}'
+                : 'Создать группу',
+          ),
           actions: [
             IconButton(
               icon: const Icon(Icons.save),
@@ -779,6 +788,7 @@ class _TrainingGroupEditScreenState
                     Tab(text: 'Основное'),
                     Tab(text: 'Перемещения'),
                     Tab(text: 'Замены'),
+                    Tab(text: 'Удаления'),
                   ],
                 )
               : null,
@@ -841,19 +851,31 @@ class _TrainingGroupEditScreenState
                           title: 'Основной тренер',
                           selectedUserId: _selectedPrimaryTrainerId,
                           availableUsers: _trainers,
-                          onUserChanged: (value) => setState(() => _selectedPrimaryTrainerId = value),
+                          onUserChanged: (value) => setState(() {
+                            _selectedPrimaryTrainerId = value;
+                            _initialGroup =
+                                _initialGroup?.copyWith(primaryTrainerId: value);
+                          }),
                         ),
                         _buildUserSelectionTile(
                           title: 'Основной инструктор (опционально)',
                           selectedUserId: _selectedPrimaryInstructorId,
                           availableUsers: _instructors,
-                          onUserChanged: (value) => setState(() => _selectedPrimaryInstructorId = value),
+                          onUserChanged: (value) => setState(() {
+                            _selectedPrimaryInstructorId = value;
+                            _initialGroup = _initialGroup
+                                ?.copyWith(primaryInstructorId: value);
+                          }),
                         ),
                         _buildUserSelectionTile(
                           title: 'Ответственный менеджер (опционально)',
                           selectedUserId: _selectedResponsibleManagerId,
                           availableUsers: _managers,
-                          onUserChanged: (value) => setState(() => _selectedResponsibleManagerId = value),
+                          onUserChanged: (value) => setState(() {
+                            _selectedResponsibleManagerId = value;
+                            _initialGroup = _initialGroup
+                                ?.copyWith(responsibleManagerId: value);
+                          }),
                         ),
                         TextFormField(
                           controller: _maxParticipantsController,
@@ -943,6 +965,7 @@ class _TrainingGroupEditScreenState
                 if (isEditing) ...[
                   _MovementHistoryView(groupId: _groupId),
                   ReplacementHistoryView(groupId: _groupId),
+                  RemovalHistoryView(groupId: _groupId),
                 ],
               ],
             ),
@@ -987,57 +1010,23 @@ class _MovementHistoryView extends ConsumerWidget {
                 final movement = movements[index];
                 final movedUser = getUserName(movement.userId);
                 final movedBy = getUserName(movement.movedByUserId);
-                
-                // Логика отображения
-                String title = '';
-                String subtitle = '';
 
-                // Проверка, является ли это заменой сотрудника (содержит "REPLACE_STAFF:")
-                if (movement.reason != null && movement.reason!.startsWith('REPLACE_STAFF:')) {
-                  final parts = movement.reason!.split(':');
-                  if (parts.length >= 5) {
-                    final role = parts[1];
-                    final oldStaffId = parts[2];
-                    final newStaffId = parts[3];
-                    final actualReason = parts.sublist(4).join(':');
+                final String title;
+                final String subtitle;
 
-                    final oldName = getUserName(oldStaffId);
-                    final newName = getUserName(newStaffId);
-                    
-                    String roleName = '';
-                    switch (role) {
-                      case 'trainer': roleName = 'Тренер'; break;
-                      case 'instructor': roleName = 'Инструктор'; break;
-                      case 'manager': roleName = 'Менеджер'; break;
-                      default: roleName = role;
-                    }
-                    
-                    title = '$roleName ($oldName) заменен на ($newName)';
-                    subtitle = 'Дата: ${DateFormat('dd.MM.yyyy HH:mm').format(movement.movementDate.toLocal())}\nПричина: $actualReason\nИнициатор: $movedBy';
-                  } else {
-                    title = 'Замена персонала';
-                    subtitle = movement.reason!;
-                  }
-                } else if (movement.fromGroupId != null && movement.toGroupId != null) {
-                  title = '$movedUser перемещен';
+                if (movement.fromGroupId != null && movement.toGroupId != null) {
+                  title = 'Клиент: $movedUser перемещен';
                   subtitle = 'Из: ${getGroupName(movement.fromGroupId)}\nВ: ${getGroupName(movement.toGroupId)}'
                              '\nДата: ${DateFormat('dd.MM.yyyy HH:mm').format(movement.movementDate.toLocal())}'
                              '${(movement.reason != null && movement.reason!.isNotEmpty) ? '\nПричина: ${movement.reason}' : ''}'
                              '\nИнициатор: $movedBy';
-                } else if (movement.toGroupId != null) {
-                  title = '$movedUser добавлен в группу';
+                } else {
+                  title = 'Клиент: $movedUser добавлен в группу';
                   subtitle = 'В: ${getGroupName(movement.toGroupId)}'
                              '\nДата: ${DateFormat('dd.MM.yyyy HH:mm').format(movement.movementDate.toLocal())}'
                              '${(movement.reason != null && movement.reason!.isNotEmpty) ? '\nПричина: ${movement.reason}' : ''}'
                              '\nИнициатор: $movedBy';
-                } else {
-                  title = '$movedUser удален из группы';
-                  subtitle = 'Из: ${getGroupName(movement.fromGroupId)}'
-                             '\nДата: ${DateFormat('dd.MM.yyyy HH:mm').format(movement.movementDate.toLocal())}'
-                             '${(movement.reason != null && movement.reason!.isNotEmpty) ? '\nПричина: ${movement.reason}' : ''}'
-                             '\nИнициатор: $movedBy';
                 }
-
 
                 return Card(
                   margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),

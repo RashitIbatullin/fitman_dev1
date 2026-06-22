@@ -9,7 +9,9 @@ DROP TABLE IF EXISTS
 "training_groups",
 "analytic_groups",
 "group_member_movements",
-"training_group_replacement_employees"
+"training_group_member_movements",
+"training_group_replacement_employees",
+"training_group_users_remove"
 CASCADE;
 
 -- Типы тренировочных групп
@@ -109,8 +111,8 @@ CREATE INDEX idx_group_schedule_slots_group_id ON group_schedule_slots(group_id)
 CREATE INDEX idx_training_group_members_user_id ON training_group_members(user_id);
 CREATE INDEX idx_analytic_groups_company_id ON analytic_groups(company_id);
 CREATE INDEX idx_analytic_groups_is_auto_update ON analytic_groups(is_auto_update);
--- Таблица для хранения истории перемещений участников групп
-CREATE TABLE group_member_movements (
+-- Таблица для хранения истории перемещений клиентов между группами
+CREATE TABLE training_group_member_movements (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES users(id),
 
@@ -127,25 +129,39 @@ CREATE TABLE group_member_movements (
 
 
 -- Добавляем индексы для ускорения поиска
-CREATE INDEX idx_group_movements_user ON group_member_movements(user_id);
-CREATE INDEX idx_group_movements_from_group ON group_member_movements(from_group_id);
-CREATE INDEX idx_group_movements_to_group ON group_member_movements(to_group_id);
+CREATE INDEX idx_training_group_member_movements_user ON training_group_member_movements(user_id);
+CREATE INDEX idx_training_group_member_movements_from_group ON training_group_member_movements(from_group_id);
+CREATE INDEX idx_training_group_member_movements_to_group ON training_group_member_movements(to_group_id);
 
 -- Убедимся, что одно из полей from/to не NULL
-ALTER TABLE group_member_movements 
+ALTER TABLE training_group_member_movements 
 ADD CONSTRAINT chk_from_to_not_both_null
 CHECK (from_group_id IS NOT NULL OR to_group_id IS NOT NULL);
 
--- Таблица для хранения замен и удалений сотрудников
+-- Таблица для хранения замен сотрудников
 CREATE TABLE training_group_replacement_employees (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   group_id UUID NOT NULL REFERENCES training_groups(id) ON DELETE CASCADE,
   old_employee_id UUID REFERENCES users(id),
-  new_employee_id UUID REFERENCES users(id),
+  new_employee_id UUID NOT NULL REFERENCES users(id),
   date TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  reason TEXT NOT NULL, -- Причина замены/удаления (не менее 5 символов)
+  reason TEXT NOT NULL, -- Причина замены (не менее 5 символов)
   initiator_id UUID NOT NULL REFERENCES users(id),
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 CREATE INDEX idx_replacement_employees_group_id ON training_group_replacement_employees(group_id);
+
+-- Таблица для лога удаления клиентов и сотрудников из группы
+CREATE TABLE training_group_users_remove (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  group_id UUID NOT NULL REFERENCES training_groups(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES users(id),
+  user_role VARCHAR(20) NOT NULL, -- 'client', 'trainer', 'instructor', 'manager'
+  removed_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  reason TEXT NOT NULL,
+  initiator_id UUID NOT NULL REFERENCES users(id),
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX idx_training_group_users_remove_group_id ON training_group_users_remove(group_id);

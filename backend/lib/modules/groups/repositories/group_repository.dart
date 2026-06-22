@@ -5,6 +5,7 @@ import 'package:fitman_common/modules/groups/group_schedule.model.dart';
 import 'package:fitman_common/modules/groups/training_group.model.dart';
 import 'package:fitman_common/modules/groups/training_group_type.model.dart';
 import 'package:fitman_common/modules/groups/training_group_replacement_employee.model.dart';
+import 'package:fitman_common/modules/groups/training_group_user_remove.model.dart';
 import 'package:fitman_common/modules/groups/group_movement.model.dart';
 
 class GroupRepository {
@@ -217,24 +218,43 @@ class GroupRepository {
         final newStaffId = _getStaffIdByField(group, fieldName);
 
         if (oldStaffId != newStaffId) {
-          // Для персонала используем таблицу training_group_replacement_employees
-          await session.execute(
-            Sql.named(r'''
-              INSERT INTO training_group_replacement_employees (
-                group_id, old_employee_id, new_employee_id, date, reason, initiator_id
-              )
-              VALUES (
-                @groupId, @oldStaffId, @newStaffId, NOW(), @reason, @initiatorId
-              )
-            '''),
-            parameters: {
-              'groupId': group.id,
-              'oldStaffId': oldStaffId,
-              'newStaffId': newStaffId,
-              'reason': 'Автоматическое обновление персонала группы',
-              'initiatorId': updaterId,
-            },
-          );
+          if (oldStaffId != null && newStaffId != null) {
+            await session.execute(
+              Sql.named(r'''
+                INSERT INTO training_group_replacement_employees (
+                  group_id, old_employee_id, new_employee_id, date, reason, initiator_id
+                )
+                VALUES (
+                  @groupId, @oldStaffId, @newStaffId, NOW(), @reason, @initiatorId
+                )
+              '''),
+              parameters: {
+                'groupId': group.id,
+                'oldStaffId': oldStaffId,
+                'newStaffId': newStaffId,
+                'reason': 'Автоматическое обновление персонала группы',
+                'initiatorId': updaterId,
+              },
+            );
+          } else if (oldStaffId != null && newStaffId == null) {
+            await session.execute(
+              Sql.named(r'''
+                INSERT INTO training_group_users_remove (
+                  group_id, user_id, user_role, removed_at, reason, initiator_id
+                )
+                VALUES (
+                  @groupId, @userId, @userRole, NOW(), @reason, @initiatorId
+                )
+              '''),
+              parameters: {
+                'groupId': group.id,
+                'userId': oldStaffId,
+                'userRole': entry.value,
+                'reason': 'Автоматическое обновление персонала группы',
+                'initiatorId': updaterId,
+              },
+            );
+          }
         }
       }
 
@@ -485,19 +505,20 @@ class GroupRepository {
         parameters: {'groupId': groupId},
       );
 
-      // 2. Log the removal in training_group_replacement_employees
+      // 2. Log the removal in training_group_users_remove
       await session.execute(
         Sql.named(r'''
-          INSERT INTO training_group_replacement_employees (
-            group_id, old_employee_id, new_employee_id, date, reason, initiator_id
+          INSERT INTO training_group_users_remove (
+            group_id, user_id, user_role, removed_at, reason, initiator_id
           )
           VALUES (
-            @groupId, @oldEmployeeId, NULL, NOW(), @reason, @initiatorId
+            @groupId, @userId, @userRole, NOW(), @reason, @initiatorId
           )
         '''),
         parameters: {
           'groupId': groupId,
-          'oldEmployeeId': staffId,
+          'userId': staffId,
+          'userRole': role,
           'reason': reason,
           'initiatorId': initiatorId,
         },
@@ -510,7 +531,7 @@ class GroupRepository {
     final results = await conn.execute(
       Sql.named('''
         SELECT * FROM training_group_replacement_employees
-        WHERE group_id = @groupId
+        WHERE group_id = @groupId AND new_employee_id IS NOT NULL
         ORDER BY date DESC
       '''),
       parameters: {'groupId': groupId},
@@ -520,12 +541,28 @@ class GroupRepository {
         .toList();
   }
 
+  Future<List<TrainingGroupUserRemove>> getRemovalsForGroup(String groupId) async {
+    final conn = await _db.connection;
+    final results = await conn.execute(
+      Sql.named('''
+        SELECT * FROM training_group_users_remove
+        WHERE group_id = @groupId
+        ORDER BY removed_at DESC
+      '''),
+      parameters: {'groupId': groupId},
+    );
+    return results
+        .map((row) => TrainingGroupUserRemove.fromJson(row.toColumnMap()))
+        .toList();
+  }
+
   Future<List<GroupMovement>> getMovementsForUser(String userId) async {
     final conn = await _db.connection;
     final results = await conn.execute(
       Sql.named('''
-        SELECT * FROM group_member_movements
+        SELECT * FROM training_group_member_movements
         WHERE user_id = @userId
+          AND NOT (from_group_id IS NOT NULL AND to_group_id IS NULL)
         ORDER BY movement_date DESC
       '''),
       parameters: {'userId': userId},
@@ -539,8 +576,9 @@ class GroupRepository {
     final conn = await _db.connection;
     final results = await conn.execute(
       Sql.named('''
-        SELECT * FROM group_member_movements
-        WHERE from_group_id = @groupId OR to_group_id = @groupId
+        SELECT * FROM training_group_member_movements
+        WHERE (from_group_id = @groupId OR to_group_id = @groupId)
+          AND NOT (from_group_id IS NOT NULL AND to_group_id IS NULL)
         ORDER BY movement_date DESC
       '''),
       parameters: {'groupId': groupId},
@@ -596,27 +634,46 @@ class GroupRepository {
         );
       }
 
-      // 3. Log the movement
-      await session.execute(
-        Sql.named(r'''
-          INSERT INTO group_member_movements (
-            user_id, from_group_id, to_group_id,
-            movement_date, reason, moved_by_user_id
-          )
-          VALUES (
-            @userId, @fromGroupId, @toGroupId,
-            @movementDate, @reason, @movedByUserId
-          )
-        '''),
-        parameters: {
-          'userId': clientId,
-          'fromGroupId': fromGroupId,
-          'toGroupId': toGroupId,
-          'movementDate': DateTime.now().toUtc(),
-          'reason': reason,
-          'movedByUserId': movedByUserId,
-        },
-      );
+      // 3. Log the movement or removal
+      if (fromGroupId != null && toGroupId == null) {
+        await session.execute(
+          Sql.named(r'''
+            INSERT INTO training_group_users_remove (
+              group_id, user_id, user_role, removed_at, reason, initiator_id
+            )
+            VALUES (
+              @groupId, @userId, 'client', NOW(), @reason, @initiatorId
+            )
+          '''),
+          parameters: {
+            'groupId': fromGroupId,
+            'userId': clientId,
+            'reason': reason,
+            'initiatorId': movedByUserId,
+          },
+        );
+      } else {
+        await session.execute(
+          Sql.named(r'''
+            INSERT INTO training_group_member_movements (
+              user_id, from_group_id, to_group_id,
+              movement_date, reason, moved_by_user_id
+            )
+            VALUES (
+              @userId, @fromGroupId, @toGroupId,
+              @movementDate, @reason, @movedByUserId
+            )
+          '''),
+          parameters: {
+            'userId': clientId,
+            'fromGroupId': fromGroupId,
+            'toGroupId': toGroupId,
+            'movementDate': DateTime.now().toUtc(),
+            'reason': reason,
+            'movedByUserId': movedByUserId,
+          },
+        );
+      }
     });
   }
 

@@ -250,6 +250,12 @@ Future<List<TrainingGroupReplacementEmployee>> groupReplacements(
 }
 
 @Riverpod(keepAlive: true)
+Future<List<TrainingGroupUserRemove>> groupRemovals(
+    GroupRemovalsRef ref, String groupId) async {
+  return ApiService.getRemovalsForGroup(groupId);
+}
+
+@Riverpod(keepAlive: true)
 Future<List<GroupMovement>> userMovements(
     UserMovementsRef ref, String userId) async {
   return ApiService.getUserMovements(userId);

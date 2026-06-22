@@ -30,6 +30,7 @@ class TrainingGroupsController {
     router.post('/remove-staff', _removeStaff);
     router.get('/<id>/movements', _getGroupMovements);
     router.get('/<id>/replacements', _getReplacementsForGroup);
+    router.get('/<id>/removals', _getRemovalsForGroup);
     router.get('/user/<userId>/movements', _getUserMovements);
     
     return router;
@@ -71,6 +72,15 @@ class TrainingGroupsController {
     try {
       final replacements = await _db.groups.getReplacementsForGroup(id);
       return Response.ok(jsonEncode(replacements.map((e) => e.toJson()).toList()));
+    } catch (e) {
+      return Response.internalServerError(body: jsonEncode({'error': e.toString()}));
+    }
+  }
+
+  Future<Response> _getRemovalsForGroup(Request request, String id) async {
+    try {
+      final removals = await _db.groups.getRemovalsForGroup(id);
+      return Response.ok(jsonEncode(removals.map((e) => e.toJson()).toList()));
     } catch (e) {
       return Response.internalServerError(body: jsonEncode({'error': e.toString()}));
     }
