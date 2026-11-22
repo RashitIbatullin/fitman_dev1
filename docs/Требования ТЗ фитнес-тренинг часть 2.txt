@@ -605,7 +605,7 @@ class GroupCondition {
 7.1.8 Таблица аналитических групп (analytic_groups)
 
 CREATE TABLE analytic_groups (
-  id BIGSERIAL PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name VARCHAR(255) NOT NULL,
   description TEXT,
   type SMALLINT NOT NULL, -- 0:corporate, 1:demographic, 2:financial, 3:behavioral, 4:custom
@@ -625,10 +625,10 @@ CREATE TABLE analytic_groups (
   company_id BIGINT DEFAULT -1,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
-  created_by BIGINT REFERENCES users(id),
-  updated_by BIGINT REFERENCES users(id),
+  created_by UUID REFERENCES users(id),
+  updated_by UUID REFERENCES users(id),
   archived_at TIMESTAMPTZ,
-  archived_by BIGINT REFERENCES users(id)
+  archived_by UUID REFERENCES users(id)
 );
 
 
@@ -844,7 +844,7 @@ class PendingSyncOperation {
 10 Архивация и восстановление записей
 1. В каждой таблице обязательно присутствуют два служебных поля:
 archived_at timestamp with time zone NULL – дата/время архивации;
-archived_by bigint NULL – ссылка на users(id), кто архивировал.
+archived_by uuid NULL – ссылка на users(id), кто архивировал.
 NULL в обоих полях означает «запись активна».
 2. Архивация выполняется командой ArchiveEntityCommand (паттерн Command), которая:
 проверяет право «Архивировать» у текущей роли;
@@ -870,9 +870,9 @@ USING (archived_at IS NULL)
 Создаётся одна таблица на всю БД:
 sql 
 CREATE TABLE audit_log (
-id            bigserial PRIMARY KEY,
+id            uuid PRIMARY KEY DEFAULT gen_random_uuid(),
 table_name    text      NOT NULL,                       -- имя таблицы-источника
-row_pk        bigint    NOT NULL,                       -- PK изменённой строки
+row_pk        uuid      NOT NULL,                       -- PK изменённой строки
 action        text      NOT NULL CHECK (action IN (
  'INSERT','UPDATE','DELETE','ARCHIVE','RESTORE')),
 changed_at    timestamptz DEFAULT now(),
@@ -1012,7 +1012,7 @@ class EntityMapping {
 sql
 -- Таблица конфигурации интеграции
 CREATE TABLE integration_1c_config (
-    id BIGSERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     base_url VARCHAR(500) NOT NULL,
     api_key VARCHAR(500) NOT NULL,
     is_active BOOLEAN DEFAULT FALSE,
@@ -1026,9 +1026,9 @@ CREATE TABLE integration_1c_config (
 
 -- Очередь синхронизации
 CREATE TABLE integration_1c_queue (
-    id BIGSERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     entity_type VARCHAR(50) NOT NULL, -- 'client', 'payment', 'subscription', 'visit'
-    entity_id BIGINT NOT NULL, -- ID сущности в FitMan
+    entity_id UUID NOT NULL, -- ID сущности в FitMan
     operation VARCHAR(20) NOT NULL, -- 'create', 'update', 'delete'
     payload JSONB NOT NULL, -- Данные сущности в формате JSON
     status VARCHAR(20) DEFAULT 'pending', -- 'pending', 'processing', 'sent', 'error'
@@ -1041,7 +1041,7 @@ CREATE TABLE integration_1c_queue (
 
 -- Логи синхронизации (для аудита и отладки)
 CREATE TABLE integration_1c_logs (
-    id BIGSERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     log_level VARCHAR(20) NOT NULL, -- 'info', 'warning', 'error'
     message TEXT NOT NULL,
     details JSONB, -- Дополнительные данные (например, тело запроса/ответа)
@@ -1253,7 +1253,7 @@ Backend Framework
 **Расширения PostgreSQL:**
 - pg_trgm - для полнотекстового поиска
 - btree_gin - для составных индексов
-- uuid-ossp - для генерации UUID
+- pgcrypto - для генерации UUID (gen_random_uuid())
 
 **Репликация:** 
 - Настройка master-slave репликации
@@ -1439,8 +1439,9 @@ CREATE INDEX idx_active_users ON users(id) WHERE archived_at IS NULL;
 
 16 Требования к таблицам
 База данных системы – PostgreSQL.
-• В каждой таблице должно быть поле id (BIGSERIAL) с primary key.
+• В каждой таблице должно быть поле id (UUID) с primary key.
 Имена foreign key полей должны соответствовать шаблону: <имя_таблицы_в_единственном_числе>_id.
+Исключение: для компактных справочников (например, training_group_types) допускается SMALLSERIAL.
 • В каждой таблице должно быть поле company_id (BIGINT) для мультитенантности. По умолчанию равно -1.
 • Индексы должны быть добавлены на все поля, используемые в условиях JOIN и WHERE, в частности, на все foreign key поля.
 • Имена и поля таблиц должны быть в snake_case нотации.
@@ -1452,12 +1453,12 @@ CREATE INDEX idx_active_users ON users(id) WHERE archived_at IS NULL;
 • Для оперативного аудита, все таблицы должны иметь поля:
 • "Дата Создания" (created_at (TIMESTAMP)) 
 • "Дата Изменения" (updated_at (TIMESTAMP))
-• "Создан пользователем" (created_by (BIGINT FK → users(id)))
-• "Изменен пользователем" (updated_by (BIGINT FK → users(id))).
+• "Создан пользователем" (created_by (UUID FK → users(id)))
+• "Изменен пользователем" (updated_by (UUID FK → users(id))).
 Поля created_at, created_by, необходимо учитывать при добавлении записи. Поля updated_at, updated_by, необходимо учитывать при обновлении запросов.
 • Для архивации и восстановления записей, все таблицы, кроме таблиц отношений, должны включать поля:
 • archived_at (TIMESTAMP NULL)
-• archived_by (BIGINT FK → users(id))
+• archived_by (UUID FK → users(id))
 • archived_reason TEXT
 
 17 Требования к логированию приложения

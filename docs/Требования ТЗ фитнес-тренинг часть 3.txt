@@ -133,13 +133,13 @@ o custom_duration_rest (REAL) // Индивидуальный отдых
 o custom_notes (TEXT) // Персональные указания (например, "ставить ноги шире")
 2.2 Таблица "lessons"
 
-• schedule_id (BIGINT); //определяет запланированный слот,
-• client_training_plan_id (BIGINT); //конкретный план, который был выполнен в этом слоте
-• set_exercises_id (BIGINT);
-• user_id (BIGINT);
-• instructor_id (BIGINT);
-• trainer_id (BIGINT);
-• room_id BIGINT REFERENCES rooms(id);
+• schedule_id (UUID); //определяет запланированный слот,
+• client_training_plan_id (UUID); //конкретный план, который был выполнен в этом слоте
+• set_exercises_id (UUID);
+• user_id (UUID);
+• instructor_id (UUID);
+• trainer_id (UUID);
+• room_id UUID REFERENCES rooms(id);
 • equipment_ids JSONB; -- список equipment.id
 • start_plan_at (TIMESTAMP);
 • start_fact_at (TIMESTAMP);
@@ -150,8 +150,8 @@ o custom_notes (TEXT) // Персональные указания (наприм
 Таблица lessons заполняется на основе расписания.
 
 Таблица "track_сalories"
-• user_id (BIGINT);
-• lesson_id (BIGINT);
+• user_id (UUID);
+• lesson_id (UUID);
 • weight (double); //вес
 • calories_in (REAL); //входящие калории
 • calories_out (REAL); //исходящие калории
@@ -166,13 +166,13 @@ o custom_notes (TEXT) // Персональные указания (наприм
 
 2.3 Таблицы антропометрии
 Таблица "anthropometry_fix" (фиксированные значения, вводятся 1 раз).
-• user_id (BIGINT);
+• user_id (UUID);
 • date_time (TIMESTAMP);
 • height (int); //рост в см
 • wrist_circ (Обхват запястья, см);
 • ankle_circ (Обхват лодыжки, см);
 Таблица "anthropometry_start" (антропология начало).
-• user_id (BIGINT);
+• user_id (UUID);
 • date_time (TIMESTAMP);
 • photo_date_time (TIMESTAMP);
 • photo (URL); //фото 
@@ -187,7 +187,7 @@ o custom_notes (TEXT) // Персональные указания (наприм
 
 2.4 Таблицы биоимпеданса
 Таблица "bioimpedance_start"
-• user_id (BIGINT);
+• user_id (UUID);
 • date_time (TIMESTAMP);
 • fat_percentage (Процент жира);
 • muscle_mass (Мышечная масса, кг);
@@ -537,8 +537,8 @@ ListView тренеров должна отображаться в дашбор�
 Таблица types_exercis
 Поля:
 • name (VARCHAR(100));
-• kind_exercis_id (BIGINT);
-• equipment_type_id (BIGINT);
+• kind_exercis_id (UUID);
+• equipment_type_id (UUID);
 
 
 Класс TypeExercisCatalog
@@ -569,7 +569,7 @@ ListView тренеров должна отображаться в дашбор�
 • duration_rest (REAL);
 • caloriesOut (REAL);
 • is_group (BOOL, false);
-• type_exercis_id (BIGINT);
+• type_exercis_id (UUID);
 Класс ExercisCatalog
 Поля:
 • name;
@@ -652,7 +652,7 @@ ListView тренеров должна отображаться в дашбор�
 Таблица training_plan_templates
 Поля:
 • name (VARCHAR(100));
-• goal_training_id (BIGINT). //из таблицы Цели тренировок
+• goal_training_id (UUID). //из таблицы Цели тренировок
 
 Таблица отношений "Планы тренировок – Наборы упражнений"
 Обозначение: training_plan__templates_set_exercises_templates
@@ -721,7 +721,7 @@ ListView тренеров должна отображаться в дашбор�
 • isClientBuild (bool); //признак создания клиента
 • clientBuildAt (datetime); // дата-время создания клиента
 • archived_at (Timestamp)
-• archived_by (BIGINT)
+• archived_by (UUID)
 • note (VARCHAR(100)); //примечание
 
 
@@ -780,7 +780,7 @@ ListView тренеров должна отображаться в дашбор�
 Каталог имеет записи дежурства сотрудников по центру.
 Таблица employees_duty
 Поля:
-• user_id(BIGINT). //из таблицы users
+• user_id(UUID). //из таблицы users
 • duty_start_at (TIMESTAMP); //время начала дежурства
 • duty_finish_at (TIMESTAMP); //время окончания дежурства
 
@@ -805,7 +805,7 @@ ListView тренеров должна отображаться в дашбор�
 Каталог имеет записи квалификаций тренеров и инструкторов.
 Таблица employees_qualifications
 Поля:
-• user_id (BIGINT); //из таблицы users
+• user_id (UUID); //из таблицы users
 • education_level (SMALLINT); //enum employeeEducation ('высшее', 'среднее', 'курсы')
 • specialization (SMALLINT); //enum employeeSpec ('фитнес', 'йога', 'реабилитация')
 • qualification_date (TIMESTAMP); //дата присвоения квалификации

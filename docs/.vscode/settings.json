@@ -1,0 +1,8 @@
+{
+  // VS Code подсвечивает кириллицу как символы, похожие на латиницу,
+  // и показывает плашку «This document contains many non-basic ASCII characters».
+  // Русская локаль снимает это предупреждение, защита от подмены латиницей остаётся.
+  "editor.unicodeHighlight.allowedLocales": {
+    "ru": true
+  }
+}
