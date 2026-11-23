@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:fitman_backend/config/database.dart';
 import 'package:fitman_common/modules/equipment/equipment/equipment_item.model.dart';
 import 'package:postgres/postgres.dart';
+import 'package:fitman_backend/logging/app_logger.dart';
 
 abstract class EquipmentItemRepository {
   Future<EquipmentItem> getById(String id);
@@ -154,17 +155,17 @@ class EquipmentItemRepositoryImpl implements EquipmentItemRepository {
 
           items.add(EquipmentItem.fromJson(itemMap));
         } catch (e, s) {
-          print('====== FAILED TO PARSE EQUIPMENT ITEM ======');
-          print('ERROR: $e');
-          print('STACK TRACE: $s');
-          print('RAW DATA: $itemMap');
-          print('============================================');
+          // Тела записей, SQL и ПДн в лог не пишем.
+          appLog.error('Ошибка', error: e);
+          appLog.debug('Стек ошибки', stackTrace: s);
+          // Тела записей, SQL и ПДн в лог не пишем.
+          // Тела записей, SQL и ПДн в лог не пишем.
           rethrow;
         }
       }
       return items;
     } catch (e) {
-      print('Error fetching all equipment items: $e');
+      appLog.error('Error fetching all equipment items: $e');
       rethrow;
     }
   }
@@ -212,17 +213,17 @@ class EquipmentItemRepositoryImpl implements EquipmentItemRepository {
 
           items.add(EquipmentItem.fromJson(itemMap));
         } catch (e, s) {
-          print('====== FAILED TO PARSE EQUIPMENT ITEM (by Room ID) ======');
-          print('ERROR: $e');
-          print('STACK TRACE: $s');
-          print('RAW DATA: $itemMap');
-          print('======================================================');
+          appLog.error('====== FAILED TO PARSE EQUIPMENT ITEM (by Room ID) ======');
+          appLog.error('Ошибка', error: e);
+          appLog.debug('Стек ошибки', stackTrace: s);
+          // Тела записей, SQL и ПДн в лог не пишем.
+          // Тела записей, SQL и ПДн в лог не пишем.
           rethrow;
         }
       }
       return items;
     } catch (e) {
-      print('Error fetching equipment items by room ID: $e');
+      appLog.error('Error fetching equipment items by room ID: $e');
       rethrow;
     }
   }
@@ -259,11 +260,11 @@ class EquipmentItemRepositoryImpl implements EquipmentItemRepository {
 
       return EquipmentItem.fromJson(itemMap);
     } catch (e, s) {
-      print('====== FAILED TO PARSE EQUIPMENT ITEM (by ID) ======');
-      print('ERROR: $e');
-      print('STACK TRACE: $s');
-      print('RAW DATA: $itemMap');
-      print('==================================================');
+      appLog.error('====== FAILED TO PARSE EQUIPMENT ITEM (by ID) ======');
+      appLog.error('Ошибка', error: e);
+      appLog.debug('Стек ошибки', stackTrace: s);
+      // Тела записей, SQL и ПДн в лог не пишем.
+      // Тела записей, SQL и ПДн в лог не пишем.
       rethrow;
     }
   }

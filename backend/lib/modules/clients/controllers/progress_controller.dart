@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:fitman_common/fitman_common.dart';
 import 'package:shelf/shelf.dart';
 import '../../../config/database.dart';
+import '../../../errors/app_exception.dart';
 
 class ProgressController {
   static Future<Response> getProgressDataForClient(Request request) async {
@@ -15,9 +16,8 @@ class ProgressController {
       final data = await Database().clients.getProgressData(clientId);
 
       return Response.ok(jsonEncode(data));
-    } catch (e) {
-      print('Get progress data error: $e');
-      return Response.internalServerError(body: jsonEncode({'error': 'Internal server error'}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 }

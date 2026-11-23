@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:postgres/postgres.dart';
 import 'package:shelf/shelf.dart';
 import '../../config/database.dart';
+import '../../errors/app_exception.dart';
 
 class WorkScheduleController {
   static Future<Response> getWorkSchedules(Request request) async {
@@ -28,8 +29,8 @@ class WorkScheduleController {
         return map;
       }).toList();
       return Response.ok(jsonEncode(schedules));
-    } catch (e) {
-      return Response.internalServerError(body: jsonEncode({'error': 'Error getting work schedules: $e'}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -49,8 +50,8 @@ class WorkScheduleController {
         },
       );
       return Response.ok(jsonEncode({'message': 'Work schedule created successfully'}));
-    } catch (e) {
-      return Response.internalServerError(body: jsonEncode({'error': 'Error creating work schedule: $e'}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -60,8 +61,6 @@ class WorkScheduleController {
       final data = jsonDecode(body);
       final db = Database();
       final connection = await db.connection;
-      print('UPDATE work_schedules SET day_of_week = @dayOfWeek, start_time = @startTime, end_time = @endTime, is_day_off = @isDayOff, updated_at = NOW() WHERE id = @id');
-      print(data);
       await connection.execute(
           Sql.named('UPDATE work_schedules SET day_of_week = @dayOfWeek, start_time = @startTime, end_time = @endTime, is_day_off = @isDayOff, updated_at = NOW() WHERE id = @id'),
           parameters: {
@@ -74,8 +73,8 @@ class WorkScheduleController {
       );
 
       return Response.ok(jsonEncode({'message': 'Work schedule updated successfully'}));
-    } catch (e) {
-      return Response.internalServerError(body: jsonEncode({'error': 'Error updating work schedule: $e'}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -85,8 +84,6 @@ class WorkScheduleController {
       final data = jsonDecode(body);
       final db = Database();
       final connection = await db.connection;
-      print('UPDATE work_schedules SET archived_at = NOW() WHERE id = @id');
-      print(data);
       await connection.execute(
         Sql.named('UPDATE work_schedules SET archived_at = NOW() WHERE id = @id'),
         parameters: {
@@ -94,8 +91,8 @@ class WorkScheduleController {
         },
       );
       return Response.ok(jsonEncode({'message': 'Work schedule deleted successfully'}));
-    } catch (e) {
-      return Response.internalServerError(body: jsonEncode({'error': 'Error deleting work schedule: $e'}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 }

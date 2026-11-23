@@ -7,6 +7,7 @@ import 'package:fitman_common/fitman_common.dart';
 import 'package:shelf/shelf.dart' as shelf;
 import 'package:shelf_router/shelf_router.dart';
 import 'package:shelf_multipart/shelf_multipart.dart';
+import 'package:fitman_backend/errors/app_exception.dart';
 
 
 class RoomController {
@@ -55,10 +56,8 @@ class RoomController {
       );
 
       return shelf.Response.ok(jsonEncode({'url': newPhotoUrl}));
-    } catch (e) {
-      final errorMessage = e.toString().replaceFirst('Exception: ', '');
-      return shelf.Response.internalServerError(
-          body: jsonEncode({'error': errorMessage}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -84,9 +83,8 @@ class RoomController {
         return shelf.Response.notFound(jsonEncode({'error': 'Room not found'}));
       }
       return shelf.Response.ok(jsonEncode(room.toJson()));
-    } on Exception catch (e) {
-      final errorMessage = e.toString().replaceFirst('Exception: ', '');
-      return shelf.Response.internalServerError(body: jsonEncode({'error': 'Error fetching room: $errorMessage'}));
+    } on Exception catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -100,9 +98,8 @@ class RoomController {
         body: jsonEncode(newRoom.toJson()),
         headers: {'Content-Type': 'application/json'},
       );
-    } on Exception catch (e) {
-      final errorMessage = e.toString().replaceFirst('Exception: ', '');
-      return shelf.Response.internalServerError(body: jsonEncode({'error': errorMessage}));
+    } on Exception catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -130,9 +127,8 @@ class RoomController {
         jsonEncode(updatedRoom.toJson()),
         headers: {'Content-Type': 'application/json'},
       );
-    } on Exception catch (e) {
-      final errorMessage = e.toString().replaceFirst('Exception: ', '');
-      return shelf.Response.internalServerError(body: jsonEncode({'error': errorMessage}));
+    } on Exception catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -146,9 +142,8 @@ class RoomController {
 
       await _roomService.archiveRoom(id, userId);
       return shelf.Response(204);
-    } on Exception catch (e) {
-      final errorMessage = e.toString().replaceFirst('Exception: ', '');
-      return shelf.Response.internalServerError(body: jsonEncode({'error': errorMessage}));
+    } on Exception catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -167,10 +162,8 @@ class RoomController {
       await _roomService.removeRoomPhoto(id, photoUrl);
 
       return shelf.Response.ok(jsonEncode({'message': 'Photo deleted successfully.'}));
-    } catch (e) {
-      final errorMessage = e.toString().replaceFirst('Exception: ', '');
-      return shelf.Response.internalServerError(
-          body: jsonEncode({'error': errorMessage}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 }

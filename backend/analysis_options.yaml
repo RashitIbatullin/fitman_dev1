@@ -1,0 +1,10 @@
+# Backend использует отдельный набор правил: в lib запрещён print().
+# Корневой анализ относится к Flutter-приложению и подключает flutter_lints,
+# которого нет в зависимостях backend.
+analyzer:
+  errors:
+    avoid_print: warning
+
+linter:
+  rules:
+    avoid_print: true

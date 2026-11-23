@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:fitman_common/fitman_common.dart';
 import 'package:shelf/shelf.dart';
 import '../../../config/database.dart'; // Adjusted relative path
+import 'package:fitman_backend/errors/app_exception.dart';
 
 class InstructorController {
   static Future<Response> getAssignedClients(Request request) async {
@@ -22,12 +23,8 @@ class InstructorController {
         jsonEncode(clientsJson),
         headers: {'Content-Type': 'application/json'},
       );
-    } catch (e) {
-      print('Error getting assigned clients for instructor: $e');
-      return Response.internalServerError(
-        body: '{"error": "An unexpected error occurred"}',
-        headers: {'Content-Type': 'application/json'},
-      );
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -49,12 +46,8 @@ class InstructorController {
         jsonEncode(trainersJson),
         headers: {'Content-Type': 'application/json'},
       );
-    } catch (e) {
-      print('Error getting assigned trainers for instructor: $e');
-      return Response.internalServerError(
-        body: '{"error": "An unexpected error occurred"}',
-        headers: {'Content-Type': 'application/json'},
-      );
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -78,12 +71,8 @@ class InstructorController {
         jsonEncode(manager.toJson()),
         headers: {'Content-Type': 'application/json'},
       );
-    } catch (e) {
-      print('Error getting assigned manager for instructor: $e');
-      return Response.internalServerError(
-        body: '{"error": "An unexpected error occurred"}',
-        headers: {'Content-Type': 'application/json'},
-      );
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -99,9 +88,8 @@ class InstructorController {
         jsonEncode(clientsJson),
         headers: {'Content-Type': 'application/json'},
       );
-    } catch (e) {
-      print('Error getting assigned clients for instructor: $e');
-      return Response.internalServerError(body: '{"error": "An unexpected error occurred"}');
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -115,9 +103,8 @@ class InstructorController {
         jsonEncode(trainersJson),
         headers: {'Content-Type': 'application/json'},
       );
-    } catch (e) {
-      print('Error getting assigned trainers for instructor: $e');
-      return Response.internalServerError(body: '{"error": "An unexpected error occurred"}');
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -134,9 +121,8 @@ class InstructorController {
         jsonEncode(manager.toJson()),
         headers: {'Content-Type': 'application/json'},
       );
-    } catch (e) {
-      print('Error getting assigned manager for instructor: $e');
-      return Response.internalServerError(body: '{"error": "An unexpected error occurred"}');
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 }

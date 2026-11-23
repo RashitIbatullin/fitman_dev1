@@ -6,6 +6,7 @@ import 'package:shelf_router/shelf_router.dart';
 
 import 'package:fitman_backend/modules/equipment/services/maintenance_service.dart';
 import '../../../services/photo_service.dart';
+import 'package:fitman_backend/errors/app_exception.dart';
 
 class MaintenanceController {
   MaintenanceController(this._maintenanceService);
@@ -56,11 +57,8 @@ class MaintenanceController {
 
       return Response.ok(jsonEncode({'message': "Photo uploaded successfully", "url": photoUrl}));
 
-    } catch (e, st) {
-       print('--- BACKEND ERROR: _uploadPhoto ---');
-       print('ERROR: $e');
-       print('STACKTRACE: $st');
-      return Response.internalServerError(body: jsonEncode({'error': e.toString()}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -75,11 +73,8 @@ class MaintenanceController {
           jsonResponse,
           headers: {'Content-Type': 'application/json'},
         );
-      } catch (e, st) {
-        print('--- BACKEND ERROR: GET /maintenance ---');
-        print('ERROR: $e');
-        print('STACKTRACE: $st');
-        return Response.internalServerError(body: jsonEncode({'error': e.toString()}));
+      } catch (error, stackTrace) {
+        throw InternalException(cause: error, stackTrace: stackTrace);
       }
     });
 
@@ -90,11 +85,8 @@ class MaintenanceController {
           jsonEncode(executors),
           headers: {'Content-Type': 'application/json'},
         );
-      } catch (e, st) {
-        print('--- BACKEND ERROR: GET /maintenance/available-executors ---');
-        print('ERROR: $e');
-        print('STACKTRACE: $st');
-        return Response.internalServerError(body: jsonEncode({'error': e.toString()}));
+      } catch (error, stackTrace) {
+        throw InternalException(cause: error, stackTrace: stackTrace);
       }
     });
 
@@ -107,11 +99,8 @@ class MaintenanceController {
           jsonResponse,
           headers: {'Content-Type': 'application/json'},
         );
-      } catch (e, st) {
-        print('--- BACKEND ERROR: GET /maintenance/item/<itemId> ---');
-        print('ERROR: $e');
-        print('STACKTRACE: $st');
-        return Response.internalServerError(body: jsonEncode({'error': e.toString()}));
+      } catch (error, stackTrace) {
+        throw InternalException(cause: error, stackTrace: stackTrace);
       }
     });
 
@@ -123,11 +112,8 @@ class MaintenanceController {
           jsonResponse,
           headers: {'Content-Type': 'application/json'},
         );
-      } catch (e, st) {
-        print('--- BACKEND ERROR: GET /maintenance/<id> ---');
-        print('ERROR: $e');
-        print('STACKTRACE: $st');
-        return Response.internalServerError(body: jsonEncode({'error': e.toString()}));
+      } catch (error, stackTrace) {
+        throw InternalException(cause: error, stackTrace: stackTrace);
       }
     });
 
@@ -139,11 +125,8 @@ class MaintenanceController {
           jsonResponse,
           headers: {'Content-Type': 'application/json'},
         );
-      } catch (e, st) {
-        print('--- BACKEND ERROR: GET /maintenance/<id>/status-history ---');
-        print('ERROR: $e');
-        print('STACKTRACE: $st');
-        return Response.internalServerError(body: jsonEncode({'error': e.toString()}));
+      } catch (error, stackTrace) {
+        throw InternalException(cause: error, stackTrace: stackTrace);
       }
     });
 
@@ -180,11 +163,8 @@ class MaintenanceController {
           jsonEncode(newHistory.toJson()),
           headers: {'Content-Type': 'application/json'},
         );
-      } catch (e, st) {
-        print('--- BACKEND ERROR: POST /maintenance ---');
-        print('ERROR: $e');
-        print('STACKTRACE: $st');
-        return Response.internalServerError(body: jsonEncode({'error': e.toString()}));
+      } catch (error, stackTrace) {
+        throw InternalException(cause: error, stackTrace: stackTrace);
       }
     });
 
@@ -218,11 +198,8 @@ class MaintenanceController {
           jsonEncode(updatedHistory.toJson()),
           headers: {'Content-Type': 'application/json'},
         );
-      } catch (e, st) {
-        print('--- BACKEND ERROR: POST /maintenance/<id>/diagnose ---');
-        print('ERROR: $e');
-        print('STACKTRACE: $st');
-        return Response.internalServerError(body: jsonEncode({'error': e.toString()}));
+      } catch (error, stackTrace) {
+        throw InternalException(cause: error, stackTrace: stackTrace);
       }
     });
 
@@ -251,11 +228,8 @@ class MaintenanceController {
           jsonEncode(updatedHistory.toJson()),
           headers: {'Content-Type': 'application/json'},
         );
-      } catch (e, st) {
-        print('--- BACKEND ERROR: POST /maintenance/<id>/complete ---');
-        print('ERROR: $e');
-        print('STACKTRACE: $st');
-        return Response.internalServerError(body: jsonEncode({'error': e.toString()}));
+      } catch (error, stackTrace) {
+        throw InternalException(cause: error, stackTrace: stackTrace);
       }
     });
 
@@ -276,11 +250,8 @@ class MaintenanceController {
           jsonEncode(updatedHistory.toJson()),
           headers: {'Content-Type': 'application/json'},
         );
-      } catch (e, st) {
-        print('--- BACKEND ERROR: PUT /maintenance/<id> ---');
-        print('ERROR: $e');
-        print('STACKTRACE: $st');
-        return Response.internalServerError(body: jsonEncode({'error': e.toString()}));
+      } catch (error, stackTrace) {
+        throw InternalException(cause: error, stackTrace: stackTrace);
       }
     });
 
@@ -301,11 +272,8 @@ class MaintenanceController {
 
         await _maintenanceService.archive(id, reason, userId);
         return Response.ok('{"message": "Record archived successfully"}');
-      } catch (e, st) {
-        print('--- BACKEND ERROR: DELETE /maintenance/<id> ---');
-        print('ERROR: $e');
-        print('STACKTRACE: $st');
-        return Response.internalServerError(body: jsonEncode({'error': e.toString()}));
+      } catch (error, stackTrace) {
+        throw InternalException(cause: error, stackTrace: stackTrace);
       }
     });
 
@@ -313,10 +281,8 @@ class MaintenanceController {
       try {
         await _maintenanceService.unarchive(id);
         return Response.ok('{"message": "Record unarchived successfully"}');
-      } catch (e) {
-        print('--- BACKEND ERROR: PUT /maintenance/<id>/unarchive ---');
-        print('ERROR: $e');
-        return Response.internalServerError(body: jsonEncode({'error': 'Error unarchiving record: $e'}));
+      } catch (error, stackTrace) {
+        throw InternalException(cause: error, stackTrace: stackTrace);
       }
     });
 

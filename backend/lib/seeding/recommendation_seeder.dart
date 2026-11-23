@@ -1,11 +1,12 @@
 import 'package:postgres/postgres.dart';
+import 'package:fitman_backend/logging/app_logger.dart';
 
 class RecommendationSeeder {
   RecommendationSeeder(this._connection);
   final Connection _connection;
 
   Future<void> seedBodyShapeRecommendations(Map<String, String> goals, Map<String, String> levels) async {
-    print('   -> Seeding body shape recommendations...');
+    appLog.info('   -> Seeding body shape recommendations...');
     final recommendations = [
       {'body_type': 'Яблоко', 'goal': 'Снижение веса и оздоровление', 'level': 'Новичок', 'trainer': 'Акцент на снижение висцерального жира. Кардио 3-4 р/нед, 30-40 мин (ЧСС 60-70%). Силовые 2-3 р/нед, Full-body. Избегать скручиваний с весом.', 'client': 'Ваша цель - похудение. Сосредоточьтесь на кардио (ходьба, эллипс) и силовых на все тело. Ешьте меньше сладкого и жирного.'},
       {'body_type': 'Яблоко', 'goal': 'Снижение веса и оздоровление', 'level': 'Опытный', 'trainer': 'Увеличение интенсивности. Добавить 1-2 HIIT сессии в неделю. Силовые 3 р/нед (сплит верх/низ) с акцентом на ноги и спину для улучшения пропорций.', 'client': 'Добавляем интенсивности! Пробуйте интервальные тренировки и разделите силовые на "верх" и "низ".'},
@@ -40,7 +41,7 @@ class RecommendationSeeder {
   }
 
   Future<void> seedWhtrRefinements(Map<String, String> goals) async {
-    print('   -> Seeding WHtR refinements...');
+    appLog.info('   -> Seeding WHtR refinements...');
     final refinements = [
       {'gradation': 'Высокий риск ожирения', 'goal': 'Снижение веса и оздоровление', 'client': 'Уточнение по здоровью: Ваш приоритет — здоровье. Начните с ходьбы и простых упражнений, чтобы сердце и суставы привыкли к нагрузке. Каждый шаг важен!', 'trainer': 'Уточнение по WHtR (Высокий риск): Задача - безопасно ввести клиента в процесс. Строгий контроль ЧСС (не выше 60-70% от макс.). Избегать ударных и осевых нагрузок.'},
       {'gradation': 'Норма', 'goal': 'Поддержание формы и улучшение рельефа', 'client': 'Уточнение по здоровью: Отличная форма! Ваша цель — отточить детали. Можете работать над "проблемными" зонами или просто поддерживать результат.', 'trainer': 'Уточнение по WHtR (Норма): Клиент готов к любым видам нагрузок. Можно применять продвинутые методики: суперсеты, дроп-сеты, круговые.'},

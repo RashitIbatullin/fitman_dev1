@@ -316,9 +316,9 @@ class GroupRepository {
     );
     return results.map((row) {
       final map = row.toColumnMap();
-      print('--- Raw Analytic Group DB Row Map ---');
-      print(map);
-      print('------------------------------------');
+      // Тела записей, SQL и ПДн в лог не пишем.
+      // Тела записей, SQL и ПДн в лог не пишем.
+      // Тела записей, SQL и ПДн в лог не пишем.
       return AnalyticGroup.fromJson(map);
     }).toList();
   }

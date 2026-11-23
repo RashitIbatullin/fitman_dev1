@@ -3,6 +3,7 @@ import 'package:fitman_backend/config/database.dart';
 import 'package:fitman_common/modules/rooms/room_model.dart';
 import 'package:postgres/postgres.dart';
 import 'room_schedule_repository.dart';
+import 'package:fitman_backend/logging/app_logger.dart';
 
 abstract class RoomRepository {
   Future<Room?> getById(String id);
@@ -145,7 +146,7 @@ class RoomRepositoryImpl implements RoomRepository {
           )
           .toList();
     } catch (e) {
-      print('Error fetching all rooms: $e');
+      appLog.error('Error fetching all rooms: $e');
       rethrow;
     }
   }
@@ -176,7 +177,7 @@ class RoomRepositoryImpl implements RoomRepository {
 
       return _roomFromRow(result.first.toColumnMap());
     } catch (e) {
-      print('Error fetching room by ID $id: $e');
+      appLog.error('Error fetching room by ID $id: $e');
       rethrow;
     }
   }

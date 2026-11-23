@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:fitman_common/fitman_common.dart';
 import 'package:shelf/shelf.dart';
 import '../config/database.dart';
+import '../errors/app_exception.dart';
 
 class ScheduleController {
   static Future<Response> getSchedule(Request request) async {
@@ -26,9 +27,8 @@ class ScheduleController {
       // For now, let's assume the schedule is a list of maps.
       return Response.ok(jsonEncode({'schedule': schedule}));
 
-    } catch (e) {
-      print('Get schedule error: $e');
-      return Response(500, body: jsonEncode({'error': 'Internal server error'}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -49,9 +49,8 @@ class ScheduleController {
         'message': 'Schedule created successfully',
         'schedule_id': DateTime.now().millisecondsSinceEpoch
       }));
-    } catch (e) {
-      print('Create schedule error: $e');
-      return Response(500, body: jsonEncode({'error': 'Internal server error'}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 }

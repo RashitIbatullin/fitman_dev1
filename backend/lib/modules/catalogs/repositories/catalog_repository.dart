@@ -1,6 +1,7 @@
 import 'package:postgres/postgres.dart';
 
 import '../../../config/database.dart';
+import 'package:fitman_backend/logging/app_logger.dart';
 
 abstract class CatalogRepository {
   Future<List<Map<String, dynamic>>> getCatalog(String tableName);
@@ -27,7 +28,7 @@ class CatalogRepositoryImpl implements CatalogRepository {
       final results = await conn.execute('SELECT id, name FROM $tableName WHERE archived_at IS NULL ORDER BY id');
       return results.map((row) => row.toColumnMap()).toList();
     } catch (e) {
-      print('❌ getCatalog ($tableName) error: $e');
+      appLog.error('❌ getCatalog ($tableName) error: $e');
       rethrow;
     }
   }

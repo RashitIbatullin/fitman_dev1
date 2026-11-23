@@ -6,6 +6,8 @@ import 'package:fitman_common/fitman_common.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 
+import 'package:fitman_backend/errors/app_exception.dart';
+
 class RoomScheduleController {
   RoomScheduleController(this._roomScheduleService);
 
@@ -23,9 +25,8 @@ class RoomScheduleController {
       final schedules = await _roomScheduleService.getSchedulesByRoomId(roomId);
       final schedulesJson = schedules.map((s) => s.toJson()).toList();
       return Response.ok(jsonEncode(schedulesJson));
-    } on Exception catch (e) {
-      final errorMessage = e.toString().replaceFirst('Exception: ', '');
-      return Response.internalServerError(body: '{"error": "Error fetching room schedules: $errorMessage"}');
+    } on Exception catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -43,9 +44,8 @@ class RoomScheduleController {
       
       await _roomScheduleService.updateSchedules(roomId, schedules, updatedBy: userId);
       return Response(204); // No Content
-    } on Exception catch (e) {
-      final errorMessage = e.toString().replaceFirst('Exception: ', '');
-      return Response.internalServerError(body: '{"error": "$errorMessage"}');
+    } on Exception catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 }

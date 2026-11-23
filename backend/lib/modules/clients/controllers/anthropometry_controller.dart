@@ -5,6 +5,7 @@ import 'package:shelf_multipart/shelf_multipart.dart';
 import '../../../config/database.dart';
 import '../../../services/recommendations/recommendation_service.dart';
 import '../../../services/photo_service.dart';
+import '../../../errors/app_exception.dart';
 
 class AnthropometryController {
   static Future<Response> getSomatotype(Request request, [String? id]) async {
@@ -35,11 +36,8 @@ class AnthropometryController {
         'somatotype_profile': somatotypeProfile.toString(),
         'body_shape': bodyShape,
       }));
-    } catch (e, s) {
-      print('Get somatotype error: $e');
-      print(s);
-      return Response.internalServerError(
-          body: jsonEncode({'error': e.toString(), 'stackTrace': s.toString()}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -60,10 +58,8 @@ class AnthropometryController {
             includeArchived: includeArchived,
           );
       return Response.ok(jsonEncode(data));
-    } catch (e) {
-      print('Get anthropometry data error: $e');
-      return Response.internalServerError(
-          body: jsonEncode({'error': 'Internal server error'}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -90,11 +86,8 @@ class AnthropometryController {
           .clients
           .saveAnthropometryMeasurement(updatedMeasurement);
       return Response.ok(jsonEncode(savedMeasurement));
-    } catch (e, s) {
-      print('Save anthropometry error: $e');
-      print(s);
-      return Response.internalServerError(
-          body: jsonEncode({'error': e.toString()}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -123,10 +116,8 @@ class AnthropometryController {
           .archiveAnthropometryMeasurement(measurementId, userId, reason);
 
       return Response(204); // No Content
-    } catch (e) {
-      print('Archive anthropometry measurement error: $e');
-      return Response.internalServerError(
-          body: jsonEncode({'error': 'Internal server error'}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -135,10 +126,8 @@ class AnthropometryController {
     try {
       await Database().clients.unarchiveAnthropometryMeasurement(measurementId);
       return Response(204); // No Content
-    } catch (e) {
-      print('Unarchive anthropometry measurement error: $e');
-      return Response.internalServerError(
-          body: jsonEncode({'error': 'Internal server error'}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -155,9 +144,8 @@ class AnthropometryController {
         return Response.notFound(jsonEncode({'message': 'No fixed data found for user'}));
       }
       return Response.ok(jsonEncode(data));
-    } catch (e) {
-      print('Get fixed anthropometry error: $e');
-      return Response.internalServerError(body: jsonEncode({'error': 'Internal server error'}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -181,9 +169,8 @@ class AnthropometryController {
       );
       final savedData = await Database().clients.saveFixedAnthropometry(updatedFixedData);
       return Response.ok(jsonEncode(savedData));
-    } catch (e) {
-      print('Save fixed anthropometry error: $e');
-      return Response.internalServerError(body: jsonEncode({'error': 'Internal server error'}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -222,11 +209,8 @@ class AnthropometryController {
       return Response.ok(jsonEncode({
         'url': photoUrl,
       }));
-    } catch (e, s) {
-      print('Upload photo error: $e');
-      print(s);
-      return Response.internalServerError(
-          body: jsonEncode({'error': 'Internal server error'}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -254,11 +238,8 @@ class AnthropometryController {
         }));
       }
       return Response.ok(jsonEncode(profiles.toJson()));
-    } catch (e, s) {
-      print('Get WHtR profiles error: $e');
-      print(s);
-      return Response.internalServerError(
-          body: jsonEncode({'error': e.toString(), 'stackTrace': s.toString()}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -276,11 +257,8 @@ class AnthropometryController {
         }));
       }
       return Response.ok(jsonEncode(profile.toJson()));
-    } catch (e, s) {
-      print('Get WHtR for measurement error: $e');
-      print(s);
-      return Response.internalServerError(
-          body: jsonEncode({'error': e.toString(), 'stackTrace': s.toString()}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 }

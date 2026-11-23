@@ -1,6 +1,7 @@
 import 'package:fitman_backend/config/database.dart';
 import 'package:fitman_common/modules/equipment/equipment/equipment_type.model.dart';
 import 'package:postgres/postgres.dart';
+import 'package:fitman_backend/logging/app_logger.dart';
 
 abstract class EquipmentTypeRepository {
   Future<EquipmentType> getById(String id);
@@ -111,7 +112,7 @@ class EquipmentTypeRepositoryImpl implements EquipmentTypeRepository {
         return EquipmentType.fromJson(map);
       }).toList();
     } catch (e) {
-      print('Error fetching all equipment types: $e');
+      appLog.error('Error fetching all equipment types: $e');
       rethrow;
     }
   }

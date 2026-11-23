@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:fitman_common/fitman_common.dart';
 import 'package:shelf/shelf.dart';
 import '../../../config/database.dart';
+import '../../../errors/app_exception.dart';
 
 class DashboardController {
   static const _headers = {'Content-Type': 'application/json'};
@@ -63,13 +64,8 @@ class DashboardController {
       );
 
       return Response.ok(jsonEncode(dashboardData.toJson()), headers: _headers);
-    } catch (e, s) {
-      print('Error in getClientDashboardData: $e');
-      print(s);
-      return Response.internalServerError(
-        body: jsonEncode({'error': 'Internal Server Error: $e'}),
-        headers: _headers,
-      );
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 }

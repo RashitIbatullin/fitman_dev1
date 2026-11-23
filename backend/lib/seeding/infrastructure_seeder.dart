@@ -1,4 +1,5 @@
 import 'package:postgres/postgres.dart';
+import 'package:fitman_backend/logging/app_logger.dart';
 
 class InfrastructureSeeder {
   InfrastructureSeeder(this._connection);
@@ -105,7 +106,7 @@ class InfrastructureSeeder {
   }
 
   Future<void> seedRepairTimeStandards(Map<String, String> equipmentTypeIds, String adminId) async {
-    print('   -> Seeding repair time standards...');
+    appLog.info('   -> Seeding repair time standards...');
     final standards = [
       {'name': 'Замена бегового полотна', 'equipmentTypeId': equipmentTypeIds['treadmill'], 'duration': 4.0, 'complexity': 1, 'description': 'Полная замена изношенного бегового полотна на новое.'},
       {'name': 'Диагностика и смазка', 'equipmentTypeId': equipmentTypeIds['treadmill'], 'duration': 1.0, 'complexity': 0, 'description': 'Плановая проверка, чистка и смазка движущихся частей беговой дорожки.'},
@@ -132,7 +133,7 @@ class InfrastructureSeeder {
         },
       );
     }
-    print('   ✅ Seeded ${standards.length} repair time standards.');
+    appLog.info('   ✅ Seeded ${standards.length} repair time standards.');
   }
   
   Future<Map<String, String>> getIdsForTable(String tableName, {String idColumn = 'id', required String keyColumn}) async {

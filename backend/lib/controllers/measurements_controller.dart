@@ -4,6 +4,7 @@ import 'package:fitman_common/fitman_common.dart';
 
 import '../config/database.dart';
 import '../services/recommendations/recommendation_service.dart';
+import '../errors/app_exception.dart';
 
 class MeasurementsController {
   static const _headers = {'Content-Type': 'application/json'};
@@ -58,14 +59,8 @@ class MeasurementsController {
           jsonEncode({'data': visualizationData.map((d) => d.toJson()).toList()});
       return Response.ok(jsonResponse, headers: _headers);
       
-    } catch (e, s) {
-      print('Error in getVisualizationData: $e');
-      print(s);
-      return Response.internalServerError(
-        body: jsonEncode({'error': 'Internal Server Error: $e'}),
-        headers: _headers,
-      );
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 }
-

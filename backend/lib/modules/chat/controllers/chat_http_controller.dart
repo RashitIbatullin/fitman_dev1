@@ -3,6 +3,7 @@ import 'package:fitman_common/fitman_common.dart';
 import 'package:shelf/shelf.dart';
 import 'package:postgres/postgres.dart';
 import '../../../config/database.dart'; 
+import 'package:fitman_backend/errors/app_exception.dart';
 
 class ChatHttpController {
   // Получить все чаты для текущего пользователя
@@ -32,8 +33,8 @@ class ChatHttpController {
       final chats = result.map((row) => row.toColumnMap()).toList();
 
       return Response.ok(jsonEncode(chats));
-    } catch (e) {
-      return Response.internalServerError(body: jsonEncode({'error': 'Error getting chats: $e'}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -82,8 +83,8 @@ class ChatHttpController {
 
 
       return Response.ok(jsonEncode(messages));
-    } catch (e) {
-      return Response.internalServerError(body: jsonEncode({'error': 'Error getting messages: $e'}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -151,8 +152,8 @@ class ChatHttpController {
 
       return Response.ok(jsonEncode({'chat_id': newChatId}));
 
-    } catch (e) {
-      return Response.internalServerError(body: jsonEncode({'error': 'Error creating or getting chat: $e'}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -206,8 +207,8 @@ class ChatHttpController {
 
       return Response.ok(jsonEncode({'chat_id': newChatId}));
 
-    } catch (e) {
-      return Response.internalServerError(body: jsonEncode({'error': 'Error creating group chat: $e'}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 }

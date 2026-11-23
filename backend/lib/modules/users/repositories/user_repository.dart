@@ -2,6 +2,7 @@ import 'package:postgres/postgres.dart';
 
 import '../../../../config/database.dart';
 import 'package:fitman_common/fitman_common.dart';
+import 'package:fitman_backend/logging/app_logger.dart';
 
 abstract class UserRepository {
   Future<List<Role>> getAllRoles();
@@ -79,7 +80,7 @@ class UserRepositoryImpl implements UserRepository {
       ''');
       return results.map((row) => Role.fromMap(row.toColumnMap())).toList();
     } catch (e) {
-      print('❌ getAllRoles error: $e');
+      appLog.error('❌ getAllRoles error: $e');
       rethrow;
     }
   }
@@ -95,7 +96,7 @@ class UserRepositoryImpl implements UserRepository {
       if (results.isEmpty) return null;
       return Role.fromMap(results.first.toColumnMap());
     } catch (e) {
-      print('❌ getRoleByName error: $e');
+      appLog.error('❌ getRoleByName error: $e');
       rethrow;
     }
   }
@@ -115,7 +116,7 @@ class UserRepositoryImpl implements UserRepository {
       );
       return results.map((row) => Role.fromMap(row.toColumnMap())).toList();
     } catch (e) {
-      print('❌ getRolesForUser error: $e');
+      appLog.error('❌ getRolesForUser error: $e');
       rethrow;
     }
   }
@@ -235,7 +236,7 @@ class UserRepositoryImpl implements UserRepository {
       }
       return users;
     } catch (e) {
-      print('❌ getAllUsers error: $e');
+      appLog.error('❌ getAllUsers error: $e');
       rethrow;
     }
   }
@@ -271,7 +272,7 @@ class UserRepositoryImpl implements UserRepository {
 
       return user;
     } catch (e) {
-      print('❌ getUserByEmail error: $e');
+      appLog.error('❌ getUserByEmail error: $e');
       rethrow;
     }
   }
@@ -307,7 +308,7 @@ class UserRepositoryImpl implements UserRepository {
 
       return user;
     } catch (e) {
-      print('❌ getUserByPhone error: $e');
+      appLog.error('❌ getUserByPhone error: $e');
       rethrow;
     }
   }
@@ -343,7 +344,7 @@ class UserRepositoryImpl implements UserRepository {
 
       return user;
     } catch (e) {
-      print('❌ getUserById error: $e');
+      appLog.error('❌ getUserById error: $e');
       rethrow;
     }
   }
@@ -526,7 +527,7 @@ class UserRepositoryImpl implements UserRepository {
 
         return await getUserById(id, ctx);
       } catch (e) {
-        print('❌ updateUser error: $e');
+        appLog.error('❌ updateUser error: $e');
         rethrow;
       }
     });
@@ -610,7 +611,7 @@ class UserRepositoryImpl implements UserRepository {
       }
 
     } catch (e) {
-      print('❌ updateClientProfile error: $e');
+      appLog.error('❌ updateClientProfile error: $e');
       rethrow;
     }
   }
@@ -685,7 +686,7 @@ class UserRepositoryImpl implements UserRepository {
       }
 
     } catch (e) {
-      print('❌ updateEmployeeProfile error: $e');
+      appLog.error('❌ updateEmployeeProfile error: $e');
       rethrow;
     }
   }
@@ -710,7 +711,7 @@ class UserRepositoryImpl implements UserRepository {
 
       return results.affectedRows > 0;
     } catch (e) {
-      print('❌ deleteUser error: $e');
+      appLog.error('❌ deleteUser error: $e');
       rethrow;
     }
   }
@@ -732,7 +733,7 @@ class UserRepositoryImpl implements UserRepository {
         },
       );
     } catch (e) {
-      print('❌ updateUserPassword error: $e');
+      appLog.error('❌ updateUserPassword error: $e');
       rethrow;
     }
   }
@@ -754,7 +755,7 @@ class UserRepositoryImpl implements UserRepository {
         },
       );
     } catch (e) {
-      print('❌ updateUserPhotoUrl error: $e');
+      appLog.error('❌ updateUserPhotoUrl error: $e');
       rethrow;
     }
   }
@@ -900,7 +901,7 @@ class UserRepositoryImpl implements UserRepository {
       final trainerId = results.first[0] as String;
       return await getUserById(trainerId);
     } catch (e) {
-      print('❌ getTrainerForClient error: $e');
+      appLog.error('❌ getTrainerForClient error: $e');
       rethrow;
     }
   }
@@ -920,7 +921,7 @@ class UserRepositoryImpl implements UserRepository {
       final instructorId = results.first[0] as String;
       return await getUserById(instructorId);
     } catch (e) {
-      print('❌ getInstructorForClient error: $e');
+      appLog.error('❌ getInstructorForClient error: $e');
       rethrow;
     }
   }
@@ -940,7 +941,7 @@ class UserRepositoryImpl implements UserRepository {
       final managerId = results.first[0] as String;
       return await getUserById(managerId);
     } catch (e) {
-      print('❌ getManagerForClient error: $e');
+      appLog.error('❌ getManagerForClient error: $e');
       rethrow;
     }
   }

@@ -1,6 +1,8 @@
 import 'package:shelf/shelf.dart';
 import '../controllers/auth_controller.dart';
 import 'package:fitman_common/fitman_common.dart'; // Import User model
+import '../logging/app_logger.dart';
+import 'request_context.dart';
 
 Middleware requireAuth() {
   return (Handler innerHandler) {
@@ -28,6 +30,12 @@ Middleware requireAuth() {
 
       final user = User.fromJwt(payload); // Convert payload to User object
 
+      final requestContext = RequestContext.of(request);
+      if (requestContext != null) {
+        requestContext.userId = user.id;
+        requestContext.userRole = user.roles.map((r) => r.name).join(',');
+      }
+
       final updatedRequest = request.change(
           context: {'user': user} // Store User object in context
       );
@@ -40,7 +48,7 @@ Middleware requireAuth() {
 Middleware requireRole(String role) {
   return (Handler innerHandler) {
     return (Request request) async {
-      print('Backend checking role: $role'); // Debug print
+      appLog.debug('Проверка роли', fields: {'role': role});
       final user = request.context['user'] as User?; // Now it's a User object
 
       if (user == null) {
@@ -48,7 +56,7 @@ Middleware requireRole(String role) {
       }
 
       final userRoleNames = user.roles.map((r) => r.name).toList(); // Access roles from User object
-      print('User roles from payload: $userRoleNames'); // Debug print
+      appLog.debug('Роли пользователя', fields: {'roles': userRoleNames});
 
       if (!userRoleNames.contains(role)) { // Check if user has the required role name
         return Response(403, body: "{\"error\": \"Insufficient permissions: Role '$role' required\"}");

@@ -5,6 +5,7 @@ import 'package:bcrypt/bcrypt.dart';
 import '../../../config/database.dart';
 import 'package:fitman_common/fitman_common.dart';
 import '../../../services/photo_service.dart';
+import '../../../errors/app_exception.dart';
 
 class UsersController {
   static final Database _db = Database();
@@ -89,9 +90,8 @@ class UsersController {
         'message': 'Пользователь успешно создан',
         'user': createdUser.toJson()
       }));
-    } catch (e) {
-      print('Create user error: $e');
-      return Response(500, body: jsonEncode({'error': 'Внутренняя ошибка сервера: $e'}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -144,9 +144,8 @@ class UsersController {
         'message': 'Роли пользователя успешно обновлены',
         'user': updatedUser?.toJson()
       }));
-    } catch (e) {
-      print('Update user roles error: $e');
-      return Response(500, body: jsonEncode({'error': 'Внутренняя ошибка сервера: $e'}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -162,9 +161,8 @@ class UsersController {
       final users = await _db.users.getAllUsers(isArchived: isArchived, role: role); // Pass role to getAllUsers
       final usersJson = users.map((user) => user.toJson()).toList();
       return Response.ok(jsonEncode({'users': usersJson}));
-    } catch (e) {
-      print('Get users error: $e');
-      return Response(500, body: jsonEncode({'error': 'Internal server error'}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -176,9 +174,8 @@ class UsersController {
         return Response(404, body: jsonEncode({'error': 'User not found'}));
       }
       return Response.ok(jsonEncode({'user': user.toJson()}));
-    } catch (e) {
-      print('Get user by ID error: $e');
-      return Response(500, body: jsonEncode({'error': 'Internal server error'}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -278,9 +275,8 @@ class UsersController {
         return Response(404, body: jsonEncode({'error': 'User not found after update'}));
       }
       return Response.ok(jsonEncode({'user': updatedUser.toJson()}));
-    } catch (e) {
-      print('Update user error: $e');
-      return Response(500, body: jsonEncode({'error': 'Internal server error: $e'}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -292,9 +288,8 @@ class UsersController {
         return Response(404, body: jsonEncode({'error': 'User not found'}));
       }
       return Response(200, body: jsonEncode({'message': 'User deleted successfully'}));
-    } catch (e) {
-      print('Delete user error: $e');
-      return Response(500, body: jsonEncode({'error': 'Internal server error'}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -309,9 +304,8 @@ class UsersController {
         return Response(404, body: jsonEncode({'error': 'User not found'}));
       }
       return Response.ok(jsonEncode({'user': userData.toJson()}));
-    } catch (e) {
-      print('Get profile error: $e');
-      return Response(500, body: jsonEncode({'error': 'Internal server error'}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -328,9 +322,8 @@ class UsersController {
       }
 
       return Response.ok(jsonEncode({'roles': user.roles.map((r) => r.toJson()).toList()}));
-    } catch (e) {
-      print('Get user roles error: $e');
-      return Response(500, body: jsonEncode({'error': 'Internal server error'}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -349,9 +342,8 @@ class UsersController {
       }
 
       return Response.ok(jsonEncode({'trainer': trainer.toJson()}));
-    } catch (e) {
-      print('Get trainer for client error: $e');
-      return Response(500, body: jsonEncode({'error': 'Internal server error'}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -370,9 +362,8 @@ class UsersController {
       }
 
       return Response.ok(jsonEncode({'instructor': instructor.toJson()}));
-    } catch (e) {
-      print('Get instructor for client error: $e');
-      return Response(500, body: jsonEncode({'error': 'Internal server error'}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -391,9 +382,8 @@ class UsersController {
       }
 
       return Response.ok(jsonEncode({'manager': manager.toJson()}));
-    } catch (e) {
-      print('Get manager for client error: $e');
-      return Response(500, body: jsonEncode({'error': 'Internal server error'}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -402,9 +392,8 @@ class UsersController {
       final roles = await _db.users.getAllRoles();
       final rolesJson = roles.map((role) => role.toJson()).toList();
       return Response.ok(jsonEncode({'roles': rolesJson}));
-    } catch (e) {
-      print('Get roles error: $e');
-      return Response(500, body: jsonEncode({'error': 'Internal server error'}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -430,9 +419,8 @@ class UsersController {
       await _db.users.updateUserPassword(user.id, passwordHash);
 
       return Response.ok(jsonEncode({'message': 'Password reset successfully'}));
-    } catch (e) {
-      print('Reset password error: $e');
-      return Response(500, body: jsonEncode({'error': 'Internal server error'}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -472,9 +460,8 @@ class UsersController {
         'user': updatedUser.toJson(),
       }));
 
-    } catch (e) {
-      print('Update client profile error: $e');
-      return Response.internalServerError(body: jsonEncode({'error': 'Internal server error: $e'}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -520,10 +507,8 @@ class UsersController {
         'message': 'Avatar uploaded successfully',
         'photoUrl': photoUrl,
       }));
-    } catch (e, s) {
-      print('Upload avatar error: $e');
-      print(s);
-      return Response.internalServerError(body: jsonEncode({'error': 'Internal server error'}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 }

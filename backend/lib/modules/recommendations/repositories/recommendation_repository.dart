@@ -1,6 +1,7 @@
 import 'package:postgres/postgres.dart';
 
 import '../../../config/database.dart';
+import 'package:fitman_backend/logging/app_logger.dart';
 
 abstract class RecommendationRepository {
   Future<List<Map<String, dynamic>>> getSomatotypeRules();
@@ -24,7 +25,7 @@ class RecommendationRepositoryImpl implements RecommendationRepository {
       );
       return results.map((row) => row.toColumnMap()).toList();
     } catch (e) {
-      print('❌ getSomatotypeRules error: $e');
+      appLog.error('❌ getSomatotypeRules error: $e');
       rethrow;
     }
   }
@@ -38,7 +39,7 @@ class RecommendationRepositoryImpl implements RecommendationRepository {
       );
       return results.map((row) => row.toColumnMap()).toList();
     } catch (e) {
-      print('❌ getBodyShapeRecommendations error: $e');
+      appLog.error('❌ getBodyShapeRecommendations error: $e');
       rethrow;
     }
   }
@@ -52,7 +53,7 @@ class RecommendationRepositoryImpl implements RecommendationRepository {
       );
       return results.map((row) => row.toColumnMap()).toList();
     } catch (e) {
-      print('❌ getWhtrRefinements error: $e');
+      appLog.error('❌ getWhtrRefinements error: $e');
       rethrow;
     }
   }

@@ -1,6 +1,7 @@
 import 'package:postgres/postgres.dart';
 
 import '../../../config/database.dart';
+import 'package:fitman_backend/logging/app_logger.dart';
 
 abstract class ScheduleRepository {
   Future<List<Map<String, dynamic>>> getScheduleForUser(String userId, String role);
@@ -62,7 +63,7 @@ class ScheduleRepositoryImpl implements ScheduleRepository {
         };
       }).toList();
     } catch (e) {
-      print('❌ getScheduleForUser error: $e');
+      appLog.error('❌ getScheduleForUser error: $e');
       rethrow;
     }
   }

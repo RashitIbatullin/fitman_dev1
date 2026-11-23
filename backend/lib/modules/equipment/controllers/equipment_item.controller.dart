@@ -5,6 +5,7 @@ import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 import 'package:shelf_multipart/shelf_multipart.dart';
 import '../../../services/photo_service.dart';
+import 'package:fitman_backend/errors/app_exception.dart';
 
 class EquipmentItemController {
   EquipmentItemController(this._db) {
@@ -30,9 +31,8 @@ class EquipmentItemController {
     try {
       final equipmentItem = await _db.equipmentItems.getById(id);
       return Response.ok(jsonEncode(equipmentItem.toJson()));
-    } catch (e) {
-      return Response.internalServerError(
-          body: '{"error": "Error fetching equipment item: $e"}');
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -58,9 +58,8 @@ class EquipmentItemController {
       final equipmentItemsJson =
           equipmentItems.map((item) => item.toJson()).toList();
       return Response.ok(jsonEncode(equipmentItemsJson));
-    } catch (e) {
-      return Response.internalServerError(
-          body: '{"error": "Error fetching equipment items: $e"}');
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -80,16 +79,8 @@ class EquipmentItemController {
 
       return Response.ok(jsonEncode(createdEquipmentItem.toJson()),
           headers: {'Content-Type': 'application/json'});
-    } catch (e, s) {
-      print('Error creating equipment item: $e, $s');
-      if (e
-          .toString()
-          .contains('duplicate key value violates unique constraint')) {
-        return Response.badRequest(
-            body: '{"error": "Инвентарный номер уже существует"}');
-      }
-      return Response.internalServerError(
-          body: '{"error": "Error creating equipment item: $e"}');
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -109,16 +100,8 @@ class EquipmentItemController {
 
       return Response.ok(jsonEncode(updatedEquipmentItem.toJson()),
           headers: {'Content-Type': 'application/json'});
-    } catch (e, s) {
-      print('Error updating equipment item: $e, $s');
-      if (e
-          .toString()
-          .contains('duplicate key value violates unique constraint')) {
-        return Response.badRequest(
-            body: '{"error": "Инвентарный номер уже существует"}');
-      }
-      return Response.internalServerError(
-          body: '{"error": "Error updating equipment item: $e"}');
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -142,10 +125,8 @@ class EquipmentItemController {
       await _db.equipmentItems.archive(id, reason, user.id);
 
       return Response.ok('{"status": "success"}');
-    } catch (e, s) {
-      print('Error archiving equipment item: $e, $s');
-      return Response.internalServerError(
-          body: '{"error": "Error archiving equipment item: $e"}');
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -153,9 +134,8 @@ class EquipmentItemController {
     try {
       await _db.equipmentItems.unarchive(id);
       return Response.ok('{"status": "success"}');
-    } catch (e) {
-      return Response.internalServerError(
-          body: '{"error": "Error unarchiving equipment item: $e"}');
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -190,10 +170,8 @@ class EquipmentItemController {
       await _db.equipmentItems.addPhotoUrl(id, publicUrl);
 
       return Response.ok(jsonEncode({'url': publicUrl}));
-    } catch (e, s) {
-      print('Error uploading equipment photo: $e, $s');
-      return Response.internalServerError(
-          body: '{"error": "Error uploading photo: $e"}');
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -211,10 +189,8 @@ class EquipmentItemController {
       await _photoService.deletePhotoFile(photoUrl);
 
       return Response.ok('{"status": "success"}');
-    } catch (e, s) {
-      print('Error deleting equipment photo: $e, $s');
-      return Response.internalServerError(
-          body: '{"error": "Error deleting photo: $e"}');
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 }

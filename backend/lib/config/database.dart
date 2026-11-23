@@ -11,6 +11,7 @@ import '../modules/clients/repositories/client_repository.dart';
 import '../modules/schedule/repositories/schedule_repository.dart';
 import '../modules/recommendations/repositories/recommendation_repository.dart';
 import '../modules/catalogs/repositories/catalog_repository.dart';
+import 'package:fitman_backend/logging/app_logger.dart';
 
 class Database {
   static final Database _instance = Database._internal();
@@ -60,13 +61,13 @@ class Database {
         password: config.dbPass,
       );
 
-      print('🔄 Connecting to PostgreSQL database...');
+      appLog.info('🔄 Connecting to PostgreSQL database...');
       _connection = await Connection.open(endpoint, settings: ConnectionSettings(sslMode: SslMode.disable));
-      print('✅ Connected to PostgreSQL database');
+      appLog.info('✅ Connected to PostgreSQL database');
       
       _connectionCompleter!.complete();
     } catch (e) {
-      print('❌ Database connection error: $e');
+      appLog.error('❌ Database connection error: $e');
       _connectionCompleter!.completeError(e);
       rethrow;
     } finally {

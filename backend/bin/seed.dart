@@ -1,3 +1,6 @@
+// CLI-сидирование — исключение из правила avoid_print (см. план, этап 1).
+// ignore_for_file: avoid_print
+
 import 'package:args/args.dart';
 import 'package:fitman_backend/seeding/database_seeder.dart';
 

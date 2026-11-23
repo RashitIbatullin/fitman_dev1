@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:shelf/shelf.dart';
 import 'package:fitman_common/fitman_common.dart';
+import '../errors/app_exception.dart';
 
 class TrainingController {
   static Future<Response> getTrainingPlans(Request request) async {
@@ -39,10 +40,8 @@ class TrainingController {
       final plansJson = mockPlans.map((plan) => plan.toJson()).toList();
 
       return Response.ok(jsonEncode({'plans': plansJson}));
-    } catch (e) {
-      print('Get training plans error: $e');
-      return Response.internalServerError(
-          body: jsonEncode({'error': 'Internal server error'}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -74,9 +73,8 @@ class TrainingController {
       ];
 
       return Response.ok(jsonEncode({'exercises': mockExercises}));
-    } catch (e) {
-      print('Get exercises error: $e');
-      return Response(500, body: jsonEncode({'error': 'Internal server error'}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 }

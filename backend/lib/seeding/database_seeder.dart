@@ -11,6 +11,7 @@ import 'recommendation_seeder.dart';
 import 'russian_names_provider.dart';
 import 'static_data_seeder.dart';
 import 'user_seeder.dart';
+import 'package:fitman_backend/logging/app_logger.dart';
 
 class DatabaseSeeder {
   late final Connection _connection;
@@ -43,19 +44,19 @@ class DatabaseSeeder {
     _recommendationSeeder = RecommendationSeeder(_connection);
     _groupSeeder = GroupSeeder(_connection);
 
-    print('📦 Connected to database: ${dbConfig.dbName}');
+    appLog.info('📦 Connected to database: ${dbConfig.dbName}');
   }
 
   Future<void> close() async {
     await _connection.close();
-    print('✋ Connection to database closed.');
+    appLog.info('✋ Connection to database closed.');
   }
 
   Future<void> runDemo() async {
     await _clearDynamicData();
     await _staticDataSeeder.seed();
 
-    print('🏢 Seeding infrastructure (buildings, rooms)...');
+    appLog.info('🏢 Seeding infrastructure (buildings, rooms)...');
     final building1Id = await _infrastructureSeeder.createBuilding(name: 'Главный корпус', address: 'ул. Спортивная, д. 1');
     final building2Id = await _infrastructureSeeder.createBuilding(name: 'Водный комплекс', address: 'ул. Спортивная, д. 1, стр. 2');
 
@@ -67,9 +68,9 @@ class DatabaseSeeder {
       'yoga': await _infrastructureSeeder.createRoom(name: 'Студия йоги', buildingId: building1Id, type: 4, floor: 3),
       'pool': await _infrastructureSeeder.createRoom(name: 'Бассейн 25м', buildingId: building2Id, type: 6, floor: 1),
     };
-    print('🏡 Created ${rooms.length} rooms in 2 buildings.');
+    appLog.info('🏡 Created ${rooms.length} rooms in 2 buildings.');
 
-    print('👥 Seeding users and profiles...');
+    appLog.info('👥 Seeding users and profiles...');
     final roles = await getIdsForTable('roles', keyColumn: 'name');
     final levels = await getIdsForTable('levels_training', keyColumn: 'name');
     final goals = await getIdsForTable('goals_training', keyColumn: 'name');
@@ -77,25 +78,25 @@ class DatabaseSeeder {
     final adminId = await _userSeeder.createUser(login: 'admin@fitman.ru', firstName: 'Админ', lastName: 'Администраторов', phone: '+70000000000', password: 'admin123');
     await _userSeeder.assignRole(adminId, roles['admin']!);
     await _connection.execute(Sql.named('INSERT INTO admin_profiles (user_id) VALUES (@user_id)'), parameters: {'user_id': adminId});
-    print('   👤 Created Admin');
+    appLog.info('   👤 Created Admin');
 
     final managerId = await _userSeeder.createUser(login: 'manager@fitman.ru', firstName: 'Менеджер', lastName: 'Менеджеров', phone: '+70000000003', password: 'manager123');
     await _userSeeder.assignRole(managerId, roles['manager']!);
     await _userSeeder.createEmployeeProfile(managerId, specialization: 'Управление', workExperience: 3, createdBy: adminId);
     await _connection.execute(Sql.named('INSERT INTO manager_profiles (user_id, created_by) VALUES (@user_id, @created_by)'), parameters: {'user_id': managerId, 'created_by': adminId});
-    print('   👤 Created Manager');
+    appLog.info('   👤 Created Manager');
 
     final trainerId = await _userSeeder.createUser(login: 'trainer@fitman.ru', firstName: 'Тренер', lastName: 'Тренеров', phone: '+70000000002', password: 'trainer123');
     await _userSeeder.assignRole(trainerId, roles['trainer']!);
     await _userSeeder.createEmployeeProfile(trainerId, specialization: 'Силовой тренинг', workExperience: 5, createdBy: adminId);
     await _connection.execute(Sql.named('INSERT INTO trainer_profiles (user_id, created_by) VALUES (@user_id, @created_by)'), parameters: {'user_id': trainerId, 'created_by': adminId});
-    print('   👤 Created Trainer');
+    appLog.info('   👤 Created Trainer');
 
     final instructorId = await _userSeeder.createUser(login: 'instructor@fitman.ru', firstName: 'Инструктор', lastName: 'Инструкторова', phone: '+70000000001', gender: 1, password: 'instructor123');
     await _userSeeder.assignRole(instructorId, roles['instructor']!);
     await _userSeeder.createEmployeeProfile(instructorId, specialization: 'Групповые занятия', workExperience: 2, createdBy: adminId);
     await _connection.execute(Sql.named('INSERT INTO instructor_profiles (user_id, created_by) VALUES (@user_id, @created_by)'), parameters: {'user_id': instructorId, 'created_by': adminId});
-    print('   👤 Created Instructor');
+    appLog.info('   👤 Created Instructor');
 
     final clientId = await _userSeeder.createUser(login: 'client@fitman.ru', firstName: 'Клиент', lastName: 'Клиентов', phone: '+70000000004', gender: 0, password: 'client123');
     await _userSeeder.assignRole(clientId, roles['client']!);
@@ -103,25 +104,25 @@ class DatabaseSeeder {
       INSERT INTO client_profiles (user_id, goal_training_id, level_training_id, created_by)
       VALUES (@user_id, @goal, @level, @created_by)
       '''), parameters: {'user_id': clientId, 'goal': goals['Набор мышечной массы и силы'], 'level': levels['Новичок'], 'created_by': adminId});
-    print('   👤 Created Client');
+    appLog.info('   👤 Created Client');
 
     await _userSeeder.assign(managerId, 'manager_trainers', 'trainer_id', trainerId);
     await _userSeeder.assign(managerId, 'manager_instructors', 'instructor_id', instructorId);
     await _userSeeder.assign(managerId, 'manager_clients', 'client_id', clientId);
     await _userSeeder.assign(instructorId, 'instructor_clients', 'client_id', clientId);
-    print('🔗 Created relationships between users');
+    appLog.info('🔗 Created relationships between users');
 
-    print('📖 Seeding recommendation data...');
+    appLog.info('📖 Seeding recommendation data...');
     await _recommendationSeeder.seedBodyShapeRecommendations(goals, levels);
     await _recommendationSeeder.seedWhtrRefinements(goals);
-    print('   📖 Created recommendation data.');
+    appLog.info('   📖 Created recommendation data.');
   }
 
   Future<void> runMediumCenter() async {
     await _clearDynamicData();
     await _staticDataSeeder.seed();
 
-    print('🏢 Seeding infrastructure (buildings, rooms)...');
+    appLog.info('🏢 Seeding infrastructure (buildings, rooms)...');
     final building1Id = await _infrastructureSeeder.createBuilding(name: 'Главный корпус', address: 'ул. Спортивная, д. 1');
     final building2Id = await _infrastructureSeeder.createBuilding(name: 'Водный комплекс', address: 'ул. Спортивная, д. 1, стр. 2');
 
@@ -133,9 +134,9 @@ class DatabaseSeeder {
       'yoga': await _infrastructureSeeder.createRoom(name: 'Студия йоги', buildingId: building1Id, type: 4, floor: 3),
       'pool': await _infrastructureSeeder.createRoom(name: 'Бассейн 25м', buildingId: building2Id, type: 6, floor: 1),
     };
-    print('🏡 Created ${rooms.length} rooms in 2 buildings.');
+    appLog.info('🏡 Created ${rooms.length} rooms in 2 buildings.');
     
-    print('🔩 Seeding equipment...');
+    appLog.info('🔩 Seeding equipment...');
     final equipmentTypes = await _infrastructureSeeder.seedEquipmentTypes();
     
     // Cardio
@@ -173,9 +174,9 @@ class DatabaseSeeder {
       await _infrastructureSeeder.createEquipmentItem(typeId: equipmentTypes['kettlebell']!, inventoryNumber: 'ГИРЯ-$weight', roomId: rooms['strength']!);
     }
 
-    print('🔧 Created a full set of equipment items.');
+    appLog.info('🔧 Created a full set of equipment items.');
 
-    print('👥 Seeding users and profiles for a medium center...');
+    appLog.info('👥 Seeding users and profiles for a medium center...');
     final roles = await getIdsForTable('roles', keyColumn: 'name');
     final levels = await getIdsForTable('levels_training', keyColumn: 'name');
     final goals = await getIdsForTable('goals_training', keyColumn: 'name');
@@ -185,26 +186,26 @@ class DatabaseSeeder {
     final adminId = await _userSeeder.createUser(login: 'admin@fitman.ru', firstName: 'Админ', lastName: 'Администраторов', phone: '+70000000000', password: 'admin123');
     await _userSeeder.assignRole(adminId, roles['admin']!);
     await _connection.execute(Sql.named('INSERT INTO admin_profiles (user_id) VALUES (@user_id)'), parameters: {'user_id': adminId});
-    print('   👤 Created Admin');
+    appLog.info('   👤 Created Admin');
 
     // --- Static test users from login screen ---
     final managerIdStatic = await _userSeeder.createUser(login: 'manager@fitman.ru', firstName: 'Менеджер', lastName: 'Менеджеров', phone: '+70000000003', password: 'manager123');
     await _userSeeder.assignRole(managerIdStatic, roles['manager']!);
     await _userSeeder.createEmployeeProfile(managerIdStatic, specialization: 'Управление', workExperience: 3, createdBy: adminId);
     await _connection.execute(Sql.named('INSERT INTO manager_profiles (user_id, created_by) VALUES (@user_id, @created_by)'), parameters: {'user_id': managerIdStatic, 'created_by': adminId});
-    print('   👤 Created Manager (static)');
+    appLog.info('   👤 Created Manager (static)');
 
     final trainerIdStatic = await _userSeeder.createUser(login: 'trainer@fitman.ru', firstName: 'Тренер', lastName: 'Тренеров', phone: '+70000000002', password: 'trainer123');
     await _userSeeder.assignRole(trainerIdStatic, roles['trainer']!);
     await _userSeeder.createEmployeeProfile(trainerIdStatic, specialization: 'Силовой тренинг', workExperience: 5, createdBy: adminId);
     await _connection.execute(Sql.named('INSERT INTO trainer_profiles (user_id, created_by) VALUES (@user_id, @created_by)'), parameters: {'user_id': trainerIdStatic, 'created_by': adminId});
-    print('   👤 Created Trainer (static)');
+    appLog.info('   👤 Created Trainer (static)');
 
     final instructorIdStatic = await _userSeeder.createUser(login: 'instructor@fitman.ru', firstName: 'Инструктор', lastName: 'Инструкторова', phone: '+70000000001', gender: 1, password: 'instructor123');
     await _userSeeder.assignRole(instructorIdStatic, roles['instructor']!);
     await _userSeeder.createEmployeeProfile(instructorIdStatic, specialization: 'Групповые занятия', workExperience: 2, createdBy: adminId);
     await _connection.execute(Sql.named('INSERT INTO instructor_profiles (user_id, created_by) VALUES (@user_id, @created_by)'), parameters: {'user_id': instructorIdStatic, 'created_by': adminId});
-    print('   👤 Created Instructor (static)');
+    appLog.info('   👤 Created Instructor (static)');
 
     final clientIdStatic = await _userSeeder.createUser(login: 'client@fitman.ru', firstName: 'Клиент', lastName: 'Клиентов', phone: '+70000000004', gender: 0, password: 'client123');
     await _userSeeder.assignRole(clientIdStatic, roles['client']!);
@@ -212,7 +213,7 @@ class DatabaseSeeder {
       INSERT INTO client_profiles (user_id, goal_training_id, level_training_id, created_by)
       VALUES (@user_id, @goal, @level, @created_by)
       '''), parameters: {'user_id': clientIdStatic, 'goal': goals['Набор мышечной массы и силы'], 'level': levels['Новичок'], 'created_by': adminId});
-    print('   👤 Created Client (static)');
+    appLog.info('   👤 Created Client (static)');
     // --- End of static test users ---
 
     final managerIds = [managerIdStatic]; // Use the static manager ID for assignments
@@ -224,7 +225,7 @@ class DatabaseSeeder {
       await _userSeeder.createEmployeeProfile(trainerId, specialization: 'Силовой тренинг', workExperience: i, createdBy: adminId);
       await _connection.execute(Sql.named('INSERT INTO trainer_profiles (user_id, created_by) VALUES (@user_id, @created_by)'), parameters: {'user_id': trainerId, 'created_by': adminId});
       trainerIds.add(trainerId);
-      print('   👤 Created Trainer $i');
+      appLog.info('   👤 Created Trainer $i');
     }
 
     final instructorIds = <String>[];
@@ -234,12 +235,12 @@ class DatabaseSeeder {
       await _userSeeder.createEmployeeProfile(instructorId, specialization: 'Групповые программы', workExperience: i, createdBy: adminId);
       await _connection.execute(Sql.named('INSERT INTO instructor_profiles (user_id, created_by) VALUES (@user_id, @created_by)'), parameters: {'user_id': instructorId, 'created_by': adminId});
       instructorIds.add(instructorId);
-      print('   👤 Created Instructor $i');
+      appLog.info('   👤 Created Instructor $i');
     }
 
     // 2. Create Clients
     final clientIds = <String>[];
-    print('   Creating 100 clients...');
+    appLog.info('   Creating 100 clients...');
     for (int i = 1; i <= 100; i++) {
             final gender = _random.nextInt(2);
       final isMale = gender == 0;
@@ -264,11 +265,11 @@ class DatabaseSeeder {
       clientIds.add(clientId);
       if (i % 20 == 0) stdout.write('.');
     }
-    print('');
-    print('   Created 100 clients.');
+    appLog.info('');
+    appLog.info('   Created 100 clients.');
     
     // 3. Seeding support staff and competencies
-    print('🛠️ Seeding support staff and competencies...');
+    appLog.info('🛠️ Seeding support staff and competencies...');
     final supportStaffId1 = await _userSeeder.createSupportStaff(firstName: 'Петр', lastName: 'Сергеев', phone: '+79991112233', email: 'p.sergeev@techservice.com', employmentType: 2, category: 0, canMaintainEquipment: true, companyName: 'ООО "ТехСервис"', createdBy: adminId);
     await _userSeeder.createCompetency(competentId: supportStaffId1, executorType: 1, name: 'Обслуживание кардио-тренажеров Matrix', level: 3, verifiedBy: adminId, createdBy: adminId);
     
@@ -278,37 +279,37 @@ class DatabaseSeeder {
     await _userSeeder.createCompetency(competentId: trainerIds[0], executorType: 0, name: 'Базовое обслуживание силовых тренажеров', level: 2, verifiedBy: adminId, createdBy: adminId);
     await _userSeeder.createCompetency(competentId: trainerIds[1], executorType: 0, name: 'TRX-тренировки', level: 3, verifiedBy: adminId, createdBy: adminId);
     await _userSeeder.createCompetency(competentId: instructorIds[0], executorType: 0, name: 'Проведение занятий по Йоге', level: 3, verifiedBy: adminId, createdBy: adminId);
-    print('   🛠️ Created support staff and competencies.');
+    appLog.info('   🛠️ Created support staff and competencies.');
 
     // 4. Create Training Groups
-    print('🤸 Seeding training groups...');
+    appLog.info('🤸 Seeding training groups...');
     final yogaGroup = await _groupSeeder.createTrainingGroup(name: 'Утренняя Йога', description: 'Группа для тех, кто хочет начать день с бодрости и гибкости.', trainingGroupTypeId: groupTypes['group']!, primaryTrainerId: trainerIds[0], primaryInstructorId: instructorIds[0], responsibleManagerId: managerIds[0], createdBy: adminId);
     await _groupSeeder.createGroupSchedule(groupId: yogaGroup, dayOfWeek: 2, startTime: '08:00', endTime: '09:00');
     await _groupSeeder.createGroupSchedule(groupId: yogaGroup, dayOfWeek: 4, startTime: '08:00', endTime: '09:00');
-    print('   🧘 Created Yoga group');
+    appLog.info('   🧘 Created Yoga group');
 
     final strengthGroup = await _groupSeeder.createTrainingGroup(name: 'Силовой Пауэрлифтинг', description: 'Для тех, кто хочет стать сильнее. Работа с большими весами.', trainingGroupTypeId: groupTypes['group']!, primaryTrainerId: trainerIds[1], responsibleManagerId: managerIds[0], createdBy: adminId);
     await _groupSeeder.createGroupSchedule(groupId: strengthGroup, dayOfWeek: 1, startTime: '19:00', endTime: '20:30');
     await _groupSeeder.createGroupSchedule(groupId: strengthGroup, dayOfWeek: 3, startTime: '19:00', endTime: '20:30');
     await _groupSeeder.createGroupSchedule(groupId: strengthGroup, dayOfWeek: 5, startTime: '19:00', endTime: '20:30');
-    print('   🏋️ Created Powerlifting group');
+    appLog.info('   🏋️ Created Powerlifting group');
     
     final crossfitGroup = await _groupSeeder.createTrainingGroup(name: 'CrossFit для всех', description: 'Интенсивные функциональные тренировки.', trainingGroupTypeId: groupTypes['group']!, primaryTrainerId: trainerIds[2], primaryInstructorId: instructorIds[1], responsibleManagerId: managerIds[0], createdBy: adminId);
     await _groupSeeder.createGroupSchedule(groupId: crossfitGroup, dayOfWeek: 2, startTime: '18:00', endTime: '19:00');
     await _groupSeeder.createGroupSchedule(groupId: crossfitGroup, dayOfWeek: 4, startTime: '18:00', endTime: '19:00');
-    print('   🤸 Created CrossFit group');
+    appLog.info('   🤸 Created CrossFit group');
 
     final boxingGroup = await _groupSeeder.createTrainingGroup(name: 'Бокс для начинающих', description: 'Основы бокса, постановка удара и защита.', trainingGroupTypeId: groupTypes['group']!, primaryTrainerId: trainerIds[3], primaryInstructorId: instructorIds[2], responsibleManagerId: managerIds[0], createdBy: adminId);
     await _groupSeeder.createGroupSchedule(groupId: boxingGroup, dayOfWeek: 1, startTime: '20:00', endTime: '21:30');
     await _groupSeeder.createGroupSchedule(groupId: boxingGroup, dayOfWeek: 5, startTime: '20:00', endTime: '21:30');
-    print('   🥊 Created Boxing group');
+    appLog.info('   🥊 Created Boxing group');
     
     final pilatesGroup = await _groupSeeder.createTrainingGroup(name: 'Пилатес', description: 'Укрепление мышечного корсета и улучшение осанки.', trainingGroupTypeId: groupTypes['group']!, primaryTrainerId: trainerIds[4], primaryInstructorId: instructorIds[3], responsibleManagerId: managerIds[0], createdBy: adminId);
     await _groupSeeder.createGroupSchedule(groupId: pilatesGroup, dayOfWeek: 3, startTime: '18:00', endTime: '19:00');
-    print('   🧘‍♀️ Created Pilates group');
+    appLog.info('   🧘‍♀️ Created Pilates group');
 
     // 5. Assign members to groups
-    print('   Assigning members to groups...');
+    appLog.info('   Assigning members to groups...');
     // Distribute 80 clients among 5 groups
     for (var i = 0; i < 15; i++) {
       await _groupSeeder.addMemberToTrainingGroup(groupId: yogaGroup, userId: clientIds[i], addedBy: adminId);
@@ -346,13 +347,13 @@ class DatabaseSeeder {
     await _groupSeeder.addMemberToTrainingGroup(groupId: individual2, userId: clientIds[85], addedBy: adminId);
     await _groupSeeder.createGroupSchedule(groupId: individual2, dayOfWeek: 4, startTime: '15:00', endTime: '16:00');
 
-    print('   ✅ Members assigned.');
+    appLog.info('   ✅ Members assigned.');
   }
 
   Future<void> runLoadTest({int userCount = 100}) async {
     await _clearDynamicData();
     await _staticDataSeeder.seed();
-    print('Generating $userCount users...');
+    appLog.info('Generating $userCount users...');
     for (int i = 0; i < userCount; i++) {
       final gender = _random.nextInt(2);
       final isMale = gender == 0;
@@ -365,12 +366,12 @@ class DatabaseSeeder {
       );
       stdout.write('.');
     }
-    print('');
-    print('$userCount users created.');
+    appLog.info('');
+    appLog.info('$userCount users created.');
   }
 
   Future<void> _clearDynamicData() async {
-    print('🧹 Clearing all data from cascading tables...');
+    appLog.info('🧹 Clearing all data from cascading tables...');
     await _connection.execute('TRUNCATE buildings, equipment_items, support_staff, equipment_bookings, body_shape_recommendations, whtr_refinements, users CASCADE');
   }
 

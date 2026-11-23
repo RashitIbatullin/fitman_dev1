@@ -45,6 +45,7 @@ import '../modules/equipment/repositories/repair_time_standard_repository.dart';
 import '../modules/equipment/services/repair_time_standard_service.dart';
 import '../modules/employees/controllers/employee_competency_controller.dart';
 import '../controllers/measurements_controller.dart';
+import 'package:fitman_backend/logging/app_logger.dart';
 
 final Database _db = Database();
 
@@ -108,7 +109,7 @@ Middleware _requireManagerOrAdmin() {
 
 Handler _adminHandler(Handler handler) {
   return requireAuth()(requireRole('admin')((Request request) {
-    print('ADMIN_HANDLER: Received request for ${request.method} ${request.url}');
+    appLog.debug('ADMIN_HANDLER: Received request for ${request.method} ${request.url}');
     return handler(request);
   }));
 }
