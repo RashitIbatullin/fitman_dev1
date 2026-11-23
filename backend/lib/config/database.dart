@@ -45,6 +45,14 @@ class Database {
     return _connection!;
   }
 
+  /// Выполняет действие в транзакции.
+  ///
+  /// Нужен для атомарной записи бизнес-изменения и аудита.
+  Future<T> runTx<T>(Future<T> Function(TxSession session) action) async {
+    final conn = await connection;
+    return conn.runTx(action);
+  }
+
   Future<void> connect() async {
     if (_connection != null) return;
 

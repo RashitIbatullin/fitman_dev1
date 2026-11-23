@@ -7,6 +7,7 @@ import 'package:fitman_common/fitman_common.dart';
 import 'package:shelf/shelf.dart' as shelf;
 import 'package:shelf_router/shelf_router.dart';
 import 'package:shelf_multipart/shelf_multipart.dart';
+import 'package:fitman_backend/audit/audit_context.dart';
 import 'package:fitman_backend/errors/app_exception.dart';
 
 
@@ -29,6 +30,11 @@ class RoomController {
 
   Future<shelf.Response> _uploadPhoto(shelf.Request request, String id) async {
     try {
+      final user = request.context['user'] as User?;
+      if (user == null) {
+        throw const ForbiddenException('Требуется авторизация');
+      }
+
       String? fileName;
       List<int>? fileBytes;
 
@@ -53,9 +59,12 @@ class RoomController {
         roomId: id,
         fileName: fileName,
         fileBytes: fileBytes,
+        audit: AuditContext.fromRequest(request, user: user),
       );
 
       return shelf.Response.ok(jsonEncode({'url': newPhotoUrl}));
+    } on AppException {
+      rethrow;
     } catch (error, stackTrace) {
       throw InternalException(cause: error, stackTrace: stackTrace);
     }
@@ -90,14 +99,24 @@ class RoomController {
 
   Future<shelf.Response> _createRoom(shelf.Request request) async {
     try {
+      final user = request.context['user'] as User?;
+      if (user == null) {
+        throw const ForbiddenException('Требуется авторизация');
+      }
+
       final body = await request.readAsString();
       final room = Room.fromJson(jsonDecode(body));
-      final newRoom = await _roomService.createRoom(room);
+      final newRoom = await _roomService.createRoom(
+        room,
+        audit: AuditContext.fromRequest(request, user: user),
+      );
       return shelf.Response(
         201,
         body: jsonEncode(newRoom.toJson()),
         headers: {'Content-Type': 'application/json'},
       );
+    } on AppException {
+      rethrow;
     } on Exception catch (error, stackTrace) {
       throw InternalException(cause: error, stackTrace: stackTrace);
     }
@@ -121,12 +140,18 @@ class RoomController {
       final roomToUpdate = incomingRoom.copyWith(updatedBy: userId);
 
       // 4. Call the service with the robustly created object
-      final updatedRoom = await _roomService.updateRoom(id, roomToUpdate);
+      final updatedRoom = await _roomService.updateRoom(
+        id,
+        roomToUpdate,
+        audit: AuditContext.fromRequest(request, user: user),
+      );
 
       return shelf.Response.ok(
         jsonEncode(updatedRoom.toJson()),
         headers: {'Content-Type': 'application/json'},
       );
+    } on AppException {
+      rethrow;
     } on Exception catch (error, stackTrace) {
       throw InternalException(cause: error, stackTrace: stackTrace);
     }
@@ -140,8 +165,14 @@ class RoomController {
       }
       final userId = user.id;
 
-      await _roomService.archiveRoom(id, userId);
+      await _roomService.archiveRoom(
+        id,
+        userId,
+        audit: AuditContext.fromRequest(request, user: user),
+      );
       return shelf.Response(204);
+    } on AppException {
+      rethrow;
     } on Exception catch (error, stackTrace) {
       throw InternalException(cause: error, stackTrace: stackTrace);
     }
@@ -150,6 +181,11 @@ class RoomController {
   // ADDED METHOD
   Future<shelf.Response> _deletePhoto(shelf.Request request, String id) async {
     try {
+      final user = request.context['user'] as User?;
+      if (user == null) {
+        throw const ForbiddenException('Требуется авторизация');
+      }
+
       final body = await request.readAsString();
       final jsonData = jsonDecode(body) as Map<String, dynamic>;
       final photoUrl = jsonData['photoUrl'] as String?;
@@ -159,9 +195,15 @@ class RoomController {
             body: jsonEncode(const <String, String>{'error': 'photoUrl is required in the request body.'}));
       }
 
-      await _roomService.removeRoomPhoto(id, photoUrl);
+      await _roomService.removeRoomPhoto(
+        id,
+        photoUrl,
+        audit: AuditContext.fromRequest(request, user: user),
+      );
 
       return shelf.Response.ok(jsonEncode({'message': 'Photo deleted successfully.'}));
+    } on AppException {
+      rethrow;
     } catch (error, stackTrace) {
       throw InternalException(cause: error, stackTrace: stackTrace);
     }

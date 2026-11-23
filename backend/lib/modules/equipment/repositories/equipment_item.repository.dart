@@ -7,7 +7,11 @@ import 'package:fitman_backend/logging/app_logger.dart';
 abstract class EquipmentItemRepository {
   Future<EquipmentItem> getById(String id);
   Future<List<EquipmentItem>> getAll({bool? includeArchived});
-  Future<List<EquipmentItem>> getByRoomId(String roomId, {bool? includeArchived});
+  Future<List<EquipmentItem>> getByRoomId(
+    String roomId, {
+    bool? includeArchived,
+    Session? session,
+  });
   Future<EquipmentItem> create(EquipmentItem equipmentItem, String userId);
   Future<EquipmentItem> update(String id, EquipmentItem equipmentItem, String userId);
   Future<void> delete(String id);
@@ -171,9 +175,12 @@ class EquipmentItemRepositoryImpl implements EquipmentItemRepository {
   }
 
   @override
-  Future<List<EquipmentItem>> getByRoomId(String roomId,
-      {bool? includeArchived}) async {
-    final conn = await _db.connection;
+  Future<List<EquipmentItem>> getByRoomId(
+    String roomId, {
+    bool? includeArchived,
+    Session? session,
+  }) async {
+    final conn = session ?? await _db.connection;
     try {
       String whereClause;
       if (includeArchived == null) {
