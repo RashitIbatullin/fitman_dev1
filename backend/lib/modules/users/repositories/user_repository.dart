@@ -279,7 +279,6 @@ class UserRepositoryImpl implements UserRepository {
   Future<User?> getUserByEmail(String email, {Session? session}) async {
     return _getSingle(
       'WHERE u.email = @value',
-      'email',
       email,
       session: session,
       logLabel: 'getUserByEmail',
@@ -290,7 +289,6 @@ class UserRepositoryImpl implements UserRepository {
   Future<User?> getUserByPhone(String phone, {Session? session}) async {
     return _getSingle(
       'WHERE u.phone = @value',
-      'phone',
       phone,
       session: session,
       logLabel: 'getUserByPhone',
@@ -301,7 +299,6 @@ class UserRepositoryImpl implements UserRepository {
   Future<User?> getUserById(String id, {Session? session}) async {
     return _getSingle(
       'WHERE u.id = @value',
-      'id',
       id,
       session: session,
       logLabel: 'getUserById',
@@ -310,7 +307,6 @@ class UserRepositoryImpl implements UserRepository {
 
   Future<User?> _getSingle(
     String whereClause,
-    String parameterName,
     String value, {
     required String logLabel,
     Session? session,
@@ -333,7 +329,7 @@ class UserRepositoryImpl implements UserRepository {
           $whereClause
           LIMIT 1
         '''),
-        parameters: {parameterName: value},
+        parameters: {'value': value},
       );
 
       if (results.isEmpty) return null;

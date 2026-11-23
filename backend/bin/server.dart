@@ -44,9 +44,11 @@ Future<void> main(List<String> args) async {
   final handler = const Pipeline()
       .addMiddleware(requestIdMiddleware())
       .addMiddleware(accessLogMiddleware())
-      .addMiddleware(errorHandlerMiddleware())
-      .addMiddleware(helmet())
+      // CORS должен быть снаружи errorHandler, иначе ответы 4xx/5xx уходят
+      // браузеру без Access-Control-* и выглядят как «Failed to fetch».
       .addMiddleware(corsMiddleware())
+      .addMiddleware(helmet())
+      .addMiddleware(errorHandlerMiddleware())
       .addHandler(cascade.handler);
 
   // Запускаем сервер
