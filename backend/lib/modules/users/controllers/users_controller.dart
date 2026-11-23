@@ -1,514 +1,667 @@
 import 'dart:convert';
+
+import 'package:fitman_backend/audit/audit_context.dart';
+import 'package:fitman_backend/errors/app_exception.dart';
+import 'package:fitman_backend/modules/users/services/user_service.dart';
+import 'package:fitman_backend/modules/users/user_providers.dart';
+import 'package:fitman_common/fitman_common.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_multipart/shelf_multipart.dart';
-import 'package:bcrypt/bcrypt.dart';
-import '../../../config/database.dart';
-import 'package:fitman_common/fitman_common.dart';
-import '../../../services/photo_service.dart';
-import '../../../errors/app_exception.dart';
 
+/// HTTP-слой модуля пользователей и доступа.
+///
+/// Контроллер не содержит SQL и бизнес-правил: только разбор запроса,
+/// актор, вызов сервиса и ответ.
 class UsersController {
-  static final Database _db = Database();
-  // ... (other methods remain the same)
+  UsersController({UserService? userService})
+    : _userService = userService ?? UserProviders().userService;
 
-  // Создать нового пользователя (только для админа)
-  static Future<Response> createUser(Request request) async {
-    try {
-      final payload = request.context['user'] as User?;
-      if (payload == null) {
-        return Response.forbidden('Not authorized.');
-      }
+  final UserService _userService;
 
-      final body = await request.readAsString();
-      final data = jsonDecode(body) as Map<String, dynamic>;
-
-      final roles = List<String>.from(data['roles'] as List<dynamic>);
-
-      // --- НАЧАЛО ВАЛИДАЦИИ ---
-      final email = data['email'] as String?;
-      final phone = data['phone'] as String?;
-
-      if (email == null || email.isEmpty) {
-        return Response(400, body: jsonEncode({'error': 'Email является обязательным полем'}));
-      }
-
-      final emailRegExp = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-      if (!emailRegExp.hasMatch(email)) {
-        return Response(400, body: jsonEncode({'error': 'Неверный формат email'}));
-      }
-
-      final existingUserByEmail = await _db.users.getUserByEmail(email);
-      if (existingUserByEmail != null) {
-        return Response(400, body: jsonEncode({'error': 'Пользователь с таким email уже существует'}));
-      }
-
-      if (phone != null && phone.isNotEmpty) {
-        final phoneRegExp = RegExp(r'^\+?[0-9\s-]{7,15}$');
-        if (!phoneRegExp.hasMatch(phone)) {
-          return Response(400, body: jsonEncode({'error': 'Неверный формат телефона'}));
-        }
-        final existingUserByPhone = await _db.users.getUserByPhone(phone);
-        if (existingUserByPhone != null) {
-          return Response(400, body: jsonEncode({'error': 'Пользователь с таким телефоном уже существует'}));
-        }
-      }
-
-      if (roles.contains('client') && roles.length > 1) {
-        return Response(400, body: jsonEncode({'error': 'Пользователь с ролью "Клиент" не может иметь другие роли.'}));
-      }
-      if (roles.any((r) => r != 'client') && roles.contains('client')) {
-         return Response(400, body: jsonEncode({'error': 'Роль "Клиент" не может быть совмещена с другими ролями.'}));
-      }
-      // --- КОНЕЦ ВАЛИДАЦИИ ---
-
-      final password = data['password'] as String;
-      final firstName = data['firstName'] as String;
-      final lastName = data['lastName'] as String;
-      final gender = data['gender'] as String?;
-      final dateOfBirthString = data['dateOfBirth'] as String?;
-      final dateOfBirth = dateOfBirthString != null ? DateTime.parse(dateOfBirthString) : null;
-
-      final passwordHash = BCrypt.hashpw(password, BCrypt.gensalt());
-
-      final newUser = User(
-        id: '', // DB will generate it
-        email: email,
-        passwordHash: passwordHash,
-        firstName: firstName,
-        lastName: lastName,
-        roles: [], // Будет заполнено в методе БД
-        phone: phone,
-        gender: gender,
-        dateOfBirth: dateOfBirth,
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
+  Future<Response> getUsers(Request request) {
+    return _handle(() async {
+      final query = request.url.queryParameters;
+      final isArchived = query['isArchived'] == null
+          ? null
+          : query['isArchived'] == 'true';
+      final users = await _userService.getUsers(
+        isArchived: isArchived,
+        role: query['role'],
       );
-
-      final createdUser = await _db.users.createUser(newUser, roles, payload.id);
-
-      return Response(201, body: jsonEncode({
-        'message': 'Пользователь успешно создан',
-        'user': createdUser.toJson()
-      }));
-    } catch (error, stackTrace) {
-      throw InternalException(cause: error, stackTrace: stackTrace);
-    }
+      return Response.ok(
+        jsonEncode({'users': users.map((user) => user.toJson()).toList()}),
+      );
+    });
   }
 
-  // Обновить роли пользователя (только для админа)
-  static Future<Response> updateUserRoles(Request request, String id) async {
-    try {
-      final userId = id;
+  Future<Response> getUserById(Request request, String id) {
+    return _handle(() async {
+      final actor = _requireUser(request);
+      _requireSelfOrStaff(actor, id);
 
-      final body = await request.readAsString();
-      final data = jsonDecode(body) as Map<String, dynamic>;
-      final newRoleNames = List<String>.from(data['roles'] as List<dynamic>);
-
-      final user = await _db.users.getUserById(userId);
+      final user = await _userService.getById(id);
       if (user == null) {
-        return Response(404, body: jsonEncode({'error': 'Пользователь не найден'}));
-      }
-
-      // --- НАЧАЛО ВАЛИДАЦИИ РОЛЕЙ ---
-      if (newRoleNames.contains('client') && newRoleNames.length > 1) {
-        return Response(400, body: jsonEncode({'error': 'Пользователь с ролью "Клиент" не может иметь другие роли.'}));
-      }
-      final hasClientRole = user.roles.any((r) => r.name == 'client');
-      if (hasClientRole && newRoleNames.any((name) => name != 'client')) {
-        return Response(400, body: jsonEncode({'error': 'Роль "Клиент" не может быть совмещена с другими ролями.'}));
-      }
-      if (newRoleNames.contains('client') && user.roles.any((r) => r.name != 'client')) {
-        return Response(400, body: jsonEncode({'error': 'Нельзя добавить роль "Клиент" к существующим ролям сотрудников.'}));
-      }
-
-      // Нельзя удалить основную (единственную) роль
-      if (user.roles.length == 1 && !newRoleNames.contains(user.roles.first.name)) {
-        return Response(400, body: jsonEncode({'error': 'Нельзя удалить основную (единственную) роль пользователя.'}));
-      }
-      if (newRoleNames.isEmpty) {
-        return Response(400, body: jsonEncode({'error': 'У пользователя должна быть хотя бы одна роль.'}));
-      }
-      // --- КОНЕЦ ВАЛИДАЦИИ РОЛЕЙ ---
-
-      // Преобразуем имена ролей в ID
-      final allRoles = await _db.users.getAllRoles();
-      final newRoleIds = newRoleNames.map((name) {
-        return allRoles.firstWhere((role) => role.name == name).id;
-      }).toList();
-
-      await _db.users.updateUserRoles(userId, newRoleIds);
-
-      final updatedUser = await _db.users.getUserById(userId);
-
-      return Response.ok(jsonEncode({
-        'message': 'Роли пользователя успешно обновлены',
-        'user': updatedUser?.toJson()
-      }));
-    } catch (error, stackTrace) {
-      throw InternalException(cause: error, stackTrace: stackTrace);
-    }
-  }
-
-  // ... (other methods remain the same)
-
-  // The following are the existing methods from the original file to be preserved.
-  static Future<Response> getUsers(Request request) async {
-    try {
-      final queryParams = request.url.queryParameters;
-      final bool? isArchived = queryParams['isArchived'] != null ? bool.parse(queryParams['isArchived']!) : null;
-      final String? role = queryParams['role']; // Get role from query parameters
-
-      final users = await _db.users.getAllUsers(isArchived: isArchived, role: role); // Pass role to getAllUsers
-      final usersJson = users.map((user) => user.toJson()).toList();
-      return Response.ok(jsonEncode({'users': usersJson}));
-    } catch (error, stackTrace) {
-      throw InternalException(cause: error, stackTrace: stackTrace);
-    }
-  }
-
-  static Future<Response> getUserById(Request request, String id) async {
-    try {
-      final userId = id;
-      final user = await _db.users.getUserById(userId);
-      if (user == null) {
-        return Response(404, body: jsonEncode({'error': 'User not found'}));
+        throw const NotFoundException('Пользователь не найден');
       }
       return Response.ok(jsonEncode({'user': user.toJson()}));
-    } catch (error, stackTrace) {
-      throw InternalException(cause: error, stackTrace: stackTrace);
-    }
+    });
   }
 
-  static Future<Response> updateUser(Request request, String id) async {
-    try {
-      final userId = id;
+  Future<Response> createUser(Request request) {
+    return _handle(() async {
+      final actor = _requireUser(request);
+      final data = await _readBody(request);
 
-      final payload = request.context['user'] as User?;
-      final updaterId = payload?.id;
-
-      final body = await request.readAsString();
-      final data = jsonDecode(body) as Map<String, dynamic>;
-
-      final email = data['email'] as String?;
-      if (email != null) {
-        final existingUser = await _db.users.getUserByEmail(email);
-        if (existingUser != null && existingUser.id != userId) {
-          return Response(400, body: jsonEncode({'error': 'Пользователь с таким email уже существует'}));
-        }
-      }
-
-      final phone = data['phone'] as String?;
-      if (phone != null && phone.isNotEmpty) {
-        final existingUser = await _db.users.getUserByPhone(phone);
-        if (existingUser != null && existingUser.id != userId) {
-          return Response(400, body: jsonEncode({'error': 'Пользователь с таким телефоном уже существует'}));
-        }
-      }
-
-      final dateOfBirthString = data['dateOfBirth'] as String?;
-      final dateOfBirth = dateOfBirthString != null ? DateTime.parse(dateOfBirthString) : null;
-      
-      final archivedAtString = data['archivedAt'] as String?;
-      final archivedAt = archivedAtString != null ? DateTime.parse(archivedAtString) : null;
-      final archivedReason = data['archivedReason'] as String?; // Added archivedReason
-
-      // Validation for archivedReason if archivedAt is not null
-      if (archivedAt != null && (archivedReason == null || archivedReason.length < 5)) {
-        return Response(400, body: jsonEncode({'error': 'Archived reason is required and must be at least 5 characters long when archiving a user.'}));
-      }
-
-
-      await _db.users.updateUser(
-        id: userId,
-        email: email,
-        firstName: data['firstName'] as String?,
-        lastName: data['lastName'] as String?,
-        middleName: data['middleName'] as String?,
-        phone: phone,
-        gender: data['gender'] as String?,
-        dateOfBirth: dateOfBirth,
-        updatedBy: updaterId,
-        archivedAt: archivedAt,
-        archivedReason: archivedReason, // Passed archivedReason
+      final created = await _userService.createUser(
+        _createInput(data),
+        audit: AuditContext.fromRequest(request, user: actor),
       );
 
-      // --- START OF NEW LOGIC ---
-      // Check for client profile data and update it if present
-      if (data.containsKey('client_profile') && data['client_profile'] is Map) {
-        final clientProfileData = data['client_profile'] as Map<String, dynamic>;
-        
-        // Check if the user actually is a client
-        final userRoles = await _db.users.getRolesForUser(userId);
-        if (userRoles.any((role) => role.name == 'client')) {
-            await _db.users.updateClientProfile(
-              userId: userId,
-              goalTrainingId: clientProfileData['goal_training_id']?.toString(),
-              levelTrainingId: clientProfileData['level_training_id']?.toString(),
-              trackCalories: clientProfileData['track_calories'] as bool?,
-              coeffActivity: (clientProfileData['coeff_activity'] as num?)?.toDouble(),
-              updatedBy: updaterId ?? userId,
-            );
-        }
-      }
-
-      // Check for employee profile data and update it if present
-      if (data.containsKey('employee_profile') && data['employee_profile'] is Map) {
-        final employeeProfileData = data['employee_profile'] as Map<String, dynamic>;
-        
-        // Check if the user actually is an employee (instructor, trainer, manager)
-        final userRoles = await _db.users.getRolesForUser(userId);
-        if (userRoles.any((role) => ['instructor', 'trainer', 'manager'].contains(role.name))) {
-            await _db.users.updateEmployeeProfile(
-              userId: userId,
-              specialization: employeeProfileData['specialization'] as String?,
-              workExperience: employeeProfileData['work_experience'] as int?,
-              canMaintainEquipment: employeeProfileData['can_maintain_equipment'] as bool?,
-              updatedBy: updaterId ?? userId,
-            );
-        }
-      }
-      // --- END OF NEW LOGIC ---
-
-      final updatedUser = await _db.users.getUserById(userId);
-
-      if (updatedUser == null) {
-        return Response(404, body: jsonEncode({'error': 'User not found after update'}));
-      }
-      return Response.ok(jsonEncode({'user': updatedUser.toJson()}));
-    } catch (error, stackTrace) {
-      throw InternalException(cause: error, stackTrace: stackTrace);
-    }
+      return Response(
+        201,
+        body: jsonEncode({
+          'message': 'Пользователь успешно создан',
+          'user': created.toJson(),
+        }),
+        headers: const {'Content-Type': 'application/json'},
+      );
+    });
   }
 
-  static Future<Response> deleteUser(Request request, String id) async {
-    try {
-      final userId = id;
-      final success = await _db.users.deleteUser(userId);
-      if (!success) {
-        return Response(404, body: jsonEncode({'error': 'User not found'}));
+  Future<Response> updateUser(Request request, String id) {
+    return _handle(() async {
+      final actor = _requireUser(request);
+      _requireSelfOrStaff(actor, id);
+      final data = await _readBody(request);
+      final input = _updateInput(data);
+
+      if (!_isStaff(actor) && input.archivedAtProvided) {
+        throw const ForbiddenException('Архивация доступна сотрудникам');
       }
-      return Response(200, body: jsonEncode({'message': 'User deleted successfully'}));
-    } catch (error, stackTrace) {
-      throw InternalException(cause: error, stackTrace: stackTrace);
-    }
+
+      final updated = await _userService.updateUser(
+        id,
+        input,
+        audit: AuditContext.fromRequest(request, user: actor),
+      );
+
+      return Response.ok(jsonEncode({'user': updated.toJson()}));
+    });
   }
 
-  static Future<Response> getProfile(Request request) async {
-    try {
-      final user = request.context['user'] as User?;
+  Future<Response> deleteUser(Request request, String id) {
+    return _handle(() async {
+      final actor = _requireUser(request);
+      final data = await _readBody(request, allowEmpty: true);
+      final reason =
+          data['reason'] as String? ?? data['archivedReason'] as String?;
+
+      await _userService.archiveUser(
+        id,
+        reason: reason,
+        audit: AuditContext.fromRequest(request, user: actor),
+      );
+
+      return Response(204);
+    });
+  }
+
+  Future<Response> restoreUser(Request request, String id) {
+    return _handle(() async {
+      final actor = _requireUser(request);
+
+      await _userService.restoreUser(
+        id,
+        audit: AuditContext.fromRequest(request, user: actor),
+      );
+
+      return Response.ok(jsonEncode({'message': 'Пользователь восстановлен'}));
+    });
+  }
+
+  Future<Response> getUserRoles(Request request, String id) {
+    return _handle(() async {
+      final user = await _userService.getById(id);
       if (user == null) {
-        return Response(401, body: jsonEncode({'error': 'Not authenticated'}));
+        throw const NotFoundException('Пользователь не найден');
       }
-      final userData = await _db.users.getUserById(user.id);
-      if (userData == null) {
-        return Response(404, body: jsonEncode({'error': 'User not found'}));
-      }
-      return Response.ok(jsonEncode({'user': userData.toJson()}));
-    } catch (error, stackTrace) {
-      throw InternalException(cause: error, stackTrace: stackTrace);
-    }
+      return Response.ok(
+        jsonEncode({'roles': user.roles.map((role) => role.toJson()).toList()}),
+      );
+    });
   }
 
-  // --- МЕТОДЫ, ВОССТАНОВЛЕННЫЕ ПОСЛЕ СЛУЧАЙНОГО УДАЛЕНИЯ ---
+  Future<Response> updateUserRoles(Request request, String id) {
+    return _handle(() async {
+      final actor = _requireUser(request);
+      final data = await _readBody(request);
+      final roleNames = _stringList(data['roles'], 'roles');
 
-  // Получить роли пользователя по ID
-  static Future<Response> getUserRoles(Request request, String id) async {
-    try {
-      final userId = id;
+      final updated = await _userService.updateRoles(
+        id,
+        roleNames,
+        audit: AuditContext.fromRequest(request, user: actor),
+      );
 
-      final user = await _db.users.getUserById(userId);
+      return Response.ok(
+        jsonEncode({
+          'message': 'Роли пользователя успешно обновлены',
+          'user': updated.toJson(),
+        }),
+      );
+    });
+  }
+
+  Future<Response> getProfile(Request request) {
+    return _handle(() async {
+      final actor = _requireUser(request);
+      final user = await _userService.getById(actor.id);
       if (user == null) {
-        return Response(404, body: jsonEncode({'error': 'User not found'}));
+        throw const NotFoundException('Пользователь не найден');
       }
-
-      return Response.ok(jsonEncode({'roles': user.roles.map((r) => r.toJson()).toList()}));
-    } catch (error, stackTrace) {
-      throw InternalException(cause: error, stackTrace: stackTrace);
-    }
+      return Response.ok(jsonEncode({'user': user.toJson()}));
+    });
   }
 
-  // Получить тренера для клиента
-  static Future<Response> getTrainerForClient(Request request) async {
-    try {
-      final user = request.context['user'] as User?;
-      if (user == null) {
-        return Response(401, body: jsonEncode({'error': 'Not authenticated'}));
-      }
-
-      final trainer = await _db.users.getTrainerForClient(user.id);
-
-      if (trainer == null) {
-        return Response(404, body: jsonEncode({'error': 'Trainer not found for this client'}));
-      }
-
-      return Response.ok(jsonEncode({'trainer': trainer.toJson()}));
-    } catch (error, stackTrace) {
-      throw InternalException(cause: error, stackTrace: stackTrace);
-    }
+  Future<Response> getRoles(Request request) {
+    return _handle(() async {
+      final roles = await _userService.getAllRoles();
+      return Response.ok(
+        jsonEncode({'roles': roles.map((role) => role.toJson()).toList()}),
+      );
+    });
   }
 
-  // Получить инструктора для клиента
-  static Future<Response> getInstructorForClient(Request request) async {
-    try {
-      final user = request.context['user'] as User?;
-      if (user == null) {
-        return Response(401, body: jsonEncode({'error': 'Not authenticated'}));
-      }
-
-      final instructor = await _db.users.getInstructorForClient(user.id);
-
-      if (instructor == null) {
-        return Response(404, body: jsonEncode({'error': 'Instructor not found for this client'}));
-      }
-
-      return Response.ok(jsonEncode({'instructor': instructor.toJson()}));
-    } catch (error, stackTrace) {
-      throw InternalException(cause: error, stackTrace: stackTrace);
-    }
+  Future<Response> getMySettings(Request request) {
+    return _handle(() async {
+      final actor = _requireUser(request);
+      final settings = await _userService.getSettings(actor.id);
+      return Response.ok(jsonEncode({'settings': settings}));
+    });
   }
 
-  // Получить менеджера для клиента
-  static Future<Response> getManagerForClient(Request request) async {
-    try {
-      final user = request.context['user'] as User?;
-      if (user == null) {
-        return Response(401, body: jsonEncode({'error': 'Not authenticated'}));
-      }
-
-      final manager = await _db.users.getManagerForClient(user.id);
-
-      if (manager == null) {
-        return Response(404, body: jsonEncode({'error': 'Manager not found for this client'}));
-      }
-
-      return Response.ok(jsonEncode({'manager': manager.toJson()}));
-    } catch (error, stackTrace) {
-      throw InternalException(cause: error, stackTrace: stackTrace);
-    }
+  Future<Response> updateMySettings(Request request) {
+    return _handle(() async {
+      final actor = _requireUser(request);
+      final data = await _readBody(request);
+      final settings = await _userService.updateSettings(
+        actor.id,
+        sendNotifications: _optionalBool(data['sendNotifications']),
+        hourNotification: _optionalInt(data['hourNotification']),
+        audit: AuditContext.fromRequest(request, user: actor),
+      );
+      return Response.ok(jsonEncode({'settings': settings}));
+    });
   }
 
-  static Future<Response> getRoles(Request request) async {
-    try {
-      final roles = await _db.users.getAllRoles();
-      final rolesJson = roles.map((role) => role.toJson()).toList();
-      return Response.ok(jsonEncode({'roles': rolesJson}));
-    } catch (error, stackTrace) {
-      throw InternalException(cause: error, stackTrace: stackTrace);
-    }
+  Future<Response> getUserSettings(Request request, String id) {
+    return _handle(() async {
+      final settings = await _userService.getSettings(id);
+      return Response.ok(jsonEncode({'settings': settings}));
+    });
   }
 
-  static Future<Response> resetPassword(Request request) async {
-    try {
-      final body = await request.readAsString();
-      final data = jsonDecode(body) as Map<String, dynamic>;
+  Future<Response> updateUserSettings(Request request, String id) {
+    return _handle(() async {
+      final actor = _requireUser(request);
+      final data = await _readBody(request);
+      final settings = await _userService.updateSettings(
+        id,
+        sendNotifications: _optionalBool(data['sendNotifications']),
+        hourNotification: _optionalInt(data['hourNotification']),
+        audit: AuditContext.fromRequest(request, user: actor),
+      );
+      return Response.ok(jsonEncode({'settings': settings}));
+    });
+  }
 
+  /// Сброс пароля администратором по id пользователя.
+  Future<Response> resetPasswordForUser(Request request, String id) {
+    return _handle(() async {
+      final actor = _requireUser(request);
+      final data = await _readBody(request);
+      final password =
+          data['password'] as String? ?? data['newPassword'] as String?;
+      if (password == null || password.isEmpty) {
+        throw const ValidationException('Укажите новый пароль');
+      }
+
+      await _userService.resetPassword(
+        id,
+        password,
+        audit: AuditContext.fromRequest(request, user: actor),
+      );
+
+      return Response.ok(jsonEncode({'message': 'Пароль успешно изменён'}));
+    });
+  }
+
+  /// Legacy-сброс пароля по email (совместимость со старым клиентом).
+  Future<Response> resetPassword(Request request) {
+    return _handle(() async {
+      final actor = _requireUser(request);
+      final data = await _readBody(request);
       final email = data['email'] as String?;
-      final newPassword = data['newPassword'] as String?;
+      final password =
+          data['newPassword'] as String? ?? data['password'] as String?;
 
-      if (email == null || newPassword == null) {
-        return Response(400, body: jsonEncode({'error': 'Email and newPassword are required'}));
+      if (email == null || password == null) {
+        throw const ValidationException('Нужны email и новый пароль');
       }
 
-      final user = await _db.users.getUserByEmail(email);
+      final user = await _userService.getByEmail(email);
       if (user == null) {
-        return Response(404, body: jsonEncode({'error': 'User not found'}));
+        throw const NotFoundException('Пользователь не найден');
       }
 
-      final passwordHash = BCrypt.hashpw(newPassword, BCrypt.gensalt());
+      await _userService.resetPassword(
+        user.id,
+        password,
+        audit: AuditContext.fromRequest(request, user: actor),
+      );
 
-      await _db.users.updateUserPassword(user.id, passwordHash);
-
-      return Response.ok(jsonEncode({'message': 'Password reset successfully'}));
-    } catch (error, stackTrace) {
-      throw InternalException(cause: error, stackTrace: stackTrace);
-    }
+      return Response.ok(jsonEncode({'message': 'Пароль успешно изменён'}));
+    });
   }
 
-  // Обновить профиль клиента (цель, уровень)
-  static Future<Response> updateClientProfile(Request request) async {
-    try {
-      final payload = request.context['user'] as User?;
-      if (payload == null) {
-        return Response.unauthorized(jsonEncode({'error': 'Not authenticated'}));
-      }
-      final userId = payload.id;
-
-      final body = await request.readAsString();
-      final data = jsonDecode(body) as Map<String, dynamic>;
+  Future<Response> updateClientProfile(Request request) {
+    return _handle(() async {
+      final actor = _requireUser(request);
+      final data = await _readBody(request);
 
       final goalTrainingId = data['goal_training_id']?.toString();
       final levelTrainingId = data['level_training_id']?.toString();
 
-      if (goalTrainingId == null && levelTrainingId == null) {
-        return Response.badRequest(body: jsonEncode({'error': 'At least one field (goal_training_id or level_training_id) must be provided.'}));
-      }
-
-      await _db.users.updateClientProfile(
-        userId: userId,
+      await _userService.updateClientProfile(
+        userId: actor.id,
         goalTrainingId: goalTrainingId,
         levelTrainingId: levelTrainingId,
-        updatedBy: userId,
+        audit: AuditContext.fromRequest(request, user: actor),
       );
 
-      final updatedUser = await _db.users.getUserById(userId);
-      if (updatedUser == null) {
-        return Response.notFound(jsonEncode({'error': 'User not found after update.'}));
+      final updated = await _userService.getById(actor.id);
+      if (updated == null) {
+        throw const NotFoundException('Пользователь не найден');
       }
 
-      return Response.ok(jsonEncode({
-        'message': 'Профиль клиента успешно обновлен',
-        'user': updatedUser.toJson(),
-      }));
-
-    } catch (error, stackTrace) {
-      throw InternalException(cause: error, stackTrace: stackTrace);
-    }
+      return Response.ok(
+        jsonEncode({
+          'message': 'Профиль клиента успешно обновлен',
+          'user': updated.toJson(),
+        }),
+      );
+    });
   }
 
-  // Загрузить аватар пользователя
-  static Future<Response> uploadAvatar(Request request, String id) async {
-    try {
-      final updater = request.context['user'] as User?;
-      if (updater == null) {
-        return Response.unauthorized(jsonEncode({'error': 'Not authenticated'}));
-      }
-      final updaterId = updater.id;
-
-      final userId = id;
+  Future<Response> uploadAvatar(Request request, String id) {
+    return _handle(() async {
+      final actor = _requireUser(request);
+      _requireSelfOrStaff(actor, id);
 
       String? fileName;
       List<int>? fileBytes;
 
       if (request.formData() case final form?) {
         await for (final formData in form.formData) {
-          if (formData.name == 'photo') {
+          if (formData.name == 'photo' && fileBytes == null) {
             fileName = formData.filename;
             fileBytes = await formData.part.readBytes();
           }
         }
       } else {
-        return Response.badRequest(body: jsonEncode({'error': 'Not a multipart/form-data request'}));
+        throw const ValidationException(
+          'Ожидается multipart/form-data с полем photo',
+        );
       }
 
       if (fileName == null || fileBytes == null) {
-        return Response.badRequest(body: jsonEncode({'error': 'Missing photo file in form-data'}));
+        throw const ValidationException('В запросе нет файла photo');
       }
 
-      final photoService = PhotoService();
-      final photoUrl = await photoService.savePhoto(
-        subDirectory: 'avatars',
+      final photoUrl = await _userService.uploadAvatar(
+        userId: id,
         fileName: fileName,
         fileBytes: fileBytes,
+        audit: AuditContext.fromRequest(request, user: actor),
       );
 
-      await _db.users.updateUserPhotoUrl(userId, photoUrl, updaterId);
+      return Response.ok(
+        jsonEncode({
+          'message': 'Аватар успешно загружен',
+          'photoUrl': photoUrl,
+        }),
+      );
+    });
+  }
 
-      return Response.ok(jsonEncode({
-        'message': 'Avatar uploaded successfully',
-        'photoUrl': photoUrl,
-      }));
+  Future<Response> getTrainerForClient(Request request) {
+    return _relation(request, _userService.getTrainerForClient, 'trainer');
+  }
+
+  Future<Response> getInstructorForClient(Request request) {
+    return _relation(
+      request,
+      _userService.getInstructorForClient,
+      'instructor',
+    );
+  }
+
+  Future<Response> getManagerForClient(Request request) {
+    return _relation(request, _userService.getManagerForClient, 'manager');
+  }
+
+  Future<Response> getClientsForManager(Request request, String id) {
+    return _listRelation(
+      request,
+      () => _userService.getClientsForManager(id),
+      'clients',
+    );
+  }
+
+  Future<Response> getInstructorsForManager(Request request, String id) {
+    return _listRelation(
+      request,
+      () => _userService.getInstructorsForManager(id),
+      'instructors',
+    );
+  }
+
+  Future<Response> getTrainersForManager(Request request, String id) {
+    return _listRelation(
+      request,
+      () => _userService.getTrainersForManager(id),
+      'trainers',
+    );
+  }
+
+  Future<Response> getClientsForInstructor(Request request, String id) {
+    return _listRelation(
+      request,
+      () => _userService.getClientsForInstructor(id),
+      'clients',
+    );
+  }
+
+  Future<Response> getTrainersForInstructor(Request request, String id) {
+    return _listRelation(
+      request,
+      () => _userService.getTrainersForInstructor(id),
+      'trainers',
+    );
+  }
+
+  Future<Response> getManagerForInstructor(Request request, String id) {
+    return _handle(() async {
+      final manager = await _userService.getManagerForInstructor(id);
+      return Response.ok(jsonEncode({'manager': manager?.toJson()}));
+    });
+  }
+
+  Future<Response> updateManagerClients(Request request, String id) {
+    return _handle(() async {
+      final data = await _readBody(request);
+      await _userService.assignClientsToManager(
+        id,
+        _stringList(data['clientIds'], 'clientIds'),
+      );
+      return Response.ok(jsonEncode({'message': 'Клиенты назначены'}));
+    });
+  }
+
+  Future<Response> updateManagerInstructors(Request request, String id) {
+    return _handle(() async {
+      final data = await _readBody(request);
+      await _userService.assignInstructorsToManager(
+        id,
+        _stringList(data['instructorIds'], 'instructorIds'),
+      );
+      return Response.ok(jsonEncode({'message': 'Инструкторы назначены'}));
+    });
+  }
+
+  Future<Response> updateManagerTrainers(Request request, String id) {
+    return _handle(() async {
+      final data = await _readBody(request);
+      await _userService.assignTrainersToManager(
+        id,
+        _stringList(data['trainerIds'], 'trainerIds'),
+      );
+      return Response.ok(jsonEncode({'message': 'Тренеры назначены'}));
+    });
+  }
+
+  Future<Response> _relation(
+    Request request,
+    Future<User?> Function(String) loader,
+    String key,
+  ) {
+    return _handle(() async {
+      final actor = _requireUser(request);
+      final user = await loader(actor.id);
+      if (user == null) {
+        throw NotFoundException('$key не найден');
+      }
+      return Response.ok(jsonEncode({key: user.toJson()}));
+    });
+  }
+
+  Future<Response> _listRelation(
+    Request request,
+    Future<List<User>> Function() loader,
+    String key,
+  ) {
+    return _handle(() async {
+      final users = await loader();
+      return Response.ok(
+        jsonEncode({key: users.map((user) => user.toJson()).toList()}),
+      );
+    });
+  }
+
+  Future<Response> _handle(Future<Response> Function() action) async {
+    try {
+      return await action();
+    } on AppException {
+      rethrow;
+    } on FormatException {
+      throw const ValidationException('Некорректный формат запроса');
+    } on TypeError {
+      throw const ValidationException('Некорректный формат запроса');
     } catch (error, stackTrace) {
       throw InternalException(cause: error, stackTrace: stackTrace);
     }
+  }
+
+  User _requireUser(Request request) {
+    final user = request.context['user'] as User?;
+    if (user == null) {
+      throw const UnauthorizedException('Требуется авторизация');
+    }
+    return user;
+  }
+
+  /// Клиент может читать и менять только свой профиль.
+  void _requireSelfOrStaff(User actor, String targetId) {
+    if (!_isStaff(actor) && actor.id != targetId) {
+      throw const ForbiddenException('Недостаточно прав');
+    }
+  }
+
+  bool _isStaff(User actor) {
+    return actor.roles.any(
+      (role) => const {
+        'admin',
+        'manager',
+        'trainer',
+        'instructor',
+      }.contains(role.name),
+    );
+  }
+
+  Future<Map<String, dynamic>> _readBody(
+    Request request, {
+    bool allowEmpty = false,
+  }) async {
+    final raw = await request.readAsString();
+    if (raw.trim().isEmpty) {
+      if (allowEmpty) {
+        return const {};
+      }
+      throw const ValidationException('Тело запроса обязательно');
+    }
+    final decoded = jsonDecode(raw);
+    if (decoded is! Map<String, dynamic>) {
+      throw const ValidationException('Ожидается JSON-объект');
+    }
+    return decoded;
+  }
+
+  CreateUserInput _createInput(Map<String, dynamic> data) {
+    final password = data['password'] as String?;
+    if (password == null || password.isEmpty) {
+      throw const ValidationException('Пароль обязателен');
+    }
+
+    return CreateUserInput(
+      email: _optionalString(data['email']),
+      password: password,
+      firstName: _requiredString(
+        _value(data, 'firstName', 'first_name'),
+        'firstName',
+      ),
+      lastName: _requiredString(
+        _value(data, 'lastName', 'last_name'),
+        'lastName',
+      ),
+      roles: _stringList(data['roles'], 'roles', fallback: const ['client']),
+      middleName: _optionalString(_value(data, 'middleName', 'middle_name')),
+      phone: _optionalString(data['phone']),
+      gender: _optionalString(data['gender']),
+      dateOfBirth: _optionalDate(_value(data, 'dateOfBirth', 'date_of_birth')),
+      sendNotification:
+          _optionalBool(
+            _value(data, 'sendNotification', 'send_notification'),
+          ) ??
+          true,
+      hourNotification:
+          _optionalInt(_value(data, 'hourNotification', 'hour_notification')) ??
+          2,
+      clientProfile: _optionalMap(
+        _value(data, 'clientProfile', 'client_profile'),
+      ),
+      employeeProfile: _optionalMap(
+        _value(data, 'employeeProfile', 'employee_profile'),
+      ),
+    );
+  }
+
+  UpdateUserInput _updateInput(Map<String, dynamic> data) {
+    final archivedAt = _optionalDate(_value(data, 'archivedAt', 'archived_at'));
+    final settingsProvided =
+        data.containsKey('sendNotification') ||
+        data.containsKey('send_notification') ||
+        data.containsKey('hourNotification') ||
+        data.containsKey('hour_notification');
+
+    return UpdateUserInput(
+      email: _optionalString(data['email']),
+      firstName: _optionalString(_value(data, 'firstName', 'first_name')),
+      lastName: _optionalString(_value(data, 'lastName', 'last_name')),
+      middleName: _optionalString(_value(data, 'middleName', 'middle_name')),
+      phone: _optionalString(data['phone']),
+      gender: _optionalString(data['gender']),
+      dateOfBirth: _optionalDate(_value(data, 'dateOfBirth', 'date_of_birth')),
+      // Клиент присылает "archived_at": null при обычном обновлении.
+      // Архивацией считаем только непустую дату; восстановление — отдельный
+      // endpoint, чтобы не разорять случайным null.
+      archivedAtProvided: archivedAt != null,
+      archivedAt: archivedAt,
+      archivedReason: _optionalString(
+        _value(data, 'archivedReason', 'archived_reason'),
+      ),
+      updateSettings: settingsProvided,
+      sendNotification: _optionalBool(
+        _value(data, 'sendNotification', 'send_notification'),
+      ),
+      hourNotification: _optionalInt(
+        _value(data, 'hourNotification', 'hour_notification'),
+      ),
+      clientProfile: _optionalMap(
+        _value(data, 'clientProfile', 'client_profile'),
+      ),
+      employeeProfile: _optionalMap(
+        _value(data, 'employeeProfile', 'employee_profile'),
+      ),
+    );
+  }
+
+  Object? _value(Map<String, dynamic> data, String camel, String snake) {
+    return data.containsKey(camel) ? data[camel] : data[snake];
+  }
+
+  String? _optionalString(Object? value) {
+    if (value == null) return null;
+    final text = value.toString().trim();
+    return text.isEmpty ? null : text;
+  }
+
+  String _requiredString(Object? value, String field) {
+    final text = _optionalString(value);
+    if (text == null) {
+      throw ValidationException('Поле $field обязательно');
+    }
+    return text;
+  }
+
+  bool? _optionalBool(Object? value) {
+    if (value == null) return null;
+    if (value is bool) return value;
+    if (value is String) {
+      if (value == 'true') return true;
+      if (value == 'false') return false;
+    }
+    throw const ValidationException('Ожидается true или false');
+  }
+
+  int? _optionalInt(Object? value) {
+    if (value == null) return null;
+    if (value is int) return value;
+    if (value is num) return value.toInt();
+    final parsed = int.tryParse(value.toString());
+    if (parsed == null) {
+      throw const ValidationException('Ожидается целое число');
+    }
+    return parsed;
+  }
+
+  DateTime? _optionalDate(Object? value) {
+    if (value == null) return null;
+    final parsed = DateTime.tryParse(value.toString());
+    if (parsed == null) {
+      throw const ValidationException('Неверный формат даты');
+    }
+    return parsed;
+  }
+
+  Map<String, dynamic>? _optionalMap(Object? value) {
+    if (value == null) return null;
+    if (value is Map<String, dynamic>) return value;
+    if (value is Map) return Map<String, dynamic>.from(value);
+    throw const ValidationException('Ожидается JSON-объект');
+  }
+
+  List<String> _stringList(
+    Object? value,
+    String field, {
+    List<String>? fallback,
+  }) {
+    if (value == null) {
+      if (fallback != null) return fallback;
+      throw ValidationException('Поле $field обязательно');
+    }
+    if (value is! List) {
+      throw ValidationException('Поле $field должно быть списком');
+    }
+    return value.map((item) => item.toString()).toList();
   }
 }

@@ -1,15 +1,20 @@
 import 'dart:convert';
-import 'package:shelf/shelf.dart';
+
 import 'package:bcrypt/bcrypt.dart';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
-import '../config/database.dart';
-import '../config/app_config.dart';
-import '../errors/app_exception.dart';
-import '../logging/app_logger.dart';
-import '../middleware/request_context.dart';
+import 'package:fitman_backend/audit/audit_context.dart';
+import 'package:fitman_backend/config/app_config.dart';
+import 'package:fitman_backend/errors/app_exception.dart';
+import 'package:fitman_backend/logging/app_logger.dart';
+import 'package:fitman_backend/middleware/request_context.dart';
+import 'package:fitman_backend/modules/users/services/user_service.dart';
+import 'package:fitman_backend/modules/users/user_providers.dart';
 import 'package:fitman_common/fitman_common.dart';
+import 'package:shelf/shelf.dart';
 
 class AuthController {
+  static UserService get _users => UserProviders().userService;
+
   static Future<Response> login(Request request) async {
     try {
       final body = await request.readAsString();
@@ -18,37 +23,35 @@ class AuthController {
       final phone = data['phone'] as String;
       final password = data['password'] as String;
 
-      // TODO: Add more robust phone number validation
       if (phone.isEmpty) {
-        return Response(
-          400,
-          body: jsonEncode({'error': 'Phone number cannot be empty'}),
-        );
+        throw const ValidationException('Телефон не может быть пустым');
       }
-
       if (password.isEmpty) {
-        return Response(
-          401,
-          body: jsonEncode({'error': 'Invalid credentials'}),
-        );
+        throw const UnauthorizedException('Неверные учётные данные');
       }
 
-      final user = await Database().users.getUserByPhone(phone);
+      final user = await _users.getByPhone(phone);
 
       if (user == null) {
         appLog.info(
           'Неудачная попытка входа',
           fields: {'request_id': RequestContext.requestIdOf(request)},
         );
-        return Response(
-          401,
-          body: jsonEncode({'error': 'Invalid credentials'}),
-        );
+        throw const UnauthorizedException('Неверные учётные данные');
       }
 
-      final isValidPassword = BCrypt.checkpw(password, user.passwordHash);
+      if (user.archivedAt != null) {
+        appLog.info(
+          'Попытка входа в архивную учётную запись',
+          fields: {
+            'user_id': user.id,
+            'request_id': RequestContext.requestIdOf(request),
+          },
+        );
+        throw const UnauthorizedException('Учётная запись архивирована');
+      }
 
-      if (!isValidPassword) {
+      if (!_isPasswordValid(password, user.passwordHash)) {
         appLog.info(
           'Неудачная попытка входа',
           fields: {
@@ -56,22 +59,17 @@ class AuthController {
             'request_id': RequestContext.requestIdOf(request),
           },
         );
-        return Response(
-          401,
-          body: jsonEncode({'error': 'Invalid credentials'}),
-        );
+        throw const UnauthorizedException('Неверные учётные данные');
       }
 
       final token = _generateJwtToken(user);
-      final response = {
-        'token': token,
-        'user': user.toJson(),
-      };
+      final response = {'token': token, 'user': user.toJson()};
 
       appLog.info(
         'Вход выполнен',
         fields: {
           'user_id': user.id,
+          'role': user.roles.map((role) => role.name).join(','),
           'request_id': RequestContext.requestIdOf(request),
         },
       );
@@ -92,80 +90,55 @@ class AuthController {
       final body = await request.readAsString();
       final data = jsonDecode(body) as Map<String, dynamic>;
 
-      final email = data['email'] as String;
-      final password = data['password'] as String;
-      final firstName = data['firstName'] as String;
-      final lastName = data['lastName'] as String;
-      final roles = (data['roles'] as List<dynamic>?)
-              ?.map((e) => e.toString())
+      final email = data['email'] as String?;
+      final password = data['password'] as String?;
+      final firstName = data['firstName'] as String?;
+      final lastName = data['lastName'] as String?;
+
+      if (email == null ||
+          password == null ||
+          firstName == null ||
+          lastName == null) {
+        throw const ValidationException('Нужны email, пароль, имя и фамилия');
+      }
+
+      // Самостоятельная регистрация из ТЗ — только клиент. Роли сотрудников
+      // назначает администратор.
+      final requestedRoles =
+          (data['roles'] as List<dynamic>?)
+              ?.map((role) => role.toString())
               .toList() ??
-          ['client'];
-
-      // Валидация данных
-      if (!AppConfig.isValidEmail(email)) {
-        return Response(
-          400,
-          body: jsonEncode({'error': 'Invalid email format'}),
+          const ['client'];
+      if (requestedRoles.any((role) => role != 'client')) {
+        throw const ValidationException(
+          'Самостоятельная регистрация доступна только клиентам',
         );
       }
 
-      if (!AppConfig.isValidPassword(password)) {
-        return Response(
-          400,
-          body: jsonEncode({
-            'error':
-                'Password must be at least ${AppConfig.minPasswordLength} characters',
-          }),
-        );
-      }
-
-      // Validate each role
-      for (final roleName in roles) {
-        if (!AppConfig.isValidRole(roleName)) {
-          return Response(
-            400,
-            body: jsonEncode({
-              'error':
-                  'Invalid role: $roleName. Allowed roles: ${AppConfig.allowedRoles.join(', ')}',
-            }),
-          );
-        }
-      }
-
-      final existingUser = await Database().users.getUserByEmail(email);
-      if (existingUser != null) {
-        return Response(
-          400,
-          body: jsonEncode({'error': 'User already exists'}),
-        );
-      }
-
-      final passwordHash = BCrypt.hashpw(password, BCrypt.gensalt());
-
-      final newUser = User(
-        id: '',
-        email: email,
-        passwordHash: passwordHash,
-        firstName: firstName,
-        lastName: lastName,
-        roles: [],
-        phone: data['phone'] as String?,
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
+      final createdUser = await _users.createUser(
+        CreateUserInput(
+          email: email,
+          password: password,
+          firstName: firstName,
+          lastName: lastName,
+          roles: const ['client'],
+          phone: data['phone'] as String?,
+          gender: data['gender'] as String?,
+          dateOfBirth: data['dateOfBirth'] == null
+              ? null
+              : DateTime.tryParse(data['dateOfBirth'].toString()),
+        ),
+        audit: AuditContext.fromRequest(request, user: null),
       );
 
-      final createdUser = await Database().users.createUser(newUser, roles);
       final token = _generateJwtToken(createdUser);
-
-      final response = {
-        'token': token,
-        'user': createdUser.toJson(),
-      };
+      final response = {'token': token, 'user': createdUser.toJson()};
 
       appLog.info(
         'Пользователь зарегистрирован',
         fields: {
           'user_id': createdUser.id,
+          'role': createdUser.roles.map((role) => role.name).join(','),
           'request_id': RequestContext.requestIdOf(request),
         },
       );
@@ -181,6 +154,19 @@ class AuthController {
     }
   }
 
+  static bool _isPasswordValid(String password, String passwordHash) {
+    // Пустой хеш у импортированных/тестовых записей: вход запрещён,
+    // а не пропускается.
+    if (passwordHash.isEmpty) {
+      return false;
+    }
+    try {
+      return BCrypt.checkpw(password, passwordHash);
+    } catch (_) {
+      return false;
+    }
+  }
+
   static String _generateJwtToken(User user) {
     final jwt = JWT({
       'userId': user.id,
@@ -188,11 +174,12 @@ class AuthController {
       'roles': user.roles.map((r) => r.name).toList(),
       'firstName': user.firstName,
       'lastName': user.lastName,
-      'exp': (DateTime.now()
-                  .add(Duration(hours: AppConfig.instance.jwtExpiryHours))
-                  .millisecondsSinceEpoch /
-              1000)
-          .round(),
+      'exp':
+          (DateTime.now()
+                      .add(Duration(hours: AppConfig.instance.jwtExpiryHours))
+                      .millisecondsSinceEpoch /
+                  1000)
+              .round(),
     });
 
     return jwt.sign(SecretKey(AppConfig.instance.jwtSecret));
@@ -211,16 +198,12 @@ class AuthController {
     try {
       final user = request.context['user'] as User?;
       if (user == null) {
-        return Response(
-          401,
-          body: jsonEncode({'error': 'Not authenticated'}),
-        );
+        throw const UnauthorizedException('Требуется авторизация');
       }
 
-      return Response.ok(jsonEncode({
-        'authenticated': true,
-        'user': user.toJson(),
-      }));
+      return Response.ok(
+        jsonEncode({'authenticated': true, 'user': user.toJson()}),
+      );
     } on AppException {
       rethrow;
     } catch (error, stackTrace) {

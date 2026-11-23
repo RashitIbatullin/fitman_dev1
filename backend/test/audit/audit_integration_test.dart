@@ -21,6 +21,31 @@ void main() {
       ? null
       : 'Нужна тестовая БД: RUN_DB_TESTS=true dart test test/audit/audit_integration_test.dart';
 
+  group('AuditService.sanitizeSnapshot', () {
+    test('маскирует пароли и токены, включая вложенные профили', () {
+      final snapshot = AuditService.sanitizeSnapshot({
+        'id': 'user-1',
+        'email': 'user@example.com',
+        'password_hash': 'secret-hash',
+        'employee_profile': {
+          'specialization': 'Тренер',
+          'password_hash': 'nested-hash',
+        },
+        'jwt_refresh_token': 'token-value',
+        'roles': ['client'],
+      });
+
+      expect(snapshot['password_hash'], '***');
+      expect(
+        (snapshot['employee_profile'] as Map<String, Object?>)['password_hash'],
+        '***',
+      );
+      expect(snapshot['jwt_refresh_token'], '***');
+      expect(snapshot['email'], 'user@example.com');
+      expect(snapshot['roles'], ['client']);
+    });
+  });
+
   group('AuditService', skip: skipReason, () {
     late Connection connection;
     late AuditService auditService;
@@ -29,7 +54,8 @@ void main() {
       connection = await Connection.open(
         Endpoint(
           host: Platform.environment['TEST_DB_HOST'] ?? '127.0.0.1',
-          port: int.tryParse(Platform.environment['TEST_DB_PORT'] ?? '') ?? 5432,
+          port:
+              int.tryParse(Platform.environment['TEST_DB_PORT'] ?? '') ?? 5432,
           database: Platform.environment['TEST_DB_NAME'] ?? 'fitman_test',
           username: Platform.environment['TEST_DB_USER'] ?? 'postgres',
           password: Platform.environment['TEST_DB_PASS'] ?? 'postgres',
@@ -43,9 +69,22 @@ void main() {
           id uuid PRIMARY KEY DEFAULT gen_random_uuid()
         )
       ''');
+      // Тестовая БД может содержать полную схему users из database/users.sql.
+      // Добавляем обязательные колонки, если их нет, чтобы вставка работала
+      // и на минимальной, и на полной схеме.
+      await connection.execute(
+        'ALTER TABLE users ADD COLUMN IF NOT EXISTS login text',
+      );
+      await connection.execute(
+        'ALTER TABLE users ADD COLUMN IF NOT EXISTS password_hash text',
+      );
       await connection.execute('''
-        INSERT INTO users (id)
-        VALUES ('00000000-0000-0000-0000-000000000001')
+        INSERT INTO users (id, login, password_hash)
+        VALUES (
+          '00000000-0000-0000-0000-000000000001',
+          'audit-test',
+          'test-hash'
+        )
         ON CONFLICT (id) DO NOTHING
       ''');
 
