@@ -122,7 +122,11 @@ void main() {
     expect(errorEntry['stack'], contains('request_pipeline_test'));
     expect(errorEntry['error'], contains(secret));
 
-    final accessEntry = entries.firstWhere((e) => e['status'] == 500);
+    // У error-записи тоже есть status=500, но duration_ms только у access-log.
+    final accessEntry = entries.singleWhere(
+      (entry) => entry['duration_ms'] != null,
+    );
+    expect(accessEntry['status'], 500);
     expect(accessEntry['request_id'], requestId);
     expect(accessEntry['method'], 'GET');
     expect(accessEntry['duration_ms'], isA<int>());
