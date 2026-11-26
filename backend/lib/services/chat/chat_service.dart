@@ -3,6 +3,7 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:postgres/postgres.dart';
 import 'package:fitman_common/modules/chat/chat_models.dart';
 import '../../../config/database.dart'; // Assuming database connection for user checks or message storage
+import 'package:fitman_backend/logging/app_logger.dart';
 
 class ChatService {
   ChatService(this._db);
@@ -12,14 +13,14 @@ class ChatService {
 
   // When a user connects, store their connection
   void handleConnection(String userId, WebSocketChannel channel) {
-    print('[ChatService] User connected: $userId');
+    appLog.info('[ChatService] User connected: $userId');
     _connections[userId] = channel;
 
     channel.stream.listen(
       (data) => _handleMessage(userId, data),
       onDone: () => removeConnection(userId),
       onError: (error) {
-        print('[ChatService] Error for user $userId: $error');
+        appLog.error('[ChatService] Error for user $userId: $error');
         removeConnection(userId);
       },
     );
@@ -27,7 +28,7 @@ class ChatService {
 
   // When a user disconnects, remove their connection
   void removeConnection(String userId) {
-    print('[ChatService] User disconnected: $userId');
+    appLog.info('[ChatService] User disconnected: $userId');
     _connections.remove(userId);
   }
 
@@ -75,7 +76,7 @@ class ChatService {
         }
       }
     } catch (e) {
-      print('[ChatService] Error handling message: $e');
+      appLog.error('[ChatService] Error handling message: $e');
     }
   }
 

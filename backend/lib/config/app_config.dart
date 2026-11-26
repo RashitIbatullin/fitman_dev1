@@ -1,6 +1,9 @@
 import 'dart:io';
 import 'package:dotenv/dotenv.dart';
 
+import '../logging/app_logger.dart';
+import '../logging/log_config.dart';
+
 /// AppConfig - синглтон для доступа к конфигурации приложения.
 ///
 /// Загружает переменные из окружения при первом доступе.
@@ -42,6 +45,13 @@ class AppConfig {
   late final int serverPort;
   late final String serverHost;
 
+  // Настройки логирования
+  late final String logLevel;
+  late final String logDir;
+  late final String logFormat;
+  late final int logRetentionDays;
+  late final int logMaxFileMb;
+
   /// _load - внутренний метод для загрузки переменных из окружения.
   void _load() {
     // Определяем окружение (dev, test, prod) по переменной DART_ENV.
@@ -51,7 +61,6 @@ class AppConfig {
     // Загружаем переменные из .env файла.
     // `includePlatformEnvironment: true` объединяет системные переменные
     // с теми, что в файле (переменные из файла имеют приоритет).
-    print('ℹ️  Loading environment from $envFile');
     final dotEnv = DotEnv(includePlatformEnvironment: true)..load([envFile]);
 
     // Теперь используем `dotEnv` для доступа к переменным как к Map.
@@ -77,13 +86,41 @@ class AppConfig {
     serverHost = dotEnv['SERVER_HOST'] ?? '0.0.0.0';
     serverPort = int.tryParse(dotEnv['SERVER_PORT'] ?? '8080') ?? 8080;
 
+    // Logging
+    logLevel = dotEnv['LOG_LEVEL'] ?? 'info';
+    logDir = dotEnv['LOG_DIR'] ?? 'logs';
+    logFormat = dotEnv['LOG_FORMAT'] ?? (env == 'prod' ? 'json' : 'text');
+    logRetentionDays = int.tryParse(dotEnv['LOG_RETENTION_DAYS'] ?? '30') ?? 30;
+    final parsedMaxFileMb =
+        int.tryParse(dotEnv['LOG_MAX_FILE_MB'] ?? '50') ?? 50;
+    logMaxFileMb = parsedMaxFileMb > 0 ? parsedMaxFileMb : 50;
+
+    AppLogger.instance.configure(
+      LogConfig(
+        level: AppLogLevel.fromString(logLevel),
+        directory: logDir,
+        format: AppLogFormat.fromString(logFormat),
+        retentionDays: logRetentionDays,
+        maxFileSizeBytes: logMaxFileMb * 1024 * 1024,
+      ),
+    );
+
+    appLog.info(
+      'Конфигурация загружена',
+      fields: {
+        'env': env,
+        'log_level': logLevel,
+        'log_format': logFormat,
+        'log_dir': logDir,
+        'log_max_file_mb': logMaxFileMb,
+      },
+    );
 
     // Предупреждение о безопасности, если секретный ключ не установлен.
     if (jwtSecret == 'insecure-default-key') {
-      print('=' * 50);
-      print('!!! ВНИМАНИЕ: JWT_SECRET не установлен в .env файле.');
-      print('!!! Используется ключ по умолчанию, что НЕБЕЗОПАСНО.');
-      print('=' * 50);
+      appLog.warning(
+        'JWT_SECRET не установлен в .env файле; используется ключ по умолчанию',
+      );
     }
   }
 

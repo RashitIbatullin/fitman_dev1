@@ -2,6 +2,7 @@ import 'package:fitman_common/fitman_common.dart';
 
 import '../../config/database.dart';
 import 'somatotype_helper.dart';
+import 'package:fitman_backend/logging/app_logger.dart';
 
 // Helper data classes for clarity
 class _ClientData {
@@ -26,7 +27,7 @@ class RecommendationService {
   Future<SomatotypeProfile?> getSomatotypeProfileForUser(String userId) async {
     final clientData = await _getClientData(userId);
     if (clientData?.fixedData == null) {
-      print('[RecommendationService] Could not get fixed data for somatotype profile.');
+      appLog.info('[RecommendationService] Could not get fixed data for somatotype profile.');
       return null;
     }
     final rules = await db.recommendations.getSomatotypeRules();
@@ -61,7 +62,7 @@ class RecommendationService {
   Future<WhtrProfiles?> getWhtrProfilesForUser(String userId) async {
     final clientData = await _getClientData(userId);
     if (clientData?.fixedData == null || clientData?.measurement == null) {
-      print('[RecommendationService] Could not get client data for WHtR profile.');
+      appLog.info('[RecommendationService] Could not get client data for WHtR profile.');
       return null;
     }
     // TODO: This should calculate for the START and FINISH measurements, not just the latest.
@@ -76,18 +77,18 @@ class RecommendationService {
     final clientData = await _getClientData(userId, measurementId: measurementId);
 
     if (clientData?.measurement?.fatPercentage == null) {
-      print('[RecommendationService] Not enough data to calculate BMR/TDEE: fat percentage is null.');
+      appLog.info('[RecommendationService] Not enough data to calculate BMR/TDEE: fat percentage is null.');
       return null;
     }
     
     if (clientData?.measurement?.weight == null) {
-       print('[RecommendationService] Not enough data to calculate BMR/TDEE: weight is null.');
+       appLog.info('[RecommendationService] Not enough data to calculate BMR/TDEE: weight is null.');
       return null;
     }
 
     final coeffActivity = clientData?.user.clientProfile?.coeffActivity;
     if (coeffActivity == null) {
-       print('[RecommendationService] Not enough data to calculate BMR/TDEE: coeffActivity is null.');
+       appLog.info('[RecommendationService] Not enough data to calculate BMR/TDEE: coeffActivity is null.');
       return null;
     }
 
@@ -97,7 +98,7 @@ class RecommendationService {
     // Katch-McArdle Formula
     final lbm = weight * (1 - (fatPercentage / 100));
     if (lbm <= 0) {
-      print('[RecommendationService] Calculated LBM is zero or negative, cannot calculate BMR.');
+      appLog.info('[RecommendationService] Calculated LBM is zero or negative, cannot calculate BMR.');
       return null;
     }
     final bmr = 370 + (21.6 * lbm);
@@ -111,12 +112,12 @@ class RecommendationService {
   /// Can generate a recommendation for a [measurementId]. If null, it will
   /// use the latest available measurement for that user.
   Future<Map<String, String?>> generateRecommendation(String userId, {String? measurementId}) async {
-    print(
+    appLog.info(
         '[RecommendationService] Starting recommendation generation for userId: $userId, measurementId: $measurementId');
 
     final clientData = await _getClientData(userId, measurementId: measurementId);
     if (clientData?.measurement == null || clientData?.fixedData == null) {
-      print(
+      appLog.info(
           '[RecommendationService] ERROR: Failed to get client data or client has no anthropometry.');
       return {
         'client_recommendation':
@@ -131,19 +132,19 @@ class RecommendationService {
         await db.recommendations.getBodyShapeRecommendations();
     final whtrRefinements = await db.recommendations.getWhtrRefinements();
 
-    print(
+    appLog.info(
         '[RecommendationService] Fetched ${baseRecommendations.length} base recommendations and ${whtrRefinements.length} WHtR refinements.');
 
     final somatotype = _determineSomatotype(clientData!, rules);
     final bodyShape = _determineBodyShape(clientData.measurement!);
     final whtrProfile = _determineWhtrProfile(clientData);
 
-    print('[RecommendationService] Calculated values:');
-    print('  - Goal ID: ${clientData.user.clientProfile?.goalTrainingId}');
-    print('  - Level ID: ${clientData.user.clientProfile?.levelTrainingId}');
-    print('  - Somatotype: $somatotype');
-    print('  - Body Shape: $bodyShape');
-    print(
+    appLog.info('[RecommendationService] Calculated values:');
+    appLog.info('  - Goal ID: ${clientData.user.clientProfile?.goalTrainingId}');
+    appLog.info('  - Level ID: ${clientData.user.clientProfile?.levelTrainingId}');
+    appLog.info('  - Somatotype: $somatotype');
+    appLog.info('  - Body Shape: $bodyShape');
+    appLog.info(
         '  - WHtR: ${whtrProfile.ratio.toStringAsFixed(2)} (${whtrProfile.gradation})');
 
     final recommendation = _buildFinalRecommendation(
@@ -156,7 +157,7 @@ class RecommendationService {
     );
 
     if (recommendation == null) {
-      print(
+      appLog.info(
           '[RecommendationService] ERROR: No matching recommendation found in the database.');
       return {
         'client_recommendation':
@@ -166,7 +167,7 @@ class RecommendationService {
       };
     }
 
-    print('[RecommendationService] Successfully built a combined recommendation.');
+    appLog.info('[RecommendationService] Successfully built a combined recommendation.');
 
     final methodologyExplanation = '''
 Рекомендации сформированы на основе комплексного анализа Вашего последнего замера:
@@ -292,22 +293,22 @@ class RecommendationService {
   }
 
   WhtrProfile _determineWhtrProfile(_ClientData data) {
-    print('--- DETERMINING WHTR PROFILE ---');
+    appLog.info('--- DETERMINING WHTR PROFILE ---');
     // Callers of this method (_determineWhtrProfile) guarantee that
     // clientData.fixedData and clientData.measurement are not null.
     final height = data.fixedData!.height.toDouble();
     final waist = data.measurement!.waistCirc.toDouble();
     final age = data.user.age;
 
-    print('Input data: age=$age, height=$height, waist=$waist');
+    appLog.info('Input data: age=$age, height=$height, waist=$waist');
 
     if (height == 0) {
-      print('Result: Incomplete data.');
+      appLog.info('Result: Incomplete data.');
       return WhtrProfile(ratio: 0, gradation: 'Не определен');
     }
 
     final ratio = waist / height;
-    print('Calculated ratio: $ratio');
+    appLog.info('Calculated ratio: $ratio');
     String gradation;
 
     if (age == null) {
@@ -321,7 +322,7 @@ class RecommendationService {
       } else {
         upperBound = 0.55;
       }
-      print('Determined upperBound for age $age: $upperBound');
+      appLog.info('Determined upperBound for age $age: $upperBound');
 
       if (ratio < 0.4) {
         gradation = 'Риск истощения';
@@ -334,8 +335,8 @@ class RecommendationService {
       }
     }
 
-    print('Final gradation: $gradation');
-    print('--- END WHTR PROFILE ---');
+    appLog.info('Final gradation: $gradation');
+    appLog.info('--- END WHTR PROFILE ---');
     return WhtrProfile(ratio: ratio, gradation: gradation);
   }
 
@@ -348,7 +349,7 @@ class RecommendationService {
     required List<Map<String, dynamic>> whtrRefinements,
   }) {
     if (goalId == null || levelId == null) {
-      print('[_buildFinalRecommendation] Error: goalId or levelId is null.');
+      appLog.error('[_buildFinalRecommendation] Error: goalId or levelId is null.');
       return null;
     }
 
@@ -361,7 +362,7 @@ class RecommendationService {
     );
 
     if (baseRec.isEmpty) {
-      print('[_buildFinalRecommendation] Could not find a specific base recommendation for body_type: $bodyShape, goal_id: $goalId, level_id: $levelId.');
+      appLog.info('[_buildFinalRecommendation] Could not find a specific base recommendation for body_type: $bodyShape, goal_id: $goalId, level_id: $levelId.');
       return null;
     }
 

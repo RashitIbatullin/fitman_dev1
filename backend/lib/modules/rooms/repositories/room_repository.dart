@@ -3,15 +3,24 @@ import 'package:fitman_backend/config/database.dart';
 import 'package:fitman_common/modules/rooms/room_model.dart';
 import 'package:postgres/postgres.dart';
 import 'room_schedule_repository.dart';
+import 'package:fitman_backend/logging/app_logger.dart';
 
 abstract class RoomRepository {
-  Future<Room?> getById(String id);
+  Future<Room?> getById(String id, {Session? session});
   Future<List<Room>> getAll({bool? isArchived, bool? isActive});
-  Future<Room> create(Room room, {String? createdBy});
-  Future<Room> update(String id, Room room);
-  Future<void> archive(String id, String userId);
-  Future<void> addPhotoUrl(String roomId, String photoUrl);
-  Future<void> removePhotoUrl(String roomId, String photoUrl);
+  Future<Room> create(Room room, {String? createdBy, Session? session});
+  Future<Room> update(String id, Room room, {Session? session});
+  Future<void> archive(String id, String userId, {Session? session});
+  Future<void> addPhotoUrl(
+    String roomId,
+    String photoUrl, {
+    Session? session,
+  });
+  Future<void> removePhotoUrl(
+    String roomId,
+    String photoUrl, {
+    Session? session,
+  });
 }
 
 class RoomRepositoryImpl implements RoomRepository {
@@ -52,8 +61,8 @@ class RoomRepositoryImpl implements RoomRepository {
   }
 
   @override
-  Future<Room> create(Room room, {String? createdBy}) async {
-    final conn = await _db.connection;
+  Future<Room> create(Room room, {String? createdBy, Session? session}) async {
+    final conn = session ?? await _db.connection;
     final result = await conn.execute(
       Sql.named('''
         WITH new_row AS (
@@ -87,14 +96,18 @@ class RoomRepositoryImpl implements RoomRepository {
 
     final newRoom = _roomFromRow(result.first.toColumnMap());
 
-    await _scheduleRepository.createDefaultSchedules(newRoom.id, createdBy: createdBy);
+    await _scheduleRepository.createDefaultSchedules(
+      newRoom.id,
+      createdBy: createdBy,
+      session: session,
+    );
 
     return newRoom;
   }
 
   @override
-  Future<void> archive(String id, String userId) async {
-    final conn = await _db.connection;
+  Future<void> archive(String id, String userId, {Session? session}) async {
+    final conn = session ?? await _db.connection;
     await conn.execute(
       Sql.named(
           'UPDATE rooms SET archived_at = NOW(), archived_by = @userId, is_active = FALSE WHERE id = @id'),
@@ -145,15 +158,15 @@ class RoomRepositoryImpl implements RoomRepository {
           )
           .toList();
     } catch (e) {
-      print('Error fetching all rooms: $e');
+      appLog.error('Error fetching all rooms: $e');
       rethrow;
     }
   }
 
   @override
-  Future<Room?> getById(String id) async {
+  Future<Room?> getById(String id, {Session? session}) async {
     try {
-      final conn = await _db.connection;
+      final conn = session ?? await _db.connection;
       final result = await conn.execute(
         Sql.named(
             '''
@@ -176,14 +189,14 @@ class RoomRepositoryImpl implements RoomRepository {
 
       return _roomFromRow(result.first.toColumnMap());
     } catch (e) {
-      print('Error fetching room by ID $id: $e');
+      appLog.error('Error fetching room by ID $id: $e');
       rethrow;
     }
   }
 
   @override
-  Future<Room> update(String id, Room room) async {
-    final conn = await _db.connection;
+  Future<Room> update(String id, Room room, {Session? session}) async {
+    final conn = session ?? await _db.connection;
     await conn.execute(
       Sql.named('''
         UPDATE rooms 
@@ -234,7 +247,7 @@ class RoomRepositoryImpl implements RoomRepository {
       },
     );
     
-    final updatedRoom = await getById(id);
+    final updatedRoom = await getById(id, session: session);
     if (updatedRoom == null) {
       throw Exception('Room not found after update');
     }
@@ -242,8 +255,12 @@ class RoomRepositoryImpl implements RoomRepository {
   }
 
   @override
-  Future<void> addPhotoUrl(String roomId, String photoUrl) async {
-    final conn = await _db.connection;
+  Future<void> addPhotoUrl(
+    String roomId,
+    String photoUrl, {
+    Session? session,
+  }) async {
+    final conn = session ?? await _db.connection;
     await conn.execute(Sql.named(r'''
       UPDATE rooms 
       SET photo_urls = COALESCE(photo_urls, '[]'::jsonb) || @photoUrl::jsonb
@@ -255,8 +272,12 @@ class RoomRepositoryImpl implements RoomRepository {
   }
 
   @override
-  Future<void> removePhotoUrl(String roomId, String photoUrl) async {
-    final conn = await _db.connection;
+  Future<void> removePhotoUrl(
+    String roomId,
+    String photoUrl, {
+    Session? session,
+  }) async {
+    final conn = session ?? await _db.connection;
     await conn.execute(Sql.named(r'''
       UPDATE rooms
       SET photo_urls = photo_urls - @photoUrl::text

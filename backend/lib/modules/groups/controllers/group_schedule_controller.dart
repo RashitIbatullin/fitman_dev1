@@ -3,6 +3,7 @@ import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 import '../../../config/database.dart';
 import 'package:fitman_common/modules/groups/group_schedule.model.dart';
+import 'package:fitman_backend/errors/app_exception.dart';
 
 class GroupScheduleController {
   final Database _db;
@@ -26,8 +27,8 @@ class GroupScheduleController {
       final groupId = request.params['groupId']!; // Assuming groupId is in context
       final slots = await _db.groups.getGroupSchedules(groupId);
       return Response.ok(jsonEncode(slots.map((s) => s.toJson()).toList()));
-    } catch (e) {
-      return Response.internalServerError(body: jsonEncode({'error': e.toString()}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -38,8 +39,8 @@ class GroupScheduleController {
       final newSlot = GroupSchedule.fromJson({...payload, 'groupId': groupId});
       final createdSlot = await _db.groups.createGroupSchedule(newSlot);
       return Response(201, headers: {'Content-Type': 'application/json'}, body: jsonEncode(createdSlot.toJson()));
-    } catch (e) {
-      return Response.internalServerError(body: jsonEncode({'error': e.toString()}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -50,8 +51,8 @@ class GroupScheduleController {
       final updatedSlot = GroupSchedule.fromJson({...payload, 'id': id});
       final resultSlot = await _db.groups.updateGroupSchedule(updatedSlot);
       return Response.ok(jsonEncode(resultSlot.toJson()));
-    } catch (e) {
-      return Response.internalServerError(body: jsonEncode({'error': e.toString()}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -60,8 +61,8 @@ class GroupScheduleController {
       final id = slotId;
       await _db.groups.deleteGroupSchedule(id);
       return Response(204);
-    } catch (e) {
-      return Response.internalServerError(body: jsonEncode({'error': e.toString()}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 }

@@ -5,6 +5,7 @@ import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 import 'package:fitman_common/modules/equipment/equipment/equipment_type.model.dart';
 import 'package:fitman_backend/modules/equipment/services/equipment.service.dart';
+import 'package:fitman_backend/errors/app_exception.dart';
 
 class EquipmentTypeController {
   EquipmentTypeController(this._db, this._equipmentService) {
@@ -27,9 +28,8 @@ class EquipmentTypeController {
     try {
       final equipmentType = await _db.equipmentTypes.getById(id);
       return Response.ok(jsonEncode(equipmentType.toJson()));
-    } catch (e) {
-      return Response.internalServerError(
-          body: '{"error": "Error fetching equipment type: $e"}');
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -46,9 +46,8 @@ class EquipmentTypeController {
       final equipmentTypesJson =
           equipmentTypes.map((type) => type.toJson()).toList();
       return Response.ok(jsonEncode(equipmentTypesJson));
-    } catch (e) {
-      return Response.internalServerError(
-          body: '{"error": "Error fetching equipment types: $e"}');
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -69,8 +68,8 @@ class EquipmentTypeController {
       final createdEquipmentType = await _equipmentService.createType(equipmentType, userId);
 
       return Response.ok(jsonEncode(createdEquipmentType.toJson()), headers: {'Content-Type': 'application/json'});
-    } catch (e) {
-      return Response.internalServerError(body: '{"error": "Error creating equipment type: $e"}');
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -91,8 +90,8 @@ class EquipmentTypeController {
       final updatedEquipmentType = await _equipmentService.updateType(id, equipmentType, userId);
 
       return Response.ok(jsonEncode(updatedEquipmentType.toJson()), headers: {'Content-Type': 'application/json'});
-    } catch (e) {
-      return Response.internalServerError(body: '{"error": "Error updating equipment type: $e"}');
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -117,9 +116,8 @@ class EquipmentTypeController {
       await _db.equipmentTypes.archive(id, reason, userId);
 
       return Response.ok('{"status": "success"}');
-    } catch (e) {
-      return Response.internalServerError(
-          body: '{"error": "Error archiving equipment type: $e"}');
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -127,9 +125,8 @@ class EquipmentTypeController {
     try {
       await _db.equipmentTypes.unarchive(id);
       return Response.ok('{"status": "success"}');
-    } catch (e) {
-      return Response.internalServerError(
-          body: '{"error": "Error unarchiving equipment type: $e"}');
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 }

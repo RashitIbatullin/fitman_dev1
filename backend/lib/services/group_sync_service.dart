@@ -1,6 +1,7 @@
 import 'package:postgres/postgres.dart';
 import '../config/database.dart';
 import 'package:fitman_common/modules/groups/group_condition.model.dart';
+import 'package:fitman_backend/logging/app_logger.dart';
 
 class GroupSyncService {
   final Database _db;
@@ -8,11 +9,11 @@ class GroupSyncService {
   GroupSyncService(this._db);
 
   Future<void> syncAnalyticGroups() async {
-    print('Starting analytic group synchronization...');
+    appLog.info('Starting analytic group synchronization...');
     try {
       final autoGroups = await _db.groups.getAllAnalyticGroups();
       for (final group in autoGroups.where((g) => g.isAutoUpdate)) {
-        print('Processing auto-update group: ${group.name} (ID: ${group.id})');
+        appLog.info('Processing auto-update group: ${group.name} (ID: ${group.id})');
         
         final List<String> matchingClientIds = await _findMatchingClients(group.conditions);
         
@@ -23,11 +24,11 @@ class GroupSyncService {
         );
         
         await _db.groups.updateAnalyticGroup(updatedGroup, '00000000-0000-0000-0000-000000000000'); // Assuming system user (ID 0) for updates
-        print('Group ${group.name} updated with ${matchingClientIds.length} members.');
+        appLog.info('Group ${group.name} updated with ${matchingClientIds.length} members.');
       }
-      print('Analytic group synchronization completed.');
+      appLog.info('Analytic group synchronization completed.');
     } catch (e) {
-      print('Error during analytic group synchronization: $e');
+      appLog.error('Error during analytic group synchronization: $e');
     }
   }
 

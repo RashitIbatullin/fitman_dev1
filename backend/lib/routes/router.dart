@@ -45,6 +45,7 @@ import '../modules/equipment/repositories/repair_time_standard_repository.dart';
 import '../modules/equipment/services/repair_time_standard_service.dart';
 import '../modules/employees/controllers/employee_competency_controller.dart';
 import '../controllers/measurements_controller.dart';
+import 'package:fitman_backend/logging/app_logger.dart';
 
 final Database _db = Database();
 
@@ -54,29 +55,52 @@ final _equipmentItemRepository = EquipmentItemRepositoryImpl(_db);
 final _maintenanceRepository = MaintenanceRepositoryImpl(_db);
 final _repairTimeStandardRepository = RepairTimeStandardRepositoryImpl(_db);
 final _competencyRepository = CompetencyRepositoryImpl(_db);
-final _supportStaffRepository = SupportStaffRepositoryImpl(_db, _competencyRepository);
+final _supportStaffRepository = SupportStaffRepositoryImpl(
+  _db,
+  _competencyRepository,
+);
 
 // Services
-final _equipmentService = EquipmentServiceImpl(_equipmentTypeRepository, _equipmentItemRepository);
+final _equipmentService = EquipmentServiceImpl(
+  _equipmentTypeRepository,
+  _equipmentItemRepository,
+);
 final _maintenanceService = MaintenanceService(_maintenanceRepository);
-final _repairTimeStandardService = RepairTimeStandardService(_repairTimeStandardRepository);
-final _supportStaffService = SupportStaffService(_supportStaffRepository, _competencyRepository);
-final _employeeCompetencyService = EmployeeCompetencyService(_competencyRepository);
+final _repairTimeStandardService = RepairTimeStandardService(
+  _repairTimeStandardRepository,
+);
+final _supportStaffService = SupportStaffService(
+  _supportStaffRepository,
+  _competencyRepository,
+);
+final _employeeCompetencyService = EmployeeCompetencyService(
+  _competencyRepository,
+);
 
 // Controllers
 final _supportStaffController = SupportStaffController(_supportStaffService);
-final _employeeCompetencyController = EmployeeCompetencyController(_employeeCompetencyService);
+final _employeeCompetencyController = EmployeeCompetencyController(
+  _employeeCompetencyService,
+);
 final _trainingGroupsController = TrainingGroupsController(_db);
 final _analyticGroupsController = AnalyticGroupsController(_db);
 final _groupScheduleController = GroupScheduleController(_db);
 final _trainingGroupTypesController = TrainingGroupTypesController(_db);
 final _roomController = RoomController();
+final _usersController = UsersController();
 final _equipmentItemController = EquipmentItemController(_db);
-final _equipmentTypeController = EquipmentTypeController(_db, _equipmentService);
+final _equipmentTypeController = EquipmentTypeController(
+  _db,
+  _equipmentService,
+);
 final _maintenanceController = MaintenanceController(_maintenanceService);
-final _repairTimeStandardController = RepairTimeStandardController(_repairTimeStandardService);
+final _repairTimeStandardController = RepairTimeStandardController(
+  _repairTimeStandardService,
+);
 final _buildingController = BuildingController(_db);
-final _roomScheduleController = RoomScheduleController(RoomProviders().roomScheduleService);
+final _roomScheduleController = RoomScheduleController(
+  RoomProviders().roomScheduleService,
+);
 
 Handler _protectedHandler(Handler handler) {
   return requireAuth()(handler);
@@ -86,8 +110,11 @@ Middleware _requireTrainerOrAdmin() {
   return (Handler innerHandler) {
     return (Request request) {
       final user = request.context['user'] as User?;
-      if (user == null || !user.roles.any((r) => r.name == 'trainer' || r.name == 'admin')) {
-        return Response.forbidden('{"error": "Trainer or Admin access required"}');
+      if (user == null ||
+          !user.roles.any((r) => r.name == 'trainer' || r.name == 'admin')) {
+        return Response.forbidden(
+          '{"error": "Trainer or Admin access required"}',
+        );
       }
       return innerHandler(request);
     };
@@ -98,8 +125,11 @@ Middleware _requireManagerOrAdmin() {
   return (Handler innerHandler) {
     return (Request request) {
       final user = request.context['user'] as User?;
-      if (user == null || !user.roles.any((r) => r.name == 'manager' || r.name == 'admin')) {
-        return Response.forbidden('{"error": "Manager or Admin access required"}');
+      if (user == null ||
+          !user.roles.any((r) => r.name == 'manager' || r.name == 'admin')) {
+        return Response.forbidden(
+          '{"error": "Manager or Admin access required"}',
+        );
       }
       return innerHandler(request);
     };
@@ -107,10 +137,14 @@ Middleware _requireManagerOrAdmin() {
 }
 
 Handler _adminHandler(Handler handler) {
-  return requireAuth()(requireRole('admin')((Request request) {
-    print('ADMIN_HANDLER: Received request for ${request.method} ${request.url}');
-    return handler(request);
-  }));
+  return requireAuth()(
+    requireRole('admin')((Request request) {
+      appLog.debug(
+        'ADMIN_HANDLER: Received request for ${request.method} ${request.url}',
+      );
+      return handler(request);
+    }),
+  );
 }
 
 Handler _trainerHandler(Handler handler) {
@@ -125,8 +159,11 @@ Middleware _requireInstructorOrAdmin() {
   return (Handler innerHandler) {
     return (Request request) {
       final user = request.context['user'] as User?;
-      if (user == null || !user.roles.any((r) => r.name == 'instructor' || r.name == 'admin')) {
-        return Response.forbidden('{"error": "Instructor or Admin access required"}');
+      if (user == null ||
+          !user.roles.any((r) => r.name == 'instructor' || r.name == 'admin')) {
+        return Response.forbidden(
+          '{"error": "Instructor or Admin access required"}',
+        );
       }
       return innerHandler(request);
     };
@@ -141,8 +178,17 @@ Middleware _requireAnyEmployeeRoleOrAdmin() {
   return (Handler innerHandler) {
     return (Request request) {
       final user = request.context['user'] as User?;
-      if (user == null || !user.roles.any((r) => r.name == 'admin' || r.name == 'manager' || r.name == 'trainer' || r.name == 'instructor')) {
-        return Response.forbidden('{"error": "Admin, Manager, Trainer or Instructor access required"}');
+      if (user == null ||
+          !user.roles.any(
+            (r) =>
+                r.name == 'admin' ||
+                r.name == 'manager' ||
+                r.name == 'trainer' ||
+                r.name == 'instructor',
+          )) {
+        return Response.forbidden(
+          '{"error": "Admin, Manager, Trainer or Instructor access required"}',
+        );
       }
       return innerHandler(request);
     };
@@ -154,135 +200,527 @@ Handler _employeeRolesOrAdminHandler(Handler handler) {
 }
 
 final Router router = Router()
-// Public routes
-  ..get('/api/health', (_) => Response.ok('{"status": "OK", "message": "FitMan Dart API MVP1"}'))
+  // Public routes
+  ..get(
+    '/api/health',
+    (_) => Response.ok('{"status": "OK", "message": "FitMan Dart API MVP1"}'),
+  )
   ..post('/api/auth/login', AuthController.login)
   ..post('/api/auth/register', AuthController.register)
-
-// Protected routes - общие
-  ..get('/api/auth/check', (Request request) => _protectedHandler(AuthController.checkAuth)(request))
-  ..get('/api/profile', (Request request) => _protectedHandler(UsersController.getProfile)(request))
-  ..get('/api/catalogs/goals-training', (Request request) => _protectedHandler(CatalogsController.getGoalsTraining)(request))
-  ..get('/api/catalogs/levels-training', (Request request) => _protectedHandler(CatalogsController.getLevelsTraining)(request))
-  ..mount('/api/training_group_types', (Request request) => _protectedHandler(_trainingGroupTypesController.router.call)(request))
-
-// User management routes (только для админа)
-  ..get('/api/users', (Request request) => _employeeRolesOrAdminHandler(UsersController.getUsers)(request))
-  ..post('/api/users', (Request request) => _adminHandler(UsersController.createUser)(request))
-  ..get('/api/users/<id>', (Request request, String id) => _protectedHandler((Request req) => UsersController.getUserById(req, id))(request))
-  ..put('/api/users/<id>', (Request request, String id) => _protectedHandler((Request req) => UsersController.updateUser(req, id))(request))
-  ..delete('/api/users/<id>', (Request request, String id) => _adminHandler((Request req) => UsersController.deleteUser(req, id))(request))
-  ..get('/api/users/<id>/roles', (Request request, String id) => _adminHandler((Request req) => UsersController.getUserRoles(req, id))(request))
-  ..put('/api/users/<id>/roles', (Request request, String id) => requireAuth()(requireRole('admin')((Request req) => UsersController.updateUserRoles(req, id)))(request))
-  ..post('/api/users/<id>/avatar', (Request request, String id) => _protectedHandler((Request req) => UsersController.uploadAvatar(req, id))(request))
-  ..post('/api/users/reset-password', (Request request) => _adminHandler(UsersController.resetPassword)(request))
-  ..get('/api/roles', (Request request) => _adminHandler(UsersController.getRoles)(request))
-
-// Employee Competency routes (только для админа)
-  ..get('/api/employees/<userId>/competencies', (Request request, String userId) {
-    return _adminHandler((Request req) => _employeeCompetencyController.getCompetencies(req, userId))(request);
-  })
-  ..post('/api/employees/<userId>/competencies', (Request request, String userId) {
-    return _adminHandler((Request req) => _employeeCompetencyController.addCompetency(req, userId))(request);
-  })
-  ..delete('/api/employees/<userId>/competencies/<compId>', (Request request, String userId, String compId) {
-    return _adminHandler((Request req) => _employeeCompetencyController.deleteCompetency(req, userId, compId))(request);
-  })
-
-// Training routes
-  ..get('/api/training/plans', (Request request) => _protectedHandler(TrainingController.getTrainingPlans)(request))
-  ..get('/api/training/exercises', (Request request) => _protectedHandler(TrainingController.getExercises)(request))
-
-// Schedule routes
-  ..get('/api/schedule', (Request request) => _protectedHandler(ScheduleController.getSchedule)(request))
-  ..post('/api/schedule', (Request request) => _trainerHandler(ScheduleController.createSchedule)(request))
-
-// Manager routes
-  ..get('/api/manager/clients', (Request request) => _managerHandler(ManagerController.getAssignedClients)(request))
-  ..get('/api/manager/instructors', (Request request) => _managerHandler(ManagerController.getAssignedInstructors)(request))
-  ..get('/api/manager/trainers', (Request request) => _managerHandler(ManagerController.getAssignedTrainers)(request))
-  ..post('/api/managers/<id>/clients', (Request request, String id) => _adminHandler((Request req) => ManagerController.assignClients(req, id))(request))
-  ..get('/api/managers/<id>/clients/ids', (Request request, String id) => _adminHandler((Request req) => ManagerController.getAssignedClientIds(req, id))(request))
-  ..post('/api/managers/<id>/instructors', (Request request, String id) => _adminHandler((Request req) => ManagerController.assignInstructors(req, id))(request))
-  ..get('/api/managers/<id>/instructors/ids', (Request request, String id) => _adminHandler((Request req) => ManagerController.getAssignedInstructorIds(req, id))(request))
-  ..post('/api/managers/<id>/trainers', (Request request, String id) => _adminHandler((Request req) => ManagerController.assignTrainers(req, id))(request))
-  ..get('/api/managers/<id>/trainers/ids', (Request request, String id) => _adminHandler((Request req) => ManagerController.getAssignedTrainerIds(req, id))(request))
-
-  // Routes for admins to get data for a specific manager
-  ..get('/api/managers/<id>/clients', (Request request, String id) => _adminHandler((Request req) => ManagerController.getAssignedClientsForManager(req, id))(request))
-  ..get('/api/managers/<id>/instructors', (Request request, String id) => _adminHandler((Request req) => ManagerController.getAssignedInstructorsForManager(req, id))(request))
-  ..get('/api/managers/<id>/trainers', (Request request, String id) => _adminHandler((Request req) => ManagerController.getAssignedTrainersForManager(req, id))(request))
-
-// Instructor routes
-  ..get('/api/instructor/clients', (Request request) => _instructorHandler(InstructorController.getAssignedClients)(request))
-  ..get('/api/instructor/trainers', (Request request) => _instructorHandler(InstructorController.getAssignedTrainers)(request))
-  ..get('/api/instructor/manager', (Request request) => _instructorHandler(InstructorController.getAssignedManager)(request))
-
-  // Routes for admins to get data for a specific instructor
-  ..get('/api/instructors/<id>/clients', (Request request, String id) => _adminHandler((Request req) => InstructorController.getAssignedClientsForInstructor(req, id))(request))
-  ..get('/api/instructors/<id>/trainers', (Request request, String id) => _adminHandler((Request req) => InstructorController.getAssignedTrainersForInstructor(req, id))(request))
-  ..get('/api/instructors/<id>/manager', (Request request, String id) => _adminHandler((Request req) => InstructorController.getAssignedManagerForInstructor(req, id))(request))
-
-// Dashboard routes
+  // Protected routes - общие
   ..get(
-        '/api/dashboard/client/<userId>',
-        (Request request, String userId) => _protectedHandler(
-            (Request req) =>
-                DashboardController.getClientDashboardData(req, userId))(request))
-
-// Client routes
-  ..put('/api/client/profile', (Request request) => _protectedHandler(UsersController.updateClientProfile)(request))
-  ..get('/api/client/trainer', (Request request) => _protectedHandler(UsersController.getTrainerForClient)(request))
-  ..get('/api/client/instructor', (Request request) => _protectedHandler(UsersController.getInstructorForClient)(request))
-  ..get('/api/client/manager', (Request request) => _protectedHandler(UsersController.getManagerForClient)(request))
-  ..get('/api/client/anthropometry', (Request request) => _protectedHandler(AnthropometryController.getAnthropometry)(request))
-  ..post('/api/client/anthropometry', (Request request) => _protectedHandler(AnthropometryController.saveAnthropometry)(request))
-  ..get('/api/client/anthropometry/fixed', (Request request) => _protectedHandler(AnthropometryController.getFixedAnthropometry)(request))
-  ..post('/api/client/anthropometry/fixed', (Request request) => _protectedHandler(AnthropometryController.saveFixedAnthropometry)(request))
-  ..post('/api/client/anthropometry/photo', (Request request) => _protectedHandler(AnthropometryController.uploadPhoto)(request))
-  ..get('/api/client/anthropometry/somatotype', (Request request) => _protectedHandler(AnthropometryController.getSomatotype)(request))
-  ..get('/api/client/anthropometry/whtr-profiles', (Request request) => _protectedHandler(AnthropometryController.getWhtrProfiles)(request))
-  ..get('/api/client/anthropometry/measurements/<id>/whtr', (Request request, String id) => _protectedHandler((Request req) => AnthropometryController.getWhtrForMeasurement(req, id))(request))
-  ..get('/api/client/calorie-tracking', (Request request) => _protectedHandler(CalorieTrackingController.getCalorieTrackingDataForClient)(request))
-  ..get('/api/client/progress', (Request request) => _protectedHandler(ProgressController.getProgressDataForClient)(request))
-  ..get('/api/recommendations/<id>', (Request request, String id) => _protectedHandler((Request req) => RecommendationsController.getRecommendation(req, id))(request))
-  ..get('/api/clients/<userId>/measurements/<measurementId>/metabolic-rate', (Request request, String userId, String measurementId) => _protectedHandler((Request req) => RecommendationsController.getMetabolicRate(req, userId, measurementId))(request))
-  ..get('/api/client/preferences', (Request request) => _protectedHandler(ClientPreferenceController.getClientPreferences)(request))
-  ..post('/api/client/preferences', (Request request) => _protectedHandler(ClientPreferenceController.saveClientPreferences)(request))
-
-// Admin routes for client anthropometry
-  ..get('/api/admin/clients/<id>/anthropometry', (Request request, String id) => _adminHandler((Request req) => AnthropometryController.getAnthropometry(req, id))(request))
-  ..post('/api/admin/clients/<id>/anthropometry', (Request request, String id) => _adminHandler((Request req) => AnthropometryController.saveAnthropometry(req, id))(request))
-  ..get('/api/admin/clients/<id>/anthropometry/fixed', (Request request, String id) => _adminHandler((Request req) => AnthropometryController.getFixedAnthropometry(req, id))(request))
-  ..post('/api/admin/clients/<id>/anthropometry/fixed', (Request request, String id) => _adminHandler((Request req) => AnthropometryController.saveFixedAnthropometry(req, id))(request))
-  ..get('/api/admin/clients/<id>/anthropometry/somatotype', (Request request, String id) => _adminHandler((Request req) => AnthropometryController.getSomatotype(req, id))(request))
-  ..get('/api/admin/clients/<id>/anthropometry/whtr-profiles', (Request request, String id) => _adminHandler((Request req) => AnthropometryController.getWhtrProfiles(req, id))(request))
-  ..post('/api/admin/clients/<id>/anthropometry/<measurementId>/archive', (Request request, String id, String measurementId) => _adminHandler((Request req) => AnthropometryController.archiveAnthropometryMeasurement(req, id, measurementId))(request))
-  ..put('/api/admin/clients/<id>/anthropometry/<measurementId>/unarchive', (Request request, String id, String measurementId) => _adminHandler((Request req) => AnthropometryController.unarchiveAnthropometryMeasurement(req, id, measurementId))(request))
-  ..get('/api/admin/clients/<id>/measurements/<measurementId>/whtr', (Request request, String id, String measurementId) => _adminHandler((Request req) => AnthropometryController.getWhtrForMeasurement(req, measurementId))(request))
-
-
-// Work Schedule routes
-  ..get('/api/work-schedules', (Request request) => _protectedHandler(WorkScheduleController.getWorkSchedules)(request))
-  ..post('/api/work-schedules', (Request request) => _adminHandler(WorkScheduleController.createWorkSchedule)(request))
-  ..put('/api/work-schedules', (Request request) => _adminHandler(WorkScheduleController.updateWorkSchedule)(request))
-  ..delete('/api/work-schedules', (Request request) => _adminHandler(WorkScheduleController.deleteWorkSchedule)(request))
-
-// Chat routes
-  ..get('/api/chats', (Request request) => _protectedHandler(ChatHttpController.getChats)(request))
-  ..get('/api/chats/<id>/messages', (Request request, String id) => _protectedHandler((Request req) => ChatHttpController.getMessages(req, id))(request))
-  ..post('/api/chats/private', (Request request) => _protectedHandler(ChatHttpController.createOrGetPrivateChat)(request))
-  ..post('/api/chat', (Request request) => _protectedHandler((Request req) => ChatHttpController.createGroupChat(req))(request)) // New route for group chat
-  ..get('/api/chat/ws', (Request request) => _protectedHandler(ChatWsController.handler)(request))
-
-// Training Groups routes (Admin access)
-  ..mount('/api/training_groups', _employeeRolesOrAdminHandler(_trainingGroupsController.router.call))
-// Analytic Groups routes (Admin access)
-  ..mount('/api/analytic_groups', _adminHandler(_analyticGroupsController.router.call))
-// Group Schedule routes (Admin access)
-  ..mount('/api/group_schedules', _adminHandler(_groupScheduleController.router.call))
-
-// Infrastructure routes
+    '/api/auth/check',
+    (Request request) => _protectedHandler(AuthController.checkAuth)(request),
+  )
+  ..get(
+    '/api/profile',
+    (Request request) =>
+        _protectedHandler(_usersController.getProfile)(request),
+  )
+  ..get(
+    '/api/profile/settings',
+    (Request request) =>
+        _protectedHandler(_usersController.getMySettings)(request),
+  )
+  ..put(
+    '/api/profile/settings',
+    (Request request) =>
+        _protectedHandler(_usersController.updateMySettings)(request),
+  )
+  ..get(
+    '/api/catalogs/goals-training',
+    (Request request) =>
+        _protectedHandler(CatalogsController.getGoalsTraining)(request),
+  )
+  ..get(
+    '/api/catalogs/levels-training',
+    (Request request) =>
+        _protectedHandler(CatalogsController.getLevelsTraining)(request),
+  )
+  ..mount(
+    '/api/training_group_types',
+    (Request request) =>
+        _protectedHandler(_trainingGroupTypesController.router.call)(request),
+  )
+  // User management routes (только для админа)
+  ..get(
+    '/api/users',
+    (Request request) =>
+        _employeeRolesOrAdminHandler(_usersController.getUsers)(request),
+  )
+  ..post(
+    '/api/users',
+    (Request request) => _adminHandler(_usersController.createUser)(request),
+  )
+  ..get(
+    '/api/users/<id>',
+    (Request request, String id) => _protectedHandler(
+      (Request req) => _usersController.getUserById(req, id),
+    )(request),
+  )
+  ..put(
+    '/api/users/<id>',
+    (Request request, String id) => _protectedHandler(
+      (Request req) => _usersController.updateUser(req, id),
+    )(request),
+  )
+  ..delete(
+    '/api/users/<id>',
+    (Request request, String id) => _adminHandler(
+      (Request req) => _usersController.deleteUser(req, id),
+    )(request),
+  )
+  ..post(
+    '/api/users/<id>/restore',
+    (Request request, String id) => _adminHandler(
+      (Request req) => _usersController.restoreUser(req, id),
+    )(request),
+  )
+  ..get(
+    '/api/users/<id>/roles',
+    (Request request, String id) => _adminHandler(
+      (Request req) => _usersController.getUserRoles(req, id),
+    )(request),
+  )
+  ..put(
+    '/api/users/<id>/roles',
+    (Request request, String id) => requireAuth()(
+      requireRole('admin')(
+        (Request req) => _usersController.updateUserRoles(req, id),
+      ),
+    )(request),
+  )
+  ..get(
+    '/api/users/<id>/settings',
+    (Request request, String id) => _adminHandler(
+      (Request req) => _usersController.getUserSettings(req, id),
+    )(request),
+  )
+  ..put(
+    '/api/users/<id>/settings',
+    (Request request, String id) => _adminHandler(
+      (Request req) => _usersController.updateUserSettings(req, id),
+    )(request),
+  )
+  ..post(
+    '/api/users/<id>/avatar',
+    (Request request, String id) => _protectedHandler(
+      (Request req) => _usersController.uploadAvatar(req, id),
+    )(request),
+  )
+  ..post(
+    '/api/users/<id>/reset-password',
+    (Request request, String id) => _adminHandler(
+      (Request req) => _usersController.resetPasswordForUser(req, id),
+    )(request),
+  )
+  ..post(
+    '/api/users/reset-password',
+    (Request request) => _adminHandler(_usersController.resetPassword)(request),
+  )
+  ..get(
+    '/api/roles',
+    (Request request) => _adminHandler(_usersController.getRoles)(request),
+  )
+  // Employee Competency routes (только для админа)
+  ..get('/api/employees/<userId>/competencies', (
+    Request request,
+    String userId,
+  ) {
+    return _adminHandler(
+      (Request req) =>
+          _employeeCompetencyController.getCompetencies(req, userId),
+    )(request);
+  })
+  ..post('/api/employees/<userId>/competencies', (
+    Request request,
+    String userId,
+  ) {
+    return _adminHandler(
+      (Request req) => _employeeCompetencyController.addCompetency(req, userId),
+    )(request);
+  })
+  ..delete('/api/employees/<userId>/competencies/<compId>', (
+    Request request,
+    String userId,
+    String compId,
+  ) {
+    return _adminHandler(
+      (Request req) =>
+          _employeeCompetencyController.deleteCompetency(req, userId, compId),
+    )(request);
+  })
+  // Training routes
+  ..get(
+    '/api/training/plans',
+    (Request request) =>
+        _protectedHandler(TrainingController.getTrainingPlans)(request),
+  )
+  ..get(
+    '/api/training/exercises',
+    (Request request) =>
+        _protectedHandler(TrainingController.getExercises)(request),
+  )
+  // Schedule routes
+  ..get(
+    '/api/schedule',
+    (Request request) =>
+        _protectedHandler(ScheduleController.getSchedule)(request),
+  )
+  ..post(
+    '/api/schedule',
+    (Request request) =>
+        _trainerHandler(ScheduleController.createSchedule)(request),
+  )
+  // Manager routes
+  ..get(
+    '/api/manager/clients',
+    (Request request) =>
+        _managerHandler(ManagerController.getAssignedClients)(request),
+  )
+  ..get(
+    '/api/manager/instructors',
+    (Request request) =>
+        _managerHandler(ManagerController.getAssignedInstructors)(request),
+  )
+  ..get(
+    '/api/manager/trainers',
+    (Request request) =>
+        _managerHandler(ManagerController.getAssignedTrainers)(request),
+  )
+  ..post(
+    '/api/managers/<id>/clients',
+    (Request request, String id) => _adminHandler(
+      (Request req) => ManagerController.assignClients(req, id),
+    )(request),
+  )
+  ..get(
+    '/api/managers/<id>/clients/ids',
+    (Request request, String id) => _adminHandler(
+      (Request req) => ManagerController.getAssignedClientIds(req, id),
+    )(request),
+  )
+  ..post(
+    '/api/managers/<id>/instructors',
+    (Request request, String id) => _adminHandler(
+      (Request req) => ManagerController.assignInstructors(req, id),
+    )(request),
+  )
+  ..get(
+    '/api/managers/<id>/instructors/ids',
+    (Request request, String id) => _adminHandler(
+      (Request req) => ManagerController.getAssignedInstructorIds(req, id),
+    )(request),
+  )
+  ..post(
+    '/api/managers/<id>/trainers',
+    (Request request, String id) => _adminHandler(
+      (Request req) => ManagerController.assignTrainers(req, id),
+    )(request),
+  )
+  ..get(
+    '/api/managers/<id>/trainers/ids',
+    (Request request, String id) => _adminHandler(
+      (Request req) => ManagerController.getAssignedTrainerIds(req, id),
+    )(request),
+  )
+  // Routes for admins to get data for a specific manager
+  ..get(
+    '/api/managers/<id>/clients',
+    (Request request, String id) => _adminHandler(
+      (Request req) => ManagerController.getAssignedClientsForManager(req, id),
+    )(request),
+  )
+  ..get(
+    '/api/managers/<id>/instructors',
+    (Request request, String id) => _adminHandler(
+      (Request req) =>
+          ManagerController.getAssignedInstructorsForManager(req, id),
+    )(request),
+  )
+  ..get(
+    '/api/managers/<id>/trainers',
+    (Request request, String id) => _adminHandler(
+      (Request req) => ManagerController.getAssignedTrainersForManager(req, id),
+    )(request),
+  )
+  // Instructor routes
+  ..get(
+    '/api/instructor/clients',
+    (Request request) =>
+        _instructorHandler(InstructorController.getAssignedClients)(request),
+  )
+  ..get(
+    '/api/instructor/trainers',
+    (Request request) =>
+        _instructorHandler(InstructorController.getAssignedTrainers)(request),
+  )
+  ..get(
+    '/api/instructor/manager',
+    (Request request) =>
+        _instructorHandler(InstructorController.getAssignedManager)(request),
+  )
+  // Routes for admins to get data for a specific instructor
+  ..get(
+    '/api/instructors/<id>/clients',
+    (Request request, String id) => _adminHandler(
+      (Request req) =>
+          InstructorController.getAssignedClientsForInstructor(req, id),
+    )(request),
+  )
+  ..get(
+    '/api/instructors/<id>/trainers',
+    (Request request, String id) => _adminHandler(
+      (Request req) =>
+          InstructorController.getAssignedTrainersForInstructor(req, id),
+    )(request),
+  )
+  ..get(
+    '/api/instructors/<id>/manager',
+    (Request request, String id) => _adminHandler(
+      (Request req) =>
+          InstructorController.getAssignedManagerForInstructor(req, id),
+    )(request),
+  )
+  // Dashboard routes
+  ..get(
+    '/api/dashboard/client/<userId>',
+    (Request request, String userId) => _protectedHandler(
+      (Request req) => DashboardController.getClientDashboardData(req, userId),
+    )(request),
+  )
+  // Client routes
+  ..put(
+    '/api/client/profile',
+    (Request request) =>
+        _protectedHandler(_usersController.updateClientProfile)(request),
+  )
+  ..get(
+    '/api/client/trainer',
+    (Request request) =>
+        _protectedHandler(_usersController.getTrainerForClient)(request),
+  )
+  ..get(
+    '/api/client/instructor',
+    (Request request) =>
+        _protectedHandler(_usersController.getInstructorForClient)(request),
+  )
+  ..get(
+    '/api/client/manager',
+    (Request request) =>
+        _protectedHandler(_usersController.getManagerForClient)(request),
+  )
+  ..get(
+    '/api/client/anthropometry',
+    (Request request) =>
+        _protectedHandler(AnthropometryController.getAnthropometry)(request),
+  )
+  ..post(
+    '/api/client/anthropometry',
+    (Request request) =>
+        _protectedHandler(AnthropometryController.saveAnthropometry)(request),
+  )
+  ..get(
+    '/api/client/anthropometry/fixed',
+    (Request request) => _protectedHandler(
+      AnthropometryController.getFixedAnthropometry,
+    )(request),
+  )
+  ..post(
+    '/api/client/anthropometry/fixed',
+    (Request request) => _protectedHandler(
+      AnthropometryController.saveFixedAnthropometry,
+    )(request),
+  )
+  ..post(
+    '/api/client/anthropometry/photo',
+    (Request request) =>
+        _protectedHandler(AnthropometryController.uploadPhoto)(request),
+  )
+  ..get(
+    '/api/client/anthropometry/somatotype',
+    (Request request) =>
+        _protectedHandler(AnthropometryController.getSomatotype)(request),
+  )
+  ..get(
+    '/api/client/anthropometry/whtr-profiles',
+    (Request request) =>
+        _protectedHandler(AnthropometryController.getWhtrProfiles)(request),
+  )
+  ..get(
+    '/api/client/anthropometry/measurements/<id>/whtr',
+    (Request request, String id) => _protectedHandler(
+      (Request req) => AnthropometryController.getWhtrForMeasurement(req, id),
+    )(request),
+  )
+  ..get(
+    '/api/client/calorie-tracking',
+    (Request request) => _protectedHandler(
+      CalorieTrackingController.getCalorieTrackingDataForClient,
+    )(request),
+  )
+  ..get(
+    '/api/client/progress',
+    (Request request) =>
+        _protectedHandler(ProgressController.getProgressDataForClient)(request),
+  )
+  ..get(
+    '/api/recommendations/<id>',
+    (Request request, String id) => _protectedHandler(
+      (Request req) => RecommendationsController.getRecommendation(req, id),
+    )(request),
+  )
+  ..get(
+    '/api/clients/<userId>/measurements/<measurementId>/metabolic-rate',
+    (Request request, String userId, String measurementId) => _protectedHandler(
+      (Request req) => RecommendationsController.getMetabolicRate(
+        req,
+        userId,
+        measurementId,
+      ),
+    )(request),
+  )
+  ..get(
+    '/api/client/preferences',
+    (Request request) => _protectedHandler(
+      ClientPreferenceController.getClientPreferences,
+    )(request),
+  )
+  ..post(
+    '/api/client/preferences',
+    (Request request) => _protectedHandler(
+      ClientPreferenceController.saveClientPreferences,
+    )(request),
+  )
+  // Admin routes for client anthropometry
+  ..get(
+    '/api/admin/clients/<id>/anthropometry',
+    (Request request, String id) => _adminHandler(
+      (Request req) => AnthropometryController.getAnthropometry(req, id),
+    )(request),
+  )
+  ..post(
+    '/api/admin/clients/<id>/anthropometry',
+    (Request request, String id) => _adminHandler(
+      (Request req) => AnthropometryController.saveAnthropometry(req, id),
+    )(request),
+  )
+  ..get(
+    '/api/admin/clients/<id>/anthropometry/fixed',
+    (Request request, String id) => _adminHandler(
+      (Request req) => AnthropometryController.getFixedAnthropometry(req, id),
+    )(request),
+  )
+  ..post(
+    '/api/admin/clients/<id>/anthropometry/fixed',
+    (Request request, String id) => _adminHandler(
+      (Request req) => AnthropometryController.saveFixedAnthropometry(req, id),
+    )(request),
+  )
+  ..get(
+    '/api/admin/clients/<id>/anthropometry/somatotype',
+    (Request request, String id) => _adminHandler(
+      (Request req) => AnthropometryController.getSomatotype(req, id),
+    )(request),
+  )
+  ..get(
+    '/api/admin/clients/<id>/anthropometry/whtr-profiles',
+    (Request request, String id) => _adminHandler(
+      (Request req) => AnthropometryController.getWhtrProfiles(req, id),
+    )(request),
+  )
+  ..post(
+    '/api/admin/clients/<id>/anthropometry/<measurementId>/archive',
+    (Request request, String id, String measurementId) => _adminHandler(
+      (Request req) => AnthropometryController.archiveAnthropometryMeasurement(
+        req,
+        id,
+        measurementId,
+      ),
+    )(request),
+  )
+  ..put(
+    '/api/admin/clients/<id>/anthropometry/<measurementId>/unarchive',
+    (Request request, String id, String measurementId) => _adminHandler(
+      (Request req) =>
+          AnthropometryController.unarchiveAnthropometryMeasurement(
+            req,
+            id,
+            measurementId,
+          ),
+    )(request),
+  )
+  ..get(
+    '/api/admin/clients/<id>/measurements/<measurementId>/whtr',
+    (Request request, String id, String measurementId) => _adminHandler(
+      (Request req) =>
+          AnthropometryController.getWhtrForMeasurement(req, measurementId),
+    )(request),
+  )
+  // Work Schedule routes
+  ..get(
+    '/api/work-schedules',
+    (Request request) =>
+        _protectedHandler(WorkScheduleController.getWorkSchedules)(request),
+  )
+  ..post(
+    '/api/work-schedules',
+    (Request request) =>
+        _adminHandler(WorkScheduleController.createWorkSchedule)(request),
+  )
+  ..put(
+    '/api/work-schedules',
+    (Request request) =>
+        _adminHandler(WorkScheduleController.updateWorkSchedule)(request),
+  )
+  ..delete(
+    '/api/work-schedules',
+    (Request request) =>
+        _adminHandler(WorkScheduleController.deleteWorkSchedule)(request),
+  )
+  // Chat routes
+  ..get(
+    '/api/chats',
+    (Request request) =>
+        _protectedHandler(ChatHttpController.getChats)(request),
+  )
+  ..get(
+    '/api/chats/<id>/messages',
+    (Request request, String id) => _protectedHandler(
+      (Request req) => ChatHttpController.getMessages(req, id),
+    )(request),
+  )
+  ..post(
+    '/api/chats/private',
+    (Request request) =>
+        _protectedHandler(ChatHttpController.createOrGetPrivateChat)(request),
+  )
+  ..post(
+    '/api/chat',
+    (Request request) => _protectedHandler(
+      (Request req) => ChatHttpController.createGroupChat(req),
+    )(request),
+  ) // New route for group chat
+  ..get(
+    '/api/chat/ws',
+    (Request request) => _protectedHandler(ChatWsController.handler)(request),
+  )
+  // Training Groups routes (Admin access)
+  ..mount(
+    '/api/training_groups',
+    _employeeRolesOrAdminHandler(_trainingGroupsController.router.call),
+  )
+  // Analytic Groups routes (Admin access)
+  ..mount(
+    '/api/analytic_groups',
+    _adminHandler(_analyticGroupsController.router.call),
+  )
+  // Group Schedule routes (Admin access)
+  ..mount(
+    '/api/group_schedules',
+    _adminHandler(_groupScheduleController.router.call),
+  )
+  // Infrastructure routes
   ..mount('/api/rooms', (Request request) {
     final router = Router();
     router.mount('/', _roomController.router.call);
@@ -294,33 +732,66 @@ final Router router = Router()
     router.mount('/', _equipmentItemController.handler);
     return _adminHandler(router.call)(request);
   })
-  ..mount('/api/equipment/types', _adminHandler(_equipmentTypeController.handler))
-  ..mount('/api/maintenance/standards', _adminHandler(_repairTimeStandardController.router.call))
+  ..mount(
+    '/api/equipment/types',
+    _adminHandler(_equipmentTypeController.handler),
+  )
+  ..mount(
+    '/api/maintenance/standards',
+    _adminHandler(_repairTimeStandardController.router.call),
+  )
   ..mount('/api/maintenance', _adminHandler(_maintenanceController.handler))
   ..mount('/api/buildings', _adminHandler(_buildingController.router.call))
-
-// Support Staff routes (Admin access)
+  // Support Staff routes (Admin access)
   ..get('/api/support-staff', _adminHandler(_supportStaffController.getAll))
   ..post('/api/support-staff', _adminHandler(_supportStaffController.create))
   ..get('/api/support-staff/<id>', (Request request, String id) {
-    return _adminHandler((Request req) => _supportStaffController.getById(req, id))(request);
+    return _adminHandler(
+      (Request req) => _supportStaffController.getById(req, id),
+    )(request);
   })
   ..put('/api/support-staff/<id>', (Request request, String id) {
-    return _adminHandler((Request req) => _supportStaffController.update(req, id))(request);
+    return _adminHandler(
+      (Request req) => _supportStaffController.update(req, id),
+    )(request);
   })
   ..delete('/api/support-staff/<id>', (Request request, String id) {
-    return _adminHandler((Request req) => _supportStaffController.archive(req, id))(request);
+    return _adminHandler(
+      (Request req) => _supportStaffController.archive(req, id),
+    )(request);
   })
   ..put('/api/support-staff/<id>/unarchive', (Request request, String id) {
-    return _adminHandler((Request req) => _supportStaffController.unarchive(req, id))(request);
+    return _adminHandler(
+      (Request req) => _supportStaffController.unarchive(req, id),
+    )(request);
   })
-  ..get('/api/support-staff/<staffId>/competencies', (Request request, String staffId) {
-    return _adminHandler((Request req) => _supportStaffController.getCompetencies(req, staffId))(request);
+  ..get('/api/support-staff/<staffId>/competencies', (
+    Request request,
+    String staffId,
+  ) {
+    return _adminHandler(
+      (Request req) => _supportStaffController.getCompetencies(req, staffId),
+    )(request);
   })
-  ..post('/api/support-staff/<staffId>/competencies', (Request request, String staffId) {
-    return _adminHandler((Request req) => _supportStaffController.addCompetency(req, staffId))(request);
+  ..post('/api/support-staff/<staffId>/competencies', (
+    Request request,
+    String staffId,
+  ) {
+    return _adminHandler(
+      (Request req) => _supportStaffController.addCompetency(req, staffId),
+    )(request);
   })
-  ..delete('/api/support-staff/<staffId>/competencies/<compId>', (Request request, String staffId, String compId) {
-    return _adminHandler((Request req) => _supportStaffController.deleteCompetency(req, staffId, compId))(request);
+  ..delete('/api/support-staff/<staffId>/competencies/<compId>', (
+    Request request,
+    String staffId,
+    String compId,
+  ) {
+    return _adminHandler(
+      (Request req) =>
+          _supportStaffController.deleteCompetency(req, staffId, compId),
+    )(request);
   })
-  ..post('/api/measurements/visualize', _protectedHandler(MeasurementsController.getVisualizationData));
+  ..post(
+    '/api/measurements/visualize',
+    _protectedHandler(MeasurementsController.getVisualizationData),
+  );

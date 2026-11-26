@@ -1,12 +1,20 @@
 import 'dart:convert';
-import 'package:shelf/shelf.dart';
+
 import 'package:bcrypt/bcrypt.dart';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
-import '../config/database.dart';
-import '../config/app_config.dart';
+import 'package:fitman_backend/audit/audit_context.dart';
+import 'package:fitman_backend/config/app_config.dart';
+import 'package:fitman_backend/errors/app_exception.dart';
+import 'package:fitman_backend/logging/app_logger.dart';
+import 'package:fitman_backend/middleware/request_context.dart';
+import 'package:fitman_backend/modules/users/services/user_service.dart';
+import 'package:fitman_backend/modules/users/user_providers.dart';
 import 'package:fitman_common/fitman_common.dart';
+import 'package:shelf/shelf.dart';
 
 class AuthController {
+  static UserService get _users => UserProviders().userService;
+
   static Future<Response> login(Request request) async {
     try {
       final body = await request.readAsString();
@@ -15,42 +23,65 @@ class AuthController {
       final phone = data['phone'] as String;
       final password = data['password'] as String;
 
-      print('🔐 Login attempt for: $phone');
-
-      // TODO: Add more robust phone number validation
       if (phone.isEmpty) {
-        return Response(400, body: jsonEncode({'error': 'Phone number cannot be empty'}));
+        throw const ValidationException('Телефон не может быть пустым');
+      }
+      if (password.isEmpty) {
+        throw const UnauthorizedException('Неверные учётные данные');
       }
 
-      final user = await Database().users.getUserByPhone(phone);
+      final user = await _users.getByPhone(phone);
 
       if (user == null) {
-        print('❌ User not found: $phone');
-        return Response(401, body: jsonEncode({'error': 'Invalid credentials'}));
+        appLog.info(
+          'Неудачная попытка входа',
+          fields: {'request_id': RequestContext.requestIdOf(request)},
+        );
+        throw const UnauthorizedException('Неверные учётные данные');
       }
 
-      print('📊 User found: ${user.phone}');
+      if (user.archivedAt != null) {
+        appLog.info(
+          'Попытка входа в архивную учётную запись',
+          fields: {
+            'user_id': user.id,
+            'request_id': RequestContext.requestIdOf(request),
+          },
+        );
+        throw const UnauthorizedException('Учётная запись архивирована');
+      }
 
-      final isValidPassword = BCrypt.checkpw(password, user.passwordHash);
-
-      print('Password valid: $isValidPassword');
-
-      if (!isValidPassword) {
-        print('❌ Invalid password for user: $phone');
-        return Response(401, body: jsonEncode({'error': 'Invalid credentials'}));
+      if (!_isPasswordValid(password, user.passwordHash)) {
+        appLog.info(
+          'Неудачная попытка входа',
+          fields: {
+            'user_id': user.id,
+            'request_id': RequestContext.requestIdOf(request),
+          },
+        );
+        throw const UnauthorizedException('Неверные учётные данные');
       }
 
       final token = _generateJwtToken(user);
-      final response = {
-        'token': token,
-        'user': user.toJson()
-      };
+      final response = {'token': token, 'user': user.toJson()};
 
-      print('✅ Login successful for: $phone');
+      appLog.info(
+        'Вход выполнен',
+        fields: {
+          'user_id': user.id,
+          'role': user.roles.map((role) => role.name).join(','),
+          'request_id': RequestContext.requestIdOf(request),
+        },
+      );
       return Response.ok(jsonEncode(response));
-    } catch (e) {
-      print('💥 Login error: $e');
-      return Response(500, body: jsonEncode({'error': 'Internal server error: $e'}));
+    } on AppException {
+      rethrow;
+    } on FormatException {
+      throw const ValidationException('Некорректный формат запроса');
+    } on TypeError {
+      throw const ValidationException('Некорректный формат запроса');
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -59,59 +90,80 @@ class AuthController {
       final body = await request.readAsString();
       final data = jsonDecode(body) as Map<String, dynamic>;
 
-      final email = data['email'] as String;
-      final password = data['password'] as String;
-      final firstName = data['firstName'] as String;
-      final lastName = data['lastName'] as String;
-      final List<String> roles = (data['roles'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? ['client']; // Changed to list of roles
+      final email = data['email'] as String?;
+      final password = data['password'] as String?;
+      final firstName = data['firstName'] as String?;
+      final lastName = data['lastName'] as String?;
 
-      // Валидация данных
-      if (!AppConfig.isValidEmail(email)) {
-        return Response(400, body: jsonEncode({'error': 'Invalid email format'}));
+      if (email == null ||
+          password == null ||
+          firstName == null ||
+          lastName == null) {
+        throw const ValidationException('Нужны email, пароль, имя и фамилия');
       }
 
-      if (!AppConfig.isValidPassword(password)) {
-        return Response(400, body: jsonEncode({'error': 'Password must be at least ${AppConfig.minPasswordLength} characters'}));
+      // Самостоятельная регистрация из ТЗ — только клиент. Роли сотрудников
+      // назначает администратор.
+      final requestedRoles =
+          (data['roles'] as List<dynamic>?)
+              ?.map((role) => role.toString())
+              .toList() ??
+          const ['client'];
+      if (requestedRoles.any((role) => role != 'client')) {
+        throw const ValidationException(
+          'Самостоятельная регистрация доступна только клиентам',
+        );
       }
 
-      // Validate each role
-      for (final roleName in roles) {
-        if (!AppConfig.isValidRole(roleName)) {
-          return Response(400, body: jsonEncode({'error': 'Invalid role: $roleName. Allowed roles: ${AppConfig.allowedRoles.join(', ')}'}));
-        }
-      }
-
-      final existingUser = await Database().users.getUserByEmail(email);
-      if (existingUser != null) {
-        return Response(400, body: jsonEncode({'error': 'User already exists'}));
-      }
-
-      // ИСПРАВЛЕННАЯ СТРОКА: используем стандартный gensalt() без параметров
-      final passwordHash = BCrypt.hashpw(password, BCrypt.gensalt());
-
-      final newUser = User(
-        id: '',
-        email: email,
-        passwordHash: passwordHash,
-        firstName: firstName,
-        lastName: lastName,
-        roles: [], // Roles will be populated by the database method
-        phone: data['phone'] as String?,
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
+      final createdUser = await _users.createUser(
+        CreateUserInput(
+          email: email,
+          password: password,
+          firstName: firstName,
+          lastName: lastName,
+          roles: const ['client'],
+          phone: data['phone'] as String?,
+          gender: data['gender'] as String?,
+          dateOfBirth: data['dateOfBirth'] == null
+              ? null
+              : DateTime.tryParse(data['dateOfBirth'].toString()),
+        ),
+        audit: AuditContext.fromRequest(request, user: null),
       );
 
-      final createdUser = await Database().users.createUser(newUser, roles); // Pass roles to createUser
       final token = _generateJwtToken(createdUser);
+      final response = {'token': token, 'user': createdUser.toJson()};
 
-      final response = {
-        'token': token,
-        'user': createdUser.toJson()
-      };
-
+      appLog.info(
+        'Пользователь зарегистрирован',
+        fields: {
+          'user_id': createdUser.id,
+          'role': createdUser.roles.map((role) => role.name).join(','),
+          'request_id': RequestContext.requestIdOf(request),
+        },
+      );
       return Response(201, body: jsonEncode(response));
-    } catch (e) {
-      return Response(500, body: jsonEncode({'error': 'Internal server error: $e'}));
+    } on AppException {
+      rethrow;
+    } on FormatException {
+      throw const ValidationException('Некорректный формат запроса');
+    } on TypeError {
+      throw const ValidationException('Некорректный формат запроса');
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
+    }
+  }
+
+  static bool _isPasswordValid(String password, String passwordHash) {
+    // Пустой хеш у импортированных/тестовых записей: вход запрещён,
+    // а не пропускается.
+    if (passwordHash.isEmpty) {
+      return false;
+    }
+    try {
+      return BCrypt.checkpw(password, passwordHash);
+    } catch (_) {
+      return false;
     }
   }
 
@@ -119,10 +171,15 @@ class AuthController {
     final jwt = JWT({
       'userId': user.id,
       'email': user.email,
-      'roles': user.roles.map((r) => r.name).toList(), // Changed to list of role names
+      'roles': user.roles.map((r) => r.name).toList(),
       'firstName': user.firstName,
       'lastName': user.lastName,
-      'exp': (DateTime.now().add(Duration(hours: AppConfig.instance.jwtExpiryHours)).millisecondsSinceEpoch / 1000).round(),
+      'exp':
+          (DateTime.now()
+                      .add(Duration(hours: AppConfig.instance.jwtExpiryHours))
+                      .millisecondsSinceEpoch /
+                  1000)
+              .round(),
     });
 
     return jwt.sign(SecretKey(AppConfig.instance.jwtSecret));
@@ -141,15 +198,16 @@ class AuthController {
     try {
       final user = request.context['user'] as User?;
       if (user == null) {
-        return Response(401, body: jsonEncode({'error': 'Not authenticated'}));
+        throw const UnauthorizedException('Требуется авторизация');
       }
 
-      return Response.ok(jsonEncode({
-        'authenticated': true,
-        'user': user.toJson()
-      }));
-    } catch (e) {
-      return Response(500, body: jsonEncode({'error': 'Internal server error: $e'}));
+      return Response.ok(
+        jsonEncode({'authenticated': true, 'user': user.toJson()}),
+      );
+    } on AppException {
+      rethrow;
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 }

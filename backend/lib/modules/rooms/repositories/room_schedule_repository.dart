@@ -5,7 +5,11 @@ import 'package:postgres/postgres.dart';
 abstract class RoomScheduleRepository {
   Future<List<RoomSchedule>> getSchedulesByRoomId(String roomId);
   Future<void> updateSchedules(String roomId, List<RoomSchedule> schedules);
-  Future<void> createDefaultSchedules(String roomId, {String? createdBy});
+  Future<void> createDefaultSchedules(
+    String roomId, {
+    String? createdBy,
+    Session? session,
+  });
 }
 
 class RoomScheduleRepositoryImpl implements RoomScheduleRepository {
@@ -45,28 +49,45 @@ class RoomScheduleRepositoryImpl implements RoomScheduleRepository {
   }
 
   @override
-  Future<void> createDefaultSchedules(String roomId, {String? createdBy}) async {
+  Future<void> createDefaultSchedules(
+    String roomId, {
+    String? createdBy,
+    Session? session,
+  }) async {
+    if (session != null) {
+      await _insertDefaultSchedules(session, roomId, createdBy);
+      return;
+    }
+
     final conn = await _db.connection;
-    await conn.runTx((session) async {
-      for (var day = 1; day <= 7; day++) {
-        // By default, Saturday (6) and Sunday (7) are not working days
-        final isWorking = day < 6;
-        await session.execute(
-          Sql.named('''
-            INSERT INTO room_schedules (room_id, day_of_week, is_working_day, open_time, close_time, created_by, updated_by)
-            VALUES (@roomId, @day, @isWorking, @openTime, @closeTime, @user, @user)
-          '''),
-          parameters: {
-            'roomId': roomId,
-            'day': day,
-            'isWorking': isWorking,
-            'openTime': isWorking ? '09:00:00' : null,
-            'closeTime': isWorking ? '21:00:00' : null,
-            'user': createdBy,
-          },
-        );
-      }
-    });
+    await conn.runTx(
+      (tx) => _insertDefaultSchedules(tx, roomId, createdBy),
+    );
+  }
+
+  Future<void> _insertDefaultSchedules(
+    Session session,
+    String roomId,
+    String? createdBy,
+  ) async {
+    for (var day = 1; day <= 7; day++) {
+      // By default, Saturday (6) and Sunday (7) are not working days
+      final isWorking = day < 6;
+      await session.execute(
+        Sql.named('''
+          INSERT INTO room_schedules (room_id, day_of_week, is_working_day, open_time, close_time, created_by, updated_by)
+          VALUES (@roomId, @day, @isWorking, @openTime, @closeTime, @user, @user)
+        '''),
+        parameters: {
+          'roomId': roomId,
+          'day': day,
+          'isWorking': isWorking,
+          'openTime': isWorking ? '09:00:00' : null,
+          'closeTime': isWorking ? '21:00:00' : null,
+          'user': createdBy,
+        },
+      );
+    }
   }
 
   @override

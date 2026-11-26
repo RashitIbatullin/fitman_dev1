@@ -7,6 +7,7 @@ import 'package:shelf_router/shelf_router.dart';
 import '../../../config/database.dart';
 import '../repositories/building_repository.dart';
 import '../services/building_service.dart';
+import 'package:fitman_backend/errors/app_exception.dart';
 
 class BuildingController {
   BuildingController(Database db)
@@ -59,11 +60,15 @@ class BuildingController {
         body: jsonEncode(newBuilding.toJson()),
         headers: {'Content-Type': 'application/json'},
       );
-    } on Exception catch (e) {
-      if (e.toString().contains('Building with this name already exists')) {
-        return Response(409, body: '{"error": "Здание с таким названием уже существует"}');
+    } on Exception catch (error, stackTrace) {
+      if (error.toString().contains('Building with this name already exists')) {
+        throw ConflictException(
+          'Здание с таким названием уже существует',
+          cause: error,
+          stackTrace: stackTrace,
+        );
       }
-      return Response.internalServerError(body: '{"error": "$e"}');
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -118,8 +123,8 @@ class BuildingController {
         jsonEncode(updatedBuilding.toJson()),
         headers: {'Content-Type': 'application/json'},
       );
-    } on Exception catch (e) {
-      return Response.internalServerError(body: '{"error": "$e"}');
+    } on Exception catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -133,8 +138,8 @@ class BuildingController {
 
       await _buildingService.deleteBuilding(id, userId);
       return Response(204);
-    } catch (e) {
-      return Response.internalServerError(body: jsonEncode({'error': e.toString()}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 }

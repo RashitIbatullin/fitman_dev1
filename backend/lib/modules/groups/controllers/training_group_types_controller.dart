@@ -3,6 +3,7 @@ import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 import '../../../config/database.dart';
 import 'package:fitman_common/modules/groups/training_group_type.model.dart';
+import 'package:fitman_backend/errors/app_exception.dart';
 
 class TrainingGroupTypesController {
   final Database _db;
@@ -19,8 +20,8 @@ class TrainingGroupTypesController {
     try {
       final List<TrainingGroupType> types = await _db.groups.getAllTrainingGroupTypes();
       return Response.ok(jsonEncode(types.map((t) => t.toJson()).toList()));
-    } catch (e) {
-      return Response.internalServerError(body: jsonEncode({'error': e.toString()}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 }

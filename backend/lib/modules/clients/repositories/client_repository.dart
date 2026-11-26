@@ -3,6 +3,7 @@ import 'package:fitman_common/modules/clients/anthropometry/anthropometry_measur
 import 'package:postgres/postgres.dart';
 
 import '../../../config/database.dart';
+import 'package:fitman_backend/logging/app_logger.dart';
 
 abstract class ClientRepository {
   Future<List<AnthropometryMeasurement>> getAnthropometryMeasurements(
@@ -57,7 +58,7 @@ class ClientRepositoryImpl implements ClientRepository {  ClientRepositoryImpl(t
         },
       );
     } catch (e) {
-      print('❌ archiveAnthropometryMeasurement error: $e');
+      appLog.error('❌ archiveAnthropometryMeasurement error: $e');
       rethrow;
     }
   }
@@ -77,7 +78,7 @@ class ClientRepositoryImpl implements ClientRepository {  ClientRepositoryImpl(t
         },
       );
     } catch (e) {
-      print('❌ unarchiveAnthropometryMeasurement error: $e');
+      appLog.error('❌ unarchiveAnthropometryMeasurement error: $e');
       rethrow;
     }
   }
@@ -123,15 +124,15 @@ class ClientRepositoryImpl implements ClientRepository {  ClientRepositoryImpl(t
         try {
           return AnthropometryMeasurement.fromJson(_convertDateTimeToString(row.toColumnMap()));
         } catch (e, s) {
-          print('❌ Failed to parse anthropometry measurement row:');
-          print('Row data: ${row.toColumnMap()}');
-          print('Error: $e');
-          print('Stacktrace: $s');
+          appLog.error('❌ Failed to parse anthropometry measurement row:');
+          // Тела записей, SQL и ПДн в лог не пишем.
+          appLog.error('Ошибка', error: e);
+          appLog.debug('Стек ошибки', stackTrace: s);
           return null;
         }
       }).whereType<AnthropometryMeasurement>().toList();
     } catch (e) {
-      print('❌ getAnthropometryMeasurements error: $e');
+      appLog.error('❌ getAnthropometryMeasurements error: $e');
       rethrow;
     }
   }
@@ -187,7 +188,7 @@ class ClientRepositoryImpl implements ClientRepository {  ClientRepositoryImpl(t
 
       return AnthropometryMeasurement.fromJson(_convertDateTimeToString(result.first.toColumnMap()));
     } catch (e) {
-      print('❌ saveAnthropometryMeasurement error: $e');
+      appLog.error('❌ saveAnthropometryMeasurement error: $e');
       rethrow;
     }
   }
@@ -205,7 +206,7 @@ class ClientRepositoryImpl implements ClientRepository {  ClientRepositoryImpl(t
       }
       return AnthropometryFixed.fromJson(_convertDateTimeToString(result.first.toColumnMap()));
     } catch (e) {
-      print('❌ getFixedAnthropometry error: $e');
+      appLog.error('❌ getFixedAnthropometry error: $e');
       rethrow;
     }
   }
@@ -240,7 +241,7 @@ class ClientRepositoryImpl implements ClientRepository {  ClientRepositoryImpl(t
       }
       return AnthropometryFixed.fromJson(_convertDateTimeToString(result.first.toColumnMap()));
     } catch (e) {
-      print('❌ saveFixedAnthropometry error: $e');
+      appLog.error('❌ saveFixedAnthropometry error: $e');
       rethrow;
     }
   }
@@ -249,7 +250,7 @@ class ClientRepositoryImpl implements ClientRepository {  ClientRepositoryImpl(t
   Future<List<Map<String, dynamic>>> getCalorieTrackingData(
       String clientId) async {
     // TODO: Implement actual database query
-    print('Fetching calorie tracking data for client $clientId');
+    appLog.debug('Загрузка данных калорий', fields: {'user_id': clientId});
     // Placeholder implementation
     return [
       {
@@ -265,7 +266,7 @@ class ClientRepositoryImpl implements ClientRepository {  ClientRepositoryImpl(t
   @override
   Future<Map<String, dynamic>> getProgressData(String clientId) async {
     // TODO: Implement actual database query
-    print('Fetching progress data for client $clientId');
+    appLog.debug('Загрузка прогресса', fields: {'user_id': clientId});
     // Placeholder implementation
     return {
       'weight': [{'date': '2025-10-01', 'value': 85}],
@@ -305,7 +306,7 @@ class ClientRepositoryImpl implements ClientRepository {  ClientRepositoryImpl(t
         'finish': finishData,
       };
     } catch (e) {
-      print('❌ getBioimpedanceData error: $e');
+      appLog.error('❌ getBioimpedanceData error: $e');
       rethrow;
     }
   }
@@ -328,7 +329,7 @@ class ClientRepositoryImpl implements ClientRepository {  ClientRepositoryImpl(t
       return AnthropometryMeasurement.fromJson(
           _convertDateTimeToString(result.first.toColumnMap()));
     } catch (e) {
-      print('❌ getAnthropometryMeasurementById error: $e');
+      appLog.error('❌ getAnthropometryMeasurementById error: $e');
       rethrow;
     }
   }
@@ -363,7 +364,7 @@ class ClientRepositoryImpl implements ClientRepository {  ClientRepositoryImpl(t
             _convertDateTimeToString(row.toColumnMap()));
       }).toList();
     } catch (e) {
-      print('❌ getMeasurementsByIds error: $e');
+      appLog.error('❌ getMeasurementsByIds error: $e');
       rethrow;
     }
   }

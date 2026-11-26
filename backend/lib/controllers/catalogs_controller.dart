@@ -1,14 +1,15 @@
 import 'dart:convert';
 import 'package:shelf/shelf.dart';
 import '../config/database.dart';
+import '../errors/app_exception.dart';
 
 class CatalogsController {
   static Future<Response> _getCatalog(String tableName) async {
     try {
       final results = await Database().catalogs.getCatalog(tableName);
       return Response.ok(jsonEncode(results));
-    } catch (e) {
-      return Response.internalServerError(body: '{"error": "Failed to fetch catalog $tableName: $e"}');
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 

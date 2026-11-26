@@ -3,6 +3,7 @@ import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 import '../../../config/database.dart';
 import 'package:fitman_common/modules/groups/analytic_group.model.dart';
+import 'package:fitman_backend/errors/app_exception.dart';
 
 class AnalyticGroupsController {
   final Database _db;
@@ -30,8 +31,8 @@ class AnalyticGroupsController {
         isArchived: isArchived,
       );
       return Response.ok(jsonEncode(groups.map((g) => g.toJson()).toList()));
-    } catch (e) {
-      return Response.internalServerError(body: jsonEncode({'error': e.toString()}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -43,8 +44,8 @@ class AnalyticGroupsController {
         return Response.notFound(jsonEncode({'error': 'AnalyticGroup not found'}));
       }
       return Response.ok(jsonEncode(group.toJson()));
-    } catch (e) {
-      return Response.internalServerError(body: jsonEncode({'error': e.toString()}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -57,8 +58,8 @@ class AnalyticGroupsController {
       final newGroup = AnalyticGroup.fromJson(payload);
       final createdGroup = await _db.groups.createAnalyticGroup(newGroup, creatorId);
       return Response(201, headers: {'Content-Type': 'application/json', 'Location': '/analytic_groups/${createdGroup.id}'}, body: jsonEncode(createdGroup.toJson()));
-    } catch (e) {
-      return Response.internalServerError(body: jsonEncode({'error': e.toString()}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -75,8 +76,8 @@ class AnalyticGroupsController {
       });
       final resultGroup = await _db.groups.updateAnalyticGroup(updatedGroup, updaterId);
       return Response.ok(jsonEncode(resultGroup.toJson()));
-    } catch (e) {
-      return Response.internalServerError(body: jsonEncode({'error': e.toString()}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -87,8 +88,8 @@ class AnalyticGroupsController {
       const archiverId = '00000000-0000-0000-0000-000000000000'; // Placeholder for now
       await _db.groups.deleteAnalyticGroup(groupId, archiverId);
       return Response(204);
-    } catch (e) {
-      return Response.internalServerError(body: jsonEncode({'error': e.toString()}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 }

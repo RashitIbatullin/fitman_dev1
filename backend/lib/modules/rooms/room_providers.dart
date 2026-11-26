@@ -1,3 +1,4 @@
+import 'package:fitman_backend/audit/audit_service.dart';
 import 'package:fitman_backend/config/database.dart';
 import 'package:fitman_backend/modules/rooms/repositories/room_repository.dart';
 import 'package:fitman_backend/modules/rooms/repositories/room_schedule_repository.dart';
@@ -23,7 +24,12 @@ class RoomProviders {
     roomScheduleRepository = RoomScheduleRepositoryImpl(db);
     roomRepository = RoomRepositoryImpl(db, roomScheduleRepository);
     equipmentItemRepository = EquipmentItemRepositoryImpl(db); // Assume this is available globally or needs instantiation here
-    roomService = RoomService(roomRepository, equipmentItemRepository);
+    roomService = RoomService(
+      roomRepository,
+      equipmentItemRepository,
+      const AuditService(),
+      db,
+    );
     roomScheduleService = RoomScheduleService(roomScheduleRepository);
   }
 }

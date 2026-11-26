@@ -4,6 +4,7 @@ import 'package:fitman_common/fitman_common.dart';
 import 'package:shelf/shelf.dart';
 import 'package:postgres/postgres.dart';
 import '../../../config/database.dart';
+import '../../../errors/app_exception.dart';
 
 class ClientPreferenceController {
   static Future<Response> saveClientPreferences(Request request) async {
@@ -42,8 +43,8 @@ class ClientPreferenceController {
       });
 
       return Response.ok(jsonEncode({'message': 'Client preferences saved successfully'}));
-    } catch (e) {
-      return Response.internalServerError(body: jsonEncode({'error': 'Error saving client preferences: $e'}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -76,8 +77,8 @@ class ClientPreferenceController {
       }).toList();
 
       return Response.ok(jsonEncode(preferences));
-    } catch (e) {
-      return Response.internalServerError(body: jsonEncode({'error': 'Error getting client preferences: $e'}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 }

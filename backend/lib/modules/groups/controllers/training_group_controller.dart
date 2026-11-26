@@ -4,6 +4,7 @@ import 'package:shelf_router/shelf_router.dart';
 import '../../../config/database.dart';
 import 'package:fitman_common/fitman_common.dart';
 import 'package:fitman_common/modules/groups/training_group.model.dart';
+import 'package:fitman_backend/errors/app_exception.dart';
 
 class TrainingGroupsController {
   final Database _db;
@@ -63,8 +64,8 @@ class TrainingGroupsController {
       );
 
       return Response.ok(jsonEncode({'message': 'Staff removed successfully.'}));
-    } catch (e) {
-      return Response.internalServerError(body: jsonEncode({'error': e.toString()}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -72,8 +73,8 @@ class TrainingGroupsController {
     try {
       final replacements = await _db.groups.getReplacementsForGroup(id);
       return Response.ok(jsonEncode(replacements.map((e) => e.toJson()).toList()));
-    } catch (e) {
-      return Response.internalServerError(body: jsonEncode({'error': e.toString()}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -81,8 +82,8 @@ class TrainingGroupsController {
     try {
       final removals = await _db.groups.getRemovalsForGroup(id);
       return Response.ok(jsonEncode(removals.map((e) => e.toJson()).toList()));
-    } catch (e) {
-      return Response.internalServerError(body: jsonEncode({'error': e.toString()}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -126,8 +127,8 @@ class TrainingGroupsController {
         managerId: managerId,
       );
       return Response.ok(jsonEncode(groups.map((g) => g.toJson()).toList()));
-    } catch (e) {
-      return Response.internalServerError(body: jsonEncode({'error': e.toString()}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -139,8 +140,8 @@ class TrainingGroupsController {
         return Response.notFound(jsonEncode({'error': 'TrainingGroup not found'}));
       }
       return Response.ok(jsonEncode(group.toJson()));
-    } catch (e) {
-      return Response.internalServerError(body: jsonEncode({'error': e.toString()}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -152,8 +153,8 @@ class TrainingGroupsController {
       final newGroup = TrainingGroup.fromJson(payload);
       final createdGroup = await _db.groups.createTrainingGroup(newGroup, creatorId);
       return Response(201, headers: {'Content-Type': 'application/json', 'Location': '/training_groups/${createdGroup.id}'}, body: jsonEncode(createdGroup.toJson()));
-    } catch (e) {
-      return Response.internalServerError(body: jsonEncode({'error': e.toString()}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -166,8 +167,8 @@ class TrainingGroupsController {
       final updatedGroup = TrainingGroup.fromJson({...payload, 'id': groupId});
       final resultGroup = await _db.groups.updateTrainingGroup(updatedGroup, updaterId);
       return Response.ok(jsonEncode(resultGroup.toJson()));
-    } catch (e) {
-      return Response.internalServerError(body: jsonEncode({'error': e.toString()}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -178,8 +179,8 @@ class TrainingGroupsController {
       final archiverId = user.id;
       await _db.groups.deleteTrainingGroup(groupId, archiverId);
       return Response(204);
-    } catch (e) {
-      return Response.internalServerError(body: jsonEncode({'error': e.toString()}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -190,8 +191,8 @@ class TrainingGroupsController {
       final groupId = id;
       final members = await _db.groups.getTrainingGroupMembers(groupId);
       return Response.ok(jsonEncode(members));
-    } catch (e) {
-      return Response.internalServerError(body: jsonEncode({'error': e.toString()}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -205,8 +206,8 @@ class TrainingGroupsController {
 
       await _db.groups.addTrainingGroupMember(groupId, userId, addedById);
       return Response.ok(jsonEncode({'message': 'Member added successfully'}));
-    } catch (e) {
-      return Response.internalServerError(body: jsonEncode({'error': e.toString()}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -216,8 +217,8 @@ class TrainingGroupsController {
       final uId = userId;
       await _db.groups.removeTrainingGroupMember(gId, uId);
       return Response(204);
-    } catch (e) {
-      return Response.internalServerError(body: jsonEncode({'error': e.toString()}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -250,8 +251,8 @@ class TrainingGroupsController {
       );
 
       return Response.ok(jsonEncode({'message': 'Staff replaced successfully.'}));
-    } catch (e) {
-      return Response.internalServerError(body: jsonEncode({'error': e.toString()}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -290,8 +291,8 @@ class TrainingGroupsController {
       return Response.notFound(jsonEncode({'error': e.message}));
     } on StateError catch(e) {
       return Response(409, body: jsonEncode({'error': e.message})); // 409 Conflict
-    } catch (e) {
-      return Response.internalServerError(body: jsonEncode({'error': e.toString()}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -300,8 +301,8 @@ class TrainingGroupsController {
       // Authorization can be enhanced here later
       final movements = await _db.groups.getMovementsForGroup(id);
       return Response.ok(jsonEncode(movements.map((e) => e.toJson()).toList()));
-    } catch (e) {
-      return Response.internalServerError(body: jsonEncode({'error': e.toString()}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -315,8 +316,8 @@ class TrainingGroupsController {
 
       final movements = await _db.groups.getMovementsForUser(userId);
       return Response.ok(jsonEncode(movements.map((e) => e.toJson()).toList()));
-    } catch (e) {
-      return Response.internalServerError(body: jsonEncode({'error': e.toString()}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 }

@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:path/path.dart' as path;
 import 'package:uuid/uuid.dart';
+import 'package:fitman_backend/logging/app_logger.dart';
 
 class PhotoService {
   // Saves the file and returns the public URL.
@@ -28,7 +29,7 @@ class PhotoService {
   // Deletes a photo file given its public URL.
   Future<void> deletePhotoFile(String photoUrl) async {
     if (!photoUrl.startsWith('/uploads/')) {
-      print('PhotoService: Invalid photoUrl format: $photoUrl');
+      appLog.info('PhotoService: Invalid photoUrl format: $photoUrl');
       return;
     }
 
@@ -42,13 +43,13 @@ class PhotoService {
     if (await file.exists()) {
       try {
         await file.delete();
-        print('PhotoService: Physical file deleted: $absoluteFilePath');
+        appLog.info('PhotoService: Physical file deleted: $absoluteFilePath');
       } catch (e) {
-        print('PhotoService: Error deleting physical file $absoluteFilePath: $e');
+        appLog.error('PhotoService: Error deleting physical file $absoluteFilePath: $e');
         // We don't rethrow, as the primary goal is to remove the DB record anyway.
       }
     } else {
-      print('PhotoService: Physical file not found at $absoluteFilePath');
+      appLog.info('PhotoService: Physical file not found at $absoluteFilePath');
     }
   }
 }

@@ -4,6 +4,7 @@ import 'package:fitman_common/fitman_common.dart';
 import 'package:shelf/shelf.dart';
 
 import '../services/recommendations/recommendation_service.dart';
+import '../errors/app_exception.dart';
 
 class RecommendationsController {
   static Future<Response> getRecommendation(Request request, String id) async {
@@ -33,9 +34,8 @@ class RecommendationsController {
       }
 
       return Response.ok(jsonEncode(recommendation));
-    } catch (e) {
-      print('RecommendationsController error: $e');
-      return Response.internalServerError(body: jsonEncode({'error': 'An internal error occurred.'}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -54,9 +54,8 @@ class RecommendationsController {
             jsonEncode({'error': 'Недостаточно данных для расчета.'}));
       }
       return Response.ok(jsonEncode(result.toJson()));
-    } catch (e) {
-      print('RecommendationsController error (getMetabolicRate): $e');
-      return Response.internalServerError(body: jsonEncode({'error': 'An internal error occurred.'}));
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 }

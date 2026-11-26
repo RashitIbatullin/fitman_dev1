@@ -6,6 +6,7 @@ import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 
 import '../services/repair_time_standard_service.dart';
+import 'package:fitman_backend/errors/app_exception.dart';
 
 class RepairTimeStandardController {
   RepairTimeStandardController(this._service);
@@ -33,8 +34,8 @@ class RepairTimeStandardController {
         jsonEncode(standards.map((e) => e.toJson()).toList()),
         headers: {'Content-Type': 'application/json'},
       );
-    } catch (e) {
-      return Response.internalServerError(body: e.toString());
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -45,8 +46,12 @@ class RepairTimeStandardController {
         jsonEncode(standard.toJson()),
         headers: {'Content-Type': 'application/json'},
       );
-    } catch (e) {
-      return Response.notFound(e.toString());
+    } catch (error, stackTrace) {
+      throw NotFoundException(
+        'Норматив времени не найден',
+        cause: error,
+        stackTrace: stackTrace,
+      );
     }
   }
 
@@ -67,8 +72,12 @@ class RepairTimeStandardController {
         body: jsonEncode(newStandard.toJson()),
         headers: {'Content-Type': 'application/json'},
       );
-    } catch (e) {
-      return Response.badRequest(body: e.toString());
+    } catch (error, stackTrace) {
+      throw ValidationException(
+        'Не удалось сохранить норматив времени',
+        cause: error,
+        stackTrace: stackTrace,
+      );
     }
   }
 
@@ -88,8 +97,12 @@ class RepairTimeStandardController {
         jsonEncode(updatedStandard.toJson()),
         headers: {'Content-Type': 'application/json'},
       );
-    } catch (e) {
-      return Response.badRequest(body: e.toString());
+    } catch (error, stackTrace) {
+      throw ValidationException(
+        'Не удалось сохранить норматив времени',
+        cause: error,
+        stackTrace: stackTrace,
+      );
     }
   }
 
@@ -108,8 +121,8 @@ class RepairTimeStandardController {
       }
       await _service.archive(id, userId, reason);
       return Response(HttpStatus.noContent);
-    } catch (e) {
-      return Response.internalServerError(body: e.toString());
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 
@@ -122,8 +135,8 @@ class RepairTimeStandardController {
       }
       await _service.unarchive(id, userId);
       return Response(HttpStatus.noContent);
-    } catch (e) {
-      return Response.internalServerError(body: e.toString());
+    } catch (error, stackTrace) {
+      throw InternalException(cause: error, stackTrace: stackTrace);
     }
   }
 }

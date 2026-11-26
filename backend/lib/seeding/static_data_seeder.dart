@@ -1,11 +1,12 @@
 import 'package:postgres/postgres.dart';
+import 'package:fitman_backend/logging/app_logger.dart';
 
 class StaticDataSeeder {
   StaticDataSeeder(this._connection);
   final Connection _connection;
 
   Future<void> seed() async {
-    print('🌱 Seeding static data (roles, levels, goals)...');
+    appLog.info('🌱 Seeding static data (roles, levels, goals)...');
     await _seedRoles();
     await _seedTrainingLevels();
     await _seedTrainingGoals();
