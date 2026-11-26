@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
+import '../../../services/api/services_api.dart';
 import '../../users/providers/auth_provider.dart';
 import '../providers/services_provider.dart';
 import '../widgets/service_sale_dialog.dart';
@@ -33,6 +34,26 @@ class MyServicesScreen extends ConsumerWidget {
     }
   }
 
+  Future<void> _activate(
+    BuildContext context,
+    WidgetRef ref,
+    ServicePurchase purchase,
+  ) async {
+    try {
+      await ServicesApiService().activatePurchase(purchase.id);
+      if (!context.mounted) return;
+      ref.invalidate(clientServicesProvider(clientId));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Услуга «${purchase.serviceName}» активирована')),
+      );
+    } catch (error) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Не удалось активировать: $error')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final purchasesAsync = ref.watch(clientServicesProvider(clientId));
@@ -60,8 +81,12 @@ class MyServicesScreen extends ConsumerWidget {
             child: ListView.builder(
               padding: const EdgeInsets.all(12),
               itemCount: purchases.length,
-              itemBuilder: (context, index) =>
-                  _ServiceCard(purchase: purchases[index]),
+              itemBuilder: (context, index) => _ServiceCard(
+                purchase: purchases[index],
+                onActivate: purchases[index].status == ServicePurchaseStatus.draft
+                    ? () => _activate(context, ref, purchases[index])
+                    : null,
+              ),
             ),
           );
         },
@@ -91,9 +116,10 @@ class MyServicesScreen extends ConsumerWidget {
 }
 
 class _ServiceCard extends StatelessWidget {
-  const _ServiceCard({required this.purchase});
+  const _ServiceCard({required this.purchase, this.onActivate});
 
   final ServicePurchase purchase;
+  final VoidCallback? onActivate;
 
   @override
   Widget build(BuildContext context) {
@@ -155,6 +181,17 @@ class _ServiceCard extends StatelessWidget {
                   const SizedBox(width: 8),
                   Text('Стоимость: ${_formatMoney(purchase.finalPrice!)} ₽'),
                 ],
+              ),
+            ],
+            if (onActivate != null) ...[
+              const SizedBox(height: 8),
+              Align(
+                alignment: Alignment.centerRight,
+                child: FilledButton.icon(
+                  onPressed: onActivate,
+                  icon: const Icon(Icons.play_arrow),
+                  label: const Text('Активировать'),
+                ),
               ),
             ],
           ],

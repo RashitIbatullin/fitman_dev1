@@ -50,6 +50,15 @@ class ServicesApiService extends BaseApiService {
     return ServicePurchase.fromJson(data as Map<String, dynamic>);
   }
 
+  /// Активирует отложенную покупку.
+  Future<ServicePurchase> activatePurchase(String purchaseId) async {
+    final data = await post(
+      '/api/service-purchases/$purchaseId/activate',
+      body: const {},
+    );
+    return ServicePurchase.fromJson(data as Map<String, dynamic>);
+  }
+
   /// Активные и истёкшие услуги клиента.
   Future<List<ServicePurchase>> getClientServices(String clientId) async {
     final data = await get('/api/clients/$clientId/services');
