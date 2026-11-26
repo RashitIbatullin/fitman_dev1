@@ -69,6 +69,8 @@ class _CreateEmployeeScreenState extends ConsumerState<CreateEmployeeScreen> {
         return 'Инструктор';
       case 'client':
         return 'Клиент';
+      case 'executor':
+        return 'Исполнитель услуг';
       default:
         return 'Пользователь';
     }
@@ -101,7 +103,7 @@ class _CreateEmployeeScreenState extends ConsumerState<CreateEmployeeScreen> {
       Map<String, dynamic>? managerProfileData;
       Map<String, dynamic>? trainerProfileData;
 
-      bool isEmployee = _selectedRoleNames.any((r) => ['manager', 'trainer', 'instructor'].contains(r));
+      bool isEmployee = _selectedRoleNames.any((r) => ['manager', 'trainer', 'instructor', 'executor'].contains(r));
 
       if (isEmployee) {
         employeeProfileData = {
@@ -599,3 +601,4 @@ class _CreateEmployeeScreenState extends ConsumerState<CreateEmployeeScreen> {
     super.dispose();
   }
 }
+

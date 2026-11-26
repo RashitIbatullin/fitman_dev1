@@ -15,6 +15,8 @@ class RoleSelectionDialog extends StatelessWidget {
         return Icons.fitness_center;
       case 'client':
         return Icons.person;
+      case 'executor':
+        return Icons.spa;
       // Add other roles here
       default:
         return Icons.person;
@@ -49,3 +51,4 @@ class RoleSelectionDialog extends StatelessWidget {
     );
   }
 }
+

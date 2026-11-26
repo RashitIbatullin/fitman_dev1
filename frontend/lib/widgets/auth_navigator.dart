@@ -1,5 +1,6 @@
 import 'package:fitman_app/modules/roles/widgets/role_dialog_manager.dart';
 import 'package:fitman_app/screens/admin_dashboard.dart';
+import 'package:fitman_app/modules/appointments/screens/executor_dashboard.dart';
 import 'package:fitman_app/modules/clients/screens/client_dashboard.dart';
 import 'package:fitman_app/screens/instructor_dashboard.dart';
 import 'package:fitman_app/screens/login_screen.dart';
@@ -70,6 +71,8 @@ class AuthNavigator extends ConsumerWidget {
         return const InstructorDashboard(showBackButton: false);
       case 'client':
         return const ClientDashboard(showBackButton: false);
+      case 'executor':
+        return const ExecutorDashboard(showBackButton: false);
       default:
         return const UnknownRoleScreen();
     }
