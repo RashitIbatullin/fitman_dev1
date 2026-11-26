@@ -16,6 +16,9 @@ import 'package:intl/intl.dart';
 import 'package:fitman_common/fitman_common.dart';
 import 'anthropometry_screen.dart';
 import '../../chat/screens/chat_list_screen.dart';
+import '../../services/providers/services_provider.dart';
+import '../../services/screens/my_services_screen.dart';
+import '../../services/widgets/service_sale_dialog.dart';
 
 Future<void> _showLogoutDialog(BuildContext context, WidgetRef ref) async {
   final confirmed = await showDialog<bool>(
@@ -53,12 +56,28 @@ class ClientDashboard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final user = client ?? ref.watch(authProvider).value!.user!;
     final dashboardData = ref.watch(dashboardDataProvider(user.id));
+    final currentUser = ref.watch(authProvider).value?.user;
+    final canSell = client != null &&
+        (currentUser?.roles.any(
+              (role) => role.name == 'admin' || role.name == 'manager',
+            ) ??
+            false);
 
     void navigateTo(Widget page) {
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => page),
       );
+    }
+
+    Future<void> openServiceSale() async {
+      final created = await showDialog<bool>(
+        context: context,
+        builder: (context) => ServiceSaleDialog(clientId: user.id),
+      );
+      if (created == true) {
+        ref.invalidate(clientServicesProvider(user.id));
+      }
     }
 
     void handleDrawerTap(Widget? page) {
@@ -73,6 +92,12 @@ class ClientDashboard extends ConsumerWidget {
         leading: showBackButton ? const BackButton() : null,
         title: Text(client == null ? 'Главное' : user.fullName),
         actions: [
+          if (canSell)
+            IconButton(
+              icon: const Icon(Icons.add_shopping_cart),
+              tooltip: 'Оформить услугу',
+              onPressed: openServiceSale,
+            ),
           IconButton(icon: const Icon(Icons.notifications), onPressed: () {}),
           if (client == null) const LogoutButton(),
           if (showBackButton)
@@ -105,6 +130,13 @@ class ClientDashboard extends ConsumerWidget {
               leading: const Icon(Icons.home),
               title: const Text('Главное'),
               onTap: () => Navigator.pop(context),
+            ),
+            ListTile(
+              leading: const Icon(Icons.card_membership),
+              title: const Text('Мои услуги'),
+              onTap: () => handleDrawerTap(
+                MyServicesScreen(clientId: user.id),
+              ),
             ),
             ListTile(
               leading: const Icon(Icons.account_circle),
