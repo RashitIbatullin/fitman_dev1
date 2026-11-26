@@ -10,6 +10,7 @@ import '../../../screens/instructor_dashboard.dart';
 import '../../../screens/manager_dashboard.dart';
 import '../../../screens/trainer_dashboard.dart';
 import '../../roles/screens/unknown_role_screen.dart';
+import '../../appointments/screens/executor_dashboard.dart';
 import '../../employees/screens/edit_employee_screen.dart';
 import '../../roles/widgets/role_dialog_manager.dart';
 import '../../../widgets/reset_password_dialog.dart';
@@ -193,6 +194,9 @@ class _UserListScreenState extends ConsumerState<UserListScreen> {
       case 'client':
         page = ClientDashboard(client: user, showBackButton: true);
         break;
+      case 'executor':
+        page = ExecutorDashboard(executor: user, showBackButton: true);
+        break;
       default:
         page = const UnknownRoleScreen();
     }
@@ -209,6 +213,7 @@ class _UserListScreenState extends ConsumerState<UserListScreen> {
       case 'trainer': return Colors.green;
       case 'instructor': return Colors.teal;
       case 'client': return Colors.blue;
+      case 'executor': return Colors.indigo;
       default: return Colors.grey;
     }
   }
@@ -560,3 +565,4 @@ class _UserListScreenState extends ConsumerState<UserListScreen> {
     );
   }
 }
+

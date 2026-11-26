@@ -65,6 +65,7 @@ void main() {
       service.createUser(
         const CreateUserInput(
           email: 'busy@example.com',
+          phone: '+79992222222',
           password: 'Passw0rd!',
           firstName: 'Пётр',
           lastName: 'Занятый',
@@ -204,6 +205,18 @@ class _FakeUserRepository implements UserRepository {
   Future<User?> getUserByPhone(String phone, {Session? session}) async {
     for (final user in _users.values) {
       if (user.phone == phone) return user;
+    }
+    return null;
+  }
+
+  @override
+  Future<User?> getUserByIdentifier(String identifier, {Session? session}) async {
+    for (final user in _users.values) {
+      if (user.phone == identifier ||
+          (user.email != null &&
+              user.email!.toLowerCase() == identifier.toLowerCase())) {
+        return user;
+      }
     }
     return null;
   }

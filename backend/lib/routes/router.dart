@@ -36,6 +36,9 @@ import '../modules/equipment/services/maintenance_service.dart';
 import '../modules/roles/controllers/manager_controller.dart';
 import '../modules/roles/controllers/instructor_controller.dart';
 import '../modules/support_staff/controllers/support_staff.controller.dart';
+import '../modules/appointments/repositories/appointment_repository.dart';
+import '../modules/appointments/services/appointment_service.dart';
+import '../modules/appointments/controllers/appointment_controller.dart';
 import '../modules/support_staff/services/support_staff.service.dart';
 import '../modules/support_staff/repositories/support_staff.repository.dart';
 import '../modules/competencies/repositories/competency_repository.dart';
@@ -55,6 +58,10 @@ final _equipmentItemRepository = EquipmentItemRepositoryImpl(_db);
 final _maintenanceRepository = MaintenanceRepositoryImpl(_db);
 final _repairTimeStandardRepository = RepairTimeStandardRepositoryImpl(_db);
 final _competencyRepository = CompetencyRepositoryImpl(_db);
+final _appointmentRepository = AppointmentRepositoryImpl(_db);
+final _appointmentService = AppointmentService(_appointmentRepository, _db);
+final _appointmentController = AppointmentController(_appointmentService);
+
 final _supportStaffRepository = SupportStaffRepositoryImpl(
   _db,
   _competencyRepository,
@@ -197,6 +204,34 @@ Middleware _requireAnyEmployeeRoleOrAdmin() {
 
 Handler _employeeRolesOrAdminHandler(Handler handler) {
   return requireAuth()(_requireAnyEmployeeRoleOrAdmin()(handler));
+}
+
+/// Записи на услуги: сотрудники и исполнители услуг.
+Middleware _requireServicesStaff() {
+  return (Handler innerHandler) {
+    return (Request request) {
+      final user = request.context['user'] as User?;
+      if (user == null ||
+          !user.roles.any(
+            (r) => const {
+              'admin',
+              'manager',
+              'trainer',
+              'instructor',
+              'executor',
+            }.contains(r.name),
+          )) {
+        return Response.forbidden(
+          '{"error": "Employee or Executor access required"}',
+        );
+      }
+      return innerHandler(request);
+    };
+  };
+}
+
+Handler _servicesStaffHandler(Handler handler) {
+  return requireAuth()(_requireServicesStaff()(handler));
 }
 
 final Router router = Router()
@@ -791,7 +826,22 @@ final Router router = Router()
           _supportStaffController.deleteCompetency(req, staffId, compId),
     )(request);
   })
+  ..get(
+    '/api/appointments',
+    (Request request) => _servicesStaffHandler(_appointmentController.getAll)(request),
+  )
+  ..post('/api/appointments/<id>/complete', (Request request, String id) {
+    return _servicesStaffHandler(
+      (Request req) => _appointmentController.complete(req, id),
+    )(request);
+  })
+  ..post('/api/appointments/<id>/skip', (Request request, String id) {
+    return _servicesStaffHandler(
+      (Request req) => _appointmentController.skip(req, id),
+    )(request);
+  })
   ..post(
     '/api/measurements/visualize',
     _protectedHandler(MeasurementsController.getVisualizationData),
   );
+

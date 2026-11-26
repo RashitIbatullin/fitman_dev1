@@ -109,6 +109,7 @@ if (-not (Test-SqlFile $LESSONS_FILE)) { exit 1 }
 if (-not (Test-SqlFile $CHAT_FILE)) { exit 1 }
 if (-not (Test-SqlFile $BODY_FILE)) { exit 1 }
 
+
 # Функция выполнения SQL-файла
 function Execute-SqlFile {
     param(
@@ -168,14 +169,22 @@ $dbExists = & psql -h $DB_HOST -p $DB_PORT -U $DB_USER -lqt 2>&1 | ForEach-Objec
 $env:PGPASSWORD = $null
 
 if ($dbExists) {
-    Write-Host "✓ База данных '$DB_NAME' уже существует. Пересоздание не требуется, только накатываются схемы." -ForegroundColor Green
+    # Базовые скрипты делают DROP TABLE ... CASCADE и теряют внешние ключи
+    # таблиц, созданных миграциями (appointments, audit_log, service_purchases).
+    # Поэтому dev-база пересоздаётся целиком.
+    Write-Host "Пересоздание базы данных '$DB_NAME'..." -ForegroundColor Yellow
+    $env:PGPASSWORD = $DB_PASSWORD
+    & psql -h $DB_HOST -p $DB_PORT -U $DB_USER -d postgres -q -c "DROP DATABASE `"$DB_NAME`" WITH (FORCE)" 2>&1 | Out-Null
+    $env:PGPASSWORD = $null
+    $dbExists = $false
 }
-else {
+
+if (-not $dbExists) {
     Write-Host "Создание базы данных '$DB_NAME'..." -ForegroundColor Yellow
     $env:PGPASSWORD = $DB_PASSWORD
     & createdb -h $DB_HOST -p $DB_PORT -U $DB_USER $DB_NAME 2>&1 | Out-Null
     $env:PGPASSWORD = $null
-    
+
     if ($LASTEXITCODE -eq 0) {
         Write-Host "✓ База данных '$DB_NAME' создана" -ForegroundColor Green
     }
@@ -193,6 +202,23 @@ if (-not (Execute-SqlFile -File $GROUPS_FILE -Description "Структура т
 if (-not (Execute-SqlFile -File $LESSONS_FILE -Description "Структура таблиц для Занятий и Планов")) { exit 1 }
 if (-not (Execute-SqlFile -File $CHAT_FILE -Description "Структура таблиц для Чата")) { exit 1 }
 if (-not (Execute-SqlFile -File $BODY_FILE -Description "Структура и данные для Рекомендаций")) { exit 1 }
+
+# 3. Версионированные миграции: audit_log, настройки, домен услуг.
+#    Новые таблицы и справочники создаются здесь, а не отдельным скриптом:
+#    один источник истины — database/migrations.
+#    Все миграции идемпотентны, применённые фиксируются в schema_migrations.
+Write-Host ""
+Write-Host "Применение миграций из database/migrations..." -ForegroundColor Green
+Push-Location (Join-Path $ProjectRoot "backend")
+& dart run bin/migrate.dart 2>&1 | ForEach-Object { Write-Host "  $_" }
+$migrationsExitCode = $LASTEXITCODE
+Pop-Location
+
+if ($migrationsExitCode -ne 0) {
+    Write-Host "✗ Ошибка при применении миграций" -ForegroundColor Red
+    exit 1
+}
+Write-Host "✓ Миграции применены" -ForegroundColor Green
 
 # 5. Выполнение Dart-сидера для наполнения данными
 Write-Host ""
@@ -222,6 +248,12 @@ UNION ALL
 SELECT 'roles', COUNT(*) FROM roles
 UNION ALL
 SELECT 'users', COUNT(*) FROM users
+UNION ALL
+SELECT 'services', COUNT(*) FROM services
+UNION ALL
+SELECT 'service_types', COUNT(*) FROM service_types
+UNION ALL
+SELECT 'specializations', COUNT(*) FROM specializations
 ORDER BY table_name;
 "@
 
@@ -231,3 +263,4 @@ ORDER BY table_name;
     }
 }
 $env:PGPASSWORD = $null
+

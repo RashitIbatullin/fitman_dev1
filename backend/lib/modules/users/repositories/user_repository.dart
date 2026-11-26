@@ -15,6 +15,7 @@ abstract class UserRepository {
   });
   Future<User?> getUserByEmail(String email, {Session? session});
   Future<User?> getUserByPhone(String phone, {Session? session});
+  Future<User?> getUserByIdentifier(String identifier, {Session? session});
   Future<User?> getUserById(String id, {Session? session});
   Future<User> createUser(
     User user,
@@ -228,7 +229,7 @@ class UserRepositoryImpl implements UserRepository {
       final query =
           '''
         SELECT
-          u.id, u.login, u.email, u.password_hash, u.first_name, u.last_name,
+          u.id, u.email, u.password_hash, u.first_name, u.last_name,
           u.middle_name, u.phone, u.gender, u.date_of_birth, u.photo_url,
           u.created_at, u.updated_at, u.archived_at, u.archived_by,
           u.archived_reason,
@@ -296,6 +297,16 @@ class UserRepositoryImpl implements UserRepository {
   }
 
   @override
+  Future<User?> getUserByIdentifier(String identifier, {Session? session}) async {
+    return _getSingle(
+      'WHERE (u.phone = @value OR lower(u.email) = lower(@value))',
+      identifier,
+      session: session,
+      logLabel: 'getUserByIdentifier',
+    );
+  }
+
+  @override
   Future<User?> getUserById(String id, {Session? session}) async {
     return _getSingle(
       'WHERE u.id = @value',
@@ -316,7 +327,7 @@ class UserRepositoryImpl implements UserRepository {
       final results = await conn.execute(
         Sql.named('''
           SELECT
-            u.id, u.login, u.email, u.password_hash, u.first_name, u.last_name,
+            u.id, u.email, u.password_hash, u.first_name, u.last_name,
             u.middle_name, u.phone, u.gender, u.date_of_birth, u.photo_url,
             u.created_at, u.updated_at, u.archived_at, u.archived_by,
             u.archived_reason,
@@ -407,26 +418,20 @@ class UserRepositoryImpl implements UserRepository {
     Session? session,
   }) {
     return _withSession(session, (conn) async {
-      final login = user.email ?? user.phone;
-      if (login == null || login.isEmpty) {
-        throw ArgumentError('Для пользователя нужен email или телефон');
-      }
-
       final userResult = await conn.execute(
         Sql.named('''
           INSERT INTO users (
-            login, email, password_hash, first_name, last_name, middle_name,
+            email, password_hash, first_name, last_name, middle_name,
             phone, gender, date_of_birth, created_at, updated_at
           )
           VALUES (
-            @login, @email, @password_hash, @first_name, @last_name,
+            @email, @password_hash, @first_name, @last_name,
             @middle_name, @phone, @gender, @date_of_birth, @created_at,
             @updated_at
           )
           RETURNING id
         '''),
         parameters: {
-          'login': login,
           'email': user.email,
           'password_hash': user.passwordHash,
           'first_name': user.firstName,
@@ -565,7 +570,6 @@ class UserRepositoryImpl implements UserRepository {
 
         if (email != null) {
           setParts.add('email = @email');
-          setParts.add('login = @email');
           parameters['email'] = email;
         }
         if (firstName != null) {
@@ -1205,3 +1209,4 @@ class UserRepositoryImpl implements UserRepository {
     }
   }
 }
+

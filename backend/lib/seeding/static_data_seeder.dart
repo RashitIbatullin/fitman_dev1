@@ -13,12 +13,15 @@ class StaticDataSeeder {
     await _seedTrainingGroupTypes();
     await _seedWorkSchedules();
     await _seedBodyBuildTypes();
+    await _seedServiceTypes();
+    await _seedSpecializations();
   }
 
   Future<void> _seedRoles() => _connection.execute('''
     INSERT INTO roles (name, title) VALUES
       ('client', 'Клиент'), ('instructor', 'Инструктор'), ('trainer', 'Тренер'),
-      ('manager', 'Менеджер'), ('admin', 'Администратор')
+      ('manager', 'Менеджер'), ('admin', 'Администратор'),
+      ('executor', 'Исполнитель услуг')
     ON CONFLICT (name) DO NOTHING;
   ''');
 
@@ -63,6 +66,48 @@ class StaticDataSeeder {
       (6, '10:00', '20:00', false),
       (7, '10:00', '20:00', true)
     ON CONFLICT (day_of_week) DO NOTHING;
+  ''');
+
+  /// Справочник типов услуг. Дублирует сиды миграции 0003: очистка
+  /// пользовательских данных каскадом сносит каталог (created_by → users),
+  /// поэтому сидер обязан восстановить его самостоятельно.
+  Future<void> _seedServiceTypes() => _connection.execute('''
+    INSERT INTO service_types (code, title) VALUES
+      ('club_membership',    'Клубная карта (полный доступ)'),
+      ('zone_membership',    'Абонемент на зону'),
+      ('limited_membership', 'Лимитированный абонемент'),
+      ('group_membership',   'Абонемент на групповые занятия'),
+      ('day_membership',     'Дневной / утренний абонемент'),
+      ('single_visit',       'Разовое посещение'),
+      ('guest_pass',         'Гостевой визит'),
+      ('trial',              'Пробное посещение'),
+      ('single_training',    'Персональная разовая тренировка'),
+      ('training_package',   'Пакет персональных тренировок'),
+      ('group_course',       'Курс групповых занятий'),
+      ('studio_service',     'Студийная услуга с исполнителем'),
+      ('studio_package',     'Пакет процедур'),
+      ('program_design',     'Составление программы тренировок'),
+      ('freeze_package',     'Пакет заморозки'),
+      ('service_fee',        'Сервисный сбор'),
+      ('gift_certificate',   'Подарочный сертификат'),
+      ('gift_card',          'Подарочная карта'),
+      ('medical_test',       'Взятие анализов, обследование')
+    ON CONFLICT (code) DO NOTHING;
+  ''');
+
+  Future<void> _seedSpecializations() => _connection.execute('''
+    INSERT INTO specializations (code, title, is_medical) VALUES
+      ('massage',          'Массаж', false),
+      ('spa',              'СПА-процедуры', false),
+      ('cosmetology',      'Косметология', false),
+      ('solarium',         'Солярий', false),
+      ('lfk',              'ЛФК', true),
+      ('nutrition',        'Консультация по питанию', false),
+      ('group_instructor', 'Инструктор групповых программ', false),
+      ('personal_trainer', 'Персональный тренер', false),
+      ('physician',        'Врач', true),
+      ('nurse',            'Медсестра', true)
+    ON CONFLICT (code) DO NOTHING;
   ''');
 
   Future<void> _seedBodyBuildTypes() async {

@@ -7,9 +7,9 @@ import 'base_api.dart';
 class AuthApiService extends BaseApiService {
   AuthApiService({super.client});
 
-  /// Logs in a user.
-  Future<AuthResponse> login(String phone, String password) async {
-    final data = await post('/api/auth/login', body: {'phone': phone, 'password': password});
+  /// Logs in a user by phone or email.
+  Future<AuthResponse> login(String identifier, String password) async {
+    final data = await post('/api/auth/login', body: {'identifier': identifier, 'password': password});
     final token = data['token']?.toString() ?? '';
     final userData = data['user'] ?? {};
 

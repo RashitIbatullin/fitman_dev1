@@ -101,7 +101,8 @@ class UserService {
 
   Future<User?> getByEmail(String email) => _repository.getUserByEmail(email);
 
-  Future<User?> getByPhone(String phone) => _repository.getUserByPhone(phone);
+  Future<User?> getByIdentifier(String identifier) =>
+      _repository.getUserByIdentifier(identifier);
 
   Future<List<Role>> getAllRoles() => _repository.getAllRoles();
 

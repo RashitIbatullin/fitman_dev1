@@ -20,17 +20,20 @@ class AuthController {
       final body = await request.readAsString();
       final data = jsonDecode(body) as Map<String, dynamic>;
 
-      final phone = data['phone'] as String;
+      // Вход по одному идентификатору: телефон или email.
+      // `phone` поддерживается для совместимости со старыми клиентами.
+      final identifier =
+          (data['identifier'] ?? data['phone'])?.toString().trim() ?? '';
       final password = data['password'] as String;
 
-      if (phone.isEmpty) {
-        throw const ValidationException('Телефон не может быть пустым');
+      if (identifier.isEmpty) {
+        throw const ValidationException('Введите телефон или email');
       }
       if (password.isEmpty) {
         throw const UnauthorizedException('Неверные учётные данные');
       }
 
-      final user = await _users.getByPhone(phone);
+      final user = await _users.getByIdentifier(identifier);
 
       if (user == null) {
         appLog.info(
@@ -90,16 +93,17 @@ class AuthController {
       final body = await request.readAsString();
       final data = jsonDecode(body) as Map<String, dynamic>;
 
-      final email = data['email'] as String?;
+      final phone = data['phone']?.toString().trim();
+      final email = data['email']?.toString().trim();
       final password = data['password'] as String?;
       final firstName = data['firstName'] as String?;
       final lastName = data['lastName'] as String?;
 
-      if (email == null ||
-          password == null ||
-          firstName == null ||
-          lastName == null) {
-        throw const ValidationException('Нужны email, пароль, имя и фамилия');
+      if (password == null || firstName == null || lastName == null) {
+        throw const ValidationException('Нужны телефон, пароль, имя и фамилия');
+      }
+      if (phone == null || phone.isEmpty) {
+        throw const ValidationException('Телефон обязателен');
       }
 
       // Самостоятельная регистрация из ТЗ — только клиент. Роли сотрудников
@@ -122,7 +126,7 @@ class AuthController {
           firstName: firstName,
           lastName: lastName,
           roles: const ['client'],
-          phone: data['phone'] as String?,
+          phone: phone,
           gender: data['gender'] as String?,
           dateOfBirth: data['dateOfBirth'] == null
               ? null
