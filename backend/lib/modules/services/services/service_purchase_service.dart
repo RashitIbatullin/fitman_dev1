@@ -5,7 +5,9 @@ import 'package:fitman_backend/errors/app_exception.dart';
 import 'package:fitman_backend/logging/app_logger.dart';
 import 'package:fitman_backend/modules/services/repositories/service_purchase_repository.dart';
 import 'package:fitman_backend/modules/services/repositories/service_repository.dart';
+import 'package:fitman_backend/modules/services/services/quota_period_calculator.dart';
 import 'package:fitman_common/fitman_common.dart';
+import 'package:postgres/postgres.dart';
 
 /// Оформление услуги, остатки и история покупок.
 ///
@@ -85,7 +87,7 @@ class ServicePurchaseService {
         discountPercent: percent,
       );
 
-      final now = DateTime.now().toUtc();
+      final now = DateTime.now();
       final immediate = !service.activationRequired;
       final activationDate = immediate ? now : null;
       final expiryDate = immediate && service.durationDays != null
@@ -131,16 +133,16 @@ class ServicePurchaseService {
         session: session,
       );
 
-      // Первый период квоты открывается при оформлении, если активация
-      // немедленная. При отложенной активации период создаст активация.
+      // Периоды квоты нарезаются сразу на весь срок: закрытие периода —
+      // это календарная граница, отдельная задача её не двигает.
       if (immediate &&
           service.usageLimitMode == ServiceUsageLimitMode.quota &&
           service.quotaLimit != null) {
-        final periodEnd = _periodEnd(now, service.quotaPeriod);
-        await _purchaseRepository.createQuotaPeriod(
+        await _createQuotaPeriods(
           purchaseId: purchaseId,
-          periodStart: now,
-          periodEnd: periodEnd,
+          activation: now,
+          expiry: expiryDate,
+          quotaPeriod: service.quotaPeriod,
           quotaLimit: service.quotaLimit!,
           session: session,
         );
@@ -179,6 +181,84 @@ class ServicePurchaseService {
     });
   }
 
+  /// Активирует отложенную покупку: срок и периоды квоты создаются здесь.
+  Future<ServicePurchase> activate(
+    String id, {
+    required AuditContext audit,
+  }) {
+    return _database.runTx((session) async {
+      final row = await _purchaseRepository.getRowById(id, session: session);
+      if (row == null) {
+        throw const NotFoundException('Покупка не найдена');
+      }
+
+      final status = row['status'] as int;
+      if (status != ServicePurchaseStatus.draft) {
+        throw const ConflictException('Покупка уже активирована или отменена');
+      }
+
+      final now = DateTime.now();
+      final durationDays = row['duration_days'] as int?;
+      final expiry = durationDays == null
+          ? null
+          : now.add(Duration(days: durationDays));
+
+      await _purchaseRepository.activate(
+        id: id,
+        activationDate: now,
+        expiryDate: expiry,
+        actualExpiryDate: expiry,
+        updatedBy: audit.actorId ?? '',
+        session: session,
+      );
+
+      final quotaLimit = row['quota_limit'] as int?;
+      if (row['usage_limit_mode'] == ServiceUsageLimitMode.quota &&
+          quotaLimit != null) {
+        await _createQuotaPeriods(
+          purchaseId: id,
+          activation: now,
+          expiry: expiry,
+          quotaPeriod: row['quota_period'] as int?,
+          quotaLimit: quotaLimit,
+          session: session,
+        );
+      }
+
+      final purchase = await _purchaseRepository.getById(id, session: session);
+      if (purchase == null) {
+        throw const NotFoundException('Покупка не найдена после активации');
+      }
+
+      await _auditService.record(
+        session: session,
+        tableName: 'service_purchases',
+        rowPk: id,
+        action: 'UPDATE',
+        context: audit,
+        oldValues: {'status': status},
+        newValues: purchase.toJson(),
+      );
+
+      appLog.info(
+        'Услуга активирована',
+        fields: {
+          'entity': 'service_purchases',
+          'entity_id': id,
+          'actor_id': audit.actorId,
+          'request_id': audit.requestId,
+        },
+      );
+
+      return purchase;
+    });
+  }
+
+  /// Покупка по id — нужна контроллеру для проверки доступа.
+  Future<ServicePurchase?> getById(String id) {
+    return _purchaseRepository.getById(id);
+  }
+
   /// Активные и истёкшие покупки клиента.
   Future<List<ServicePurchase>> getClientServices(String clientId) {
     return _purchaseRepository.getClientServices(clientId);
@@ -206,35 +286,29 @@ class ServicePurchaseService {
     return result < 0 ? 0 : result;
   }
 
-  /// Конец первого периода квоты.
-  DateTime _periodEnd(DateTime start, int? quotaPeriod) {
-    switch (quotaPeriod) {
-      case ServiceQuotaPeriod.day:
-        return start.add(const Duration(days: 1));
-      case ServiceQuotaPeriod.week:
-        return start.add(const Duration(days: 7));
-      case ServiceQuotaPeriod.month:
-        return _addMonth(start);
-      default:
-        return _addMonth(start);
-    }
-  }
-
-  DateTime _addMonth(DateTime value) {
-    final nextMonth = value.month + 1;
-    final year = value.year + (nextMonth - 1) ~/ 12;
-    final month = (nextMonth - 1) % 12 + 1;
-    final lastDay = DateTime.utc(year, month + 1, 0).day;
-    final day = value.day > lastDay ? lastDay : value.day;
-    return DateTime.utc(
-      year,
-      month,
-      day,
-      value.hour,
-      value.minute,
-      value.second,
-      value.millisecond,
-      value.microsecond,
+  /// Создаёт все календарные периоды квоты на срок услуги.
+  Future<void> _createQuotaPeriods({
+    required String purchaseId,
+    required DateTime activation,
+    required DateTime? expiry,
+    required int? quotaPeriod,
+    required int quotaLimit,
+    required Session session,
+  }) async {
+    final periods = const QuotaPeriodCalculator().build(
+      activation: activation,
+      expiry: expiry,
+      quotaPeriod: quotaPeriod,
+      quotaLimit: quotaLimit,
     );
+    for (final period in periods) {
+      await _purchaseRepository.createQuotaPeriod(
+        purchaseId: purchaseId,
+        periodStart: period.start,
+        periodEnd: period.end,
+        quotaLimit: quotaLimit,
+        session: session,
+      );
+    }
   }
 }

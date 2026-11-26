@@ -63,6 +63,28 @@ abstract class ServicePurchaseRepository {
 
   /// Покупка по id — для ответа API после создания.
   Future<ServicePurchase?> getById(String id, {Session? session});
+
+  /// Сырая строка покупки вместе с параметрами услуги, нужными активации.
+  Future<Map<String, dynamic>?> getRowById(String id, {Session? session});
+
+  /// Переводит покупку в активную и фиксирует срок.
+  Future<void> activate({
+    required String id,
+    required DateTime activationDate,
+    required DateTime? expiryDate,
+    required DateTime? actualExpiryDate,
+    required String updatedBy,
+    Session? session,
+  });
+
+  /// Покупки, у которых истёк срок или закончились использования.
+  Future<List<Map<String, dynamic>>> getDueForStatusUpdate({Session? session});
+
+  Future<void> updateStatus({
+    required String id,
+    required int status,
+    Session? session,
+  });
 }
 
 class ServicePurchaseRepositoryImpl implements ServicePurchaseRepository {
@@ -284,7 +306,7 @@ class ServicePurchaseRepositoryImpl implements ServicePurchaseRepository {
       Sql.named('''
         $_selectBase
          WHERE p.client_id = @clientId
-           AND p.status IN (1, 2, 3, 4)
+           AND p.status IN (0, 1, 2, 3, 4)
          ORDER BY p.status, p.actual_expiry_date NULLS LAST, p.purchase_date DESC
       '''),
       parameters: {'clientId': clientId},
@@ -333,6 +355,104 @@ class ServicePurchaseRepositoryImpl implements ServicePurchaseRepository {
       return null;
     }
     return _toPurchase(rows.first);
+  }
+
+  @override
+  Future<Map<String, dynamic>?> getRowById(
+    String id, {
+    Session? session,
+  }) async {
+    final conn = session ?? await _db.connection;
+    final rows = await conn.execute(
+      Sql.named('''
+        SELECT
+          p.id, p.client_id, p.status, p.total_uses, p.used_uses,
+          p.activation_date, p.expiry_date, p.actual_expiry_date,
+          s.duration_days,
+          s.usage_limit_mode,
+          s.quota_period,
+          s.quota_limit,
+          s.activation_required
+        FROM service_purchases p
+        JOIN services s ON s.id = p.service_id
+        WHERE p.id = @id
+        FOR UPDATE OF p
+      '''),
+      parameters: {'id': id},
+    );
+    if (rows.isEmpty) {
+      return null;
+    }
+    return rows.first.toColumnMap();
+  }
+
+  @override
+  Future<void> activate({
+    required String id,
+    required DateTime activationDate,
+    required DateTime? expiryDate,
+    required DateTime? actualExpiryDate,
+    required String updatedBy,
+    Session? session,
+  }) async {
+    final conn = session ?? await _db.connection;
+    await conn.execute(
+      Sql.named('''
+        UPDATE service_purchases
+           SET status = 1,
+               activation_date = @activationDate,
+               expiry_date = @expiryDate,
+               actual_expiry_date = @actualExpiryDate,
+               updated_at = NOW(),
+               updated_by = @updatedBy
+         WHERE id = @id
+      '''),
+      parameters: {
+        'id': id,
+        'activationDate': activationDate,
+        'expiryDate': expiryDate,
+        'actualExpiryDate': actualExpiryDate,
+        'updatedBy': updatedBy,
+      },
+    );
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> getDueForStatusUpdate({
+    Session? session,
+  }) async {
+    final conn = session ?? await _db.connection;
+    final rows = await conn.execute(
+      Sql.named('''
+        SELECT id, status, total_uses, used_uses
+          FROM service_purchases
+         WHERE status = 1
+           AND (
+             (total_uses IS NOT NULL AND used_uses >= total_uses)
+             OR (actual_expiry_date IS NOT NULL
+                 AND actual_expiry_date < clock_timestamp())
+           )
+         FOR UPDATE
+      '''),
+    );
+    return rows.map((row) => row.toColumnMap()).toList();
+  }
+
+  @override
+  Future<void> updateStatus({
+    required String id,
+    required int status,
+    Session? session,
+  }) async {
+    final conn = session ?? await _db.connection;
+    await conn.execute(
+      Sql.named('''
+        UPDATE service_purchases
+           SET status = @status, updated_at = NOW()
+         WHERE id = @id
+      '''),
+      parameters: {'id': id, 'status': status},
+    );
   }
 
   ServicePurchase _toPurchase(ResultRow row) {

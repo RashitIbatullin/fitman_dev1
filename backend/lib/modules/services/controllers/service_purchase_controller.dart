@@ -67,6 +67,27 @@ class ServicePurchaseController {
     return _json(purchase.toJson(), statusCode: 201);
   }
 
+  /// Активирует отложенную покупку. Клиент — только свою, сотрудник — любую.
+  Future<Response> activate(Request request, String id) async {
+    final user = _currentUser(request);
+    final purchase = await _service.getById(id);
+    if (purchase == null) {
+      throw const NotFoundException('Покупка не найдена');
+    }
+
+    final roles = _roles(user);
+    final isStaff = roles.contains('admin') || roles.contains('manager');
+    if (!isStaff && !(roles.contains('client') && purchase.clientId == user.id)) {
+      throw const ForbiddenException('Нет прав на активацию этой покупки');
+    }
+
+    final activated = await _service.activate(
+      id,
+      audit: AuditContext.fromRequest(request, user: user),
+    );
+    return _json(activated.toJson());
+  }
+
   /// Покупки клиента: клиент видит только свои, менеджер и админ — любые.
   Future<Response> getClientServices(Request request, String clientId) async {
     final user = _currentUser(request);

@@ -883,6 +883,12 @@ final Router router = Router()
     (Request request) =>
         _protectedHandler(_servicePurchaseController.getHistory)(request),
   )
+  ..post(
+    '/api/service-purchases/<id>/activate',
+    (Request request, String id) => _protectedHandler(
+      (Request req) => _servicePurchaseController.activate(req, id),
+    )(request),
+  )
   ..get('/api/clients/<id>/services', (Request request, String id) {
     return _protectedHandler(
       (Request req) => _servicePurchaseController.getClientServices(req, id),
