@@ -52,6 +52,7 @@ CREATE TABLE lessons (
     finish_fact_at TIMESTAMPTZ,
     complete SMALLINT DEFAULT 0, -- 0: scheduled, 1: completed, 2: canceled
     note VARCHAR(255),
+    complexity_coefficient NUMERIC(4,2) DEFAULT 1.00, -- NULL/1.00 — базовая сложность
     company_id UUID DEFAULT '00000000-0000-0000-0000-000000000000',
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),

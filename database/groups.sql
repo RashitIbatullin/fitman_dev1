@@ -23,7 +23,8 @@ CREATE TABLE training_group_types (
   max_participants INT NOT NULL DEFAULT 1,
   description TEXT,
   icon VARCHAR(50),
-  color VARCHAR(7)
+  color VARCHAR(7),
+  complexity_coefficient NUMERIC(4,2) NOT NULL DEFAULT 1.00
 );
   
 -- Таблица для хранения тренировочных групп
