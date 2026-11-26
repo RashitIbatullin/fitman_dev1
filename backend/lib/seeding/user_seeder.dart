@@ -7,7 +7,16 @@ class UserSeeder {
   final Connection _connection;
   final Faker _faker;
 
-  Future<String> createUser({required String login, required String firstName, required String lastName, String? phone, int gender = 0, required String password}) async {
+  /// Создаёт пользователя. Телефон обязателен и уникален, email — опционален
+  /// и служит вторым идентификатором входа.
+  Future<String> createUser({
+    required String phone,
+    String? email,
+    required String firstName,
+    required String lastName,
+    int gender = 0,
+    required String password,
+  }) async {
     final passwordHash = BCrypt.hashpw(password, BCrypt.gensalt());
 
     final DateTime now = DateTime.now();
@@ -17,10 +26,10 @@ class UserSeeder {
     final maxDate = DateTime(now.year - 16, now.month, now.day);
 
     final result = await _connection.execute(Sql.named('''
-      INSERT INTO users (login, password_hash, email, first_name, last_name, gender, date_of_birth, phone)
-      VALUES (@login, @hash, @email, @first, @last, @gender, @dob, @phone)
+      INSERT INTO users (password_hash, email, first_name, last_name, gender, date_of_birth, phone)
+      VALUES (@hash, @email, @first, @last, @gender, @dob, @phone)
       RETURNING id
-      '''), parameters: {'login': phone ?? login, 'hash': passwordHash, 'email': login, 'first': firstName, 'last': lastName, 'gender': gender, 'dob': _faker.date.between(minDate, maxDate), 'phone': phone});
+      '''), parameters: {'hash': passwordHash, 'email': email, 'first': firstName, 'last': lastName, 'gender': gender, 'dob': _faker.date.between(minDate, maxDate), 'phone': phone});
     return result.first[0].toString();
   }
 
