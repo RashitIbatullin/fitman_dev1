@@ -39,6 +39,12 @@ import '../modules/support_staff/controllers/support_staff.controller.dart';
 import '../modules/appointments/repositories/appointment_repository.dart';
 import '../modules/appointments/services/appointment_service.dart';
 import '../modules/appointments/controllers/appointment_controller.dart';
+import '../modules/services/repositories/service_repository.dart';
+import '../modules/services/repositories/service_purchase_repository.dart';
+import '../modules/services/services/service_catalog_service.dart';
+import '../modules/services/services/service_purchase_service.dart';
+import '../modules/services/controllers/service_catalog_controller.dart';
+import '../modules/services/controllers/service_purchase_controller.dart';
 import '../modules/support_staff/services/support_staff.service.dart';
 import '../modules/support_staff/repositories/support_staff.repository.dart';
 import '../modules/competencies/repositories/competency_repository.dart';
@@ -61,6 +67,21 @@ final _competencyRepository = CompetencyRepositoryImpl(_db);
 final _appointmentRepository = AppointmentRepositoryImpl(_db);
 final _appointmentService = AppointmentService(_appointmentRepository, _db);
 final _appointmentController = AppointmentController(_appointmentService);
+
+final _serviceRepository = ServiceRepositoryImpl(_db);
+final _servicePurchaseRepository = ServicePurchaseRepositoryImpl(_db);
+final _serviceCatalogService = ServiceCatalogService(_serviceRepository);
+final _servicePurchaseService = ServicePurchaseService(
+  _servicePurchaseRepository,
+  _serviceRepository,
+  _db,
+);
+final _serviceCatalogController = ServiceCatalogController(
+  _serviceCatalogService,
+);
+final _servicePurchaseController = ServicePurchaseController(
+  _servicePurchaseService,
+);
 
 final _supportStaffRepository = SupportStaffRepositoryImpl(
   _db,
@@ -838,6 +859,33 @@ final Router router = Router()
   ..post('/api/appointments/<id>/skip', (Request request, String id) {
     return _servicesStaffHandler(
       (Request req) => _appointmentController.skip(req, id),
+    )(request);
+  })
+  // Каталог услуг: чтение для всех авторизованных.
+  ..get(
+    '/api/services',
+    (Request request) =>
+        _protectedHandler(_serviceCatalogController.getAll)(request),
+  )
+  ..get(
+    '/api/services/types',
+    (Request request) =>
+        _protectedHandler(_serviceCatalogController.getTypes)(request),
+  )
+  // Оформление услуги — менеджер и администратор.
+  ..post(
+    '/api/service-purchases',
+    (Request request) =>
+        _managerHandler(_servicePurchaseController.create)(request),
+  )
+  ..get(
+    '/api/service-purchases',
+    (Request request) =>
+        _protectedHandler(_servicePurchaseController.getHistory)(request),
+  )
+  ..get('/api/clients/<id>/services', (Request request, String id) {
+    return _protectedHandler(
+      (Request req) => _servicePurchaseController.getClientServices(req, id),
     )(request);
   })
   ..post(
