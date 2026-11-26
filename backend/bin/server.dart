@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:fitman_backend/config/app_config.dart';
@@ -7,6 +8,8 @@ import 'package:fitman_backend/middleware/access_log_middleware.dart';
 import 'package:fitman_backend/middleware/cors_middleware.dart';
 import 'package:fitman_backend/middleware/error_handler_middleware.dart';
 import 'package:fitman_backend/middleware/request_id_middleware.dart';
+import 'package:fitman_backend/modules/services/repositories/service_purchase_repository.dart';
+import 'package:fitman_backend/modules/services/services/service_purchase_maintenance.dart';
 import 'package:fitman_backend/routes/router.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart' as io;
@@ -67,8 +70,32 @@ Future<void> main(List<String> args) async {
     },
   );
 
+  // Автоматическое закрытие покупок: сразу при старте и далее по таймеру.
+  final maintenance = ServicePurchaseMaintenance(
+    ServicePurchaseRepositoryImpl(Database()),
+    Database(),
+  );
+  Future<void> runMaintenance() async {
+    try {
+      await maintenance.expireOverdue();
+    } catch (error, stackTrace) {
+      appLog.error(
+        'Ошибка автоматического закрытия покупок',
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+  }
+
+  unawaited(runMaintenance());
+  final maintenanceTimer = Timer.periodic(
+    const Duration(minutes: 15),
+    (_) => runMaintenance(),
+  );
+
   // Обработка graceful shutdown
   ProcessSignal.sigint.watch().listen((_) async {
+    maintenanceTimer.cancel();
     appLog.info('Остановка сервера');
     await server.close();
     await Database().disconnect();
