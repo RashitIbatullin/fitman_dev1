@@ -20,7 +20,7 @@ void main() {
       expect(
         () => UserPolicy.validateCreate(
           email: 'client@example.com',
-          phone: null,
+          phone: '+79990000001',
           password: 'Passw0rd!',
           roles: const ['client', 'trainer'],
         ),
@@ -32,7 +32,7 @@ void main() {
       expect(
         () => UserPolicy.validateCreate(
           email: 'user@example.com',
-          phone: null,
+          phone: '+79990000002',
           password: 'Passw0rd!',
           roles: const [],
         ),
@@ -40,11 +40,41 @@ void main() {
       );
     });
 
+    test('отклоняет создание без телефона', () {
+      expect(
+        () => UserPolicy.validateCreate(
+          email: 'client@example.com',
+          phone: null,
+          password: 'Passw0rd!',
+          roles: const ['client'],
+        ),
+        throwsA(
+          isA<ValidationException>().having(
+            (error) => error.message,
+            'message',
+            contains('телефон'),
+          ),
+        ),
+      );
+    });
+
+    test('пропускает клиента без email: телефон обязателен, email — нет', () {
+      expect(
+        () => UserPolicy.validateCreate(
+          email: null,
+          phone: '+79990000006',
+          password: 'Passw0rd!',
+          roles: const ['client'],
+        ),
+        returnsNormally,
+      );
+    });
+
     test('отклоняет неверный email', () {
       expect(
         () => UserPolicy.validateCreate(
           email: 'not-an-email',
-          phone: null,
+          phone: '+79990000003',
           password: 'Passw0rd!',
           roles: const ['client'],
         ),
@@ -56,7 +86,7 @@ void main() {
       expect(
         () => UserPolicy.validateCreate(
           email: 'user@example.com',
-          phone: null,
+          phone: '+79990000004',
           password: 'Pa1!',
           roles: const ['client'],
         ),
@@ -68,7 +98,7 @@ void main() {
       expect(
         () => UserPolicy.validateCreate(
           email: 'user@example.com',
-          phone: null,
+          phone: '+79990000005',
           password: 'Passw0rd',
           roles: const ['client'],
         ),
@@ -155,3 +185,4 @@ void main() {
     );
   });
 }
+

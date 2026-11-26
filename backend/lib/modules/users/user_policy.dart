@@ -8,12 +8,16 @@ class UserPolicy {
   const UserPolicy._();
 
   /// Системные имена ролей из ТЗ.
+  ///
+  /// `executor` — исполнитель услуг: массаж, СПА, косметология. Права уже
+  /// роли инструктора, но шире, чем у клиента.
   static const Set<String> allowedRoles = {
     'client',
     'instructor',
     'trainer',
     'manager',
     'admin',
+    'executor',
   };
 
   static final RegExp _emailPattern = RegExp(
@@ -23,6 +27,8 @@ class UserPolicy {
 
   /// Проверяет данные создания пользователя.
   ///
+  /// Телефон обязателен: это основной идентификатор входа и связи с клиентом.
+  /// Email опционален и служит вторым идентификатором входа.
   /// Клиент может иметь только одну роль; сотрудник — одну или несколько.
   static void validateCreate({
     required String? email,
@@ -30,8 +36,8 @@ class UserPolicy {
     required String password,
     required List<String> roles,
   }) {
-    if ((email == null || email.isEmpty) && (phone == null || phone.isEmpty)) {
-      throw const ValidationException('Укажите email или телефон для входа');
+    if (phone == null || phone.isEmpty) {
+      throw const ValidationException('Укажите телефон пользователя');
     }
     validateEmail(email);
     validatePhone(phone);

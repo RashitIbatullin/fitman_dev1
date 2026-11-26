@@ -60,14 +60,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               const SizedBox(height: 32),
               TextFormField(
                 controller: _phoneController,
-                keyboardType: TextInputType.phone,
+                keyboardType: TextInputType.emailAddress,
+                textInputAction: TextInputAction.next,
+                autofillHints: const [AutofillHints.username],
                 decoration: const InputDecoration(
-                  labelText: 'Телефон',
+                  labelText: 'Телефон или email',
+                  hintText: '+7 900 000-00-00 или name@example.ru',
                   border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.phone),
+                  prefixIcon: Icon(Icons.person_outline),
                 ),
                 validator: (value) {
-                  if (value == null || value.isEmpty) return 'Введите номер телефона';
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Введите телефон или email';
+                  }
                   return null;
                 },
               ),
