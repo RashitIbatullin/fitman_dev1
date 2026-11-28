@@ -88,6 +88,28 @@ class ServicePurchaseController {
     return _json(activated.toJson());
   }
 
+  /// Исправление факта оплаты — только сотрудник.
+  Future<Response> update(Request request, String id) async {
+    final user = _currentUser(request);
+    final body = await request.readAsString();
+    final data = body.isEmpty
+        ? const <String, dynamic>{}
+        : jsonDecode(body) as Map<String, dynamic>;
+
+    final paymentStatus = _optionalInt(data['paymentStatus'], 'paymentStatus');
+    if (paymentStatus == null) {
+      throw const ValidationException('Укажите статус оплаты');
+    }
+
+    final updated = await _service.updatePayment(
+      id,
+      paymentStatus: paymentStatus,
+      paymentSource: _optionalInt(data['paymentSource'], 'paymentSource'),
+      audit: AuditContext.fromRequest(request, user: user),
+    );
+    return _json(updated.toJson());
+  }
+
   /// Ручная архивация покупки — только сотрудник.
   Future<Response> archive(Request request, String id) async {
     final user = _currentUser(request);
