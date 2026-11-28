@@ -3,8 +3,7 @@ import 'package:flutter/material.dart';
 import 'service_category.dart';
 
 /// Иконка конкретного типа услуги.
-IconData serviceTypeIcon(String? typeCode, ServiceCategory category) {
-  switch (typeCode) {
+IconData serviceTypeIcon(String? typeCode, ServiceCategory category) {  switch (typeCode) {
     case 'club_membership':
       return Icons.card_membership;
     case 'zone_membership':
@@ -46,6 +45,19 @@ IconData serviceTypeIcon(String? typeCode, ServiceCategory category) {
     default:
       return _categoryIcon(category);
   }
+}
+
+/// Иконка типа услуги по коду — для справочников и фильтров.
+IconData serviceTypeIconByCode(String? typeCode) {
+  return serviceTypeIcon(
+    typeCode,
+    classifyServiceTypeCode(typeCode),
+  );
+}
+
+/// Цвет иконки типа услуги по коду.
+Color serviceTypeColorByCode(String? typeCode) {
+  return serviceCategoryColor(classifyServiceTypeCode(typeCode));
 }
 
 /// Цвет фона цветной плашки типа услуги.

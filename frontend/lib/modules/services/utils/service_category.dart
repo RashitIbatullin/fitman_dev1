@@ -43,6 +43,17 @@ ServiceCategory classifyService(Service service) {
   );
 }
 
+/// Относит тип услуги к разделу — для иконок в справочниках.
+ServiceCategory classifyServiceTypeCode(
+  String? serviceTypeCode, {
+  String? specializationCode,
+}) {
+  return _classify(
+    serviceTypeCode: serviceTypeCode,
+    specializationCode: specializationCode,
+  );
+}
+
 /// Относит оформленную услугу к вкладке по тем же правилам.
 ServiceCategory classifyPurchase(ServicePurchase purchase) {
   return _classify(
