@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 
 import '../providers/catalog_provider.dart';
 import '../utils/service_category.dart';
+import '../utils/service_type_visuals.dart';
 import 'service_edit_screen.dart';
 
 /// Карточка просмотра услуги.
@@ -75,6 +76,7 @@ class _ServiceDetails extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final category = classifyService(service);
     final archived = service.archivedAt != null;
 
     return ListView(
@@ -89,7 +91,11 @@ class _ServiceDetails extends StatelessWidget {
                 Row(
                   children: [
                     CircleAvatar(
-                      child: Icon(_categoryIcon(classifyService(service))),
+                      backgroundColor: serviceCategoryColor(category),
+                      child: Icon(
+                        serviceTypeIcon(service.serviceTypeCode, category),
+                        color: Colors.white,
+                      ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -287,18 +293,5 @@ class _DetailRow extends StatelessWidget {
         ],
       ),
     );
-  }
-}
-
-IconData _categoryIcon(ServiceCategory category) {
-  switch (category) {
-    case ServiceCategory.training:
-      return Icons.fitness_center;
-    case ServiceCategory.medical:
-      return Icons.medical_services_outlined;
-    case ServiceCategory.cosmetology:
-      return Icons.spa_outlined;
-    case ServiceCategory.other:
-      return Icons.miscellaneous_services_outlined;
   }
 }

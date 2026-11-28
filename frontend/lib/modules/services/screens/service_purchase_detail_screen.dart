@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../utils/purchase_ui.dart';
+import '../utils/service_category.dart';
+import '../utils/service_type_visuals.dart';
 
 /// Карточка просмотра оформленной услуги клиента.
 class ServicePurchaseDetailScreen extends ConsumerStatefulWidget {
@@ -20,6 +22,7 @@ class _ServicePurchaseDetailScreenState
   @override
   Widget build(BuildContext context) {
     final purchase = widget.purchase;
+    final category = classifyPurchase(purchase);
 
     return Scaffold(
       appBar: AppBar(title: Text(purchase.serviceName)),
@@ -34,6 +37,17 @@ class _ServicePurchaseDetailScreenState
                 children: [
                   Row(
                     children: [
+                      CircleAvatar(
+                        backgroundColor: serviceCategoryColor(category),
+                        child: Icon(
+                          serviceTypeIcon(
+                            purchase.serviceTypeCode,
+                            category,
+                          ),
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
                       Expanded(
                         child: Text(
                           purchase.serviceName,

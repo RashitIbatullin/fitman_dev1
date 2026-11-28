@@ -8,6 +8,7 @@ import '../providers/catalog_provider.dart';
 import '../providers/services_provider.dart';
 import '../utils/purchase_ui.dart';
 import '../utils/service_category.dart';
+import '../utils/service_type_visuals.dart';
 import '../widgets/service_sale_dialog.dart';
 import 'service_edit_screen.dart';
 import 'service_purchase_detail_screen.dart';
@@ -558,7 +559,12 @@ class _PurchaseRow extends StatelessWidget {
       child: ListTile(
         onTap: onTap,
         leading: CircleAvatar(
-          child: Icon(_categoryIcon(category), size: 20),
+          backgroundColor: serviceCategoryColor(category),
+          child: Icon(
+            serviceTypeIcon(purchase.serviceTypeCode, category),
+            color: Colors.white,
+            size: 20,
+          ),
         ),
         title: Text(
           purchase.serviceName,
