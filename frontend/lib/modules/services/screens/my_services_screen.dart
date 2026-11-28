@@ -4,10 +4,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../services/api/services_api.dart';
 import '../../users/providers/auth_provider.dart';
+import '../providers/catalog_provider.dart';
 import '../providers/services_provider.dart';
 import '../utils/purchase_ui.dart';
 import '../utils/service_category.dart';
 import '../widgets/service_sale_dialog.dart';
+import 'service_edit_screen.dart';
 import 'service_purchase_detail_screen.dart';
 import 'service_purchase_edit_screen.dart';
 import 'services_dashboard_screen.dart';
@@ -69,6 +71,24 @@ class _MyServicesScreenState extends ConsumerState<MyServicesScreen>
     if (created == true) {
       _reload();
     }
+  }
+
+  /// Создаёт позицию каталога услуг — доступно только сотруднику.
+  Future<void> _openCreateService() async {
+    final saved = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(builder: (context) => const ServiceEditScreen()),
+    );
+    if (saved != true) {
+      return;
+    }
+    ref.invalidate(serviceCatalogProvider(false));
+    ref.invalidate(serviceCatalogProvider(true));
+    ref.invalidate(activeServicesProvider);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Услуга создана')),
+    );
   }
 
   Future<void> _openDetail(ServicePurchase purchase) async {
@@ -162,10 +182,24 @@ class _MyServicesScreenState extends ConsumerState<MyServicesScreen>
         ],
       ),
       floatingActionButton: canManage
-          ? FloatingActionButton.extended(
-              onPressed: _openSale,
-              icon: const Icon(Icons.add_shopping_cart),
-              label: const Text('Оформить услугу'),
+          ? Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                FloatingActionButton.small(
+                  heroTag: 'create-service-fab',
+                  onPressed: _openCreateService,
+                  tooltip: 'Создать услугу',
+                  child: const Icon(Icons.add),
+                ),
+                const SizedBox(height: 12),
+                FloatingActionButton.extended(
+                  heroTag: 'sale-service-fab',
+                  onPressed: _openSale,
+                  icon: const Icon(Icons.add_shopping_cart),
+                  label: const Text('Оформить услугу'),
+                ),
+              ],
             )
           : null,
       body: purchasesAsync.when(
