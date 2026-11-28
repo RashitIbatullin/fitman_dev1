@@ -44,10 +44,17 @@ class Service with _$Service {
     int? quotaPeriod,
     int? quotaLimit,
     int? durationMinutes,
+    String? executorSpecializationId,
+    String? executorSpecializationCode,
+    String? executorSpecializationTitle,
     required bool activationRequired,
     required bool allowStacking,
     required bool grantsAccess,
     required bool isActive,
+    DateTime? archivedAt,
+    String? archivedReason,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   }) = _Service;
 
   factory Service.fromJson(Map<String, dynamic> json) =>

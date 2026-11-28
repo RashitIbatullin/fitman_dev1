@@ -70,7 +70,10 @@ final _appointmentController = AppointmentController(_appointmentService);
 
 final _serviceRepository = ServiceRepositoryImpl(_db);
 final _servicePurchaseRepository = ServicePurchaseRepositoryImpl(_db);
-final _serviceCatalogService = ServiceCatalogService(_serviceRepository);
+final _serviceCatalogService = ServiceCatalogService(
+  _serviceRepository,
+  _db,
+);
 final _servicePurchaseService = ServicePurchaseService(
   _servicePurchaseRepository,
   _serviceRepository,
@@ -872,6 +875,37 @@ final Router router = Router()
     (Request request) =>
         _protectedHandler(_serviceCatalogController.getTypes)(request),
   )
+  ..get(
+    '/api/services/specializations',
+    (Request request) => _protectedHandler(
+      _serviceCatalogController.getSpecializations,
+    )(request),
+  )
+  ..get('/api/services/<id>', (Request request, String id) {
+    return _protectedHandler(
+      (Request req) => _serviceCatalogController.getById(req, id),
+    )(request);
+  })
+  ..post(
+    '/api/services',
+    (Request request) =>
+        _managerHandler(_serviceCatalogController.create)(request),
+  )
+  ..put('/api/services/<id>', (Request request, String id) {
+    return _managerHandler(
+      (Request req) => _serviceCatalogController.update(req, id),
+    )(request);
+  })
+  ..post('/api/services/<id>/archive', (Request request, String id) {
+    return _managerHandler(
+      (Request req) => _serviceCatalogController.archive(req, id),
+    )(request);
+  })
+  ..post('/api/services/<id>/unarchive', (Request request, String id) {
+    return _managerHandler(
+      (Request req) => _serviceCatalogController.unarchive(req, id),
+    )(request);
+  })
   // Оформление услуги — менеджер и администратор.
   ..post(
     '/api/service-purchases',
