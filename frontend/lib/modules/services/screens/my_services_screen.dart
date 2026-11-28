@@ -27,7 +27,7 @@ class MyServicesScreen extends ConsumerStatefulWidget {
 class _MyServicesScreenState extends ConsumerState<MyServicesScreen> {
   final TextEditingController _searchController = TextEditingController();
 
-  ServiceCategory _selectedCategory = ServiceCategory.training;
+  ServiceCategory? _selectedCategory = ServiceCategory.training;
   bool _onlyArchived = false;
 
   @override
@@ -305,7 +305,7 @@ class _MyServicesScreenState extends ConsumerState<MyServicesScreen> {
   List<ServicePurchase> _applyFilters(List<ServicePurchase> items) {
     final query = _searchController.text.trim().toLowerCase();
     return items.where((purchase) {
-      final matchesCategory =
+      final matchesCategory = _selectedCategory == null ||
           classifyPurchase(purchase) == _selectedCategory;
       final matchesSearch =
           query.isEmpty || purchase.serviceName.toLowerCase().contains(query);
@@ -455,9 +455,9 @@ class _FiltersCard extends StatelessWidget {
   });
 
   final TextEditingController searchController;
-  final ServiceCategory selectedCategory;
+  final ServiceCategory? selectedCategory;
   final bool onlyArchived;
-  final ValueChanged<ServiceCategory> onCategoryChanged;
+  final ValueChanged<ServiceCategory?> onCategoryChanged;
   final ValueChanged<bool> onArchivedChanged;
 
   @override
@@ -487,7 +487,7 @@ class _FiltersCard extends StatelessWidget {
             Row(
               children: [
                 Expanded(
-                  child: DropdownButtonFormField<ServiceCategory>(
+                  child: DropdownButtonFormField<ServiceCategory?>(
                     key: ValueKey(selectedCategory),
                     initialValue: selectedCategory,
                     isExpanded: true,
@@ -496,22 +496,22 @@ class _FiltersCard extends StatelessWidget {
                       labelText: 'Раздел услуг',
                       border: OutlineInputBorder(),
                     ),
-                    items: ServiceCategory.values
-                        .map(
-                          (category) => DropdownMenuItem<ServiceCategory>(
-                            value: category,
-                            child: Text(
-                              category.label,
-                              overflow: TextOverflow.ellipsis,
-                            ),
+                    items: [
+                      const DropdownMenuItem<ServiceCategory?>(
+                        value: null,
+                        child: Text('Все'),
+                      ),
+                      ...ServiceCategory.values.map(
+                        (category) => DropdownMenuItem<ServiceCategory?>(
+                          value: category,
+                          child: Text(
+                            category.label,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                        )
-                        .toList(),
-                    onChanged: (value) {
-                      if (value != null) {
-                        onCategoryChanged(value);
-                      }
-                    },
+                        ),
+                      ),
+                    ],
+                    onChanged: onCategoryChanged,
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -739,23 +739,34 @@ class _PurchaseArchiveDialogState extends State<_PurchaseArchiveDialog> {
 class _EmptyList extends StatelessWidget {
   const _EmptyList({required this.category, required this.archived});
 
-  final ServiceCategory category;
+  final ServiceCategory? category;
   final bool archived;
 
   @override
   Widget build(BuildContext context) {
+    final category = this.category;
+    final message = category == null
+        ? (archived ? 'В архиве услуг нет' : 'Услуг нет')
+        : (archived
+            ? 'В архиве по разделу «${category.label}» услуг нет'
+            : 'В разделе «${category.label}» услуг нет');
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(_categoryIcon(category), size: 56, color: Colors.grey),
+            Icon(
+              category == null
+                  ? Icons.card_membership_outlined
+                  : _categoryIcon(category),
+              size: 56,
+              color: Colors.grey,
+            ),
             const SizedBox(height: 12),
             Text(
-              archived
-                  ? 'В архиве по разделу «${category.label}» услуг нет'
-                  : 'В разделе «${category.label}» услуг нет',
+              message,
               textAlign: TextAlign.center,
               style: const TextStyle(color: Colors.grey),
             ),
