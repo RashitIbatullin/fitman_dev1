@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../modules/users/providers/auth_provider.dart';
 import '../modules/users/screens/user_list_screen.dart';
 import 'admin/catalogs_screen.dart';
+import '../modules/services/screens/services_dashboard_screen.dart';
 
 class AdminDashboard extends ConsumerStatefulWidget {
   final bool showBackButton;
@@ -83,6 +84,19 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
             onTap: () {
               Navigator.pop(context); // Close drawer
               Navigator.push(context, MaterialPageRoute(builder: (context) => const CatalogsScreen()));
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.spa_outlined),
+            title: const Text('Услуги'),
+            onTap: () {
+              Navigator.pop(context); // Close drawer
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ServicesDashboardScreen(),
+                ),
+              );
             },
           ),
           ListTile(

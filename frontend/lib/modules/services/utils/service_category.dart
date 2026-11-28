@@ -37,19 +37,36 @@ const Set<String> _medicalSpecializations = {'lfk', 'physician', 'nurse'};
 
 /// Относит услугу к вкладке по типу и специализации исполнителя.
 ServiceCategory classifyService(Service service) {
-  final specialization = service.executorSpecializationCode;
-  if (specialization != null &&
-      _cosmetologySpecializations.contains(specialization)) {
+  return _classify(
+    serviceTypeCode: service.serviceTypeCode,
+    specializationCode: service.executorSpecializationCode,
+  );
+}
+
+/// Относит оформленную услугу к вкладке по тем же правилам.
+ServiceCategory classifyPurchase(ServicePurchase purchase) {
+  return _classify(
+    serviceTypeCode: purchase.serviceTypeCode,
+    specializationCode: purchase.executorSpecializationCode,
+  );
+}
+
+ServiceCategory _classify({
+  required String? serviceTypeCode,
+  required String? specializationCode,
+}) {
+  if (specializationCode != null &&
+      _cosmetologySpecializations.contains(specializationCode)) {
     return ServiceCategory.cosmetology;
   }
-  if (service.serviceTypeCode == 'medical_test' ||
-      (specialization != null &&
-          _medicalSpecializations.contains(specialization))) {
+  if (serviceTypeCode == 'medical_test' ||
+      (specializationCode != null &&
+          _medicalSpecializations.contains(specializationCode))) {
     return ServiceCategory.medical;
   }
-  if (_trainingTypes.contains(service.serviceTypeCode) ||
-      specialization == 'personal_trainer' ||
-      specialization == 'group_instructor') {
+  if (_trainingTypes.contains(serviceTypeCode) ||
+      specializationCode == 'personal_trainer' ||
+      specializationCode == 'group_instructor') {
     return ServiceCategory.training;
   }
   return ServiceCategory.other;

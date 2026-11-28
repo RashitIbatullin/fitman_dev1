@@ -29,6 +29,8 @@ mixin _$ServicePurchase {
   String? get serviceCode => throw _privateConstructorUsedError;
   String? get serviceTypeCode => throw _privateConstructorUsedError;
   String? get serviceTypeTitle => throw _privateConstructorUsedError;
+  String? get executorSpecializationCode => throw _privateConstructorUsedError;
+  String? get executorSpecializationTitle => throw _privateConstructorUsedError;
   double? get purchasePrice => throw _privateConstructorUsedError;
   double get discountPercent => throw _privateConstructorUsedError;
   double get discountAmount => throw _privateConstructorUsedError;
@@ -76,6 +78,8 @@ abstract class $ServicePurchaseCopyWith<$Res> {
     String? serviceCode,
     String? serviceTypeCode,
     String? serviceTypeTitle,
+    String? executorSpecializationCode,
+    String? executorSpecializationTitle,
     double? purchasePrice,
     double discountPercent,
     double discountAmount,
@@ -122,6 +126,8 @@ class _$ServicePurchaseCopyWithImpl<$Res, $Val extends ServicePurchase>
     Object? serviceCode = freezed,
     Object? serviceTypeCode = freezed,
     Object? serviceTypeTitle = freezed,
+    Object? executorSpecializationCode = freezed,
+    Object? executorSpecializationTitle = freezed,
     Object? purchasePrice = freezed,
     Object? discountPercent = null,
     Object? discountAmount = null,
@@ -176,6 +182,14 @@ class _$ServicePurchaseCopyWithImpl<$Res, $Val extends ServicePurchase>
             serviceTypeTitle: freezed == serviceTypeTitle
                 ? _value.serviceTypeTitle
                 : serviceTypeTitle // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            executorSpecializationCode: freezed == executorSpecializationCode
+                ? _value.executorSpecializationCode
+                : executorSpecializationCode // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            executorSpecializationTitle: freezed == executorSpecializationTitle
+                ? _value.executorSpecializationTitle
+                : executorSpecializationTitle // ignore: cast_nullable_to_non_nullable
                       as String?,
             purchasePrice: freezed == purchasePrice
                 ? _value.purchasePrice
@@ -281,6 +295,8 @@ abstract class _$$ServicePurchaseImplCopyWith<$Res>
     String? serviceCode,
     String? serviceTypeCode,
     String? serviceTypeTitle,
+    String? executorSpecializationCode,
+    String? executorSpecializationTitle,
     double? purchasePrice,
     double discountPercent,
     double discountAmount,
@@ -326,6 +342,8 @@ class __$$ServicePurchaseImplCopyWithImpl<$Res>
     Object? serviceCode = freezed,
     Object? serviceTypeCode = freezed,
     Object? serviceTypeTitle = freezed,
+    Object? executorSpecializationCode = freezed,
+    Object? executorSpecializationTitle = freezed,
     Object? purchasePrice = freezed,
     Object? discountPercent = null,
     Object? discountAmount = null,
@@ -380,6 +398,14 @@ class __$$ServicePurchaseImplCopyWithImpl<$Res>
         serviceTypeTitle: freezed == serviceTypeTitle
             ? _value.serviceTypeTitle
             : serviceTypeTitle // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        executorSpecializationCode: freezed == executorSpecializationCode
+            ? _value.executorSpecializationCode
+            : executorSpecializationCode // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        executorSpecializationTitle: freezed == executorSpecializationTitle
+            ? _value.executorSpecializationTitle
+            : executorSpecializationTitle // ignore: cast_nullable_to_non_nullable
                   as String?,
         purchasePrice: freezed == purchasePrice
             ? _value.purchasePrice
@@ -478,6 +504,8 @@ class _$ServicePurchaseImpl implements _ServicePurchase {
     this.serviceCode,
     this.serviceTypeCode,
     this.serviceTypeTitle,
+    this.executorSpecializationCode,
+    this.executorSpecializationTitle,
     this.purchasePrice,
     required this.discountPercent,
     required this.discountAmount,
@@ -519,6 +547,10 @@ class _$ServicePurchaseImpl implements _ServicePurchase {
   final String? serviceTypeCode;
   @override
   final String? serviceTypeTitle;
+  @override
+  final String? executorSpecializationCode;
+  @override
+  final String? executorSpecializationTitle;
   @override
   final double? purchasePrice;
   @override
@@ -562,7 +594,7 @@ class _$ServicePurchaseImpl implements _ServicePurchase {
 
   @override
   String toString() {
-    return 'ServicePurchase(id: $id, clientId: $clientId, clientName: $clientName, serviceId: $serviceId, serviceName: $serviceName, serviceCode: $serviceCode, serviceTypeCode: $serviceTypeCode, serviceTypeTitle: $serviceTypeTitle, purchasePrice: $purchasePrice, discountPercent: $discountPercent, discountAmount: $discountAmount, finalPrice: $finalPrice, paymentStatus: $paymentStatus, paymentSource: $paymentSource, purchaseDate: $purchaseDate, activationDate: $activationDate, expiryDate: $expiryDate, actualExpiryDate: $actualExpiryDate, totalUses: $totalUses, usedUses: $usedUses, remainingUses: $remainingUses, status: $status, quotaUsed: $quotaUsed, quotaLimit: $quotaLimit, quotaPeriod: $quotaPeriod, quotaPeriodStart: $quotaPeriodStart, quotaPeriodEnd: $quotaPeriodEnd, usageLimitMode: $usageLimitMode)';
+    return 'ServicePurchase(id: $id, clientId: $clientId, clientName: $clientName, serviceId: $serviceId, serviceName: $serviceName, serviceCode: $serviceCode, serviceTypeCode: $serviceTypeCode, serviceTypeTitle: $serviceTypeTitle, executorSpecializationCode: $executorSpecializationCode, executorSpecializationTitle: $executorSpecializationTitle, purchasePrice: $purchasePrice, discountPercent: $discountPercent, discountAmount: $discountAmount, finalPrice: $finalPrice, paymentStatus: $paymentStatus, paymentSource: $paymentSource, purchaseDate: $purchaseDate, activationDate: $activationDate, expiryDate: $expiryDate, actualExpiryDate: $actualExpiryDate, totalUses: $totalUses, usedUses: $usedUses, remainingUses: $remainingUses, status: $status, quotaUsed: $quotaUsed, quotaLimit: $quotaLimit, quotaPeriod: $quotaPeriod, quotaPeriodStart: $quotaPeriodStart, quotaPeriodEnd: $quotaPeriodEnd, usageLimitMode: $usageLimitMode)';
   }
 
   @override
@@ -585,6 +617,18 @@ class _$ServicePurchaseImpl implements _ServicePurchase {
                 other.serviceTypeCode == serviceTypeCode) &&
             (identical(other.serviceTypeTitle, serviceTypeTitle) ||
                 other.serviceTypeTitle == serviceTypeTitle) &&
+            (identical(
+                  other.executorSpecializationCode,
+                  executorSpecializationCode,
+                ) ||
+                other.executorSpecializationCode ==
+                    executorSpecializationCode) &&
+            (identical(
+                  other.executorSpecializationTitle,
+                  executorSpecializationTitle,
+                ) ||
+                other.executorSpecializationTitle ==
+                    executorSpecializationTitle) &&
             (identical(other.purchasePrice, purchasePrice) ||
                 other.purchasePrice == purchasePrice) &&
             (identical(other.discountPercent, discountPercent) ||
@@ -638,6 +682,8 @@ class _$ServicePurchaseImpl implements _ServicePurchase {
     serviceCode,
     serviceTypeCode,
     serviceTypeTitle,
+    executorSpecializationCode,
+    executorSpecializationTitle,
     purchasePrice,
     discountPercent,
     discountAmount,
@@ -687,6 +733,8 @@ abstract class _ServicePurchase implements ServicePurchase {
     final String? serviceCode,
     final String? serviceTypeCode,
     final String? serviceTypeTitle,
+    final String? executorSpecializationCode,
+    final String? executorSpecializationTitle,
     final double? purchasePrice,
     required final double discountPercent,
     required final double discountAmount,
@@ -728,6 +776,10 @@ abstract class _ServicePurchase implements ServicePurchase {
   String? get serviceTypeCode;
   @override
   String? get serviceTypeTitle;
+  @override
+  String? get executorSpecializationCode;
+  @override
+  String? get executorSpecializationTitle;
   @override
   double? get purchasePrice;
   @override
