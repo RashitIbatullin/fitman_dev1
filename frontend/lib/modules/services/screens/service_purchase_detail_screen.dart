@@ -2,7 +2,6 @@ import 'package:fitman_common/fitman_common.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../services/api/services_api.dart';
 import '../utils/purchase_ui.dart';
 
 /// Карточка просмотра оформленной услуги клиента.
@@ -18,27 +17,9 @@ class ServicePurchaseDetailScreen extends ConsumerStatefulWidget {
 
 class _ServicePurchaseDetailScreenState
     extends ConsumerState<ServicePurchaseDetailScreen> {
-  bool _activating = false;
-
-  Future<void> _activate() async {
-    setState(() => _activating = true);
-    try {
-      await ServicesApiService().activatePurchase(widget.purchase.id);
-      if (!mounted) return;
-      Navigator.of(context).pop(true);
-    } catch (error) {
-      if (!mounted) return;
-      setState(() => _activating = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Не удалось активировать: $error')),
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final purchase = widget.purchase;
-    final isDraft = purchase.status == ServicePurchaseStatus.draft;
 
     return Scaffold(
       appBar: AppBar(title: Text(purchase.serviceName)),
@@ -152,20 +133,6 @@ class _ServicePurchaseDetailScreenState
               ),
             ],
           ),
-          if (isDraft) ...[
-            const SizedBox(height: 20),
-            FilledButton.icon(
-              onPressed: _activating ? null : _activate,
-              icon: _activating
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.play_arrow),
-              label: const Text('Активировать услугу'),
-            ),
-          ],
         ],
       ),
     );

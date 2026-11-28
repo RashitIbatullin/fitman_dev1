@@ -9,6 +9,7 @@ import '../utils/purchase_ui.dart';
 import '../utils/service_category.dart';
 import '../widgets/service_sale_dialog.dart';
 import 'service_purchase_detail_screen.dart';
+import 'service_purchase_edit_screen.dart';
 import 'services_dashboard_screen.dart';
 
 /// Экран «Мои услуги»: дашборд остатков, сроков и статусов покупок клиента.
@@ -70,31 +71,25 @@ class _MyServicesScreenState extends ConsumerState<MyServicesScreen>
     }
   }
 
-  Future<void> _activate(ServicePurchase purchase) async {
-    try {
-      await ServicesApiService().activatePurchase(purchase.id);
-      if (!mounted) return;
-      _reload();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Услуга «${purchase.serviceName}» активирована')),
-      );
-    } catch (error) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Не удалось активировать: $error')),
-      );
-    }
-  }
-
   Future<void> _openDetail(ServicePurchase purchase) async {
-    final changed = await Navigator.push<bool>(
+    await Navigator.push<void>(
       context,
       MaterialPageRoute(
         builder: (context) =>
             ServicePurchaseDetailScreen(purchase: purchase),
       ),
     );
-    if (changed == true) {
+  }
+
+  Future<void> _openEdit(ServicePurchase purchase) async {
+    final saved = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            ServicePurchaseEditScreen(purchase: purchase),
+      ),
+    );
+    if (saved == true) {
       _reload();
     }
   }
@@ -273,18 +268,17 @@ class _MyServicesScreenState extends ConsumerState<MyServicesScreen>
               final purchase = items[index];
               return _PurchaseRow(
                 purchase: purchase,
+                canManage: canManage,
                 onTap: () => _openDetail(purchase),
-                onActivate: purchase.status == ServicePurchaseStatus.draft
-                    ? () => _activate(purchase)
+                onEdit: canManage ? () => _openEdit(purchase) : null,
+                onArchive: canManage &&
+                        purchase.archivedAt == null &&
+                        purchase.status >= ServicePurchaseStatus.exhausted
+                    ? () => _archive(purchase)
                     : null,
-                onArchive:
-                    canManage && purchase.archivedAt == null
-                        ? () => _archive(purchase)
-                        : null,
-                onUnarchive:
-                    canManage && purchase.archivedAt != null
-                        ? () => _unarchive(purchase)
-                        : null,
+                onUnarchive: canManage && purchase.archivedAt != null
+                    ? () => _unarchive(purchase)
+                    : null,
               );
             },
           ),
@@ -534,15 +528,17 @@ class _FiltersCard extends StatelessWidget {
 class _PurchaseRow extends StatelessWidget {
   const _PurchaseRow({
     required this.purchase,
+    required this.canManage,
     required this.onTap,
-    required this.onActivate,
+    required this.onEdit,
     required this.onArchive,
     required this.onUnarchive,
   });
 
   final ServicePurchase purchase;
+  final bool canManage;
   final VoidCallback onTap;
-  final VoidCallback? onActivate;
+  final VoidCallback? onEdit;
   final VoidCallback? onArchive;
   final VoidCallback? onUnarchive;
 
@@ -550,6 +546,7 @@ class _PurchaseRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final category = classifyPurchase(purchase);
     final archived = purchase.archivedAt != null;
+    final canArchive = purchase.status >= ServicePurchaseStatus.exhausted;
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -616,45 +613,46 @@ class _PurchaseRow extends StatelessWidget {
             ),
           ],
         ),
-        trailing: PopupMenuButton<String>(
-          onSelected: (value) {
-            switch (value) {
-              case 'detail':
-                onTap();
-                break;
-              case 'activate':
-                onActivate?.call();
-                break;
-              case 'archive':
-                onArchive?.call();
-                break;
-              case 'unarchive':
-                onUnarchive?.call();
-                break;
-            }
-          },
-          itemBuilder: (context) => <PopupMenuEntry<String>>[
-            const PopupMenuItem<String>(
-              value: 'detail',
-              child: Text('Подробнее'),
-            ),
-            if (onActivate != null)
-              const PopupMenuItem<String>(
-                value: 'activate',
-                child: Text('Активировать'),
+        trailing: !canManage
+            ? null
+            : PopupMenuButton<String>(
+                onSelected: (value) {
+                  switch (value) {
+                    case 'edit':
+                      onEdit?.call();
+                      break;
+                    case 'archive':
+                      onArchive?.call();
+                      break;
+                    case 'unarchive':
+                      onUnarchive?.call();
+                      break;
+                  }
+                },
+                itemBuilder: (context) => <PopupMenuEntry<String>>[
+                  if (!archived) ...[
+                    const PopupMenuItem<String>(
+                      value: 'edit',
+                      child: Text('Изменить'),
+                    ),
+                    if (canArchive)
+                      const PopupMenuItem<String>(
+                        value: 'archive',
+                        child: Text('Архивировать'),
+                      )
+                    else
+                      const PopupMenuItem<String>(
+                        value: 'archive',
+                        enabled: false,
+                        child: Text('Архивировать (только завершённые)'),
+                      ),
+                  ] else
+                    const PopupMenuItem<String>(
+                      value: 'unarchive',
+                      child: Text('Деархивировать'),
+                    ),
+                ],
               ),
-            if (onArchive != null)
-              const PopupMenuItem<String>(
-                value: 'archive',
-                child: Text('Архивировать'),
-              ),
-            if (onUnarchive != null)
-              const PopupMenuItem<String>(
-                value: 'unarchive',
-                child: Text('Деархивировать'),
-              ),
-          ],
-        ),
       ),
     );
   }
