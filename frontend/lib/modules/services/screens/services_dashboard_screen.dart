@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../services/api/services_api.dart';
 import '../providers/catalog_provider.dart';
 import '../utils/service_category.dart';
+import '../utils/service_type_visuals.dart';
 import 'service_detail_screen.dart';
 import 'service_edit_screen.dart';
 
@@ -461,7 +462,12 @@ class _ServiceRow extends StatelessWidget {
       child: ListTile(
         onTap: onTap,
         leading: CircleAvatar(
-          child: Icon(_categoryIcon(category), size: 20),
+          backgroundColor: serviceCategoryColor(category),
+          child: Icon(
+            serviceTypeIcon(service.serviceTypeCode, category),
+            color: Colors.white,
+            size: 20,
+          ),
         ),
         title: Text(
           service.name,
