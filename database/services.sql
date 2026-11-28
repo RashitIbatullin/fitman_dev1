@@ -131,6 +131,7 @@ CREATE TABLE services (
   updated_by UUID REFERENCES users(id),
   archived_at TIMESTAMPTZ,
   archived_by UUID REFERENCES users(id),
+  archived_reason TEXT,
   CONSTRAINT chk_services_limit CHECK (
     usage_limit_mode NOT IN (0, 1, 2)
     OR (usage_limit_mode = 2 AND quota_period IS NOT NULL AND quota_limit > 0)

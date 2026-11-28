@@ -11,6 +11,7 @@ import 'manager/timesheet_page.dart';
 import 'package:fitman_app/modules/groups/screens/training/training_groups_screen.dart';
 
 import 'package:fitman_app/modules/employees/screens/competency_screen.dart';
+import 'package:fitman_app/modules/services/screens/services_dashboard_screen.dart';
 
 class ManagerDashboard extends ConsumerWidget {
   final User? manager;
@@ -127,6 +128,11 @@ class ManagerDashboard extends ConsumerWidget {
               leading: const Icon(Icons.group),
               title: const Text('Группы тренинга'),
               onTap: () => handleDrawerTap(TrainingGroupsScreen(userId: user.id, userRole: 'manager')),
+            ),
+            ListTile(
+              leading: const Icon(Icons.spa_outlined),
+              title: const Text('Услуги'),
+              onTap: () => handleDrawerTap(const ServicesDashboardScreen()),
             ),
             ListTile(
               leading: const Icon(Icons.school),

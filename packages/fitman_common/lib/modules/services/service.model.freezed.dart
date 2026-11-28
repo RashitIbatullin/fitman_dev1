@@ -36,10 +36,17 @@ mixin _$Service {
   int? get quotaPeriod => throw _privateConstructorUsedError;
   int? get quotaLimit => throw _privateConstructorUsedError;
   int? get durationMinutes => throw _privateConstructorUsedError;
+  String? get executorSpecializationId => throw _privateConstructorUsedError;
+  String? get executorSpecializationCode => throw _privateConstructorUsedError;
+  String? get executorSpecializationTitle => throw _privateConstructorUsedError;
   bool get activationRequired => throw _privateConstructorUsedError;
   bool get allowStacking => throw _privateConstructorUsedError;
   bool get grantsAccess => throw _privateConstructorUsedError;
   bool get isActive => throw _privateConstructorUsedError;
+  DateTime? get archivedAt => throw _privateConstructorUsedError;
+  String? get archivedReason => throw _privateConstructorUsedError;
+  DateTime? get createdAt => throw _privateConstructorUsedError;
+  DateTime? get updatedAt => throw _privateConstructorUsedError;
 
   /// Serializes this Service to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -71,10 +78,17 @@ abstract class $ServiceCopyWith<$Res> {
     int? quotaPeriod,
     int? quotaLimit,
     int? durationMinutes,
+    String? executorSpecializationId,
+    String? executorSpecializationCode,
+    String? executorSpecializationTitle,
     bool activationRequired,
     bool allowStacking,
     bool grantsAccess,
     bool isActive,
+    DateTime? archivedAt,
+    String? archivedReason,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   });
 }
 
@@ -108,10 +122,17 @@ class _$ServiceCopyWithImpl<$Res, $Val extends Service>
     Object? quotaPeriod = freezed,
     Object? quotaLimit = freezed,
     Object? durationMinutes = freezed,
+    Object? executorSpecializationId = freezed,
+    Object? executorSpecializationCode = freezed,
+    Object? executorSpecializationTitle = freezed,
     Object? activationRequired = null,
     Object? allowStacking = null,
     Object? grantsAccess = null,
     Object? isActive = null,
+    Object? archivedAt = freezed,
+    Object? archivedReason = freezed,
+    Object? createdAt = freezed,
+    Object? updatedAt = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -175,6 +196,18 @@ class _$ServiceCopyWithImpl<$Res, $Val extends Service>
                 ? _value.durationMinutes
                 : durationMinutes // ignore: cast_nullable_to_non_nullable
                       as int?,
+            executorSpecializationId: freezed == executorSpecializationId
+                ? _value.executorSpecializationId
+                : executorSpecializationId // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            executorSpecializationCode: freezed == executorSpecializationCode
+                ? _value.executorSpecializationCode
+                : executorSpecializationCode // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            executorSpecializationTitle: freezed == executorSpecializationTitle
+                ? _value.executorSpecializationTitle
+                : executorSpecializationTitle // ignore: cast_nullable_to_non_nullable
+                      as String?,
             activationRequired: null == activationRequired
                 ? _value.activationRequired
                 : activationRequired // ignore: cast_nullable_to_non_nullable
@@ -191,6 +224,22 @@ class _$ServiceCopyWithImpl<$Res, $Val extends Service>
                 ? _value.isActive
                 : isActive // ignore: cast_nullable_to_non_nullable
                       as bool,
+            archivedAt: freezed == archivedAt
+                ? _value.archivedAt
+                : archivedAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime?,
+            archivedReason: freezed == archivedReason
+                ? _value.archivedReason
+                : archivedReason // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            createdAt: freezed == createdAt
+                ? _value.createdAt
+                : createdAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime?,
+            updatedAt: freezed == updatedAt
+                ? _value.updatedAt
+                : updatedAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime?,
           )
           as $Val,
     );
@@ -221,10 +270,17 @@ abstract class _$$ServiceImplCopyWith<$Res> implements $ServiceCopyWith<$Res> {
     int? quotaPeriod,
     int? quotaLimit,
     int? durationMinutes,
+    String? executorSpecializationId,
+    String? executorSpecializationCode,
+    String? executorSpecializationTitle,
     bool activationRequired,
     bool allowStacking,
     bool grantsAccess,
     bool isActive,
+    DateTime? archivedAt,
+    String? archivedReason,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   });
 }
 
@@ -257,10 +313,17 @@ class __$$ServiceImplCopyWithImpl<$Res>
     Object? quotaPeriod = freezed,
     Object? quotaLimit = freezed,
     Object? durationMinutes = freezed,
+    Object? executorSpecializationId = freezed,
+    Object? executorSpecializationCode = freezed,
+    Object? executorSpecializationTitle = freezed,
     Object? activationRequired = null,
     Object? allowStacking = null,
     Object? grantsAccess = null,
     Object? isActive = null,
+    Object? archivedAt = freezed,
+    Object? archivedReason = freezed,
+    Object? createdAt = freezed,
+    Object? updatedAt = freezed,
   }) {
     return _then(
       _$ServiceImpl(
@@ -324,6 +387,18 @@ class __$$ServiceImplCopyWithImpl<$Res>
             ? _value.durationMinutes
             : durationMinutes // ignore: cast_nullable_to_non_nullable
                   as int?,
+        executorSpecializationId: freezed == executorSpecializationId
+            ? _value.executorSpecializationId
+            : executorSpecializationId // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        executorSpecializationCode: freezed == executorSpecializationCode
+            ? _value.executorSpecializationCode
+            : executorSpecializationCode // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        executorSpecializationTitle: freezed == executorSpecializationTitle
+            ? _value.executorSpecializationTitle
+            : executorSpecializationTitle // ignore: cast_nullable_to_non_nullable
+                  as String?,
         activationRequired: null == activationRequired
             ? _value.activationRequired
             : activationRequired // ignore: cast_nullable_to_non_nullable
@@ -340,6 +415,22 @@ class __$$ServiceImplCopyWithImpl<$Res>
             ? _value.isActive
             : isActive // ignore: cast_nullable_to_non_nullable
                   as bool,
+        archivedAt: freezed == archivedAt
+            ? _value.archivedAt
+            : archivedAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
+        archivedReason: freezed == archivedReason
+            ? _value.archivedReason
+            : archivedReason // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        createdAt: freezed == createdAt
+            ? _value.createdAt
+            : createdAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
+        updatedAt: freezed == updatedAt
+            ? _value.updatedAt
+            : updatedAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
       ),
     );
   }
@@ -364,10 +455,17 @@ class _$ServiceImpl implements _Service {
     this.quotaPeriod,
     this.quotaLimit,
     this.durationMinutes,
+    this.executorSpecializationId,
+    this.executorSpecializationCode,
+    this.executorSpecializationTitle,
     required this.activationRequired,
     required this.allowStacking,
     required this.grantsAccess,
     required this.isActive,
+    this.archivedAt,
+    this.archivedReason,
+    this.createdAt,
+    this.updatedAt,
   });
 
   factory _$ServiceImpl.fromJson(Map<String, dynamic> json) =>
@@ -404,6 +502,12 @@ class _$ServiceImpl implements _Service {
   @override
   final int? durationMinutes;
   @override
+  final String? executorSpecializationId;
+  @override
+  final String? executorSpecializationCode;
+  @override
+  final String? executorSpecializationTitle;
+  @override
   final bool activationRequired;
   @override
   final bool allowStacking;
@@ -411,10 +515,18 @@ class _$ServiceImpl implements _Service {
   final bool grantsAccess;
   @override
   final bool isActive;
+  @override
+  final DateTime? archivedAt;
+  @override
+  final String? archivedReason;
+  @override
+  final DateTime? createdAt;
+  @override
+  final DateTime? updatedAt;
 
   @override
   String toString() {
-    return 'Service(id: $id, code: $code, name: $name, description: $description, serviceTypeId: $serviceTypeId, serviceTypeCode: $serviceTypeCode, serviceTypeTitle: $serviceTypeTitle, basePrice: $basePrice, currency: $currency, durationDays: $durationDays, usageLimitMode: $usageLimitMode, maxUses: $maxUses, quotaPeriod: $quotaPeriod, quotaLimit: $quotaLimit, durationMinutes: $durationMinutes, activationRequired: $activationRequired, allowStacking: $allowStacking, grantsAccess: $grantsAccess, isActive: $isActive)';
+    return 'Service(id: $id, code: $code, name: $name, description: $description, serviceTypeId: $serviceTypeId, serviceTypeCode: $serviceTypeCode, serviceTypeTitle: $serviceTypeTitle, basePrice: $basePrice, currency: $currency, durationDays: $durationDays, usageLimitMode: $usageLimitMode, maxUses: $maxUses, quotaPeriod: $quotaPeriod, quotaLimit: $quotaLimit, durationMinutes: $durationMinutes, executorSpecializationId: $executorSpecializationId, executorSpecializationCode: $executorSpecializationCode, executorSpecializationTitle: $executorSpecializationTitle, activationRequired: $activationRequired, allowStacking: $allowStacking, grantsAccess: $grantsAccess, isActive: $isActive, archivedAt: $archivedAt, archivedReason: $archivedReason, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -448,6 +560,23 @@ class _$ServiceImpl implements _Service {
                 other.quotaLimit == quotaLimit) &&
             (identical(other.durationMinutes, durationMinutes) ||
                 other.durationMinutes == durationMinutes) &&
+            (identical(
+                  other.executorSpecializationId,
+                  executorSpecializationId,
+                ) ||
+                other.executorSpecializationId == executorSpecializationId) &&
+            (identical(
+                  other.executorSpecializationCode,
+                  executorSpecializationCode,
+                ) ||
+                other.executorSpecializationCode ==
+                    executorSpecializationCode) &&
+            (identical(
+                  other.executorSpecializationTitle,
+                  executorSpecializationTitle,
+                ) ||
+                other.executorSpecializationTitle ==
+                    executorSpecializationTitle) &&
             (identical(other.activationRequired, activationRequired) ||
                 other.activationRequired == activationRequired) &&
             (identical(other.allowStacking, allowStacking) ||
@@ -455,7 +584,15 @@ class _$ServiceImpl implements _Service {
             (identical(other.grantsAccess, grantsAccess) ||
                 other.grantsAccess == grantsAccess) &&
             (identical(other.isActive, isActive) ||
-                other.isActive == isActive));
+                other.isActive == isActive) &&
+            (identical(other.archivedAt, archivedAt) ||
+                other.archivedAt == archivedAt) &&
+            (identical(other.archivedReason, archivedReason) ||
+                other.archivedReason == archivedReason) &&
+            (identical(other.createdAt, createdAt) ||
+                other.createdAt == createdAt) &&
+            (identical(other.updatedAt, updatedAt) ||
+                other.updatedAt == updatedAt));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -477,10 +614,17 @@ class _$ServiceImpl implements _Service {
     quotaPeriod,
     quotaLimit,
     durationMinutes,
+    executorSpecializationId,
+    executorSpecializationCode,
+    executorSpecializationTitle,
     activationRequired,
     allowStacking,
     grantsAccess,
     isActive,
+    archivedAt,
+    archivedReason,
+    createdAt,
+    updatedAt,
   ]);
 
   /// Create a copy of Service
@@ -514,10 +658,17 @@ abstract class _Service implements Service {
     final int? quotaPeriod,
     final int? quotaLimit,
     final int? durationMinutes,
+    final String? executorSpecializationId,
+    final String? executorSpecializationCode,
+    final String? executorSpecializationTitle,
     required final bool activationRequired,
     required final bool allowStacking,
     required final bool grantsAccess,
     required final bool isActive,
+    final DateTime? archivedAt,
+    final String? archivedReason,
+    final DateTime? createdAt,
+    final DateTime? updatedAt,
   }) = _$ServiceImpl;
 
   factory _Service.fromJson(Map<String, dynamic> json) = _$ServiceImpl.fromJson;
@@ -553,6 +704,12 @@ abstract class _Service implements Service {
   @override
   int? get durationMinutes;
   @override
+  String? get executorSpecializationId;
+  @override
+  String? get executorSpecializationCode;
+  @override
+  String? get executorSpecializationTitle;
+  @override
   bool get activationRequired;
   @override
   bool get allowStacking;
@@ -560,6 +717,14 @@ abstract class _Service implements Service {
   bool get grantsAccess;
   @override
   bool get isActive;
+  @override
+  DateTime? get archivedAt;
+  @override
+  String? get archivedReason;
+  @override
+  DateTime? get createdAt;
+  @override
+  DateTime? get updatedAt;
 
   /// Create a copy of Service
   /// with the given fields replaced by the non-null parameter values.

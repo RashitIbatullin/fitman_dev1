@@ -7,10 +7,15 @@ class ServicesApiService extends BaseApiService {
   ServicesApiService({super.client});
 
   /// Каталог услуг с фильтрами по типу и активности.
-  Future<List<Service>> getServices({String? type, bool? active}) async {
+  Future<List<Service>> getServices({
+    String? type,
+    bool? active,
+    bool? archived,
+  }) async {
     final query = <String, String>{};
     if (type != null && type.isNotEmpty) query['type'] = type;
     if (active != null) query['active'] = active.toString();
+    if (archived != null) query['archived'] = archived.toString();
 
     final data = await get(
       '/api/services',
@@ -22,10 +27,50 @@ class ServicesApiService extends BaseApiService {
         .toList();
   }
 
+  Future<Service> getServiceById(String id) async {
+    final data = await get('/api/services/$id');
+    return Service.fromJson(data as Map<String, dynamic>);
+  }
+
   /// Справочник типов услуг.
   Future<List<Map<String, dynamic>>> getServiceTypes() async {
     final data = await get('/api/services/types');
     return (data as List<dynamic>).cast<Map<String, dynamic>>();
+  }
+
+  /// Справочник специализаций исполнителей.
+  Future<List<Map<String, dynamic>>> getSpecializations() async {
+    final data = await get('/api/services/specializations');
+    return (data as List<dynamic>).cast<Map<String, dynamic>>();
+  }
+
+  Future<Service> createService(Map<String, dynamic> data) async {
+    final created = await post('/api/services', body: data);
+    return Service.fromJson(created as Map<String, dynamic>);
+  }
+
+  Future<Service> updateService(
+    String id,
+    Map<String, dynamic> data,
+  ) async {
+    final updated = await put('/api/services/$id', body: data);
+    return Service.fromJson(updated as Map<String, dynamic>);
+  }
+
+  Future<Service> archiveService(String id, {required String reason}) async {
+    final archived = await post(
+      '/api/services/$id/archive',
+      body: {'reason': reason},
+    );
+    return Service.fromJson(archived as Map<String, dynamic>);
+  }
+
+  Future<Service> unarchiveService(String id) async {
+    final restored = await post(
+      '/api/services/$id/unarchive',
+      body: const {},
+    );
+    return Service.fromJson(restored as Map<String, dynamic>);
   }
 
   /// Оформляет услугу клиенту.

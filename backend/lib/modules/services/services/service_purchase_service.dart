@@ -55,7 +55,7 @@ class ServicePurchaseService {
       if (service == null) {
         throw const NotFoundException('Услуга не найдена');
       }
-      if (!service.isActive) {
+      if (!service.isActive || service.archivedAt != null) {
         throw const ConflictException('Услуга снята с продажи');
       }
       if (!service.allowStacking) {
