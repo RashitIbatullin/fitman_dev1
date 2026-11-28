@@ -4,6 +4,7 @@ import 'package:fitman_backend/audit/audit_context.dart';
 import 'package:fitman_backend/errors/app_exception.dart';
 import 'package:fitman_backend/modules/users/services/user_service.dart';
 import 'package:fitman_backend/modules/users/user_providers.dart';
+import 'package:fitman_backend/security/access_policy.dart';
 import 'package:fitman_common/fitman_common.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_multipart/shelf_multipart.dart';
@@ -487,16 +488,7 @@ class UsersController {
     }
   }
 
-  bool _isStaff(User actor) {
-    return actor.roles.any(
-      (role) => const {
-        'admin',
-        'manager',
-        'trainer',
-        'instructor',
-      }.contains(role.name),
-    );
-  }
+  bool _isStaff(User actor) => AccessPolicy.isStaff(actor);
 
   Future<Map<String, dynamic>> _readBody(
     Request request, {

@@ -4,6 +4,7 @@ import 'package:fitman_backend/config/database.dart';
 import 'package:fitman_backend/errors/app_exception.dart';
 import 'package:fitman_backend/logging/app_logger.dart';
 import 'package:fitman_backend/modules/appointments/repositories/appointment_repository.dart';
+import 'package:fitman_backend/security/access_policy.dart';
 import 'package:fitman_common/modules/services/appointment.model.dart';
 
 /// Бизнес-логика записей на услуги.
@@ -180,11 +181,7 @@ class AppointmentService {
 
   /// Исполнитель работает только со своими записями; менеджер и админ — с любыми.
   void _ensureCanAct(Map<String, dynamic> row, AuditContext audit) {
-    final roles = (audit.actorRole ?? '')
-        .split(',')
-        .map((role) => role.trim())
-        .toSet();
-    if (roles.contains('admin') || roles.contains('manager')) {
+    if (AccessPolicy.hasAnyRoleCsv(audit.actorRole, RoleGroups.manager)) {
       return;
     }
 

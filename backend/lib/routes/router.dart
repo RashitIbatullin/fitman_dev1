@@ -1,11 +1,12 @@
 import 'package:shelf_router/shelf_router.dart';
-import 'package:fitman_common/fitman_common.dart';
 import 'package:shelf/shelf.dart';
 import '../controllers/auth_controller.dart';
 import '../modules/users/controllers/users_controller.dart';
 import '../controllers/training_controller.dart';
 import '../controllers/schedule_controller.dart';
 import '../middleware/auth_middleware.dart';
+import '../middleware/permission_middleware.dart';
+import '../security/access_policy.dart';
 import '../modules/clients/controllers/dashboard_controller.dart';
 import '../modules/clients/controllers/anthropometry_controller.dart';
 import '../modules/clients/controllers/calorie_tracking_controller.dart';
@@ -54,7 +55,6 @@ import '../modules/equipment/repositories/repair_time_standard_repository.dart';
 import '../modules/equipment/services/repair_time_standard_service.dart';
 import '../modules/employees/controllers/employee_competency_controller.dart';
 import '../controllers/measurements_controller.dart';
-import 'package:fitman_backend/logging/app_logger.dart';
 
 final Database _db = Database();
 
@@ -137,125 +137,52 @@ Handler _protectedHandler(Handler handler) {
   return requireAuth()(handler);
 }
 
-Middleware _requireTrainerOrAdmin() {
-  return (Handler innerHandler) {
-    return (Request request) {
-      final user = request.context['user'] as User?;
-      if (user == null ||
-          !user.roles.any((r) => r.name == 'trainer' || r.name == 'admin')) {
-        return Response.forbidden(
-          '{"error": "Trainer or Admin access required"}',
-        );
-      }
-      return innerHandler(request);
-    };
-  };
-}
-
-Middleware _requireManagerOrAdmin() {
-  return (Handler innerHandler) {
-    return (Request request) {
-      final user = request.context['user'] as User?;
-      if (user == null ||
-          !user.roles.any((r) => r.name == 'manager' || r.name == 'admin')) {
-        return Response.forbidden(
-          '{"error": "Manager or Admin access required"}',
-        );
-      }
-      return innerHandler(request);
-    };
-  };
+Handler _permissionHandler(String permission, Handler handler) {
+  return requireAuth()(requirePermission(permission)(handler));
 }
 
 Handler _adminHandler(Handler handler) {
-  return requireAuth()(
-    requireRole('admin')((Request request) {
-      appLog.debug(
-        'ADMIN_HANDLER: Received request for ${request.method} ${request.url}',
-      );
-      return handler(request);
-    }),
-  );
-}
-
-Handler _trainerHandler(Handler handler) {
-  return requireAuth()(_requireTrainerOrAdmin()(handler));
+  return _permissionHandler(Permissions.systemAdmin, handler);
 }
 
 Handler _managerHandler(Handler handler) {
-  return requireAuth()(_requireManagerOrAdmin()(handler));
+  return _permissionHandler(Permissions.systemManage, handler);
 }
 
-Middleware _requireInstructorOrAdmin() {
-  return (Handler innerHandler) {
-    return (Request request) {
-      final user = request.context['user'] as User?;
-      if (user == null ||
-          !user.roles.any((r) => r.name == 'instructor' || r.name == 'admin')) {
-        return Response.forbidden(
-          '{"error": "Instructor or Admin access required"}',
-        );
-      }
-      return innerHandler(request);
-    };
-  };
+Handler _trainerHandler(Handler handler) {
+  return _permissionHandler(Permissions.scheduleManage, handler);
 }
 
 Handler _instructorHandler(Handler handler) {
-  return requireAuth()(_requireInstructorOrAdmin()(handler));
-}
-
-Middleware _requireAnyEmployeeRoleOrAdmin() {
-  return (Handler innerHandler) {
-    return (Request request) {
-      final user = request.context['user'] as User?;
-      if (user == null ||
-          !user.roles.any(
-            (r) =>
-                r.name == 'admin' ||
-                r.name == 'manager' ||
-                r.name == 'trainer' ||
-                r.name == 'instructor',
-          )) {
-        return Response.forbidden(
-          '{"error": "Admin, Manager, Trainer or Instructor access required"}',
-        );
-      }
-      return innerHandler(request);
-    };
-  };
+  return _permissionHandler(Permissions.instructorView, handler);
 }
 
 Handler _employeeRolesOrAdminHandler(Handler handler) {
-  return requireAuth()(_requireAnyEmployeeRoleOrAdmin()(handler));
-}
-
-/// Записи на услуги: сотрудники и исполнители услуг.
-Middleware _requireServicesStaff() {
-  return (Handler innerHandler) {
-    return (Request request) {
-      final user = request.context['user'] as User?;
-      if (user == null ||
-          !user.roles.any(
-            (r) => const {
-              'admin',
-              'manager',
-              'trainer',
-              'instructor',
-              'executor',
-            }.contains(r.name),
-          )) {
-        return Response.forbidden(
-          '{"error": "Employee or Executor access required"}',
-        );
-      }
-      return innerHandler(request);
-    };
-  };
+  return _permissionHandler(Permissions.staffView, handler);
 }
 
 Handler _servicesStaffHandler(Handler handler) {
-  return requireAuth()(_requireServicesStaff()(handler));
+  return _permissionHandler(Permissions.appointmentsView, handler);
+}
+
+Handler _appointmentsActHandler(Handler handler) {
+  return _permissionHandler(Permissions.appointmentsAct, handler);
+}
+
+Handler _catalogManageHandler(Handler handler) {
+  return _permissionHandler(Permissions.servicesCatalogManage, handler);
+}
+
+Handler _purchaseCreateHandler(Handler handler) {
+  return _permissionHandler(Permissions.servicesPurchasesCreate, handler);
+}
+
+Handler _purchaseManageHandler(Handler handler) {
+  return _permissionHandler(Permissions.servicesPurchasesManage, handler);
+}
+
+Handler _rolesManageHandler(Handler handler) {
+  return _permissionHandler(Permissions.rolesManage, handler);
 }
 
 final Router router = Router()
@@ -343,10 +270,8 @@ final Router router = Router()
   )
   ..put(
     '/api/users/<id>/roles',
-    (Request request, String id) => requireAuth()(
-      requireRole('admin')(
-        (Request req) => _usersController.updateUserRoles(req, id),
-      ),
+    (Request request, String id) => _rolesManageHandler(
+      (Request req) => _usersController.updateUserRoles(req, id),
     )(request),
   )
   ..get(
@@ -854,13 +779,16 @@ final Router router = Router()
     '/api/appointments',
     (Request request) => _servicesStaffHandler(_appointmentController.getAll)(request),
   )
-  ..post('/api/appointments/<id>/complete', (Request request, String id) {
-    return _servicesStaffHandler(
-      (Request req) => _appointmentController.complete(req, id),
-    )(request);
-  })
+  ..post(
+    '/api/appointments/<id>/complete',
+    (Request request, String id) {
+      return _appointmentsActHandler(
+        (Request req) => _appointmentController.complete(req, id),
+      )(request);
+    },
+  )
   ..post('/api/appointments/<id>/skip', (Request request, String id) {
-    return _servicesStaffHandler(
+    return _appointmentsActHandler(
       (Request req) => _appointmentController.skip(req, id),
     )(request);
   })
@@ -889,20 +817,20 @@ final Router router = Router()
   ..post(
     '/api/services',
     (Request request) =>
-        _managerHandler(_serviceCatalogController.create)(request),
+        _catalogManageHandler(_serviceCatalogController.create)(request),
   )
   ..put('/api/services/<id>', (Request request, String id) {
-    return _managerHandler(
+    return _catalogManageHandler(
       (Request req) => _serviceCatalogController.update(req, id),
     )(request);
   })
   ..post('/api/services/<id>/archive', (Request request, String id) {
-    return _managerHandler(
+    return _catalogManageHandler(
       (Request req) => _serviceCatalogController.archive(req, id),
     )(request);
   })
   ..post('/api/services/<id>/unarchive', (Request request, String id) {
-    return _managerHandler(
+    return _catalogManageHandler(
       (Request req) => _serviceCatalogController.unarchive(req, id),
     )(request);
   })
@@ -910,7 +838,7 @@ final Router router = Router()
   ..post(
     '/api/service-purchases',
     (Request request) =>
-        _managerHandler(_servicePurchaseController.create)(request),
+        _purchaseCreateHandler(_servicePurchaseController.create)(request),
   )
   ..get(
     '/api/service-purchases',
@@ -924,18 +852,18 @@ final Router router = Router()
     )(request),
   )
   ..put('/api/service-purchases/<id>', (Request request, String id) {
-    return _managerHandler(
+    return _purchaseManageHandler(
       (Request req) => _servicePurchaseController.update(req, id),
     )(request);
   })
   ..post('/api/service-purchases/<id>/archive', (Request request, String id) {
-    return _managerHandler(
+    return _purchaseManageHandler(
       (Request req) => _servicePurchaseController.archive(req, id),
     )(request);
   })
   ..post(
     '/api/service-purchases/<id>/unarchive',
-    (Request request, String id) => _managerHandler(
+    (Request request, String id) => _purchaseManageHandler(
       (Request req) => _servicePurchaseController.unarchive(req, id),
     )(request),
   )

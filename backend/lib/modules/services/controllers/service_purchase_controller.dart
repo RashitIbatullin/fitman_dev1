@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:fitman_backend/audit/audit_context.dart';
 import 'package:fitman_backend/errors/app_exception.dart';
 import 'package:fitman_backend/modules/services/services/service_purchase_service.dart';
+import 'package:fitman_backend/security/access_policy.dart';
 import 'package:fitman_common/fitman_common.dart';
 import 'package:shelf/shelf.dart';
 
@@ -75,9 +76,9 @@ class ServicePurchaseController {
       throw const NotFoundException('Покупка не найдена');
     }
 
-    final roles = _roles(user);
-    final isStaff = roles.contains('admin') || roles.contains('manager');
-    if (!isStaff && !(roles.contains('client') && purchase.clientId == user.id)) {
+    final isStaff = AccessPolicy.isManagerOrAdmin(user);
+    if (!isStaff &&
+        !(AccessPolicy.isClient(user) && purchase.clientId == user.id)) {
       throw const ForbiddenException('Нет прав на активацию этой покупки');
     }
 
@@ -152,10 +153,9 @@ class ServicePurchaseController {
     final query = request.url.queryParameters;
 
     var clientId = query['clientId'];
-    final roles = _roles(user);
-    if (roles.contains('admin') || roles.contains('manager')) {
+    if (AccessPolicy.isManagerOrAdmin(user)) {
       // Сотрудник видит историю любого клиента и общий список.
-    } else if (roles.contains('client')) {
+    } else if (AccessPolicy.isClient(user)) {
       if (clientId != null && clientId.isNotEmpty && clientId != user.id) {
         throw const ForbiddenException('Клиент может смотреть только свои услуги');
       }
@@ -181,18 +181,14 @@ class ServicePurchaseController {
   }
 
   void _ensureCanViewClient(User user, String clientId) {
-    final roles = _roles(user);
-    if (roles.contains('admin') || roles.contains('manager')) {
+    if (AccessPolicy.isManagerOrAdmin(user)) {
       return;
     }
-    if (roles.contains('client') && user.id == clientId) {
+    if (AccessPolicy.isClient(user) && user.id == clientId) {
       return;
     }
     throw const ForbiddenException('Клиент может смотреть только свои услуги');
   }
-
-  Set<String> _roles(User user) =>
-      user.roles.map((role) => role.name).toSet();
 
   User _currentUser(Request request) {
     final user = request.context['user'] as User?;
