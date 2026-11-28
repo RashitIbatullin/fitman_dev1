@@ -46,7 +46,7 @@ class _MyServicesScreenState extends ConsumerState<MyServicesScreen>
     super.dispose();
   }
 
-  bool _canSell() {
+  bool _isStaff() {
     final user = ref.watch(authProvider).value?.user;
     if (user == null) {
       return false;
@@ -99,16 +99,59 @@ class _MyServicesScreenState extends ConsumerState<MyServicesScreen>
     }
   }
 
+  Future<void> _archive(ServicePurchase purchase) async {
+    final reason = await showDialog<String>(
+      context: context,
+      builder: (context) => _PurchaseArchiveDialog(purchase: purchase),
+    );
+    if (reason == null) {
+      return;
+    }
+
+    try {
+      await ServicesApiService().archivePurchase(
+        purchase.id,
+        reason: reason,
+      );
+      if (!mounted) return;
+      _reload();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Услуга «${purchase.serviceName}» в архиве')),
+      );
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Не удалось архивировать: $error')),
+      );
+    }
+  }
+
+  Future<void> _unarchive(ServicePurchase purchase) async {
+    try {
+      await ServicesApiService().unarchivePurchase(purchase.id);
+      if (!mounted) return;
+      _reload();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Услуга «${purchase.serviceName}» восстановлена')),
+      );
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Не удалось восстановить: $error')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final purchasesAsync = ref.watch(clientServicesProvider(widget.clientId));
-    final canSell = _canSell();
+    final canManage = _isStaff();
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Мои услуги'),
         actions: [
-          if (canSell)
+          if (canManage)
             IconButton(
               icon: const Icon(Icons.tune),
               tooltip: 'Каталог услуг',
@@ -123,7 +166,7 @@ class _MyServicesScreenState extends ConsumerState<MyServicesScreen>
             ),
         ],
       ),
-      floatingActionButton: canSell
+      floatingActionButton: canManage
           ? FloatingActionButton.extended(
               onPressed: _openSale,
               icon: const Icon(Icons.add_shopping_cart),
@@ -163,11 +206,11 @@ class _MyServicesScreenState extends ConsumerState<MyServicesScreen>
   }
 
   Widget _buildDashboard(List<ServicePurchase> purchases) {
-    final active = purchases
-        .where((purchase) => !isArchivedPurchaseStatus(purchase.status))
-        .toList();
     final archived = purchases
-        .where((purchase) => isArchivedPurchaseStatus(purchase.status))
+        .where((purchase) => purchase.archivedAt != null)
+        .toList();
+    final active = purchases
+        .where((purchase) => purchase.archivedAt == null)
         .toList();
     final source = _onlyArchived ? archived : active;
 
@@ -199,13 +242,16 @@ class _MyServicesScreenState extends ConsumerState<MyServicesScreen>
               .toList(),
         ),
         Expanded(
-          child: _buildTabs(_applyFilters(source)),
+          child: _buildTabs(_applyFilters(source), canManage: _isStaff()),
         ),
       ],
     );
   }
 
-  Widget _buildTabs(List<ServicePurchase> filtered) {
+  Widget _buildTabs(
+    List<ServicePurchase> filtered, {
+    required bool canManage,
+  }) {
     return TabBarView(
       controller: _tabController,
       children: ServiceCategory.values.map((category) {
@@ -231,6 +277,14 @@ class _MyServicesScreenState extends ConsumerState<MyServicesScreen>
                 onActivate: purchase.status == ServicePurchaseStatus.draft
                     ? () => _activate(purchase)
                     : null,
+                onArchive:
+                    canManage && purchase.archivedAt == null
+                        ? () => _archive(purchase)
+                        : null,
+                onUnarchive:
+                    canManage && purchase.archivedAt != null
+                        ? () => _unarchive(purchase)
+                        : null,
               );
             },
           ),
@@ -271,9 +325,18 @@ class _StatsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hasUnlimited =
-        active.any((p) => p.usageLimitMode == ServiceUsageLimitMode.unlimited);
-    final remaining = active.fold<int>(
+    final current = active
+        .where(
+          (purchase) =>
+              purchase.status == ServicePurchaseStatus.active ||
+              purchase.status == ServicePurchaseStatus.frozen,
+        )
+        .toList();
+    final hasUnlimited = current.any(
+      (purchase) =>
+          purchase.usageLimitMode == ServiceUsageLimitMode.unlimited,
+    );
+    final remaining = current.fold<int>(
       0,
       (sum, purchase) => sum + (purchase.remainingUses ?? 0),
     );
@@ -296,7 +359,7 @@ class _StatsCard extends StatelessWidget {
             ),
             _StatTile(
               title: 'Активных',
-              value: '${active.length}',
+              value: '${current.length}',
               color: Colors.green,
               isActive: !onlyArchived,
               onTap: onShowActive,
@@ -473,21 +536,24 @@ class _PurchaseRow extends StatelessWidget {
     required this.purchase,
     required this.onTap,
     required this.onActivate,
+    required this.onArchive,
+    required this.onUnarchive,
   });
 
   final ServicePurchase purchase;
   final VoidCallback onTap;
   final VoidCallback? onActivate;
+  final VoidCallback? onArchive;
+  final VoidCallback? onUnarchive;
 
   @override
   Widget build(BuildContext context) {
     final category = classifyPurchase(purchase);
+    final archived = purchase.archivedAt != null;
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      color: isArchivedPurchaseStatus(purchase.status)
-          ? Colors.grey.shade200
-          : null,
+      color: archived ? Colors.grey.shade200 : null,
       child: ListTile(
         onTap: onTap,
         leading: CircleAvatar(
@@ -509,6 +575,17 @@ class _PurchaseRow extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
+                if (archived) ...[
+                  const Chip(
+                    label: Text(
+                      'Архив',
+                      style: TextStyle(fontSize: 11, color: Colors.white),
+                    ),
+                    backgroundColor: Colors.brown,
+                    visualDensity: VisualDensity.compact,
+                  ),
+                  const SizedBox(width: 4),
+                ],
                 Chip(
                   label: Text(
                     purchaseStatusLabel(purchase.status),
@@ -548,6 +625,12 @@ class _PurchaseRow extends StatelessWidget {
               case 'activate':
                 onActivate?.call();
                 break;
+              case 'archive':
+                onArchive?.call();
+                break;
+              case 'unarchive':
+                onUnarchive?.call();
+                break;
             }
           },
           itemBuilder: (context) => <PopupMenuEntry<String>>[
@@ -559,6 +642,16 @@ class _PurchaseRow extends StatelessWidget {
               const PopupMenuItem<String>(
                 value: 'activate',
                 child: Text('Активировать'),
+              ),
+            if (onArchive != null)
+              const PopupMenuItem<String>(
+                value: 'archive',
+                child: Text('Архивировать'),
+              ),
+            if (onUnarchive != null)
+              const PopupMenuItem<String>(
+                value: 'unarchive',
+                child: Text('Деархивировать'),
               ),
           ],
         ),
@@ -581,6 +674,61 @@ class _InfoChip extends StatelessWidget {
         Icon(icon, size: 14, color: Colors.blueGrey),
         const SizedBox(width: 4),
         Text(label, style: Theme.of(context).textTheme.bodySmall),
+      ],
+    );
+  }
+}
+
+class _PurchaseArchiveDialog extends StatefulWidget {
+  const _PurchaseArchiveDialog({required this.purchase});
+
+  final ServicePurchase purchase;
+
+  @override
+  State<_PurchaseArchiveDialog> createState() => _PurchaseArchiveDialogState();
+}
+
+class _PurchaseArchiveDialogState extends State<_PurchaseArchiveDialog> {
+  final TextEditingController _reasonController = TextEditingController();
+  String? _error;
+
+  @override
+  void dispose() {
+    _reasonController.dispose();
+    super.dispose();
+  }
+
+  void _submit() {
+    final reason = _reasonController.text.trim();
+    if (reason.length < 5) {
+      setState(() => _error = 'Причина — не менее 5 символов');
+      return;
+    }
+    Navigator.of(context).pop(reason);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text('Архивировать «${widget.purchase.serviceName}»'),
+      content: TextField(
+        controller: _reasonController,
+        autofocus: true,
+        decoration: InputDecoration(
+          labelText: 'Причина архивации',
+          errorText: _error,
+        ),
+        onSubmitted: (_) => _submit(),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Отмена'),
+        ),
+        FilledButton(
+          onPressed: _submit,
+          child: const Text('Архивировать'),
+        ),
       ],
     );
   }

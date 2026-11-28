@@ -115,7 +115,11 @@ class _ServiceDetails extends StatelessWidget {
                       )
                     else
                       Chip(
-                        label: Text(service.isActive ? 'Активна' : 'Не активна'),
+                        label: Text(
+                          service.isActive
+                              ? 'В продаже'
+                              : 'Снята с продажи',
+                        ),
                         backgroundColor:
                             service.isActive ? Colors.green : Colors.grey,
                         labelStyle: const TextStyle(color: Colors.white),

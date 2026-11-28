@@ -1,14 +1,6 @@
 import 'package:fitman_common/fitman_common.dart';
 import 'package:flutter/material.dart';
 
-/// Статус покупки, при котором она считается архивной для клиента.
-bool isArchivedPurchaseStatus(int status) {
-  return status == ServicePurchaseStatus.exhausted ||
-      status == ServicePurchaseStatus.expired ||
-      status == ServicePurchaseStatus.cancelled ||
-      status == ServicePurchaseStatus.refunded;
-}
-
 String purchaseStatusLabel(int status) {
   switch (status) {
     case ServicePurchaseStatus.draft:
