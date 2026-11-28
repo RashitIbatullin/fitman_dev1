@@ -169,7 +169,7 @@ class _ServiceEditScreenState extends ConsumerState<ServiceEditScreen> {
                   controller: _codeController,
                   decoration: const InputDecoration(
                     labelText: 'Код услуги *',
-                    hintText: 'MS-060',
+                    hintText: 'Например: MS-060',
                     border: OutlineInputBorder(),
                   ),
                   validator: (value) => value == null || value.trim().isEmpty
