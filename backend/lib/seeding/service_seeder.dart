@@ -121,13 +121,147 @@ class ServiceSeeder {
       durationMinutes: 60,
       createdBy: createdBy,
     );
-    appLog.info('   📋 Created 4 studio services');
+    await _upsertService(
+      code: 'PT-010',
+      name: 'Пакет тренировок 10',
+      description: 'Десять персональных тренировок с тренером.',
+      serviceTypeCode: 'training_package',
+      basePrice: 20000,
+      durationDays: 90,
+      usageLimitMode: 1,
+      maxUses: 10,
+      grantsAccess: true,
+      createdBy: createdBy,
+    );
+    appLog.info('   📋 Created 5 services');
 
+    final clientId = await _demoClientId();
+    final purchases = await _ensureDemoPurchases(
+      clientId: clientId,
+      soldBy: createdBy,
+    );
     await _createDemoAppointments(
-      clientId: await _demoClientId(),
+      clientId: clientId,
       massageTherapistId: massageTherapistId,
       cosmetologistId: cosmetologistId,
       createdBy: createdBy,
+      purchases: purchases,
+    );
+  }
+
+  /// Демо-покупки клиента: массаж, пакет тренировок и косметология.
+  ///
+  /// Идемпотентно: создаёт покупки только если у клиента их ещё нет,
+  /// затем возвращает карту «код услуги → id покупки» для привязки записей.
+  Future<Map<String, String>> _ensureDemoPurchases({
+    required String? clientId,
+    required String soldBy,
+  }) async {
+    if (clientId == null) {
+      return const {};
+    }
+
+    final existing = await _connection.execute(
+      Sql.named(
+        'SELECT COUNT(*) FROM service_purchases WHERE client_id = @client_id',
+      ),
+      parameters: {'client_id': clientId},
+    );
+    final count = existing.first[0] as int;
+
+    if (count == 0) {
+      await _insertDemoPurchase(
+        clientId: clientId,
+        serviceCode: 'MS-060',
+        soldBy: soldBy,
+        totalUses: 1,
+        finalPrice: 2500,
+      );
+      await _insertDemoPurchase(
+        clientId: clientId,
+        serviceCode: 'PT-010',
+        soldBy: soldBy,
+        totalUses: 10,
+        finalPrice: 20000,
+      );
+      await _insertDemoPurchase(
+        clientId: clientId,
+        serviceCode: 'CS-060',
+        soldBy: soldBy,
+        totalUses: 1,
+        finalPrice: 3500,
+      );
+      appLog.info('   🎫 Created 3 demo service purchases');
+    }
+
+    final rows = await _connection.execute(
+      Sql.named('''
+        SELECT s.code, p.id
+          FROM service_purchases p
+          JOIN services s ON s.id = p.service_id
+         WHERE p.client_id = @client_id
+      '''),
+      parameters: {'client_id': clientId},
+    );
+    return {
+      for (final row in rows) row[0].toString(): row[1].toString(),
+    };
+  }
+
+  Future<void> _insertDemoPurchase({
+    required String clientId,
+    required String serviceCode,
+    required String soldBy,
+    required int totalUses,
+    required int finalPrice,
+  }) async {
+    final service = await _serviceSnapshot(serviceCode);
+    final now = DateTime.now().toUtc();
+    final expiry = service.durationDays == null
+        ? null
+        : now.add(Duration(days: service.durationDays!));
+
+    final result = await _connection.execute(
+      Sql.named('''
+        INSERT INTO service_purchases (
+          client_id, service_id, sold_by,
+          purchase_price, discount_percent, discount_amount, final_price,
+          payment_status, payment_source, purchase_date,
+          activation_date, expiry_date, actual_expiry_date,
+          total_uses, used_uses, status, created_by, updated_by
+        ) VALUES (
+          @client_id, @service_id, @sold_by,
+          @price, 0, 0, @price,
+          1, 2, @now,
+          @now, @expiry, @expiry,
+          @total_uses, 0, 1, @sold_by, @sold_by
+        )
+        RETURNING id
+      '''),
+      parameters: {
+        'client_id': clientId,
+        'service_id': service.id,
+        'sold_by': soldBy,
+        'price': finalPrice,
+        'now': now,
+        'expiry': expiry,
+        'total_uses': totalUses,
+      },
+    );
+    final purchaseId = result.first[0].toString();
+
+    await _connection.execute(
+      Sql.named('''
+        INSERT INTO purchase_participants (
+          purchase_id, client_id, role, created_by
+        ) VALUES (@purchase_id, @client_id, 1, @sold_by)
+        ON CONFLICT (purchase_id, client_id) DO NOTHING
+      '''),
+      parameters: {
+        'purchase_id': purchaseId,
+        'client_id': clientId,
+        'sold_by': soldBy,
+      },
     );
   }
 
@@ -137,6 +271,7 @@ class ServiceSeeder {
     required String massageTherapistId,
     required String cosmetologistId,
     required String createdBy,
+    required Map<String, String> purchases,
   }) async {
     if (clientId == null) {
       return;
@@ -161,6 +296,7 @@ class ServiceSeeder {
       hour: 12,
       description: massageService.description,
       note: 'Просил не звонить, писать в чат',
+      purchaseId: purchases['MS-060'],
       createdBy: createdBy,
     );
     await _insertAppointment(
@@ -171,6 +307,7 @@ class ServiceSeeder {
       hour: 15,
       description: cosmetologyService.description,
       note: 'Аллергия на аромамасла',
+      purchaseId: purchases['CS-060'],
       createdBy: createdBy,
     );
     appLog.info('   📅 Created 2 demo appointments');
@@ -184,6 +321,7 @@ class ServiceSeeder {
     required int hour,
     required String description,
     required String note,
+    String? purchaseId,
     required String createdBy,
   }) async {
     final startAt = DateTime.now().add(Duration(days: daysAhead));
@@ -192,16 +330,17 @@ class ServiceSeeder {
     await _connection.execute(
       Sql.named('''
         INSERT INTO appointments (
-          client_id, service_id, executor_id, start_at,
+          client_id, service_id, purchase_id, executor_id, start_at,
           service_description, note, status, created_by, updated_by
         ) VALUES (
-          @client_id, @service_id, @executor_id, @start_at,
+          @client_id, @service_id, @purchase_id, @executor_id, @start_at,
           @description, @note, 0, @created_by, @created_by
         )
       '''),
       parameters: {
         'client_id': clientId,
         'service_id': serviceId,
+        'purchase_id': purchaseId,
         'executor_id': executorId,
         'start_at': slot,
         'description': description,
@@ -266,10 +405,15 @@ class ServiceSeeder {
     required String name,
     required String description,
     required String serviceTypeCode,
-    required String specializationId,
+    String? specializationId,
     required int basePrice,
     required int durationDays,
-    required int durationMinutes,
+    int? durationMinutes,
+    int usageLimitMode = 1,
+    int? maxUses = 1,
+    int? quotaPeriod,
+    int? quotaLimit,
+    bool grantsAccess = false,
     required String createdBy,
   }) async {
     final typeId = await _serviceTypeId(serviceTypeCode);
@@ -278,12 +422,14 @@ class ServiceSeeder {
       Sql.named('''
         INSERT INTO services (
           code, name, description, service_type_id, base_price,
-          duration_days, usage_limit_mode, max_uses, grants_access,
+          duration_days, usage_limit_mode, max_uses,
+          quota_period, quota_limit, grants_access,
           executor_specialization_id, duration_minutes, freeze_allowed,
           created_by, updated_by
         ) VALUES (
           @code, @name, @description, @type_id, @base_price,
-          @duration_days, 1, 1, false,
+          @duration_days, @usage_limit_mode, @max_uses,
+          @quota_period, @quota_limit, @grants_access,
           @specialization_id, @duration_minutes, false,
           @created_by, @created_by
         )
@@ -296,6 +442,11 @@ class ServiceSeeder {
         'type_id': typeId,
         'base_price': basePrice,
         'duration_days': durationDays,
+        'usage_limit_mode': usageLimitMode,
+        'max_uses': maxUses,
+        'quota_period': quotaPeriod,
+        'quota_limit': quotaLimit,
+        'grants_access': grantsAccess,
         'specialization_id': specializationId,
         'duration_minutes': durationMinutes,
         'created_by': createdBy,
@@ -379,7 +530,11 @@ class ServiceSeeder {
 
   Future<_ServiceSnapshot> _serviceSnapshot(String code) async {
     final result = await _connection.execute(
-      Sql.named('SELECT id, description FROM services WHERE code = @code'),
+      Sql.named('''
+        SELECT id, description, duration_days
+          FROM services
+         WHERE code = @code
+      '''),
       parameters: {'code': code},
     );
     if (result.isEmpty) {
@@ -388,6 +543,7 @@ class ServiceSeeder {
     return _ServiceSnapshot(
       id: result.first[0].toString(),
       description: (result.first[1] as String?) ?? '',
+      durationDays: result.first[2] as int?,
     );
   }
 
@@ -420,10 +576,15 @@ class ServiceSeeder {
 }
 
 class _ServiceSnapshot {
-  const _ServiceSnapshot({required this.id, required this.description});
+  const _ServiceSnapshot({
+    required this.id,
+    required this.description,
+    required this.durationDays,
+  });
 
   final String id;
   final String description;
+  final int? durationDays;
 }
 
 
