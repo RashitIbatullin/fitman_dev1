@@ -104,6 +104,8 @@ class ServicePurchaseRepositoryImpl implements ServicePurchaseRepository {
       s.code AS service_code,
       st.code AS service_type_code,
       st.title AS service_type_title,
+      sp.code AS executor_specialization_code,
+      sp.title AS executor_specialization_title,
       p.purchase_price::float8 AS purchase_price,
       p.discount_percent::float8 AS discount_percent,
       p.discount_amount::float8 AS discount_amount,
@@ -137,6 +139,7 @@ class ServicePurchaseRepositoryImpl implements ServicePurchaseRepository {
     JOIN users cu ON cu.id = p.client_id
     JOIN services s ON s.id = p.service_id
     JOIN service_types st ON st.id = s.service_type_id
+    LEFT JOIN specializations sp ON sp.id = s.executor_specialization_id
     LEFT JOIN LATERAL (
       SELECT qp.quota_used, qp.quota_limit, qp.period_start, qp.period_end
         FROM purchase_quota_periods qp
@@ -306,7 +309,8 @@ class ServicePurchaseRepositoryImpl implements ServicePurchaseRepository {
       Sql.named('''
         $_selectBase
          WHERE p.client_id = @clientId
-           AND p.status IN (0, 1, 2, 3, 4)
+           AND p.status IN (0, 1, 2, 3, 4, 5, 6)
+           AND p.archived_at IS NULL
          ORDER BY p.status, p.actual_expiry_date NULLS LAST, p.purchase_date DESC
       '''),
       parameters: {'clientId': clientId},
@@ -466,6 +470,10 @@ class ServicePurchaseRepositoryImpl implements ServicePurchaseRepository {
       serviceCode: map['service_code']?.toString(),
       serviceTypeCode: map['service_type_code']?.toString(),
       serviceTypeTitle: map['service_type_title']?.toString(),
+      executorSpecializationCode:
+          map['executor_specialization_code']?.toString(),
+      executorSpecializationTitle:
+          map['executor_specialization_title']?.toString(),
       purchasePrice: (map['purchase_price'] as num?)?.toDouble(),
       discountPercent: (map['discount_percent'] as num).toDouble(),
       discountAmount: (map['discount_amount'] as num).toDouble(),

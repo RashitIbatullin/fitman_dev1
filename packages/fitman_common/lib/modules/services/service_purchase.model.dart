@@ -48,6 +48,8 @@ class ServicePurchase with _$ServicePurchase {
     String? serviceCode,
     String? serviceTypeCode,
     String? serviceTypeTitle,
+    String? executorSpecializationCode,
+    String? executorSpecializationTitle,
     double? purchasePrice,
     required double discountPercent,
     required double discountAmount,
