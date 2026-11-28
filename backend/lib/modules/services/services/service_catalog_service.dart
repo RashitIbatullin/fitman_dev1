@@ -6,6 +6,7 @@ import 'package:fitman_backend/logging/app_logger.dart';
 import 'package:fitman_backend/modules/services/repositories/service_repository.dart';
 import 'package:fitman_common/fitman_common.dart';
 import 'package:postgres/postgres.dart';
+import 'package:uuid/uuid.dart';
 
 /// Каталог услуг: чтение и управление позициями.
 class ServiceCatalogService {
@@ -39,8 +40,7 @@ class ServiceCatalogService {
   Future<Service> create(ServiceDraft draft, {required AuditContext audit}) {
     return _database.runTx((session) async {
       final normalized = await _validateAndNormalize(draft, session: session);
-      final created = await _repository.create(
-        normalized,
+      final created = await _repository.create(        normalized,
         createdBy: audit.actorId ?? '',
         session: session,
       );
@@ -83,6 +83,7 @@ class ServiceCatalogService {
         draft,
         session: session,
         excludeId: id,
+        fallbackCode: old.code,
       );
       final updated = await _repository.update(
         id,
@@ -203,12 +204,17 @@ class ServiceCatalogService {
     ServiceDraft draft, {
     required Session session,
     String? excludeId,
+    String? fallbackCode,
   }) async {
-    final code = draft.code.trim();
+    final inputCode = draft.code.trim();
+    // Код — технический ключ интеграции, в UI его не показываем.
+    // При создании генерируем, при изменении сохраняем существующий.
+    final code = inputCode.isNotEmpty
+        ? inputCode
+        : (fallbackCode != null && fallbackCode.isNotEmpty
+            ? fallbackCode
+            : _generateCode());
     final name = draft.name.trim();
-    if (code.isEmpty) {
-      throw const ValidationException('Укажите код услуги');
-    }
     if (name.isEmpty) {
       throw const ValidationException('Укажите название услуги');
     }
@@ -299,5 +305,11 @@ class ServiceCatalogService {
       grantsAccess: draft.grantsAccess,
       isActive: draft.isActive,
     );
+  }
+
+  /// Внутренний код для интеграций; в интерфейсе не показывается.
+  String _generateCode() {
+    final value = const Uuid().v4().replaceAll('-', '').substring(0, 10);
+    return 'SRV-${value.toUpperCase()}';
   }
 }
