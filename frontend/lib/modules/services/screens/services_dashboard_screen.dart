@@ -407,9 +407,25 @@ class _FiltersCard extends StatelessWidget {
                         ...types.map(
                           (type) => DropdownMenuItem<String>(
                             value: type['id'] as String,
-                            child: Text(
-                              type['title'] as String,
-                              overflow: TextOverflow.ellipsis,
+                            child: Row(
+                              children: [
+                                Icon(
+                                  serviceTypeIconByCode(
+                                    type['code'] as String?,
+                                  ),
+                                  size: 18,
+                                  color: serviceTypeColorByCode(
+                                    type['code'] as String?,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Flexible(
+                                  child: Text(
+                                    type['title'] as String,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../services/api/services_api.dart';
 import '../providers/catalog_provider.dart';
+import '../utils/service_type_visuals.dart';
 
 /// Создание и редактирование позиции каталога услуг.
 class ServiceEditScreen extends ConsumerStatefulWidget {
@@ -195,9 +196,25 @@ class _ServiceEditScreenState extends ConsumerState<ServiceEditScreen> {
                         .map(
                           (type) => DropdownMenuItem<String>(
                             value: type['id'] as String,
-                            child: Text(
-                              type['title'] as String,
-                              overflow: TextOverflow.ellipsis,
+                            child: Row(
+                              children: [
+                                Icon(
+                                  serviceTypeIconByCode(
+                                    type['code'] as String?,
+                                  ),
+                                  size: 18,
+                                  color: serviceTypeColorByCode(
+                                    type['code'] as String?,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Flexible(
+                                  child: Text(
+                                    type['title'] as String,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         )
