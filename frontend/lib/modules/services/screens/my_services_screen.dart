@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../services/api/services_api.dart';
+import '../../users/access_policy.dart';
 import '../../users/providers/auth_provider.dart';
 import '../providers/catalog_provider.dart';
 import '../providers/services_provider.dart';
@@ -45,12 +46,7 @@ class _MyServicesScreenState extends ConsumerState<MyServicesScreen> {
 
   bool _isStaff() {
     final user = ref.watch(authProvider).value?.user;
-    if (user == null) {
-      return false;
-    }
-    return user.roles.any(
-      (role) => role.name == 'admin' || role.name == 'manager',
-    );
+    return AppAccess.isManagerOrAdmin(user);
   }
 
   void _reload() {

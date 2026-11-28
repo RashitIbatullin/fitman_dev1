@@ -8,6 +8,7 @@ import 'package:fl_chart/fl_chart.dart';
 
 import '../../../screens/shared/profile_screen.dart';
 import '../../../widgets/logout_button.dart';
+import '../../users/access_policy.dart';
 import '../../users/providers/auth_provider.dart';
 import '../providers/dashboard_provider.dart';
 import 'package:flutter/material.dart';
@@ -57,11 +58,7 @@ class ClientDashboard extends ConsumerWidget {
     final user = client ?? ref.watch(authProvider).value!.user!;
     final dashboardData = ref.watch(dashboardDataProvider(user.id));
     final currentUser = ref.watch(authProvider).value?.user;
-    final canSell = client != null &&
-        (currentUser?.roles.any(
-              (role) => role.name == 'admin' || role.name == 'manager',
-            ) ??
-            false);
+    final canSell = client != null && AppAccess.isManagerOrAdmin(currentUser);
 
     void navigateTo(Widget page) {
       Navigator.push(

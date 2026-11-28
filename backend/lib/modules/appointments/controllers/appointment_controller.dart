@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:fitman_backend/audit/audit_context.dart';
 import 'package:fitman_backend/modules/appointments/services/appointment_service.dart';
+import 'package:fitman_backend/security/access_policy.dart';
 import 'package:fitman_common/fitman_common.dart';
 import 'package:shelf/shelf.dart';
 
@@ -81,14 +82,7 @@ class AppointmentController {
     return user;
   }
 
-  bool _isExecutorOnly(User user) {
-    final roles = user.roles.map((role) => role.name).toSet();
-    return roles.contains('executor') &&
-        !roles.any(
-          (role) => const {'admin', 'manager', 'trainer', 'instructor'}
-              .contains(role),
-        );
-  }
+  bool _isExecutorOnly(User user) => AccessPolicy.isExecutorOnly(user);
 
   DateTime? _parseDate(String? value) {
     if (value == null || value.isEmpty) {

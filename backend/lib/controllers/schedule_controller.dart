@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:fitman_backend/security/access_policy.dart';
 import 'package:fitman_common/fitman_common.dart';
 import 'package:shelf/shelf.dart';
 import '../config/database.dart';
@@ -40,7 +41,7 @@ class ScheduleController {
       }
 
       // Проверяем права (только тренер и админ могут создавать расписание)
-      if (!user.roles.any((r) => r.name == 'trainer' || r.name == 'admin')) {
+      if (!AccessPolicy.allows(user, Permissions.scheduleManage)) {
         return Response(403, body: jsonEncode({'error': 'Insufficient permissions'}));
       }
 

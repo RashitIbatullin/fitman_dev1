@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:fitman_backend/security/access_policy.dart';
 import 'package:fitman_common/fitman_common.dart';
 import 'package:shelf/shelf.dart';
 import '../../../config/database.dart';
@@ -15,12 +16,10 @@ class DashboardController {
         return Response.forbidden(jsonEncode({'error': 'Not authenticated.'}));
       }
       final authenticatedUserId = authenticatedUser.id;
-      final authenticatedUserRoles = authenticatedUser.roles.map((r) => r.name).toList();
 
-      // Authorization: Allow if the user is requesting their own data, or if they are an admin/manager.
-      final canAccess = (authenticatedUserId == userId) ||
-          authenticatedUserRoles.contains('admin') ||
-          authenticatedUserRoles.contains('manager');
+      // Свои данные или сотрудник с правом просмотра клиентов.
+      final canAccess = authenticatedUserId == userId ||
+          AccessPolicy.isManagerOrAdmin(authenticatedUser);
 
       if (!canAccess) {
         return Response.forbidden(jsonEncode({

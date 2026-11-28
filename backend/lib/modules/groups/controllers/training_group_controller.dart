@@ -5,6 +5,7 @@ import '../../../config/database.dart';
 import 'package:fitman_common/fitman_common.dart';
 import 'package:fitman_common/modules/groups/training_group.model.dart';
 import 'package:fitman_backend/errors/app_exception.dart';
+import 'package:fitman_backend/security/access_policy.dart';
 
 class TrainingGroupsController {
   final Database _db;
@@ -41,7 +42,7 @@ class TrainingGroupsController {
     try {
       final user = request.context['user'] as User;
       // Authorization
-      if (!user.roles.any((r) => r.name == 'admin' || r.name == 'manager')) {
+      if (!AccessPolicy.isManagerOrAdmin(user)) {
         return Response.forbidden(jsonEncode({'error': 'Insufficient permissions.'}));
       }
       
@@ -226,7 +227,7 @@ class TrainingGroupsController {
     try {
       final user = request.context['user'] as User;
       // Authorization
-      if (!user.roles.any((r) => r.name == 'admin' || r.name == 'manager')) {
+      if (!AccessPolicy.isManagerOrAdmin(user)) {
         return Response.forbidden(jsonEncode({'error': 'Insufficient permissions.'}));
       }
       
@@ -260,7 +261,7 @@ class TrainingGroupsController {
     try {
       final user = request.context['user'] as User;
       // Authorization
-      if (!user.roles.any((r) => r.name == 'admin' || r.name == 'manager')) {
+      if (!AccessPolicy.isManagerOrAdmin(user)) {
         return Response.forbidden(jsonEncode({'error': 'Insufficient permissions.'}));
       }
       
@@ -310,7 +311,7 @@ class TrainingGroupsController {
     try {
       final user = request.context['user'] as User;
       // Authorization: Allow user to see their own movements, or admin/manager to see anyone's
-      if (user.id != userId && !user.roles.any((r) => r.name == 'admin' || r.name == 'manager')) {
+      if (user.id != userId && !AccessPolicy.isManagerOrAdmin(user)) {
         return Response.forbidden(jsonEncode({'error': 'You can only view your own movement history.'}));
       }
 
