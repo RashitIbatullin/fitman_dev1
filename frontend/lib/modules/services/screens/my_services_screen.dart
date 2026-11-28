@@ -24,27 +24,20 @@ class MyServicesScreen extends ConsumerStatefulWidget {
   ConsumerState<MyServicesScreen> createState() => _MyServicesScreenState();
 }
 
-class _MyServicesScreenState extends ConsumerState<MyServicesScreen>
-    with SingleTickerProviderStateMixin {
-  late final TabController _tabController;
+class _MyServicesScreenState extends ConsumerState<MyServicesScreen> {
   final TextEditingController _searchController = TextEditingController();
 
-  String? _selectedTypeCode;
+  ServiceCategory _selectedCategory = ServiceCategory.training;
   bool _onlyArchived = false;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(
-      length: ServiceCategory.values.length,
-      vsync: this,
-    );
     _searchController.addListener(() => setState(() {}));
   }
 
   @override
   void dispose() {
-    _tabController.dispose();
     _searchController.dispose();
     super.dispose();
   }
@@ -255,80 +248,68 @@ class _MyServicesScreenState extends ConsumerState<MyServicesScreen>
         ),
         _FiltersCard(
           searchController: _searchController,
-          purchases: purchases,
-          selectedTypeCode: _selectedTypeCode,
+          selectedCategory: _selectedCategory,
           onlyArchived: _onlyArchived,
-          onTypeChanged: (value) =>
-              setState(() => _selectedTypeCode = value),
+          onCategoryChanged: (value) =>
+              setState(() => _selectedCategory = value),
           onArchivedChanged: (value) =>
               setState(() => _onlyArchived = value),
         ),
-        TabBar(
-          controller: _tabController,
-          isScrollable: true,
-          tabs: ServiceCategory.values
-              .map((category) => Tab(text: category.label))
-              .toList(),
-        ),
         Expanded(
-          child: _buildTabs(_applyFilters(source), canManage: _isStaff()),
+          child: _buildList(_applyFilters(source), canManage: _isStaff()),
         ),
       ],
     );
   }
 
-  Widget _buildTabs(
-    List<ServicePurchase> filtered, {
+  Widget _buildList(
+    List<ServicePurchase> items, {
     required bool canManage,
   }) {
-    return TabBarView(
-      controller: _tabController,
-      children: ServiceCategory.values.map((category) {
-        final items = filtered
-            .where((purchase) => classifyPurchase(purchase) == category)
-            .toList();
-        if (items.isEmpty) {
-          return _EmptyTab(category: category, archived: _onlyArchived);
-        }
-        return RefreshIndicator(
-          onRefresh: () async {
-            _reload();
-            await ref.read(clientServicesProvider(widget.clientId).future);
-          },
-          child: ListView.builder(
-            padding: const EdgeInsets.only(bottom: 88),
-            itemCount: items.length,
-            itemBuilder: (context, index) {
-              final purchase = items[index];
-              return _PurchaseRow(
-                purchase: purchase,
-                canManage: canManage,
-                onTap: () => _openDetail(purchase),
-                onEdit: canManage ? () => _openEdit(purchase) : null,
-                onArchive: canManage &&
-                        purchase.archivedAt == null &&
-                        purchase.status >= ServicePurchaseStatus.exhausted
-                    ? () => _archive(purchase)
-                    : null,
-                onUnarchive: canManage && purchase.archivedAt != null
-                    ? () => _unarchive(purchase)
-                    : null,
-              );
-            },
-          ),
-        );
-      }).toList(),
+    if (items.isEmpty) {
+      return _EmptyList(
+        category: _selectedCategory,
+        archived: _onlyArchived,
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: () async {
+        _reload();
+        await ref.read(clientServicesProvider(widget.clientId).future);
+      },
+      child: ListView.builder(
+        padding: const EdgeInsets.only(bottom: 88),
+        itemCount: items.length,
+        itemBuilder: (context, index) {
+          final purchase = items[index];
+          return _PurchaseRow(
+            purchase: purchase,
+            canManage: canManage,
+            onTap: () => _openDetail(purchase),
+            onEdit: canManage ? () => _openEdit(purchase) : null,
+            onArchive: canManage &&
+                    purchase.archivedAt == null &&
+                    purchase.status >= ServicePurchaseStatus.exhausted
+                ? () => _archive(purchase)
+                : null,
+            onUnarchive: canManage && purchase.archivedAt != null
+                ? () => _unarchive(purchase)
+                : null,
+          );
+        },
+      ),
     );
   }
 
   List<ServicePurchase> _applyFilters(List<ServicePurchase> items) {
     final query = _searchController.text.trim().toLowerCase();
     return items.where((purchase) {
-      final matchesType = _selectedTypeCode == null ||
-          purchase.serviceTypeCode == _selectedTypeCode;
+      final matchesCategory =
+          classifyPurchase(purchase) == _selectedCategory;
       final matchesSearch =
           query.isEmpty || purchase.serviceName.toLowerCase().contains(query);
-      return matchesType && matchesSearch;
+      return matchesCategory && matchesSearch;
     }).toList();
   }
 }
@@ -467,30 +448,20 @@ class _StatTile extends StatelessWidget {
 class _FiltersCard extends StatelessWidget {
   const _FiltersCard({
     required this.searchController,
-    required this.purchases,
-    required this.selectedTypeCode,
+    required this.selectedCategory,
     required this.onlyArchived,
-    required this.onTypeChanged,
+    required this.onCategoryChanged,
     required this.onArchivedChanged,
   });
 
   final TextEditingController searchController;
-  final List<ServicePurchase> purchases;
-  final String? selectedTypeCode;
+  final ServiceCategory selectedCategory;
   final bool onlyArchived;
-  final ValueChanged<String?> onTypeChanged;
+  final ValueChanged<ServiceCategory> onCategoryChanged;
   final ValueChanged<bool> onArchivedChanged;
 
   @override
   Widget build(BuildContext context) {
-    final types = <String, String>{};
-    for (final purchase in purchases) {
-      final code = purchase.serviceTypeCode;
-      if (code != null) {
-        types[code] = purchase.serviceTypeTitle ?? code;
-      }
-    }
-
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       child: Padding(
@@ -516,31 +487,31 @@ class _FiltersCard extends StatelessWidget {
             Row(
               children: [
                 Expanded(
-                  child: DropdownButtonFormField<String>(
-                    key: ValueKey(selectedTypeCode),
-                    initialValue: selectedTypeCode,
+                  child: DropdownButtonFormField<ServiceCategory>(
+                    key: ValueKey(selectedCategory),
+                    initialValue: selectedCategory,
                     isExpanded: true,
                     decoration: const InputDecoration(
                       isDense: true,
-                      labelText: 'Тип услуги',
+                      labelText: 'Раздел услуг',
                       border: OutlineInputBorder(),
                     ),
-                    items: [
-                      const DropdownMenuItem<String>(
-                        value: null,
-                        child: Text('Все типы'),
-                      ),
-                      ...types.entries.map(
-                        (entry) => DropdownMenuItem<String>(
-                          value: entry.key,
-                          child: Text(
-                            entry.value,
-                            overflow: TextOverflow.ellipsis,
+                    items: ServiceCategory.values
+                        .map(
+                          (category) => DropdownMenuItem<ServiceCategory>(
+                            value: category,
+                            child: Text(
+                              category.label,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
-                        ),
-                      ),
-                    ],
-                    onChanged: onTypeChanged,
+                        )
+                        .toList(),
+                    onChanged: (value) {
+                      if (value != null) {
+                        onCategoryChanged(value);
+                      }
+                    },
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -765,8 +736,8 @@ class _PurchaseArchiveDialogState extends State<_PurchaseArchiveDialog> {
   }
 }
 
-class _EmptyTab extends StatelessWidget {
-  const _EmptyTab({required this.category, required this.archived});
+class _EmptyList extends StatelessWidget {
+  const _EmptyList({required this.category, required this.archived});
 
   final ServiceCategory category;
   final bool archived;
