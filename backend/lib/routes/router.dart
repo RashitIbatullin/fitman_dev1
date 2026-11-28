@@ -46,6 +46,9 @@ import '../modules/services/services/service_catalog_service.dart';
 import '../modules/services/services/service_purchase_service.dart';
 import '../modules/services/controllers/service_catalog_controller.dart';
 import '../modules/services/controllers/service_purchase_controller.dart';
+import '../modules/audit/repositories/audit_repository.dart';
+import '../modules/audit/services/audit_query_service.dart';
+import '../modules/audit/controllers/audit_controller.dart';
 import '../modules/support_staff/services/support_staff.service.dart';
 import '../modules/support_staff/repositories/support_staff.repository.dart';
 import '../modules/competencies/repositories/competency_repository.dart';
@@ -85,6 +88,10 @@ final _serviceCatalogController = ServiceCatalogController(
 final _servicePurchaseController = ServicePurchaseController(
   _servicePurchaseService,
 );
+
+final _auditRepository = AuditRepositoryImpl(_db);
+final _auditQueryService = AuditQueryService(_auditRepository);
+final _auditController = AuditController(_auditQueryService);
 
 final _supportStaffRepository = SupportStaffRepositoryImpl(
   _db,
@@ -183,6 +190,10 @@ Handler _purchaseManageHandler(Handler handler) {
 
 Handler _rolesManageHandler(Handler handler) {
   return _permissionHandler(Permissions.rolesManage, handler);
+}
+
+Handler _auditHandler(Handler handler) {
+  return _permissionHandler(Permissions.auditView, handler);
 }
 
 final Router router = Router()
@@ -305,6 +316,10 @@ final Router router = Router()
   ..get(
     '/api/roles',
     (Request request) => _adminHandler(_usersController.getRoles)(request),
+  )
+  ..get(
+    '/api/audit',
+    (Request request) => _auditHandler(_auditController.getAll)(request),
   )
   // Employee Competency routes (только для админа)
   ..get('/api/employees/<userId>/competencies', (

@@ -8,6 +8,7 @@ import '../modules/users/providers/auth_provider.dart';
 import '../modules/users/screens/user_list_screen.dart';
 import 'admin/catalogs_screen.dart';
 import '../modules/services/screens/services_dashboard_screen.dart';
+import '../modules/audit/screens/audit_log_screen.dart';
 
 class AdminDashboard extends ConsumerStatefulWidget {
   final bool showBackButton;
@@ -122,6 +123,19 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
               Navigator.pop(context); // Close drawer
                ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Аналитика - в разработке')),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.history),
+            title: const Text('Аудит'),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const AuditLogScreen(),
+                ),
               );
             },
           ),
