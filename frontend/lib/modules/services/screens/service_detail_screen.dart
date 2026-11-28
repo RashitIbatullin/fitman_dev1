@@ -101,7 +101,7 @@ class _ServiceDetails extends StatelessWidget {
                             style: Theme.of(context).textTheme.titleLarge,
                           ),
                           Text(
-                            '${service.code} · ${service.serviceTypeTitle}',
+                            service.serviceTypeTitle,
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                         ],

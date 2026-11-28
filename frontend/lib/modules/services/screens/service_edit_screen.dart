@@ -18,7 +18,6 @@ class ServiceEditScreen extends ConsumerStatefulWidget {
 class _ServiceEditScreenState extends ConsumerState<ServiceEditScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  late final TextEditingController _codeController;
   late final TextEditingController _nameController;
   late final TextEditingController _descriptionController;
   late final TextEditingController _priceController;
@@ -43,7 +42,6 @@ class _ServiceEditScreenState extends ConsumerState<ServiceEditScreen> {
   void initState() {
     super.initState();
     final service = widget.service;
-    _codeController = TextEditingController(text: service?.code ?? '');
     _nameController = TextEditingController(text: service?.name ?? '');
     _descriptionController =
         TextEditingController(text: service?.description ?? '');
@@ -75,7 +73,6 @@ class _ServiceEditScreenState extends ConsumerState<ServiceEditScreen> {
 
   @override
   void dispose() {
-    _codeController.dispose();
     _nameController.dispose();
     _descriptionController.dispose();
     _priceController.dispose();
@@ -115,7 +112,6 @@ class _ServiceEditScreenState extends ConsumerState<ServiceEditScreen> {
 
   Map<String, dynamic> _buildPayload() {
     return {
-      'code': _codeController.text.trim(),
       'name': _nameController.text.trim(),
       'description': _descriptionController.text.trim().isEmpty
           ? null
@@ -165,18 +161,6 @@ class _ServiceEditScreenState extends ConsumerState<ServiceEditScreen> {
             _Section(
               title: 'Основное',
               children: [
-                TextFormField(
-                  controller: _codeController,
-                  decoration: const InputDecoration(
-                    labelText: 'Код услуги *',
-                    hintText: 'Например: MS-060',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) => value == null || value.trim().isEmpty
-                      ? 'Укажите код'
-                      : null,
-                ),
-                const SizedBox(height: 12),
                 TextFormField(
                   controller: _nameController,
                   decoration: const InputDecoration(

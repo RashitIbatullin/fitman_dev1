@@ -51,7 +51,7 @@ class _ServicePurchaseDetailScreenState
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '${purchase.serviceTypeTitle ?? ''} · ${purchase.serviceCode ?? ''}',
+                    purchase.serviceTypeTitle ?? '',
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ],

@@ -326,9 +326,8 @@ class _MyServicesScreenState extends ConsumerState<MyServicesScreen>
     return items.where((purchase) {
       final matchesType = _selectedTypeCode == null ||
           purchase.serviceTypeCode == _selectedTypeCode;
-      final matchesSearch = query.isEmpty ||
-          purchase.serviceName.toLowerCase().contains(query) ||
-          (purchase.serviceCode ?? '').toLowerCase().contains(query);
+      final matchesSearch =
+          query.isEmpty || purchase.serviceName.toLowerCase().contains(query);
       return matchesType && matchesSearch;
     }).toList();
   }
@@ -502,7 +501,7 @@ class _FiltersCard extends StatelessWidget {
               controller: searchController,
               decoration: InputDecoration(
                 isDense: true,
-                labelText: 'Поиск по названию или коду',
+                labelText: 'Поиск по названию',
                 prefixIcon: const Icon(Icons.search),
                 border: const OutlineInputBorder(),
                 suffixIcon: searchController.text.isEmpty
