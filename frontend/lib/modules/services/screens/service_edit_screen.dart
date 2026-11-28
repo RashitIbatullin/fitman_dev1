@@ -200,7 +200,7 @@ class _ServiceEditScreenState extends ConsumerState<ServiceEditScreen> {
                 const SizedBox(height: 12),
                 typesAsync.when(
                   data: (types) => DropdownButtonFormField<String>(
-                    key: ValueKey(_serviceTypeId),
+                    key: ValueKey('service-type:$_serviceTypeId'),
                     initialValue: _serviceTypeId,
                     isExpanded: true,
                     decoration: const InputDecoration(
@@ -230,7 +230,7 @@ class _ServiceEditScreenState extends ConsumerState<ServiceEditScreen> {
                 const SizedBox(height: 12),
                 specializationsAsync.when(
                   data: (items) => DropdownButtonFormField<String?>(
-                    key: ValueKey(_specializationId),
+                    key: ValueKey('specialization:$_specializationId'),
                     initialValue: _specializationId,
                     isExpanded: true,
                     decoration: const InputDecoration(
