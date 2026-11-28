@@ -219,9 +219,8 @@ class _ServicesDashboardScreenState
     return items.where((service) {
       final matchesType =
           _selectedTypeId == null || service.serviceTypeId == _selectedTypeId;
-      final matchesSearch = query.isEmpty ||
-          service.name.toLowerCase().contains(query) ||
-          service.code.toLowerCase().contains(query);
+      final matchesSearch =
+          query.isEmpty || service.name.toLowerCase().contains(query);
       return matchesType && matchesSearch;
     }).toList();
   }
@@ -374,7 +373,7 @@ class _FiltersCard extends StatelessWidget {
               controller: searchController,
               decoration: InputDecoration(
                 isDense: true,
-                labelText: 'Поиск по названию или коду',
+                labelText: 'Поиск по названию',
                 prefixIcon: const Icon(Icons.search),
                 border: const OutlineInputBorder(),
                 suffixIcon: searchController.text.isEmpty
@@ -473,7 +472,7 @@ class _ServiceRow extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              '${service.serviceTypeTitle} · ${service.code}',
+              service.serviceTypeTitle,
               overflow: TextOverflow.ellipsis,
             ),
             const SizedBox(height: 4),
