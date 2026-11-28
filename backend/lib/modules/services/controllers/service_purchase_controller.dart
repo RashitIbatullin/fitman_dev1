@@ -88,6 +88,33 @@ class ServicePurchaseController {
     return _json(activated.toJson());
   }
 
+  /// Ручная архивация покупки — только сотрудник.
+  Future<Response> archive(Request request, String id) async {
+    final user = _currentUser(request);
+    final body = await request.readAsString();
+    final data = body.isEmpty
+        ? const <String, dynamic>{}
+        : jsonDecode(body) as Map<String, dynamic>;
+    final reason = data['reason']?.toString() ?? '';
+
+    final archived = await _service.archive(
+      id,
+      reason: reason,
+      audit: AuditContext.fromRequest(request, user: user),
+    );
+    return _json(archived.toJson());
+  }
+
+  /// Возвращает покупку из архива — только сотрудник.
+  Future<Response> unarchive(Request request, String id) async {
+    final user = _currentUser(request);
+    final restored = await _service.unarchive(
+      id,
+      audit: AuditContext.fromRequest(request, user: user),
+    );
+    return _json(restored.toJson());
+  }
+
   /// Покупки клиента: клиент видит только свои, менеджер и админ — любые.
   Future<Response> getClientServices(Request request, String clientId) async {
     final user = _currentUser(request);
