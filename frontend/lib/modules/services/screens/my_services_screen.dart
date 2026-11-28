@@ -7,6 +7,7 @@ import '../../../services/api/services_api.dart';
 import '../../users/providers/auth_provider.dart';
 import '../providers/services_provider.dart';
 import '../widgets/service_sale_dialog.dart';
+import 'services_dashboard_screen.dart';
 
 /// Экран «Мои услуги»: остатки, сроки и статусы оформленных услуг.
 class MyServicesScreen extends ConsumerWidget {
@@ -60,7 +61,24 @@ class MyServicesScreen extends ConsumerWidget {
     final canSell = _canSell(ref);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Мои услуги')),
+      appBar: AppBar(
+        title: const Text('Мои услуги'),
+        actions: [
+          if (canSell)
+            IconButton(
+              icon: const Icon(Icons.tune),
+              tooltip: 'Каталог услуг',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ServicesDashboardScreen(),
+                  ),
+                );
+              },
+            ),
+        ],
+      ),
       floatingActionButton: canSell
           ? FloatingActionButton.extended(
               onPressed: () => _openSale(context, ref),
