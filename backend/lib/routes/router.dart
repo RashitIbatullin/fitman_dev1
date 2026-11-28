@@ -923,6 +923,11 @@ final Router router = Router()
       (Request req) => _servicePurchaseController.activate(req, id),
     )(request),
   )
+  ..put('/api/service-purchases/<id>', (Request request, String id) {
+    return _managerHandler(
+      (Request req) => _servicePurchaseController.update(req, id),
+    )(request);
+  })
   ..post('/api/service-purchases/<id>/archive', (Request request, String id) {
     return _managerHandler(
       (Request req) => _servicePurchaseController.archive(req, id),

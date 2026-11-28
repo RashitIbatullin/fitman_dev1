@@ -104,6 +104,22 @@ class ServicesApiService extends BaseApiService {
     return ServicePurchase.fromJson(data as Map<String, dynamic>);
   }
 
+  /// Исправление факта оплаты покупки сотрудником.
+  Future<ServicePurchase> updatePurchase(
+    String purchaseId, {
+    required int paymentStatus,
+    int? paymentSource,
+  }) async {
+    final data = await put(
+      '/api/service-purchases/$purchaseId',
+      body: {
+        'paymentStatus': paymentStatus,
+        'paymentSource': ?paymentSource,
+      },
+    );
+    return ServicePurchase.fromJson(data as Map<String, dynamic>);
+  }
+
   /// Ручная архивация покупки сотрудником.
   Future<ServicePurchase> archivePurchase(
     String purchaseId, {

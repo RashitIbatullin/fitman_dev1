@@ -259,6 +259,69 @@ class ServicePurchaseService {
     return _purchaseRepository.getById(id);
   }
 
+  /// Исправляет факт оплаты оформления. Цена и срок не меняются.
+  Future<ServicePurchase> updatePayment(
+    String id, {
+    required int paymentStatus,
+    required int? paymentSource,
+    required AuditContext audit,
+  }) {
+    if (!const {
+      ServicePaymentStatus.notRequired,
+      ServicePaymentStatus.paid,
+      ServicePaymentStatus.debt,
+    }.contains(paymentStatus)) {
+      throw const ValidationException('Неизвестный статус оплаты');
+    }
+    if (paymentSource != null &&
+        !const {
+          ServicePaymentSource.account,
+          ServicePaymentSource.cash,
+          ServicePaymentSource.terminal,
+          ServicePaymentSource.external1c,
+          ServicePaymentSource.none,
+          ServicePaymentSource.sbp,
+        }.contains(paymentSource)) {
+      throw const ValidationException('Неизвестный источник оплаты');
+    }
+
+    return _database.runTx((session) async {
+      final old = await _purchaseRepository.getById(id, session: session);
+      if (old == null) {
+        throw const NotFoundException('Покупка не найдена');
+      }
+
+      await _purchaseRepository.updatePayment(
+        id: id,
+        paymentStatus: paymentStatus,
+        paymentSource: paymentSource,
+        updatedBy: audit.actorId ?? '',
+        session: session,
+      );
+      final updated = await _purchaseRepository.getById(id, session: session);
+      if (updated == null) {
+        throw const NotFoundException('Покупка не найдена после изменения');
+      }
+
+      await _auditService.record(
+        session: session,
+        tableName: 'service_purchases',
+        rowPk: id,
+        action: 'UPDATE',
+        context: audit,
+        oldValues: {
+          'payment_status': old.paymentStatus,
+          'payment_source': old.paymentSource,
+        },
+        newValues: {
+          'payment_status': updated.paymentStatus,
+          'payment_source': updated.paymentSource,
+        },
+      );
+      return updated;
+    });
+  }
+
   /// Ручная архивация покупки сотрудником.
   Future<ServicePurchase> archive(
     String id, {
@@ -276,6 +339,11 @@ class ServicePurchaseService {
       }
       if (old.archivedAt != null) {
         throw const ConflictException('Покупка уже в архиве');
+      }
+      if (old.status < ServicePurchaseStatus.exhausted) {
+        throw const ConflictException(
+          'Активную покупку нельзя архивировать: дождитесь завершения',
+        );
       }
 
       await _purchaseRepository.archive(
@@ -304,8 +372,7 @@ class ServicePurchaseService {
   }
 
   /// Возвращает покупку из архива.
-  Future<ServicePurchase> unarchive(
-    String id, {
+  Future<ServicePurchase> unarchive(    String id, {
     required AuditContext audit,
   }) {
     return _database.runTx((session) async {

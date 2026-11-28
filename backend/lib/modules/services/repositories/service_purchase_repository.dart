@@ -72,6 +72,15 @@ abstract class ServicePurchaseRepository {
     Session? session,
   });
 
+  /// Исправление факта оплаты: источник и статус.
+  Future<void> updatePayment({
+    required String id,
+    required int paymentStatus,
+    required int? paymentSource,
+    required String updatedBy,
+    Session? session,
+  });
+
   Future<void> unarchive({
     required String id,
     required String updatedBy,
@@ -326,7 +335,7 @@ class ServicePurchaseRepositoryImpl implements ServicePurchaseRepository {
       Sql.named('''
         $_selectBase
          WHERE p.client_id = @clientId
-           AND p.status IN (0, 1, 2, 3, 4, 5, 6)
+           AND p.status IN (1, 2, 3, 4, 5, 6)
          ORDER BY p.archived_at NULLS FIRST, p.status,
                   p.actual_expiry_date NULLS LAST, p.purchase_date DESC
       '''),
@@ -418,6 +427,33 @@ class ServicePurchaseRepositoryImpl implements ServicePurchaseRepository {
          WHERE id = @id
       '''),
       parameters: {'id': id, 'updatedBy': updatedBy},
+    );
+  }
+
+  @override
+  Future<void> updatePayment({
+    required String id,
+    required int paymentStatus,
+    required int? paymentSource,
+    required String updatedBy,
+    Session? session,
+  }) async {
+    final conn = session ?? await _db.connection;
+    await conn.execute(
+      Sql.named('''
+        UPDATE service_purchases
+           SET payment_status = @paymentStatus,
+               payment_source = @paymentSource,
+               updated_at = NOW(),
+               updated_by = @updatedBy
+         WHERE id = @id
+      '''),
+      parameters: {
+        'id': id,
+        'paymentStatus': paymentStatus,
+        'paymentSource': paymentSource,
+        'updatedBy': updatedBy,
+      },
     );
   }
 

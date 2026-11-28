@@ -131,6 +131,11 @@ class ServiceCatalogService {
       if (old.archivedAt != null) {
         throw const ConflictException('Услуга уже в архиве');
       }
+      if (old.isActive) {
+        throw const ConflictException(
+          'Сначала снимите услугу с продажи, затем архивируйте',
+        );
+      }
 
       await _repository.archive(
         id: id,
