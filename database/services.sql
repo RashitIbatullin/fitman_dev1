@@ -228,6 +228,7 @@ CREATE TABLE service_purchases (
   updated_by UUID REFERENCES users(id),
   archived_at TIMESTAMPTZ,
   archived_by UUID REFERENCES users(id),
+  archived_reason TEXT,
   CONSTRAINT chk_purchase_uses CHECK (used_uses >= 0),
   CONSTRAINT chk_purchase_uses_limit CHECK (total_uses IS NULL OR used_uses <= total_uses)
 );

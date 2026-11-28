@@ -259,6 +259,87 @@ class ServicePurchaseService {
     return _purchaseRepository.getById(id);
   }
 
+  /// Ручная архивация покупки сотрудником.
+  Future<ServicePurchase> archive(
+    String id, {
+    required String reason,
+    required AuditContext audit,
+  }) {
+    if (reason.trim().length < 5) {
+      throw const ValidationException('Причина архивации — не менее 5 символов');
+    }
+
+    return _database.runTx((session) async {
+      final old = await _purchaseRepository.getById(id, session: session);
+      if (old == null) {
+        throw const NotFoundException('Покупка не найдена');
+      }
+      if (old.archivedAt != null) {
+        throw const ConflictException('Покупка уже в архиве');
+      }
+
+      await _purchaseRepository.archive(
+        id: id,
+        reason: reason.trim(),
+        archivedBy: audit.actorId ?? '',
+        session: session,
+      );
+      final updated = await _purchaseRepository.getById(id, session: session);
+      if (updated == null) {
+        throw const NotFoundException('Покупка не найдена после архивации');
+      }
+
+      await _auditService.record(
+        session: session,
+        tableName: 'service_purchases',
+        rowPk: id,
+        action: 'ARCHIVE',
+        context: audit,
+        oldValues: old.toJson(),
+        newValues: updated.toJson(),
+        reason: reason.trim(),
+      );
+      return updated;
+    });
+  }
+
+  /// Возвращает покупку из архива.
+  Future<ServicePurchase> unarchive(
+    String id, {
+    required AuditContext audit,
+  }) {
+    return _database.runTx((session) async {
+      final old = await _purchaseRepository.getById(id, session: session);
+      if (old == null) {
+        throw const NotFoundException('Покупка не найдена');
+      }
+      if (old.archivedAt == null) {
+        throw const ConflictException('Покупка не находится в архиве');
+      }
+
+      await _purchaseRepository.unarchive(
+        id: id,
+        updatedBy: audit.actorId ?? '',
+        session: session,
+      );
+      final updated = await _purchaseRepository.getById(id, session: session);
+      if (updated == null) {
+        throw const NotFoundException('Покупка не найдена после восстановления');
+      }
+
+      await _auditService.record(
+        session: session,
+        tableName: 'service_purchases',
+        rowPk: id,
+        action: 'RESTORE',
+        context: audit,
+        oldValues: old.toJson(),
+        newValues: updated.toJson(),
+      );
+      return updated;
+    });
+  }
+
   /// Активные и истёкшие покупки клиента.
   Future<List<ServicePurchase>> getClientServices(String clientId) {
     return _purchaseRepository.getClientServices(clientId);

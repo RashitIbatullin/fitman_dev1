@@ -49,6 +49,11 @@ _$ServicePurchaseImpl _$$ServicePurchaseImplFromJson(
       ? null
       : DateTime.parse(json['quota_period_end'] as String),
   usageLimitMode: (json['usage_limit_mode'] as num).toInt(),
+  archivedAt: json['archived_at'] == null
+      ? null
+      : DateTime.parse(json['archived_at'] as String),
+  archivedBy: json['archived_by'] as String?,
+  archivedReason: json['archived_reason'] as String?,
 );
 
 Map<String, dynamic> _$$ServicePurchaseImplToJson(
@@ -84,4 +89,7 @@ Map<String, dynamic> _$$ServicePurchaseImplToJson(
   'quota_period_start': instance.quotaPeriodStart?.toIso8601String(),
   'quota_period_end': instance.quotaPeriodEnd?.toIso8601String(),
   'usage_limit_mode': instance.usageLimitMode,
+  'archived_at': instance.archivedAt?.toIso8601String(),
+  'archived_by': instance.archivedBy,
+  'archived_reason': instance.archivedReason,
 };

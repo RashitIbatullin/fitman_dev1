@@ -51,6 +51,9 @@ mixin _$ServicePurchase {
   DateTime? get quotaPeriodStart => throw _privateConstructorUsedError;
   DateTime? get quotaPeriodEnd => throw _privateConstructorUsedError;
   int get usageLimitMode => throw _privateConstructorUsedError;
+  DateTime? get archivedAt => throw _privateConstructorUsedError;
+  String? get archivedBy => throw _privateConstructorUsedError;
+  String? get archivedReason => throw _privateConstructorUsedError;
 
   /// Serializes this ServicePurchase to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -100,6 +103,9 @@ abstract class $ServicePurchaseCopyWith<$Res> {
     DateTime? quotaPeriodStart,
     DateTime? quotaPeriodEnd,
     int usageLimitMode,
+    DateTime? archivedAt,
+    String? archivedBy,
+    String? archivedReason,
   });
 }
 
@@ -148,6 +154,9 @@ class _$ServicePurchaseCopyWithImpl<$Res, $Val extends ServicePurchase>
     Object? quotaPeriodStart = freezed,
     Object? quotaPeriodEnd = freezed,
     Object? usageLimitMode = null,
+    Object? archivedAt = freezed,
+    Object? archivedBy = freezed,
+    Object? archivedReason = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -271,6 +280,18 @@ class _$ServicePurchaseCopyWithImpl<$Res, $Val extends ServicePurchase>
                 ? _value.usageLimitMode
                 : usageLimitMode // ignore: cast_nullable_to_non_nullable
                       as int,
+            archivedAt: freezed == archivedAt
+                ? _value.archivedAt
+                : archivedAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime?,
+            archivedBy: freezed == archivedBy
+                ? _value.archivedBy
+                : archivedBy // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            archivedReason: freezed == archivedReason
+                ? _value.archivedReason
+                : archivedReason // ignore: cast_nullable_to_non_nullable
+                      as String?,
           )
           as $Val,
     );
@@ -317,6 +338,9 @@ abstract class _$$ServicePurchaseImplCopyWith<$Res>
     DateTime? quotaPeriodStart,
     DateTime? quotaPeriodEnd,
     int usageLimitMode,
+    DateTime? archivedAt,
+    String? archivedBy,
+    String? archivedReason,
   });
 }
 
@@ -364,6 +388,9 @@ class __$$ServicePurchaseImplCopyWithImpl<$Res>
     Object? quotaPeriodStart = freezed,
     Object? quotaPeriodEnd = freezed,
     Object? usageLimitMode = null,
+    Object? archivedAt = freezed,
+    Object? archivedBy = freezed,
+    Object? archivedReason = freezed,
   }) {
     return _then(
       _$ServicePurchaseImpl(
@@ -487,6 +514,18 @@ class __$$ServicePurchaseImplCopyWithImpl<$Res>
             ? _value.usageLimitMode
             : usageLimitMode // ignore: cast_nullable_to_non_nullable
                   as int,
+        archivedAt: freezed == archivedAt
+            ? _value.archivedAt
+            : archivedAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
+        archivedBy: freezed == archivedBy
+            ? _value.archivedBy
+            : archivedBy // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        archivedReason: freezed == archivedReason
+            ? _value.archivedReason
+            : archivedReason // ignore: cast_nullable_to_non_nullable
+                  as String?,
       ),
     );
   }
@@ -526,6 +565,9 @@ class _$ServicePurchaseImpl implements _ServicePurchase {
     this.quotaPeriodStart,
     this.quotaPeriodEnd,
     required this.usageLimitMode,
+    this.archivedAt,
+    this.archivedBy,
+    this.archivedReason,
   });
 
   factory _$ServicePurchaseImpl.fromJson(Map<String, dynamic> json) =>
@@ -591,10 +633,16 @@ class _$ServicePurchaseImpl implements _ServicePurchase {
   final DateTime? quotaPeriodEnd;
   @override
   final int usageLimitMode;
+  @override
+  final DateTime? archivedAt;
+  @override
+  final String? archivedBy;
+  @override
+  final String? archivedReason;
 
   @override
   String toString() {
-    return 'ServicePurchase(id: $id, clientId: $clientId, clientName: $clientName, serviceId: $serviceId, serviceName: $serviceName, serviceCode: $serviceCode, serviceTypeCode: $serviceTypeCode, serviceTypeTitle: $serviceTypeTitle, executorSpecializationCode: $executorSpecializationCode, executorSpecializationTitle: $executorSpecializationTitle, purchasePrice: $purchasePrice, discountPercent: $discountPercent, discountAmount: $discountAmount, finalPrice: $finalPrice, paymentStatus: $paymentStatus, paymentSource: $paymentSource, purchaseDate: $purchaseDate, activationDate: $activationDate, expiryDate: $expiryDate, actualExpiryDate: $actualExpiryDate, totalUses: $totalUses, usedUses: $usedUses, remainingUses: $remainingUses, status: $status, quotaUsed: $quotaUsed, quotaLimit: $quotaLimit, quotaPeriod: $quotaPeriod, quotaPeriodStart: $quotaPeriodStart, quotaPeriodEnd: $quotaPeriodEnd, usageLimitMode: $usageLimitMode)';
+    return 'ServicePurchase(id: $id, clientId: $clientId, clientName: $clientName, serviceId: $serviceId, serviceName: $serviceName, serviceCode: $serviceCode, serviceTypeCode: $serviceTypeCode, serviceTypeTitle: $serviceTypeTitle, executorSpecializationCode: $executorSpecializationCode, executorSpecializationTitle: $executorSpecializationTitle, purchasePrice: $purchasePrice, discountPercent: $discountPercent, discountAmount: $discountAmount, finalPrice: $finalPrice, paymentStatus: $paymentStatus, paymentSource: $paymentSource, purchaseDate: $purchaseDate, activationDate: $activationDate, expiryDate: $expiryDate, actualExpiryDate: $actualExpiryDate, totalUses: $totalUses, usedUses: $usedUses, remainingUses: $remainingUses, status: $status, quotaUsed: $quotaUsed, quotaLimit: $quotaLimit, quotaPeriod: $quotaPeriod, quotaPeriodStart: $quotaPeriodStart, quotaPeriodEnd: $quotaPeriodEnd, usageLimitMode: $usageLimitMode, archivedAt: $archivedAt, archivedBy: $archivedBy, archivedReason: $archivedReason)';
   }
 
   @override
@@ -667,7 +715,13 @@ class _$ServicePurchaseImpl implements _ServicePurchase {
             (identical(other.quotaPeriodEnd, quotaPeriodEnd) ||
                 other.quotaPeriodEnd == quotaPeriodEnd) &&
             (identical(other.usageLimitMode, usageLimitMode) ||
-                other.usageLimitMode == usageLimitMode));
+                other.usageLimitMode == usageLimitMode) &&
+            (identical(other.archivedAt, archivedAt) ||
+                other.archivedAt == archivedAt) &&
+            (identical(other.archivedBy, archivedBy) ||
+                other.archivedBy == archivedBy) &&
+            (identical(other.archivedReason, archivedReason) ||
+                other.archivedReason == archivedReason));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -704,6 +758,9 @@ class _$ServicePurchaseImpl implements _ServicePurchase {
     quotaPeriodStart,
     quotaPeriodEnd,
     usageLimitMode,
+    archivedAt,
+    archivedBy,
+    archivedReason,
   ]);
 
   /// Create a copy of ServicePurchase
@@ -755,6 +812,9 @@ abstract class _ServicePurchase implements ServicePurchase {
     final DateTime? quotaPeriodStart,
     final DateTime? quotaPeriodEnd,
     required final int usageLimitMode,
+    final DateTime? archivedAt,
+    final String? archivedBy,
+    final String? archivedReason,
   }) = _$ServicePurchaseImpl;
 
   factory _ServicePurchase.fromJson(Map<String, dynamic> json) =
@@ -820,6 +880,12 @@ abstract class _ServicePurchase implements ServicePurchase {
   DateTime? get quotaPeriodEnd;
   @override
   int get usageLimitMode;
+  @override
+  DateTime? get archivedAt;
+  @override
+  String? get archivedBy;
+  @override
+  String? get archivedReason;
 
   /// Create a copy of ServicePurchase
   /// with the given fields replaced by the non-null parameter values.

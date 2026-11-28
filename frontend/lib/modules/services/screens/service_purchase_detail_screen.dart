@@ -78,6 +78,30 @@ class _ServicePurchaseDetailScreenState
             ),
           ),
           const SizedBox(height: 12),
+          if (purchase.archivedAt != null)
+            Card(
+              color: Colors.brown.shade50,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'В архиве',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      'Причина: ${purchase.archivedReason ?? 'не указана'}',
+                    ),
+                    Text(
+                      'Дата: ${formatPurchaseDate(purchase.archivedAt!)}',
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          const SizedBox(height: 12),
           _InfoCard(
             title: 'Остаток и срок',
             children: [

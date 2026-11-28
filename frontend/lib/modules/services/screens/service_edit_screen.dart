@@ -447,8 +447,10 @@ class _ServiceEditScreenState extends ConsumerState<ServiceEditScreen> {
                 ),
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,
-                  title: const Text('Активна в каталоге'),
-                  subtitle: const Text('Снятая с продажи остаётся в истории'),
+                  title: const Text('Доступна для продажи'),
+                  subtitle: const Text(
+                    'Снятая с продажи остаётся в истории; архив — отдельное ручное действие',
+                  ),
                   value: _isActive,
                   onChanged: (value) => setState(() => _isActive = value),
                 ),

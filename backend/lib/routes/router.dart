@@ -923,6 +923,17 @@ final Router router = Router()
       (Request req) => _servicePurchaseController.activate(req, id),
     )(request),
   )
+  ..post('/api/service-purchases/<id>/archive', (Request request, String id) {
+    return _managerHandler(
+      (Request req) => _servicePurchaseController.archive(req, id),
+    )(request);
+  })
+  ..post(
+    '/api/service-purchases/<id>/unarchive',
+    (Request request, String id) => _managerHandler(
+      (Request req) => _servicePurchaseController.unarchive(req, id),
+    )(request),
+  )
   ..get('/api/clients/<id>/services', (Request request, String id) {
     return _protectedHandler(
       (Request req) => _servicePurchaseController.getClientServices(req, id),

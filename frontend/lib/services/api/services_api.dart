@@ -104,6 +104,26 @@ class ServicesApiService extends BaseApiService {
     return ServicePurchase.fromJson(data as Map<String, dynamic>);
   }
 
+  /// Ручная архивация покупки сотрудником.
+  Future<ServicePurchase> archivePurchase(
+    String purchaseId, {
+    required String reason,
+  }) async {
+    final data = await post(
+      '/api/service-purchases/$purchaseId/archive',
+      body: {'reason': reason},
+    );
+    return ServicePurchase.fromJson(data as Map<String, dynamic>);
+  }
+
+  Future<ServicePurchase> unarchivePurchase(String purchaseId) async {
+    final data = await post(
+      '/api/service-purchases/$purchaseId/unarchive',
+      body: const {},
+    );
+    return ServicePurchase.fromJson(data as Map<String, dynamic>);
+  }
+
   /// Активные и истёкшие услуги клиента.
   Future<List<ServicePurchase>> getClientServices(String clientId) async {
     final data = await get('/api/clients/$clientId/services');

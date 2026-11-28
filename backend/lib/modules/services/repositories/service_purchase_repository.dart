@@ -64,6 +64,20 @@ abstract class ServicePurchaseRepository {
   /// Покупка по id — для ответа API после создания.
   Future<ServicePurchase?> getById(String id, {Session? session});
 
+  /// Ручная архивация покупки сотрудником.
+  Future<void> archive({
+    required String id,
+    required String reason,
+    required String archivedBy,
+    Session? session,
+  });
+
+  Future<void> unarchive({
+    required String id,
+    required String updatedBy,
+    Session? session,
+  });
+
   /// Сырая строка покупки вместе с параметрами услуги, нужными активации.
   Future<Map<String, dynamic>?> getRowById(String id, {Session? session});
 
@@ -134,7 +148,10 @@ class ServicePurchaseRepositoryImpl implements ServicePurchaseRepository {
       s.quota_period,
       q.period_start AS quota_period_start,
       q.period_end AS quota_period_end,
-      s.usage_limit_mode
+      s.usage_limit_mode,
+      p.archived_at,
+      p.archived_by,
+      p.archived_reason
     FROM service_purchases p
     JOIN users cu ON cu.id = p.client_id
     JOIN services s ON s.id = p.service_id
@@ -310,8 +327,8 @@ class ServicePurchaseRepositoryImpl implements ServicePurchaseRepository {
         $_selectBase
          WHERE p.client_id = @clientId
            AND p.status IN (0, 1, 2, 3, 4, 5, 6)
-           AND p.archived_at IS NULL
-         ORDER BY p.status, p.actual_expiry_date NULLS LAST, p.purchase_date DESC
+         ORDER BY p.archived_at NULLS FIRST, p.status,
+                  p.actual_expiry_date NULLS LAST, p.purchase_date DESC
       '''),
       parameters: {'clientId': clientId},
     );
@@ -359,6 +376,49 @@ class ServicePurchaseRepositoryImpl implements ServicePurchaseRepository {
       return null;
     }
     return _toPurchase(rows.first);
+  }
+
+  @override
+  Future<void> archive({
+    required String id,
+    required String reason,
+    required String archivedBy,
+    Session? session,
+  }) async {
+    final conn = session ?? await _db.connection;
+    await conn.execute(
+      Sql.named('''
+        UPDATE service_purchases
+           SET archived_at = NOW(),
+               archived_by = @archivedBy,
+               archived_reason = @reason,
+               updated_at = NOW(),
+               updated_by = @archivedBy
+         WHERE id = @id
+      '''),
+      parameters: {'id': id, 'reason': reason, 'archivedBy': archivedBy},
+    );
+  }
+
+  @override
+  Future<void> unarchive({
+    required String id,
+    required String updatedBy,
+    Session? session,
+  }) async {
+    final conn = session ?? await _db.connection;
+    await conn.execute(
+      Sql.named('''
+        UPDATE service_purchases
+           SET archived_at = NULL,
+               archived_by = NULL,
+               archived_reason = NULL,
+               updated_at = NOW(),
+               updated_by = @updatedBy
+         WHERE id = @id
+      '''),
+      parameters: {'id': id, 'updatedBy': updatedBy},
+    );
   }
 
   @override
@@ -494,6 +554,9 @@ class ServicePurchaseRepositoryImpl implements ServicePurchaseRepository {
       quotaPeriodStart: map['quota_period_start'] as DateTime?,
       quotaPeriodEnd: map['quota_period_end'] as DateTime?,
       usageLimitMode: map['usage_limit_mode'] as int,
+      archivedAt: map['archived_at'] as DateTime?,
+      archivedBy: map['archived_by']?.toString(),
+      archivedReason: map['archived_reason'] as String?,
     );
   }
 }

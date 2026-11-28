@@ -70,6 +70,9 @@ class ServicePurchase with _$ServicePurchase {
     DateTime? quotaPeriodStart,
     DateTime? quotaPeriodEnd,
     required int usageLimitMode,
+    DateTime? archivedAt,
+    String? archivedBy,
+    String? archivedReason,
   }) = _ServicePurchase;
 
   factory ServicePurchase.fromJson(Map<String, dynamic> json) =>
